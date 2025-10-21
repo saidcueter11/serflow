@@ -1,0 +1,18 @@
+---
+import SlideshowClient from './SlideShowClient'
+import store1 from '../assets/store1.jpg'
+import store2 from '../assets/store2.jpg'
+import store3 from '../assets/store3.jpg'
+
+const slides = [
+  { id: 1, img: store1, alt: 'Slide 1' },
+  { id: 2, img: store2, alt: 'Slide 2' },
+  { id: 3, img: store3, alt: 'Slide 3' },
+]
+---
+
+<div
+  class="relative w-full md:w-4/5 max-w-3xl mx-auto overflow-hidden rounded-xl prose prose-img:m-0"
+>
+  <SlideshowClient client:load {slides} />
+</div>

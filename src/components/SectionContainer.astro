@@ -1,0 +1,29 @@
+---
+import Title from './Title.astro'
+
+interface Props {
+  title: string
+  description?: string
+  scheduleWeekday?: string
+  scheduleWeekend?: string
+  flexRow?: boolean
+}
+
+const { title, flexRow, description, scheduleWeekday, scheduleWeekend } =
+  Astro.props
+---
+
+<section
+  class:list={[
+    'prose prose-invert prose-p:mt-0 prose-p:mb-0 w-full flex flex-col gap-6',
+    { 'md:flex-row-reverse items-center': flexRow },
+  ]}
+>
+  <div class:list={[{ 'flex flex-col items-center gap-2': flexRow }]}>
+    <Title text={title} />
+    <p>{description}</p>
+    <p class="text-center w-max">{scheduleWeekday}</p>
+    <p class="text-center w-max">{scheduleWeekend}</p>
+  </div>
+  <slot />
+</section>

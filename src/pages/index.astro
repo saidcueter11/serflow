@@ -1,11 +1,81 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Card from '../components/Card.astro'
+import { FacebookIcon } from '../components/icons/FacebookIcon'
+import { TiktokIcon } from '../components/icons/TiktokIcon'
+import { InstagramIcon } from '../components/icons/InstagramIcon'
+import SectionContainer from '../components/SectionContainer.astro'
+import SlideShow from '../components/SlideShow.astro'
+import Layout from '../layouts/Layout.astro'
+import { WhatsAppIcon } from '../components/icons/WhatsappIcon'
+import { ContactForm } from '../components/ContactForm'
+import hat1 from '../assets/hat1.jpg'
+import hat2 from '../assets/hat2.jpg'
+import hat3 from '../assets/hat3.jpg'
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Serflow">
+  <main class="flex flex-col items-center my-8 gap-12 font-arvo">
+    <SectionContainer title="¿Quiénes somos?">
+      <p class="text-center">
+        Somos una tienda dedicada a la creación de prendas personalizadas que
+        reflejan tu identidad. Creemos que la ropa no solo se usa, se vive. Por
+        eso combinamos calidad, creatividad y libertad para que cada cliente
+        lleve algo verdaderamente suyo.
+      </p>
+
+      <SlideShow />
+    </SectionContainer>
+
+    <SectionContainer title="¿Por qué elegirnos?">
+      <div
+        class="grid sm:grid-cols-2 gap-8 items-baseline prose prose-img:m-0 prose-invert"
+      >
+        <Card img={hat1} title="Diseños 100 % personalizados" />
+        <Card img={hat2} title="Bordados y estampados de alta calidad" />
+        <Card img={hat3} title="Atención personalizada" span />
+      </div>
+    </SectionContainer>
+
+    <SectionContainer
+      title="Ubicación"
+      description="Calle fictia #67-112"
+      scheduleWeekday="Lunes a sábado, 8 a. m. - 6 p. m."
+      scheduleWeekend="Domingo y festivos, 8 a. m. - 2 p. m."
+      flexRow
+    >
+      <div class="w-full">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.1040576904143!2d-75.5238772!3d10.4133097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ef62592f68c041b%3A0x3b6e98a99be2e1de!2sSerflow!5e0!3m2!1ses-419!2sco!4v1747794709936!5m2!1ses-419!2sco"
+          class="w-full rounded-xl"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </SectionContainer>
+
+    <SectionContainer title="Contáctanos">
+      <div class="flex md:flex-row flex-col gap-8">
+        <ContactForm client:load />
+        <div>
+          <div>
+            <h4 class="font-medium">Contacto</h4>
+            <span class="text-sm tracking-wider"
+              >distribuidoraelmayorista@hotmail.com</span
+            >
+          </div>
+
+          <div>
+            <h4 class="font-medium">Localizados en</h4>
+            <span class="text-sm tracking-wider">Cartagena, Colombia</span>
+          </div>
+
+          <div class="flex items-center gap-4 mt-10">
+            <FacebookIcon />
+            <InstagramIcon />
+            <WhatsAppIcon />
+            <TiktokIcon />
+          </div>
+        </div>
+      </div>
+    </SectionContainer>
+  </main>
 </Layout>

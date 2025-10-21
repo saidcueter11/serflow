@@ -1,0 +1,46 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { mockProducts } from '../../mocks/mockProducts'
+
+import Layout from '../../layouts/Layout.astro'
+import { Image } from 'astro:assets'
+import { LeftArrowIcon } from '../../components/icons/LeftArrowIcon'
+
+export const getStaticPaths = () => {
+  return mockProducts.map((product) => ({
+    params: { id: product.id },
+    props: { product },
+  }))
+}
+
+const { product } = Astro.props
+---
+
+<Layout title={product.name}>
+  <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3">
+    <aside>
+      <a href="/products" class="text-accent flex gap-2 text-sm items-center">
+        <LeftArrowIcon />
+        <span>Volver atras</span>
+      </a>
+    </aside>
+    <main class="flex gap-4 flex-col">
+      <Image
+        alt=""
+        transition:persist
+        transition:name={`img-${product.id}`}
+        src={product.image}
+        class="h-80 w-full rounded-lg object-cover object-center aspect-square"
+      />
+      <div class="prose prose-invert self-end">
+        <h3>{product.name}</h3>
+        <span
+          class="rounded-lg px-2 text-xs font-light py-1 border-2 border-accent w-fit h-fit capitalize"
+        >
+          {product.category}
+        </span>
+        <p>{product.description}</p>
+      </div>
+    </main>
+  </div>
+</Layout>

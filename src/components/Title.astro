@@ -1,0 +1,13 @@
+---
+interface Props {
+  text: string
+}
+
+const { text } = Astro.props
+---
+
+<div class="prose prose-h3:m-0 prose-invert">
+  <h3 class="text-secondary text-center font-medium">
+    {text}
+  </h3>
+</div>
