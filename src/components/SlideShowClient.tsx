@@ -1,42 +1,45 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState, useMemo } from 'preact/hooks';
 import { RightArrowIcon } from './icons/RightArrowIcon';
 import { LeftArrowIcon } from './icons/LeftArrowIcon';
 import type { ImageMetadata } from 'astro';
 
 interface SlideshowClientProps {
   slides: {
-    id: number
-    img: ImageMetadata
-    alt: string
-  }[]
+    id: number;
+    img: ImageMetadata;
+    alt: string;
+  }[];
 }
 
 export default function SlideshowClient ({ slides }: SlideshowClientProps) {
+  const stableSlides = useMemo(() => slides, []);
+
   const [current, setCurrent] = useState(0);
   const [isManual, setIsManual] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   const prevSlide = () => {
     setIsManual(true);
-    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrent((prev) => (prev - 1 + stableSlides.length) % stableSlides.length);
   };
 
   const nextSlide = () => {
     setIsManual(true);
-    setCurrent((prev) => (prev + 1) % slides.length);
+    setCurrent((prev) => (prev + 1) % stableSlides.length);
   };
 
+  // 🕒 Auto-advance only if not manually changed
   useEffect(() => {
     if (!isManual) {
       intervalRef.current = window.setInterval(() => {
-        setCurrent((prev) => (prev + 1) % slides.length);
+        setCurrent((prev) => (prev + 1) % stableSlides.length);
       }, 3000);
     }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isManual, slides.length]);
+  }, [isManual, stableSlides.length]);
 
   return (
     <div class="relative w-full h-52 overflow-hidden">
@@ -44,7 +47,7 @@ export default function SlideshowClient ({ slides }: SlideshowClientProps) {
         class="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {slides.map((slide) => (
+        {stableSlides.map((slide) => (
           <img
             key={slide.id}
             src={slide.img.src}
@@ -71,7 +74,7 @@ export default function SlideshowClient ({ slides }: SlideshowClientProps) {
 
       {/* Dots */}
       <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-        {slides.map((_, i) => (
+        {stableSlides.map((_, i) => (
           <div
             key={i}
             onClick={() => {
@@ -86,6 +89,3 @@ export default function SlideshowClient ({ slides }: SlideshowClientProps) {
     </div>
   );
 }
-
-
-

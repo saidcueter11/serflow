@@ -27,7 +27,6 @@ const { product } = Astro.props
     <main class="flex gap-4 flex-col">
       <Image
         alt=""
-        transition:persist
         transition:name={`img-${product.id}`}
         src={product.image}
         class="h-80 w-full rounded-lg object-cover object-center aspect-square"
