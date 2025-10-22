@@ -26,9 +26,11 @@ const { title } = Astro.props
     <div
       class="min-h-dvh h-full flex flex-col bg-primary px-8 pt-4 pb-16 relative overflow-x-hidden"
     >
-      <Header client:load>
-        <Image alt="" src={Logo} class="w-24 md:w-36" transition:persist />
-      </Header>
+      <div transition:persist>
+        <Header client:load>
+          <Image alt="" src={Logo} class="w-24 md:w-36" transition:persist />
+        </Header>
+      </div>
       <slot />
     </div>
   </body>
