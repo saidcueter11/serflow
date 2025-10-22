@@ -25,8 +25,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
         </button>
 
         <div class='flex flex-col mt-4 gap-4 font-arvo font-semibold items-center'>
-          <a href='/' onClick={() => toggleSideMenu(false)}>Inicio</a>
-          <a href='/products' onClick={() => toggleSideMenu(false)}>Productos</a>
+          <a href='/' data-astro-prefetch onClick={() => toggleSideMenu(false)}>Inicio</a>
+          <a href='/products' data-astro-prefetch onClick={() => toggleSideMenu(false)}>Productos</a>
         </div>
       </div>
     </aside>
