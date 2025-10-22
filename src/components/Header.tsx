@@ -12,7 +12,7 @@ export const Header: React.FC = ({ children }) => {
   }
 
   return (
-    <>
+    <div style={'transition-persist'}>
       <header class="flex justify-between items-end max-w-6xl mx-auto w-full">
         <a href="/">
           {children}
@@ -29,7 +29,7 @@ export const Header: React.FC = ({ children }) => {
       </header>
 
       <SideMenu isOpen={isOpen} toggleSideMenu={toggleSideMenu} />
-    </>
+    </div>
   )
 }
 
