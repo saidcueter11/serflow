@@ -42,32 +42,18 @@ const slides = [
     class="text-primary absolute cursor-pointer top-1/2 bg-accent rounded-full right-4 -translate-y-1/2 hover:translate-x-1 transition-transform"
     ><RightArrowIcon /></button
   >
-
-  <!-- Dots -->
-  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2" id="dots">
-    {
-      slides.map((_, i) => (
-        <div
-          class="h-2 w-2 rounded-full bg-gray-400 cursor-pointer"
-          data-index={i}
-        />
-      ))
-    }
-  </div>
 </div>
 
 <script is:inline>
   function initSlideshow() {
     const slides = document.getElementById('slides')
     if (!slides) return
-    const dots = document.querySelectorAll('#dots div')
-    const total = dots.length
+    const total = 3
     let current = 0
     let interval
 
     const updateSlide = (index) => {
       slides.style.transform = `translateX(-${index * 100}%)`
-      dots.forEach((dot, i) => dot.classList.toggle('bg-accent', i === index))
     }
 
     const next = () => {
