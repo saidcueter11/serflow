@@ -1,8 +1,10 @@
 ---
-import SlideshowClient from './SlideShowClient'
 import store1 from '../assets/store1.jpg'
 import store2 from '../assets/store2.jpg'
 import store3 from '../assets/store3.jpg'
+import { Image } from 'astro:assets'
+import { LeftArrowIcon } from './icons/LeftArrowIcon'
+import { RightArrowIcon } from './icons/RightArrowIcon'
 
 const slides = [
   { id: 1, img: store1, alt: 'Slide 1' },
@@ -12,7 +14,96 @@ const slides = [
 ---
 
 <div
-  class="relative w-full md:w-4/5 max-w-3xl mx-auto overflow-hidden rounded-xl prose prose-img:m-0"
+  class="relative w-full h-80 overflow-hidden rounded-xl prose prose-img:m-0"
+  id="slideshow"
 >
-  <SlideshowClient client:load {slides} transition:persist />
+  <div class="flex transition-transform duration-700 ease-in-out" id="slides">
+    {
+      slides.map((slide) => (
+        <Image
+          src={slide.img}
+          alt={slide.alt}
+          class="w-full object-cover h-full"
+          transition:persist
+        />
+      ))
+    }
+  </div>
+
+  <!-- Buttons -->
+  <button
+    id="prev"
+    class="text-primary absolute cursor-pointer top-1/2 bg-accent rounded-full left-4 -translate-y-1/2 hover:-translate-x-1 transition-transform"
+    ><LeftArrowIcon /></button
+  >
+
+  <button
+    id="next"
+    class="text-primary absolute cursor-pointer top-1/2 bg-accent rounded-full right-4 -translate-y-1/2 hover:translate-x-1 transition-transform"
+    ><RightArrowIcon /></button
+  >
+
+  <!-- Dots -->
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2" id="dots">
+    {
+      slides.map((_, i) => (
+        <div
+          class="h-2 w-2 rounded-full bg-gray-400 cursor-pointer"
+          data-index={i}
+        />
+      ))
+    }
+  </div>
 </div>
+
+<script is:inline>
+  function initSlideshow() {
+    const slides = document.getElementById('slides')
+    if (!slides) return
+    const dots = document.querySelectorAll('#dots div')
+    const total = dots.length
+    let current = 0
+    let interval
+
+    const updateSlide = (index) => {
+      slides.style.transform = `translateX(-${index * 100}%)`
+      dots.forEach((dot, i) => dot.classList.toggle('bg-accent', i === index))
+    }
+
+    const next = () => {
+      current = (current + 1) % total
+      updateSlide(current)
+    }
+
+    const prev = () => {
+      current = (current - 1 + total) % total
+      updateSlide(current)
+    }
+
+    const startAuto = () => (interval = setInterval(next, 3000))
+    const stopAuto = () => clearInterval(interval)
+
+    document.getElementById('next')?.addEventListener('click', () => {
+      stopAuto()
+      next()
+    })
+    document.getElementById('prev')?.addEventListener('click', () => {
+      stopAuto()
+      prev()
+    })
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        stopAuto()
+        current = parseInt(dot.dataset.index)
+        updateSlide(current)
+      })
+    })
+
+    updateSlide(current)
+    startAuto()
+  }
+
+  // Run on initial load
+  document.addEventListener('astro:after-swap', initSlideshow)
+  window.addEventListener('DOMContentLoaded', initSlideshow)
+</script>
