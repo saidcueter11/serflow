@@ -1,4 +1,4 @@
-import type React from "preact/compat"
+import React from "react"
 import { CloseIcon } from "./icons/CloseIcon"
 import { navigate } from "astro:transitions/client"
 
@@ -18,14 +18,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
     <aside
       id="sideMenuOverlay"
       onClick={handleOutsideClick}
-      class={`${isOpen ? 'translate-x-0 backdrop-blur-sm' : 'translate-x-full'} transition duration-300 fixed w-full z-20 inset-0 h-full flex flex-col items-end text-xl`}
+      className={`${isOpen ? 'translate-x-0 backdrop-blur-sm' : 'translate-x-full'} transition duration-300 fixed w-full z-50 inset-0 h-full flex flex-col items-end text-xl`}
     >
-      <div class="bg-secondary h-full w-2/4 p-4">
+      <div className="bg-secondary h-full p-4 w-2/4">
         <button onClick={() => toggleSideMenu(false)}>
           <CloseIcon />
         </button>
 
-        <div class='flex flex-col mt-4 gap-4 font-arvo font-semibold items-center'>
+        <div className='flex flex-col mt-4 gap-4 font-arvo font-semibold items-center'>
           <a
             href="/"
             data-astro-prefetch
