@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 import preact from '@astrojs/preact';
 
+import react from '@astrojs/react'
+
 // https://astro.build/config
 export default defineConfig({
   vite: {
@@ -15,5 +17,5 @@ export default defineConfig({
     port: 4231,
   },
 
-  integrations: [preact()]
+  integrations: [react()]
 });
