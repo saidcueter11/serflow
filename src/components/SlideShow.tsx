@@ -86,10 +86,10 @@ export default function Slideshow () {
 
       {/* Overlay text */}
       <div className="absolute inset-0 bg-primary/40 flex flex-col justify-center items-center text-center text-white px-6 z-10 pointer-events-none">
-        <h1 className="text-3xl md:text-5xl font-bold drop-shadow-lg">
+        <h1 className="text-3xl md:text-5xl font-bold drop-shadow-md drop-shadow-primary font-titan">
           Bienvenido a Serflow
         </h1>
-        <p className="mt-4 max-w-md md:text-lg text-white/90">
+        <p className="mt-4 max-w-md md:text-lg font-vend-sans text-white/90 drop-shadow-md drop-shadow-primary">
           Calidad que enamora, precios que te hacen volver.
         </p>
         <a

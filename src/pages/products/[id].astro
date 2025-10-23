@@ -14,8 +14,8 @@ export const getStaticPaths = () => {
 const { product } = Astro.props
 ---
 
-<Layout title={product.name}>
-  <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3 font-arvo">
+<Layout title={product.category}>
+  <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3 font-titan">
     <aside>
       <a href="/products" class="flex gap-2 text-accent group">
         <div class="bg-accent rounded-full">
@@ -33,19 +33,9 @@ const { product } = Astro.props
         id={product.id}
         mainImage={product.image}
         images={mockProducts.map((img) => img.image)}
-        alt={product.name}
+        alt={product.category}
         client:load
       />
-
-      <div class="prose prose-invert self-end">
-        <h3>{product.name}</h3>
-        <span
-          class="rounded-lg px-2 text-sm font-light py-1 border-2 border-accent w-fit h-fit capitalize"
-        >
-          {product.category}
-        </span>
-        <p>{product.description}</p>
-      </div>
     </main>
   </div>
 </Layout>

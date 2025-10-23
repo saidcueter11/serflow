@@ -25,7 +25,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
           <CloseIcon />
         </button>
 
-        <div className='flex flex-col mt-4 gap-4 font-arvo font-semibold items-center'>
+        <div className='flex flex-col mt-4 gap-4 font-titan font-semibold items-center'>
           <a
             href="/"
             data-astro-prefetch

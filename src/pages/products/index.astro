@@ -1,26 +1,12 @@
 ---
-import ProductCard from '../../components/ProductCard'
+import ProductCardList from '../../components/ProductCardList'
 import Layout from '../../layouts/Layout.astro'
-import { mockProducts } from '../../mocks/mockProducts'
 ---
 
 <Layout title="Productos">
-  <main class="flex flex-col items-center mt-10 gap-10 font-arvo">
-    <section class="prose prose-invert">
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 sm:gap-6 mt-10 gap-4">
-        {
-          mockProducts.map((product) => (
-            <ProductCard
-              id={product.id}
-              name={product.name}
-              category={product.category}
-              mainImage={product.image}
-              images={mockProducts.map((img) => img.image)}
-              client:load
-            />
-          ))
-        }
-      </div>
+  <main class="flex flex-col items-center mt-10 gap-10 font-titan">
+    <section class="prose prose-invert w-full">
+      <ProductCardList client:load />
     </section>
   </main>
 </Layout>
