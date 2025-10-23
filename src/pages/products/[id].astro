@@ -28,6 +28,7 @@ const { product } = Astro.props
 
     <main class="flex gap-4 flex-col">
       <ProductPreview
+        id={product.id}
         mainImage={product.image}
         images={mockProducts.map((img) => img.image)}
         alt={product.name}
