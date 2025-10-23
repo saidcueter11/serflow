@@ -1,23 +1,22 @@
 import type { ImageMetadata } from 'astro'
+import type { Categories } from '../mocks/mockProducts'
 
 interface ProductCardProps {
   id: number
-  name: string
-  category: string
   images: ImageMetadata[]
   mainImage: ImageMetadata
+  category: Categories
 }
 
 export default function ProductCard ({
   id,
-  name,
-  category,
   images,
   mainImage,
+  category
 }: ProductCardProps) {
   return (
     <div className="flex-col flex gap-3 prose prose-img:m-0 prose-p:m-0 prose-invert max-w-64">
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <a
           href={`/products/${id}`}
           data-astro-prefetch
@@ -25,13 +24,13 @@ export default function ProductCard ({
         >
           <img
             src={mainImage.src}
-            alt={name}
+            alt={category}
             className="w-full h-72 rounded-lg object-cover object-center aspect-square transition-all duration-300"
           />
         </a>
 
         {/* Stacked preview thumbnails */}
-        <div className="flex items-center mt-2">
+        <div className="flex items-center">
           {images.slice(0, 5).map((img, index) => (
             <div
               key={index}
@@ -40,7 +39,7 @@ export default function ProductCard ({
             >
               <img
                 src={img.src}
-                alt={`${name} preview ${index + 1}`}
+                alt={`${category} preview ${index + 1}`}
                 className="w-full h-full object-cover object-center"
               />
             </div>
@@ -50,14 +49,6 @@ export default function ProductCard ({
             <span className="text-xs text-secondary ml-2 self-center">+{images.length - 3}</span>
           )}
         </div>
-      </div>
-
-      <p className="text-sm font-medium">{name}</p>
-
-      <div className="flex gap-3">
-        <span className="rounded-lg px-2 text-xs font-light py-1 border-2 border-accent w-fit h-fit capitalize">
-          {category}
-        </span>
       </div>
     </div>
   )
