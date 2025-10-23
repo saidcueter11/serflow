@@ -60,7 +60,7 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
       onTouchStart={handleTouchStart as any}
       onTouchMove={handleTouchMove as any}
     >
-      <div className="relative overflow-hidden rounded-lg h-80 w-full aspect-square">
+      <div className="relative overflow-hidden rounded-lg h-full w-full aspect-square">
         <AnimatePresence initial={false} custom={direction}>
           <motion.img
             key={activeIndex}
