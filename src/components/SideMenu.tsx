@@ -1,5 +1,6 @@
 import type React from "preact/compat"
 import { CloseIcon } from "./icons/CloseIcon"
+import { navigate } from "astro:transitions/client"
 
 interface SideMenuProps {
   isOpen: boolean
@@ -25,8 +26,28 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
         </button>
 
         <div class='flex flex-col mt-4 gap-4 font-arvo font-semibold items-center'>
-          <a href='/' data-astro-prefetch onClick={() => toggleSideMenu(false)}>Inicio</a>
-          <a href='/products' data-astro-prefetch onClick={() => toggleSideMenu(false)}>Productos</a>
+          <a
+            href="/"
+            data-astro-prefetch
+            onClick={(e) => {
+              e.preventDefault()
+              toggleSideMenu(false)
+              navigate('/', { history: 'push', sourceElement: e.currentTarget })
+            }}
+          >
+            Inicio
+          </a>
+          <a
+            href="/products"
+            data-astro-prefetch
+            onClick={(e) => {
+              e.preventDefault()
+              toggleSideMenu(false)
+              navigate('/products', { history: 'push', sourceElement: e.currentTarget })
+            }}
+          >
+            Productos
+          </a>
         </div>
       </div>
     </aside>
