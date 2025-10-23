@@ -18,7 +18,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
     <aside
       id="sideMenuOverlay"
       onClick={handleOutsideClick}
-      class={`${isOpen ? 'translate-x-0 backdrop-blur-sm' : 'translate-x-full'} transition duration-300 fixed w-full z-10 inset-0 h-full flex flex-col items-end`}
+      class={`${isOpen ? 'translate-x-0 backdrop-blur-sm' : 'translate-x-full'} transition duration-300 fixed w-full z-20 inset-0 h-full flex flex-col items-end text-xl`}
     >
       <div class="bg-secondary h-full w-2/4 p-4">
         <button onClick={() => toggleSideMenu(false)}>

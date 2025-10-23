@@ -17,11 +17,14 @@ const { product } = Astro.props
 ---
 
 <Layout title={product.name}>
-  <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3">
+  <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3 font-arvo">
     <aside>
-      <a href="/products" class="text-accent flex gap-2 text-sm items-center">
+      <a href="/products" class="flex gap-2 text-accent group">
         <LeftArrowIcon />
-        <span>Volver atras</span>
+        <span
+          class="relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] group-hover:after:origin-bottom group-hover:after:scale-x-100"
+          >Volver atras</span
+        >
       </a>
     </aside>
     <main class="flex gap-4 flex-col">
@@ -34,7 +37,7 @@ const { product } = Astro.props
       <div class="prose prose-invert self-end">
         <h3>{product.name}</h3>
         <span
-          class="rounded-lg px-2 text-xs font-light py-1 border-2 border-accent w-fit h-fit capitalize"
+          class="rounded-lg px-2 text-sm font-light py-1 border-2 border-accent w-fit h-fit capitalize"
         >
           {product.category}
         </span>
