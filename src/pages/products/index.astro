@@ -1,8 +1,7 @@
 ---
-import { Image } from 'astro:assets'
-import Title from '../../components/Title.astro'
 import Layout from '../../layouts/Layout.astro'
 import { mockProducts } from '../../mocks/mockProducts'
+import ProductCard from '../../components/ProductCard.tsx'
 ---
 
 <Layout title="Productos">
@@ -11,38 +10,14 @@ import { mockProducts } from '../../mocks/mockProducts'
       <div class="grid sm:grid-cols-2 md:grid-cols-3 sm:gap-6 mt-10 gap-4">
         {
           mockProducts.map((product) => (
-            <div class="flex-col flex gap-3 prose prose-img:m-0 prose-p:m-0 prose-invert max-w-64">
-              <div class="flex flex-col gap-3">
-                <a
-                  href={`/products/${product.id}`}
-                  data-astro-prefetch
-                  class="hover:scale-110 transform transition-all"
-                >
-                  <Image
-                    transition:name={`img-${product.id}`}
-                    src={product.image}
-                    class="w-full h-72 rounded-lg object-cover object-center aspect-square"
-                    alt={product.name}
-                    transition:persist
-                  />
-                </a>
-                <div class="flex flex-wrap gap-3">
-                  <div class="rounded-full size-4 bg-accent border-2 border-white" />
-                  <div class="rounded-full size-4 bg-accent border-2 border-white" />
-                  <div class="rounded-full size-4 bg-accent border-2 border-white" />
-                  <div class="rounded-full size-4 bg-accent border-2 border-white" />
-                  <div class="rounded-full size-4 bg-accent border-2 border-white" />
-                  <div class="rounded-full size-4 bg-accent border-2 border-white" />
-                </div>
-              </div>
-              <p>{product.name}</p>
-
-              <div class="flex gap-3">
-                <span class="rounded-lg px-2 text-xs font-light py-1 border-2 border-accent w-fit h-fit capitalize">
-                  {product.category}
-                </span>
-              </div>
-            </div>
+            <ProductCard
+              id={product.id}
+              name={product.name}
+              category={product.category}
+              mainImage={product.image}
+              images={mockProducts.map((img) => img.image)}
+              client:load
+            />
           ))
         }
       </div>

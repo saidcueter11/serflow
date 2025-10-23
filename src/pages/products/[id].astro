@@ -1,10 +1,8 @@
 ---
-import type { GetStaticPaths } from 'astro'
 import { mockProducts } from '../../mocks/mockProducts'
-
 import Layout from '../../layouts/Layout.astro'
-import { Image } from 'astro:assets'
 import { LeftArrowIcon } from '../../components/icons/LeftArrowIcon'
+import ProductPreview from '../../components/ProductPreview.tsx'
 
 export const getStaticPaths = () => {
   return mockProducts.map((product) => ({
@@ -23,17 +21,19 @@ const { product } = Astro.props
         <LeftArrowIcon />
         <span
           class="relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] group-hover:after:origin-bottom group-hover:after:scale-x-100"
-          >Volver atras</span
+          >Volver atrás</span
         >
       </a>
     </aside>
+
     <main class="flex gap-4 flex-col">
-      <Image
-        alt=""
-        transition:name={`img-${product.id}`}
-        src={product.image}
-        class="h-80 w-full rounded-lg object-cover object-center aspect-square"
+      <ProductPreview
+        mainImage={product.image}
+        images={mockProducts.map((img) => img.image)}
+        alt={product.name}
+        client:load
       />
+
       <div class="prose prose-invert self-end">
         <h3>{product.name}</h3>
         <span
