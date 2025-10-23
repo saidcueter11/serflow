@@ -5,6 +5,7 @@ import store3 from '../assets/store3.jpg'
 import { Image } from 'astro:assets'
 import { LeftArrowIcon } from './icons/LeftArrowIcon'
 import { RightArrowIcon } from './icons/RightArrowIcon'
+import { navigate } from 'astro:transitions/client'
 
 const slides = [
   { id: 1, img: store1, alt: 'Slide 1' },
@@ -14,46 +15,92 @@ const slides = [
 ---
 
 <div
-  class="relative w-full max-h-80 overflow-hidden rounded-xl prose prose-img:m-0"
+  class="relative w-dvw h-[60vh] md:h-[80vh] lg:h-dvh overflow-hidden"
   id="slideshow"
 >
-  <div class="flex transition-transform duration-700 ease-in-out" id="slides">
+  <!-- Slides wrapper -->
+  <div
+    id="slides"
+    class="flex w-full h-full transition-transform duration-700 ease-in-out"
+  >
     {
       slides.map((slide) => (
         <Image
           src={slide.img}
           alt={slide.alt}
-          class="w-full object-cover"
+          class="w-full h-full flex-shrink-0 object-cover object-center"
           transition:persist
         />
       ))
     }
   </div>
 
+  <div
+    class="absolute inset-0 bg-primary/40 flex flex-col justify-center items-center text-center text-white px-6 gap-5"
+  >
+    <h1 class="text-3xl md:text-5xl font-bold drop-shadow-lg">
+      Bienvenido a Serflow
+    </h1>
+    <p class="mt-4 max-w-md text-sm md:text-base text-white/90">
+      Diseñamos uniformes con identidad y estilo.
+    </p>
+    <a
+      href="/products"
+      data-astro-prefetch
+      class="group relative overflow-hidden overflow-x-hidden rounded-md bg-primary px-8 py-2 text-neutral-50 hover:text-primary"
+      ><span class="relative z-10">Ver productos</span><span
+        class="absolute inset-0 overflow-hidden rounded-md"
+        ><span
+          class="absolute left-0 aspect-square w-full origin-center -translate-x-full rounded-full bg-accent transition-all duration-500 group-hover:-translate-x-0 group-hover:scale-150"
+        ></span></span
+      ></a
+    >
+  </div>
+
   <!-- Buttons -->
   <button
     id="prev"
-    class="text-primary absolute cursor-pointer top-1/2 bg-accent rounded-full left-4 -translate-y-1/2 hover:-translate-x-1 transition-transform"
-    ><LeftArrowIcon /></button
+    class="cursor-pointer absolute top-1/2 left-4 md:left-12 -translate-y-1/2 bg-accent text-primary rounded-full hover:-translate-x-1 transition-transform hidden lg:block"
+    aria-label="Previous slide"
   >
+    <LeftArrowIcon size={12} />
+  </button>
 
   <button
     id="next"
-    class="text-primary absolute cursor-pointer top-1/2 bg-accent rounded-full right-4 -translate-y-1/2 hover:translate-x-1 transition-transform"
-    ><RightArrowIcon /></button
+    class="cursor-pointer absolute top-1/2 right-4 md:right-12 -translate-y-1/2 bg-accent text-primary rounded-full hover:translate-x-1 transition-transform hidden lg:block"
+    aria-label="Next slide"
   >
+    <RightArrowIcon size={12} />
+  </button>
+
+  <!-- Dots -->
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+    {
+      slides.map((_, i) => (
+        <button
+          data-index={i}
+          class="dot size-3 rounded-full bg-white/50 hover:bg-white transition"
+          aria-label={`Go to slide ${i + 1}`}
+        />
+      ))
+    }
+  </div>
 </div>
 
 <script is:inline>
   function initSlideshow() {
     const slides = document.getElementById('slides')
-    if (!slides) return
-    const total = 3
+    const dots = document.querySelectorAll('.dot')
+    if (!slides || dots.length === 0) return
+
+    const total = dots.length
     let current = 0
     let interval
 
     const updateSlide = (index) => {
       slides.style.transform = `translateX(-${index * 100}%)`
+      dots.forEach((dot, i) => dot.classList.toggle('bg-white', i === index))
     }
 
     const next = () => {
@@ -66,22 +113,27 @@ const slides = [
       updateSlide(current)
     }
 
-    const startAuto = () => (interval = setInterval(next, 3000))
+    const startAuto = () => (interval = setInterval(next, 5000))
     const stopAuto = () => clearInterval(interval)
 
     document.getElementById('next')?.addEventListener('click', () => {
       stopAuto()
       next()
+      startAuto()
     })
+
     document.getElementById('prev')?.addEventListener('click', () => {
       stopAuto()
       prev()
+      startAuto()
     })
+
     dots.forEach((dot) => {
       dot.addEventListener('click', () => {
         stopAuto()
         current = parseInt(dot.dataset.index)
         updateSlide(current)
+        startAuto()
       })
     })
 
@@ -89,7 +141,7 @@ const slides = [
     startAuto()
   }
 
-  // Run on initial load
   document.addEventListener('astro:after-swap', initSlideshow)
+  document.addEventListener('astro:page-load', initSlideshow)
   window.addEventListener('DOMContentLoaded', initSlideshow)
 </script>

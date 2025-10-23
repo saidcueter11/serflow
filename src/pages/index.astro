@@ -11,10 +11,13 @@ import { ContactForm } from '../components/ContactForm'
 import hat1 from '../assets/hat1.jpg'
 import hat2 from '../assets/hat2.jpg'
 import hat3 from '../assets/hat3.jpg'
+import { Image } from 'astro:assets'
+import store1 from '../assets/store1.jpg'
 ---
 
 <Layout title="Serflow">
   <main class="flex flex-col items-center my-8 gap-12 font-arvo">
+    <SlideShow />
     <SectionContainer title="¿Quiénes somos?">
       <p class="text-center">
         Somos una tienda dedicada a la creación de prendas personalizadas que
@@ -22,8 +25,6 @@ import hat3 from '../assets/hat3.jpg'
         eso combinamos calidad, creatividad y libertad para que cada cliente
         lleve algo verdaderamente suyo.
       </p>
-
-      <SlideShow />
     </SectionContainer>
 
     <SectionContainer title="¿Por qué elegirnos?">
