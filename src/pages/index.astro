@@ -4,7 +4,7 @@ import { FacebookIcon } from '../components/icons/FacebookIcon'
 import { TiktokIcon } from '../components/icons/TiktokIcon'
 import { InstagramIcon } from '../components/icons/InstagramIcon'
 import SectionContainer from '../components/SectionContainer.astro'
-import SlideShow from '../components/SlideShow.astro'
+import SlideShow from '../components/SlideShow'
 import Layout from '../layouts/Layout.astro'
 import { WhatsAppIcon } from '../components/icons/WhatsappIcon'
 import { ContactForm } from '../components/ContactForm'
@@ -15,7 +15,7 @@ import hat3 from '../assets/hat3.jpg'
 
 <Layout title="Serflow">
   <main class="flex flex-col items-center my-8 gap-12 font-arvo">
-    <SlideShow />
+    <SlideShow client:load />
     <SectionContainer title="¿Quiénes somos?">
       <p class="text-center">
         Somos una tienda dedicada a la creación de prendas personalizadas que

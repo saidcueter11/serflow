@@ -2,7 +2,7 @@
 import { mockProducts } from '../../mocks/mockProducts'
 import Layout from '../../layouts/Layout.astro'
 import { LeftArrowIcon } from '../../components/icons/LeftArrowIcon'
-import ProductPreview from '../../components/ProductPreview.tsx'
+import ProductPreview from '../../components/ProductPreview'
 
 export const getStaticPaths = () => {
   return mockProducts.map((product) => ({
@@ -18,7 +18,9 @@ const { product } = Astro.props
   <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3 font-arvo">
     <aside>
       <a href="/products" class="flex gap-2 text-accent group">
-        <LeftArrowIcon />
+        <div class="bg-accent rounded-full">
+          <LeftArrowIcon />
+        </div>
         <span
           class="relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] group-hover:after:origin-bottom group-hover:after:scale-x-100"
           >Volver atrás</span
