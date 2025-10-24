@@ -1,17 +1,28 @@
 import type { ImageMetadata } from 'astro'
-import serFlowHat1 from '../assets/serflowHat1.jpg'
-import serFlowHat from '../assets/serFlowHat.jpeg'
-import serFlowHat2 from '../assets/serflowHat2.jpg'
-import serFlowHat3 from '../assets/serflowHat3.jpg'
-import serFlowHat4 from '../assets/serflowHat4.jpg'
-import serFlowHat5 from '../assets/serflowHat5.jpg'
-import serFlowHat6 from '../assets/serflowHAt6.jpg'
-import serFlowHat7 from '../assets/serflowHat7.jpg'
-import serFlowHat8 from '../assets/serflowHat8.jpg'
-import serFlowHat9 from '../assets/serflowHat9.jpg'
-import serFlowHat10 from '../assets/serflowHat10.jpg'
-import serFlowHat11 from '../assets/serflowHat11.jpg'
-import baseballTest from '../assets/baseballTest.jpeg'
+import miTierraQuerida from '../assets/images/miTierraQuerida/miTierraQuerida2.webp'
+import miTierraQuerida2 from '../assets/images/miTierraQuerida/miTierraQuerida3.webp'
+import miTierraQuerida3 from '../assets/images/miTierraQuerida/miTierraQuerida4.webp'
+import miTierraQuerida4 from '../assets/images/miTierraQuerida/miTierraQuerida5.webp'
+import miTierraQuerida5 from '../assets/images/miTierraQuerida/miTierraQuerida6.webp'
+import miTierraQuerida6 from '../assets/images/miTierraQuerida/miTierraQuerida7.webp'
+import miTierraQuerida7 from '../assets/images/miTierraQuerida/miTierraQuerida8.webp'
+import miTierraQuerida8 from '../assets/images/miTierraQuerida/miTierraQuerida9.webp'
+import miTierraQuerida9 from '../assets/images/miTierraQuerida/miTierraQuerida10.webp'
+import miTierraQuerida10 from '../assets/images/miTierraQuerida/miTierraQuerida11.webp'
+import miTierraQuerida11 from '../assets/images/miTierraQuerida/miTierraQuerida12.webp'
+import miTierraQuerida12 from '../assets/images/miTierraQuerida/miTierraQuerida13.webp'
+import miTierraQuerida13 from '../assets/images/miTierraQuerida/miTierraQuerida14.webp'
+import miTierraQuerida14 from '../assets/images/miTierraQuerida/miTierraQuerida15.webp'
+import miTierraQuerida15 from '../assets/images/miTierraQuerida/miTierraQuerida16.webp'
+import miTierraQuerida16 from '../assets/images/miTierraQuerida/miTierraQuerida17.webp'
+import miTierraQuerida17 from '../assets/images/miTierraQuerida/miTierraQuerida18.webp'
+import miTierraQuerida18 from '../assets/images/miTierraQuerida/miTierraQuerida19.webp'
+import miTierraQuerida19 from '../assets/images/miTierraQuerida/miTierraQuerida20.webp'
+import miTierraQuerida20 from '../assets/images/miTierraQuerida/miTierraQuerida21.webp'
+import miTierraQuerida21 from '../assets/images/miTierraQuerida/miTierraQuerida22.webp'
+import miTierraQuerida22 from '../assets/images/miTierraQuerida/miTierraQuerida23.webp'
+import miTierraQuerida23 from '../assets/images/miTierraQuerida/miTierraQuerida24.webp'
+import miTierraQuerida24 from '../assets/images/miTierraQuerida/miTierraQuerida25.webp'
 
 export enum Categories {
   miTierraQuerida = "Mi tierra querida",
@@ -30,57 +41,119 @@ interface ProductType {
 export const mockProducts: ProductType[] = [
   {
     id: 1,
-    image: serFlowHat,
+    image: miTierraQuerida,
     category: Categories.miTierraQuerida,
   },
   {
     id: 2,
-    image: serFlowHat1,
+    image: miTierraQuerida2,
     category: Categories.miTierraQuerida,
   },
   {
     id: 3,
-    image: serFlowHat2,
+    image: miTierraQuerida3,
     category: Categories.miTierraQuerida,
   },
   {
     id: 4,
-    image: serFlowHat3,
+    image: miTierraQuerida4,
     category: Categories.miTierraQuerida,
   },
   {
     id: 5,
-    image: serFlowHat4,
+    image: miTierraQuerida5,
     category: Categories.miTierraQuerida,
   },
   {
     id: 6,
-    image: serFlowHat5,
+    image: miTierraQuerida6,
     category: Categories.miTierraQuerida,
   }, {
     id: 7,
-    image: serFlowHat6,
+    image: miTierraQuerida7,
     category: Categories.miTierraQuerida,
   }, {
     id: 7,
-    image: serFlowHat7,
+    image: miTierraQuerida8,
     category: Categories.miTierraQuerida,
   }, {
     id: 8,
-    image: serFlowHat8,
+    image: miTierraQuerida9,
     category: Categories.miTierraQuerida,
   }, {
     id: 9,
-    image: serFlowHat9,
+    image: miTierraQuerida10,
     category: Categories.miTierraQuerida,
   }, {
     id: 10,
-    image: serFlowHat10,
+    image: miTierraQuerida11,
     category: Categories.miTierraQuerida,
   }, {
     id: 11,
-    image: serFlowHat11,
+    image: miTierraQuerida12,
     category: Categories.miTierraQuerida,
   },
-  { id: 12, image: baseballTest, category: Categories.beisbol }
+  {
+    id: 12,
+    image: miTierraQuerida13,
+    category: Categories.miTierraQuerida
+  }, {
+    id: 13,
+    image: miTierraQuerida14,
+    category: Categories.miTierraQuerida
+  }, {
+    id: 14,
+    image: miTierraQuerida15,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 15,
+    image: miTierraQuerida16,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 15,
+    image: miTierraQuerida16,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 16,
+    image: miTierraQuerida17,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 17,
+    image: miTierraQuerida18,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 18,
+    image: miTierraQuerida19,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 19,
+    image: miTierraQuerida20,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 20,
+    image: miTierraQuerida21,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 21,
+    image: miTierraQuerida22,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 22,
+    image: miTierraQuerida23,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 23,
+    image: miTierraQuerida24,
+    category: Categories.miTierraQuerida
+  },
 ]

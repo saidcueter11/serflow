@@ -34,6 +34,7 @@ export default function ProductCardList () {
         <img
           className="w-full h-32 object-cover rounded-md"
           src={categoryImage}
+          loading="lazy"
         />
         <span className="absolute z-10 inset-0 flex items-center justify-center text-2xl drop-shadow-md drop-shadow-primary">{currentCategory}</span>
       </div>
