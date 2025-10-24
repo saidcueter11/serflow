@@ -23,6 +23,30 @@ import miTierraQuerida21 from '../assets/images/miTierraQuerida/miTierraQuerida2
 import miTierraQuerida22 from '../assets/images/miTierraQuerida/miTierraQuerida23.webp'
 import miTierraQuerida23 from '../assets/images/miTierraQuerida/miTierraQuerida24.webp'
 import miTierraQuerida24 from '../assets/images/miTierraQuerida/miTierraQuerida25.webp'
+import miTierraQuerida25 from '../assets/images/miTierraQuerida/miTierraQuerida26.webp'
+import beisbol from '../assets/images/beisbol/beisbol.webp'
+import beisbol2 from '../assets/images/beisbol/beisbol2.webp'
+import beisbol3 from '../assets/images/beisbol/beisbol3.webp'
+import beisbol4 from '../assets/images/beisbol/beisbol4.webp'
+import beisbol5 from '../assets/images/beisbol/beisbol5.webp'
+import beisbol6 from '../assets/images/beisbol/beisbol6.webp'
+import beisbol7 from '../assets/images/beisbol/beisbol7.webp'
+import beisbol8 from '../assets/images/beisbol/beisbol8.webp'
+import beisbol9 from '../assets/images/beisbol/beisbol9.webp'
+import beisbol11 from '../assets/images/beisbol/beisbol11.webp'
+import beisbol12 from '../assets/images/beisbol/beisbol12.webp'
+import beisbol13 from '../assets/images/beisbol/beisbol13.webp'
+import beisbol14 from '../assets/images/beisbol/beisbol14.webp'
+import beisbol15 from '../assets/images/beisbol/beisbol15.webp'
+import beisbol16 from '../assets/images/beisbol/beisbol16.webp'
+import beisbol17 from '../assets/images/beisbol/beisbol17.webp'
+import beisbol18 from '../assets/images/beisbol/beisbol18.webp'
+import beisbol19 from '../assets/images/beisbol/beisbol19.webp'
+import beisbol20 from '../assets/images/beisbol/beisbol20.webp'
+import beisbol21 from '../assets/images/beisbol/beisbol21.webp'
+import beisbol22 from '../assets/images/beisbol/beisbol22.webp'
+import beisbol23 from '../assets/images/beisbol/beisbol23.webp'
+import beisbol24 from '../assets/images/beisbol/beisbol24.webp'
 
 export enum Categories {
   miTierraQuerida = "Mi tierra querida",
@@ -150,5 +174,129 @@ export const mockProducts: ProductType[] = [
     id: 24,
     image: miTierraQuerida24,
     category: Categories.miTierraQuerida
+  },
+  {
+    id: 25,
+    image: miTierraQuerida25,
+    category: Categories.miTierraQuerida
+  },
+
+  //Baseball
+
+  {
+    id: 26,
+    image: beisbol,
+    category: Categories.beisbol,
+  },
+  {
+    id: 27,
+    image: beisbol2,
+    category: Categories.beisbol,
+  },
+  {
+    id: 28,
+    image: beisbol3,
+    category: Categories.beisbol,
+  },
+  {
+    id: 29,
+    image: beisbol4,
+    category: Categories.beisbol,
+  },
+  {
+    id: 30,
+    image: beisbol5,
+    category: Categories.beisbol,
+  },
+  {
+    id: 31,
+    image: beisbol6,
+    category: Categories.beisbol,
+  },
+  {
+    id: 32,
+    image: beisbol7,
+    category: Categories.beisbol,
+  },
+  {
+    id: 33,
+    image: beisbol8,
+    category: Categories.beisbol,
+  },
+  {
+    id: 34,
+    image: beisbol9,
+    category: Categories.beisbol,
+  },
+  // Beisbol10 is missing
+  {
+    id: 36,
+    image: beisbol11,
+    category: Categories.beisbol,
+  },
+  {
+    id: 37,
+    image: beisbol12,
+    category: Categories.beisbol,
+  },
+  {
+    id: 38,
+    image: beisbol13,
+    category: Categories.beisbol,
+  },
+  {
+    id: 39,
+    image: beisbol14,
+    category: Categories.beisbol,
+  },
+  {
+    id: 40,
+    image: beisbol15,
+    category: Categories.beisbol,
+  },
+  {
+    id: 41,
+    image: beisbol16,
+    category: Categories.beisbol,
+  },
+  {
+    id: 42,
+    image: beisbol17,
+    category: Categories.beisbol,
+  },
+  {
+    id: 43,
+    image: beisbol18,
+    category: Categories.beisbol,
+  },
+  {
+    id: 44,
+    image: beisbol19,
+    category: Categories.beisbol,
+  },
+  {
+    id: 45,
+    image: beisbol20,
+    category: Categories.beisbol,
+  },
+  {
+    id: 46,
+    image: beisbol21,
+    category: Categories.beisbol,
+  },
+  {
+    id: 47,
+    image: beisbol22,
+    category: Categories.beisbol,
+  },
+  {
+    id: 48,
+    image: beisbol23,
+    category: Categories.beisbol,
+  },
+  {
+    id: 49,
+    image: beisbol24,
+    category: Categories.beisbol,
   },
 ]
