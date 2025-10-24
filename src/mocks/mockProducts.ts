@@ -73,86 +73,81 @@ export const mockProducts: ProductType[] = [
     image: miTierraQuerida7,
     category: Categories.miTierraQuerida,
   }, {
-    id: 7,
+    id: 8,
     image: miTierraQuerida8,
     category: Categories.miTierraQuerida,
   }, {
-    id: 8,
+    id: 9,
     image: miTierraQuerida9,
     category: Categories.miTierraQuerida,
   }, {
-    id: 9,
+    id: 10,
     image: miTierraQuerida10,
     category: Categories.miTierraQuerida,
   }, {
-    id: 10,
+    id: 11,
     image: miTierraQuerida11,
     category: Categories.miTierraQuerida,
   }, {
-    id: 11,
+    id: 12,
     image: miTierraQuerida12,
     category: Categories.miTierraQuerida,
   },
   {
-    id: 12,
+    id: 13,
     image: miTierraQuerida13,
     category: Categories.miTierraQuerida
   }, {
-    id: 13,
+    id: 14,
     image: miTierraQuerida14,
     category: Categories.miTierraQuerida
   }, {
-    id: 14,
+    id: 15,
     image: miTierraQuerida15,
     category: Categories.miTierraQuerida
   },
   {
-    id: 15,
-    image: miTierraQuerida16,
-    category: Categories.miTierraQuerida
-  },
-  {
-    id: 15,
-    image: miTierraQuerida16,
-    category: Categories.miTierraQuerida
-  },
-  {
     id: 16,
-    image: miTierraQuerida17,
+    image: miTierraQuerida16,
     category: Categories.miTierraQuerida
   },
   {
     id: 17,
-    image: miTierraQuerida18,
+    image: miTierraQuerida17,
     category: Categories.miTierraQuerida
   },
   {
     id: 18,
-    image: miTierraQuerida19,
+    image: miTierraQuerida18,
     category: Categories.miTierraQuerida
   },
   {
     id: 19,
-    image: miTierraQuerida20,
+    image: miTierraQuerida19,
     category: Categories.miTierraQuerida
   },
   {
     id: 20,
-    image: miTierraQuerida21,
+    image: miTierraQuerida20,
     category: Categories.miTierraQuerida
   },
   {
     id: 21,
-    image: miTierraQuerida22,
+    image: miTierraQuerida21,
     category: Categories.miTierraQuerida
   },
   {
     id: 22,
-    image: miTierraQuerida23,
+    image: miTierraQuerida22,
     category: Categories.miTierraQuerida
   },
   {
     id: 23,
+    image: miTierraQuerida23,
+    category: Categories.miTierraQuerida
+  },
+  {
+    id: 24,
     image: miTierraQuerida24,
     category: Categories.miTierraQuerida
   },
