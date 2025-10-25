@@ -27,7 +27,7 @@ const filteredProductList = mockProducts.filter(
 )
 ---
 
-<div class="relative min-w-full">
+<div class="relative min-w-full" transition:persist={currentCategory}>
   <Image
     class="w-full h-40 object-cover object-center rounded-lg"
     src={categoryImage}

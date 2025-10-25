@@ -15,11 +15,14 @@ const { product } = Astro.props
 ---
 
 <Layout title={product.category}>
-  <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3 font-titan">
+  <div
+    class="mt-12 max-w-3xl w-full h-full mx-auto flex flex-col gap-3 font-vend-sans"
+  >
     <aside>
       <a
         href={`/products/${product.category}`}
         class="flex gap-2 text-accent group"
+        data-astro-prefetch
       >
         <div class="bg-accent rounded-full">
           <LeftArrowIcon />
@@ -31,7 +34,7 @@ const { product } = Astro.props
       </a>
     </aside>
 
-    <main class="flex gap-4 flex-col">
+    <main class="w-full h-full">
       <ProductPreview
         id={product.id}
         mainImage={product.image}

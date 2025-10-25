@@ -16,6 +16,7 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
     images.findIndex((img) => img.src === mainImage.src) || 0
   )
   const [direction, setDirection] = useState(0)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
 
   const handleNext = () => {
     setDirection(1)
@@ -28,7 +29,6 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
   }
 
   // Touch drag
-  const [touchStart, setTouchStart] = useState<number | null>(null)
   const handleTouchStart = (e: TouchEvent) => setTouchStart(e.touches[0].clientX)
   const handleTouchMove = (e: TouchEvent) => {
     if (!touchStart) return
@@ -50,13 +50,13 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
     },
     exit: (dir: number) => ({
       x: dir > 0 ? '-100%' : '100%',
-      zIndex: 2, // ensures outgoing image stays on top
+      zIndex: 2,
     }),
   }
 
   return (
     <div
-      className="relative flex flex-col gap-3"
+      className="relative flex flex-col gap-3 w-full h-full"
       onTouchStart={handleTouchStart as any}
       onTouchMove={handleTouchMove as any}
     >
@@ -71,31 +71,43 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
             initial="enter"
             animate="center"
             exit="exit"
+            loading='lazy'
             transition={{ duration: 0.45, ease: 'easeInOut' }}
             className="absolute inset-0 h-full w-full object-cover object-center rounded-lg"
             style={{ viewTransitionName: `product-image-${id}` }}
           />
         </AnimatePresence>
+
+        {/* Arrows */}
+        <button
+          type="button"
+          className="cursor-pointer absolute left-4 top-1/2 -translate-y-1/2 hover:-translate-x-0.5 bg-accent rounded-full md:flex hidden transition-all z-30"
+          onClick={handlePrev}
+        >
+          <LeftArrowIcon />
+        </button>
+        <button
+          type="button"
+          className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 bg-accent rounded-full md:flex hidden hover:translate-x-0.5 transition-all z-30"
+          onClick={handleNext}
+        >
+          <RightArrowIcon />
+        </button>
+
+        {/* Progress bar */}
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1 z-30 px-4">
+          {images.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'bg-accent w-6' : 'bg-gray-500/40 w-3'
+                }`}
+            ></div>
+          ))}
+        </div>
       </div>
 
-      {/* Arrows */}
-      <button
-        type="button"
-        className="cursor-pointer absolute left-4 top-1/2 -translate-y-1/2 hover:-translate-x-0.5 bg-accent rounded-full  transition-all z-30"
-        onClick={handlePrev}
-      >
-        <LeftArrowIcon />
-      </button>
-      <button
-        type="button"
-        className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 bg-accent rounded-full hover:translate-x-0.5 transition-all z-30"
-        onClick={handleNext}
-      >
-        <RightArrowIcon />
-      </button>
-
       {/* Thumbnails */}
-      <div className="flex gap-2 flex-wrap justify-center mt-3">
+      {/* <div className="flex gap-2 flex-wrap justify-center mt-3">
         {images.map((img, i) => (
           <button
             key={i}
@@ -107,10 +119,14 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
               setActiveIndex(i)
             }}
           >
-            <img src={img.src} alt={`${alt} preview ${i + 1}`} className="object-cover w-full h-full" />
+            <img
+              src={img.src}
+              alt={`${alt} preview ${i + 1}`}
+              className="object-cover w-full h-full"
+            />
           </button>
         ))}
-      </div>
+      </div> */}
     </div>
   )
 }
