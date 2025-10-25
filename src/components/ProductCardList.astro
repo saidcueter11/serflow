@@ -1,0 +1,72 @@
+---
+import { Categories, CategoryLabels, mockProducts } from '../mocks/mockProducts'
+import ProductCard from './ProductCard.astro'
+import miTierraQuerida from '../assets/miTierraQuerida.jpg'
+import baseball from '../assets/beisbol.jpg'
+import kids from '../assets/kids.png'
+import basketball from '../assets/basketball.jpg'
+import { Image } from 'astro:assets'
+
+interface Props {
+  currentCategory: Categories
+}
+
+const { currentCategory } = Astro.props as Props
+
+const categoryImages: Record<Categories, ImageMetadata> = {
+  [Categories.miTierraQuerida]: miTierraQuerida,
+  [Categories.beisbol]: baseball,
+  [Categories.basketball]: basketball,
+  [Categories.kids]: kids,
+  [Categories.moda]: miTierraQuerida,
+}
+
+const categoryImage = categoryImages[currentCategory] ?? miTierraQuerida
+const filteredProductList = mockProducts.filter(
+  (p) => p.category === currentCategory,
+)
+---
+
+<div class="relative min-w-full">
+  <Image
+    class="w-full h-40 object-cover object-center rounded-lg"
+    src={categoryImage}
+    loading="lazy"
+    alt={currentCategory}
+  />
+  <span
+    class="absolute inset-0 flex items-center text-center justify-center text-3xl drop-shadow-md drop-shadow-primary bg-primary/25"
+  >
+    {CategoryLabels[currentCategory]}
+  </span>
+</div>
+
+<div class="flex gap-1 text-sm flex-wrap justify-center">
+  {
+    Object.values(Categories).map((category) => (
+      <a
+        href={`/products/${category}`}
+        class={`cursor-pointer rounded-lg px-4 font-semibold py-1 no-underline hover:bg-accent hover:text-primary transition-all duration-300 font-vend-sans ${
+          currentCategory === category ? 'bg-accent text-primary' : ''
+        }`}
+      >
+        {CategoryLabels[category]}
+      </a>
+    ))
+  }
+</div>
+
+<div
+  class="grid sm:grid-cols-2 md:grid-cols-3 gap-2 gap-y-3 mt-10 justify-center"
+>
+  {
+    filteredProductList.map((product) => (
+      <ProductCard
+        id={product.id}
+        mainImage={product.image}
+        category={currentCategory}
+        images={mockProducts.map((img) => img.image)}
+      />
+    ))
+  }
+</div>
