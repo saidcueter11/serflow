@@ -49,18 +49,28 @@ import beisbol23 from '../assets/images/beisbol/beisbol23.webp'
 import beisbol24 from '../assets/images/beisbol/beisbol24.webp'
 
 export enum Categories {
-  miTierraQuerida = "Mi tierra querida",
-  beisbol = "Beisbol",
-  basketball = "Basketball",
-  kids = "Niños",
-  moda = "Moda"
+  miTierraQuerida = 'miTierraQuerida',
+  beisbol = 'beisbol',
+  basketball = 'basketball',
+  kids = 'kids',
+  moda = 'moda',
 }
+
+export const CategoryLabels = {
+  [Categories.miTierraQuerida]: 'Mi Tierra Querida',
+  [Categories.beisbol]: 'Beisbol',
+  [Categories.basketball]: 'Basketball',
+  [Categories.kids]: 'Niños',
+  [Categories.moda]: "Moda"
+}
+
 
 interface ProductType {
   id: number,
   image: ImageMetadata,
   category: Categories,
 }
+
 
 export const mockProducts: ProductType[] = [
   {

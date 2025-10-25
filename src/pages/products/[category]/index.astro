@@ -1,0 +1,21 @@
+---
+import ProductCardList from '../../../components/ProductCardList.astro'
+import Layout from '../../../layouts/Layout.astro'
+import { Categories, CategoryLabels } from '../../../mocks/mockProducts'
+
+export async function getStaticPaths() {
+  return Object.values(Categories).map((category) => ({
+    params: { category },
+  }))
+}
+
+const { category } = Astro.params
+---
+
+<Layout title={`Productos - ${CategoryLabels[category]}`}>
+  <main class="flex flex-col items-center mt-10 gap-10 font-titan">
+    <section class="prose prose-invert w-full">
+      <ProductCardList currentCategory={category} />
+    </section>
+  </main>
+</Layout>

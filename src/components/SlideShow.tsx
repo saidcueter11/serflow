@@ -93,7 +93,7 @@ export default function Slideshow () {
           Calidad que enamora, precios que te hacen volver.
         </p>
         <a
-          href="/products"
+          href="/products/miTierraQuerida"
           data-astro-prefetch
           className="group relative overflow-hidden rounded-md bg-primary px-8 py-2 mt-8 text-neutral-50 hover:text-primary pointer-events-auto"
         >

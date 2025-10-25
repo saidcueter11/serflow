@@ -1,12 +1,12 @@
 ---
-import { mockProducts } from '../../mocks/mockProducts'
-import Layout from '../../layouts/Layout.astro'
-import { LeftArrowIcon } from '../../components/icons/LeftArrowIcon'
-import ProductPreview from '../../components/ProductPreview'
+import { LeftArrowIcon } from '../../../components/icons/LeftArrowIcon'
+import ProductPreview from '../../../components/ProductPreview'
+import Layout from '../../../layouts/Layout.astro'
+import { mockProducts } from '../../../mocks/mockProducts'
 
 export const getStaticPaths = () => {
   return mockProducts.map((product) => ({
-    params: { id: product.id },
+    params: { category: product.category, id: product.id.toString() },
     props: { product },
   }))
 }
@@ -17,7 +17,10 @@ const { product } = Astro.props
 <Layout title={product.category}>
   <div class="mt-12 max-w-3xl mx-auto flex flex-col gap-3 font-titan">
     <aside>
-      <a href="/products" class="flex gap-2 text-accent group">
+      <a
+        href={`/products/${product.category}`}
+        class="flex gap-2 text-accent group"
+      >
         <div class="bg-accent rounded-full">
           <LeftArrowIcon />
         </div>

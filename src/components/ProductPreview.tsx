@@ -73,6 +73,7 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
             exit="exit"
             transition={{ duration: 0.45, ease: 'easeInOut' }}
             className="absolute inset-0 h-full w-full object-cover object-center rounded-lg"
+            style={{ viewTransitionName: `product-image-${id}` }}
           />
         </AnimatePresence>
       </div>

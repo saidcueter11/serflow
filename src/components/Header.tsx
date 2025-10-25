@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
           <MenuIcon />
         </button>
 
-        <div className="hidden sm:flex gap-6 font-titan prose prose-invert prose-a:no-underline text-lg">
+        <div className="hidden sm:flex gap-6 font-vend-sans prose prose-invert prose-a:no-underline text-lg">
           <a
             href="/"
             data-astro-prefetch
@@ -55,12 +55,12 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
             className={`relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100 ${activePath === '/' ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Inicio</a>
 
           <a
-            href="/products"
+            href="/products/miTierraQuerida"
             data-astro-prefetch
             onClick={(e) => {
               e.preventDefault()
               toggleSideMenu(false)
-              navigate('/products', { history: 'push', sourceElement: e.currentTarget })
+              navigate('/products/miTierraQuerida', { history: 'push', sourceElement: e.currentTarget })
             }}
             className={`relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100 ${activePath.startsWith('/products') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Products</a>
 
