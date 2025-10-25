@@ -9,9 +9,16 @@ interface ProductPreviewProps {
   mainImage: ImageMetadata
   alt: string
   id: number
+  productName?: string
 }
 
-export default function ProductPreview ({ images, mainImage, alt, id }: ProductPreviewProps) {
+export default function ProductPreview ({
+  images,
+  mainImage,
+  alt,
+  id,
+  productName,
+}: ProductPreviewProps) {
   const [activeIndex, setActiveIndex] = useState(
     images.findIndex((img) => img.src === mainImage.src) || 0
   )
@@ -28,7 +35,6 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
     setActiveIndex((prev) => (prev - 1 + images.length) % images.length)
   }
 
-  // Touch drag
   const handleTouchStart = (e: TouchEvent) => setTouchStart(e.touches[0].clientX)
   const handleTouchMove = (e: TouchEvent) => {
     if (!touchStart) return
@@ -54,9 +60,24 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
     }),
   }
 
+  const handleWhatsApp = () => {
+    const phoneNumber = '+573156481243' // your business WhatsApp number
+    const productUrl = window.location.href
+
+    const text = `
+Hola 👋
+¿Sigue disponible este producto?
+
+${productUrl}
+    `.trim()
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`
+    window.open(url, '_blank')
+  }
+
   return (
     <div
-      className="relative flex flex-col gap-3 w-full h-full"
+      className="relative flex flex-col gap-4 w-full h-full"
       onTouchStart={handleTouchStart as any}
       onTouchMove={handleTouchMove as any}
     >
@@ -71,7 +92,7 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
             initial="enter"
             animate="center"
             exit="exit"
-            loading='lazy'
+            loading="lazy"
             transition={{ duration: 0.45, ease: 'easeInOut' }}
             className="absolute inset-0 h-full w-full object-cover object-center rounded-lg"
             style={{ viewTransitionName: `product-image-${id}` }}
@@ -94,7 +115,7 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
           <RightArrowIcon />
         </button>
 
-        {/* Progress bar */}
+        {/* Progress dots */}
         <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1 z-30 px-4">
           {images.map((_, i) => (
             <div
@@ -106,27 +127,13 @@ export default function ProductPreview ({ images, mainImage, alt, id }: ProductP
         </div>
       </div>
 
-      {/* Thumbnails */}
-      {/* <div className="flex gap-2 flex-wrap justify-center mt-3">
-        {images.map((img, i) => (
-          <button
-            key={i}
-            type="button"
-            className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all duration-200 ${activeIndex === i ? 'border-accent' : 'border-transparent hover:border-accent'
-              }`}
-            onClick={() => {
-              setDirection(i > activeIndex ? 1 : -1)
-              setActiveIndex(i)
-            }}
-          >
-            <img
-              src={img.src}
-              alt={`${alt} preview ${i + 1}`}
-              className="object-cover w-full h-full"
-            />
-          </button>
-        ))}
-      </div> */}
+      {/* WhatsApp Button */}
+      <button
+        onClick={handleWhatsApp}
+        className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-all"
+      >
+        💬 Preguntar por WhatsApp
+      </button>
     </div>
   )
 }

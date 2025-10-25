@@ -24,7 +24,7 @@ const { id, images, mainImage, category } = Astro.props
         <Image
           src={mainImage}
           alt={category}
-          class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2"
+          class="w-full h-full object-cover rounded-lg object-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2"
           loading="lazy"
           transition:name={`product-image-${id}`}
         />
