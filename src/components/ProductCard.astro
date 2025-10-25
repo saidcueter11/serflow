@@ -18,13 +18,13 @@ const { id, images, mainImage, category } = Astro.props
     <a
       href={`/products/${category}/${id}`}
       data-astro-prefetch
-      class="group block transition-transform duration-300"
+      class="block transition-transform duration-300 hover:scale-110 hover:z-30 drop-shadow-md hover:drop-shadow-primary hover:rotate-2 active:scale-110 active:rotate-2 active:drop-shadow-primary active:z-30"
     >
       <div class="overflow-hidden rounded-lg">
         <Image
           src={mainImage}
           alt={category}
-          class="w-full h-full object-cover rounded-lg object-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2"
+          class="w-full h-full object-cover rounded-lg object-center"
           loading="lazy"
           transition:name={`product-image-${id}`}
         />

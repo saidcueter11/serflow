@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
           {children}
         </a>
 
-        <button onClick={() => toggleSideMenu(!isOpen)} className="sm:hidden">
+        <button onClick={() => toggleSideMenu(!isOpen)} className="sm:hidden active:scale-110">
           <MenuIcon />
         </button>
 
@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
               toggleSideMenu(false)
               navigate('/', { history: 'push', sourceElement: e.currentTarget })
             }}
-            className={`relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100 ${activePath === '/' ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Inicio</a>
+            className={`underline-hover ${activePath === '/' ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Inicio</a>
 
           <a
             href="/products/miTierraQuerida"
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
               toggleSideMenu(false)
               navigate('/products/miTierraQuerida', { history: 'push', sourceElement: e.currentTarget })
             }}
-            className={`relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100 ${activePath.startsWith('/products') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Products</a>
+            className={`underline-hover ${activePath.startsWith('/products') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Products</a>
 
           <a
             href="/nuestroEquipo"
@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
               toggleSideMenu(false)
               navigate('/products', { history: 'push', sourceElement: e.currentTarget })
             }}
-            className={`relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100 ${activePath.startsWith('/nuestroEquipo') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Nuestro equipo</a>
+            className={`underline-hover ${activePath.startsWith('/nuestroEquipo') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Nuestro equipo</a>
 
           <a
             href="/sugerencias"
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({ children }) => {
               toggleSideMenu(false)
               navigate('/products', { history: 'push', sourceElement: e.currentTarget })
             }}
-            className={`relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100 ${activePath.startsWith('/sugerencias') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Sugerencias</a>
+            className={`underline-hover ${activePath.startsWith('/sugerencias') ? 'after:scale-x-100 after:origin-bottom' : ''}`}>Sugerencias</a>
         </div>
       </header>
 

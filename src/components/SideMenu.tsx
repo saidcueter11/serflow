@@ -20,12 +20,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
       onClick={handleOutsideClick}
       className={`${isOpen ? 'translate-x-0 backdrop-blur-sm' : 'translate-x-full'} transition duration-300 fixed w-full z-50 inset-0 h-full flex flex-col items-end text-xl`}
     >
-      <div className="bg-secondary h-full p-4 w-2/4">
+      <div className="bg-secondary h-full p-4 w-3/5">
         <button onClick={() => toggleSideMenu(false)}>
           <CloseIcon />
         </button>
 
-        <div className='flex flex-col mt-4 gap-4 font-titan font-semibold items-center'>
+        <div className='flex flex-col mt-4 gap-8 font-vend-sans font-semibold items-center'>
           <a
             href="/"
             data-astro-prefetch
@@ -47,6 +47,29 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isOpen, toggleSideMenu }) =>
             }}
           >
             Productos
+          </a>
+
+          <a
+            href="/products"
+            data-astro-prefetch
+            onClick={(e) => {
+              e.preventDefault()
+              toggleSideMenu(false)
+              navigate('/products', { history: 'push', sourceElement: e.currentTarget })
+            }}
+          >
+            Nuestro equipo
+          </a>
+          <a
+            href="/products"
+            data-astro-prefetch
+            onClick={(e) => {
+              e.preventDefault()
+              toggleSideMenu(false)
+              navigate('/products', { history: 'push', sourceElement: e.currentTarget })
+            }}
+          >
+            Sugerencias
           </a>
         </div>
       </div>

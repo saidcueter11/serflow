@@ -46,7 +46,7 @@ const filteredProductList = mockProducts.filter(
     Object.values(Categories).map((category) => (
       <a
         href={`/products/${category}`}
-        class={`cursor-pointer rounded-lg px-4 font-semibold py-1 no-underline hover:bg-accent hover:text-primary transition-all duration-300 font-vend-sans ${
+        class={`cursor-pointer rounded-lg px-4 font-semibold py-1 no-underline hover:bg-accent hover:text-primary transition-all duration-300 active:bg-accent/70 active:text-primary font-vend-sans ${
           currentCategory === category ? 'bg-accent text-primary' : ''
         }`}
       >
