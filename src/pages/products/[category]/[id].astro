@@ -1,7 +1,7 @@
 ---
-import { LeftArrowIcon } from '../../../components/icons/LeftArrowIcon'
 import ProductPreview from '../../../components/ProductPreview'
 import Layout from '../../../layouts/Layout.astro'
+import BackButton from '../../../components/utils/BackButton'
 import { mockProducts } from '../../../mocks/mockProducts'
 
 export const getStaticPaths = () => {
@@ -15,30 +15,11 @@ const { product } = Astro.props
 ---
 
 <Layout title={product.category}>
-  <head>
-    <!-- ✅ Open Graph tags for WhatsApp/Instagram/Facebook previews -->
-    <meta property="og:type" content="product" />
-    <meta property="og:title" content={product.category} />
-    <meta property="og:image" content={`${Astro.site} ${product.image.src}`} />
-    <meta property="og:url" content={Astro.url.href} />
-  </head>
   <div
     class="mt-12 max-w-3xl w-full h-full mx-auto flex flex-col gap-3 font-vend-sans"
   >
     <aside>
-      <a
-        href={`/products/${product.category}`}
-        class="flex gap-2 text-accent group"
-        data-astro-prefetch
-      >
-        <div class="bg-accent rounded-full">
-          <LeftArrowIcon />
-        </div>
-        <span
-          class="underline-hover group-hover:after:origin-bottom group-hover:after:scale-x-100 group-active:after:scale-x-100 group-active:after:origin-bottom"
-          >Volver atrás</span
-        >
-      </a>
+      <BackButton fallbackUrl="/products/miTierraQuerida" client:load />
     </aside>
 
     <main class="w-full h-full">
