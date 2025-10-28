@@ -1,0 +1,278 @@
+---
+import type { ImageMetadata } from 'astro'
+import { Image } from 'astro:assets'
+
+interface Props {
+  images: ImageMetadata[]
+  mainImage: ImageMetadata
+  alt: string
+  id: number
+  productName?: string
+}
+
+const { images, mainImage, alt, id, productName } = Astro.props
+const hasMultipleImages = images.length > 1
+const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
+---
+
+<div
+  class="relative flex flex-col gap-4 w-full h-full"
+  data-slider
+  data-product-name={productName}
+>
+  <div
+    class="relative overflow-hidden rounded-lg h-full w-full aspect-square bg-gray-900"
+  >
+    <!-- Images Container -->
+    <div class="relative w-full h-full" data-images-container>
+      {
+        images.map((image, index) => (
+          <div
+            class={`absolute inset-0 transition-all duration-300 ease-out ${
+              index === initialIndex
+                ? 'opacity-100 translate-x-0'
+                : 'opacity-0 translate-x-full'
+            }`}
+            data-slide={index}
+          >
+            <Image
+              src={image}
+              alt={`${alt} - imagen ${index + 1} de ${images.length}`}
+              loading={index === initialIndex ? 'eager' : 'lazy'}
+              fetchpriority={index === initialIndex ? 'high' : 'auto'}
+              decoding="async"
+              class="w-full h-full object-cover object-center rounded-lg"
+              transition:name={`product-image-${id}`}
+            />
+          </div>
+        ))
+      }
+    </div>
+
+    {/* Navigation Arrows */}
+    {
+      hasMultipleImages && (
+        <>
+          <button
+            type="button"
+            aria-label="Imagen anterior"
+            data-prev
+            class="cursor-pointer absolute left-4 top-1/2 -translate-y-1/2 hover:-translate-x-0.5 bg-accent/90 hover:bg-accent rounded-full p-2 md:flex hidden transition-all z-30 backdrop-blur-sm"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label="Siguiente imagen"
+            data-next
+            class="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 bg-accent/90 hover:bg-accent rounded-full p-2 md:flex hidden hover:translate-x-0.5 transition-all z-30 backdrop-blur-sm"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          {/* Progress dots */}
+          <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-1 z-30 px-4">
+            {images.map((_, i) => (
+              <button
+                aria-label={`Ver imagen ${i + 1}`}
+                data-dot={i}
+                class={`h-1 flex-1 max-w-12 rounded-full transition-all duration-300 ${
+                  i === initialIndex
+                    ? 'bg-accent'
+                    : 'bg-gray-500/40 hover:bg-gray-500/60'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Image counter */}
+          <div
+            class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full z-30"
+            data-counter
+          >
+            {initialIndex + 1} / {images.length}
+          </div>
+        </>
+      )
+    }
+  </div>
+
+  {/* WhatsApp Button */}
+  <button
+    data-whatsapp
+    class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+    aria-label="Contactar por WhatsApp"
+  >
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path
+        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+      ></path>
+    </svg>
+    Preguntar por WhatsApp
+  </button>
+</div>
+
+<script>
+  class ProductSlider {
+    private container: HTMLElement
+    private slides: NodeListOf<HTMLElement>
+    private dots: NodeListOf<HTMLElement>
+    private counter: HTMLElement | null
+    private currentIndex: number
+    private touchStartX: number | null = null
+    private totalSlides: number
+
+    constructor(sliderElement: HTMLElement) {
+      this.container = sliderElement
+      this.slides = sliderElement.querySelectorAll('[data-slide]')
+      this.dots = sliderElement.querySelectorAll('[data-dot]')
+      this.counter = sliderElement.querySelector('[data-counter]')
+      this.totalSlides = this.slides.length
+
+      // Find initial active slide
+      this.currentIndex = Array.from(this.slides).findIndex((slide) =>
+        slide.classList.contains('opacity-100'),
+      )
+      if (this.currentIndex === -1) this.currentIndex = 0
+
+      this.init()
+    }
+
+    private init() {
+      // Navigation buttons
+      const prevBtn = this.container.querySelector('[data-prev]')
+      const nextBtn = this.container.querySelector('[data-next]')
+
+      prevBtn?.addEventListener('click', () => this.prev())
+      nextBtn?.addEventListener('click', () => this.next())
+
+      // Dots
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => this.goTo(index))
+      })
+
+      // Touch events
+      const imagesContainer = this.container.querySelector(
+        '[data-images-container]',
+      )
+      imagesContainer?.addEventListener('touchstart', (e) =>
+        this.handleTouchStart(e as TouchEvent),
+      )
+      imagesContainer?.addEventListener('touchmove', (e) =>
+        this.handleTouchMove(e as TouchEvent),
+      )
+
+      // Keyboard navigation
+      this.container.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') this.prev()
+        if (e.key === 'ArrowRight') this.next()
+      })
+
+      // WhatsApp button
+      const whatsappBtn = this.container.querySelector('[data-whatsapp]')
+      whatsappBtn?.addEventListener('click', () => this.handleWhatsApp())
+    }
+
+    private goTo(index: number) {
+      const direction = index > this.currentIndex ? 1 : -1
+
+      // Update slides
+      this.slides[this.currentIndex].classList.remove(
+        'opacity-100',
+        'translate-x-0',
+      )
+      this.slides[this.currentIndex].classList.add(
+        'opacity-0',
+        direction > 0 ? '-translate-x-full' : 'translate-x-full',
+      )
+
+      this.slides[index].classList.remove(
+        'opacity-0',
+        '-translate-x-full',
+        'translate-x-full',
+      )
+      this.slides[index].classList.add('opacity-100', 'translate-x-0')
+
+      // Update dots
+      this.dots[this.currentIndex]?.classList.remove('bg-accent')
+      this.dots[this.currentIndex]?.classList.add('bg-gray-500/40')
+      this.dots[index]?.classList.remove('bg-gray-500/40')
+      this.dots[index]?.classList.add('bg-accent')
+
+      // Update counter
+      if (this.counter) {
+        this.counter.textContent = `${index + 1} / ${this.totalSlides}`
+      }
+
+      this.currentIndex = index
+    }
+
+    private next() {
+      const nextIndex = (this.currentIndex + 1) % this.totalSlides
+      this.goTo(nextIndex)
+    }
+
+    private prev() {
+      const prevIndex =
+        (this.currentIndex - 1 + this.totalSlides) % this.totalSlides
+      this.goTo(prevIndex)
+    }
+
+    private handleTouchStart(e: TouchEvent) {
+      this.touchStartX = e.touches[0].clientX
+    }
+
+    private handleTouchMove(e: TouchEvent) {
+      if (this.touchStartX === null) return
+
+      const diff = this.touchStartX - e.touches[0].clientX
+
+      if (Math.abs(diff) > 50) {
+        diff > 0 ? this.next() : this.prev()
+        this.touchStartX = null
+      }
+    }
+
+    private handleWhatsApp() {
+      const phoneNumber = '+573156481243'
+      const productUrl = window.location.href
+      const productName = this.container.dataset.productName
+      const name = productName ? `\n\nProducto: ${productName}` : ''
+
+      const text = `Hola 👋\n¿Sigue disponible este producto?${name}\n\n${productUrl}`
+      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`
+
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  // Initialize all sliders on the page
+  document.addEventListener('astro:page-load', () => {
+    const sliders = document.querySelectorAll<HTMLElement>('[data-slider]')
+    sliders.forEach((slider) => new ProductSlider(slider))
+  })
+</script>
