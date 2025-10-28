@@ -12,6 +12,18 @@ export const getStaticPaths = () => {
 }
 
 const { product } = Astro.props
+
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '../../../assets/images/**/*.webp',
+  { eager: true },
+)
+const imagePath = `../../../assets/images/${product.imagePath}`
+
+const imageModule = images[imagePath]
+
+// For now, since each product has only 1 image, create an array with just that image
+// Later you can extend your mockProducts to have multiple images per product
+const productImages = [imageModule.default, imageModule.default]
 ---
 
 <Layout title={product.category}>
@@ -19,14 +31,14 @@ const { product } = Astro.props
     class="mt-12 max-w-3xl w-full h-full mx-auto flex flex-col gap-3 font-vend-sans"
   >
     <aside>
-      <BackButton fallbackUrl="/products/miTierraQuerida" client:load />
+      <BackButton fallbackUrl={`/products/${product.category}`} client:load />
     </aside>
 
     <main class="w-full h-full">
       <ProductPreview
         id={product.id}
-        mainImage={product.image}
-        images={mockProducts.map((img) => img.image)}
+        mainImage={imageModule.default}
+        images={productImages}
         alt={product.category}
         client:load
       />

@@ -1,5 +1,9 @@
 ---
-import { Categories, CategoryLabels, mockProducts } from '../mocks/mockProducts'
+import {
+  Categories,
+  CategoryLabels,
+  getProductsByCategory,
+} from '../mocks/mockProducts'
 import ProductCard from './ProductCard.astro'
 import miTierraQuerida from '../assets/miTierraQuerida.jpg'
 import baseball from '../assets/beisbol.jpg'
@@ -22,9 +26,7 @@ const categoryImages: Record<Categories, ImageMetadata> = {
 }
 
 const categoryImage = categoryImages[currentCategory] ?? miTierraQuerida
-const filteredProductList = mockProducts.filter(
-  (p) => p.category === currentCategory,
-)
+const filteredProductList = getProductsByCategory(currentCategory)
 ---
 
 <div class="relative min-w-full" transition:persist={currentCategory}>
@@ -33,6 +35,10 @@ const filteredProductList = mockProducts.filter(
     src={categoryImage}
     fetchpriority="high"
     alt={currentCategory}
+    format="webp"
+    quality={80}
+    widths={[640, 1280]}
+    sizes="100vw"
   />
   <span
     class="absolute inset-0 flex items-center text-center justify-center text-3xl drop-shadow-md drop-shadow-primary bg-primary/25"
@@ -63,10 +69,9 @@ const filteredProductList = mockProducts.filter(
     filteredProductList.map((product, index) => (
       <ProductCard
         id={product.id}
-        mainImage={product.image}
+        imagePath={product.imagePath}
         category={currentCategory}
-        images={mockProducts.map((img) => img.image)}
-        preload={index < 10}
+        preload={index < 3}
       />
     ))
   }
