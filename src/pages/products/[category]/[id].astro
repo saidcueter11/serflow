@@ -1,5 +1,5 @@
 ---
-import ProductPreview from '../../../components/ProductPreview'
+import ProductPreview from '../../../components/ProductPreview.astro'
 import Layout from '../../../layouts/Layout.astro'
 import BackButton from '../../../components/utils/BackButton'
 import { mockProducts } from '../../../mocks/mockProducts'
@@ -13,6 +13,7 @@ export const getStaticPaths = () => {
 
 const { product } = Astro.props
 
+// Load only this specific product's image
 const images = import.meta.glob<{ default: ImageMetadata }>(
   '../../../assets/images/**/*.webp',
   { eager: true },
@@ -23,7 +24,7 @@ const imageModule = images[imagePath]
 
 // For now, since each product has only 1 image, create an array with just that image
 // Later you can extend your mockProducts to have multiple images per product
-const productImages = [imageModule.default, imageModule.default]
+const productImages = [imageModule.default]
 ---
 
 <Layout title={product.category}>
@@ -40,7 +41,7 @@ const productImages = [imageModule.default, imageModule.default]
         mainImage={imageModule.default}
         images={productImages}
         alt={product.category}
-        client:load
+        productName={`Producto #${product.id}`}
       />
     </main>
   </div>
