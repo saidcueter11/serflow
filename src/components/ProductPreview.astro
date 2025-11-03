@@ -258,39 +258,11 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
       }
     }
 
-    private async handleWhatsApp() {
+    private handleWhatsApp() {
       const phoneNumber = '+573156481243'
       const productUrl = window.location.href
-      const productName = this.container.dataset.productName
-      const name = productName ? `\n\nProducto: ${productName}` : ''
 
-      // Get current image
-      const currentSlide = this.slides[this.currentIndex]
-      const img = currentSlide?.querySelector('img')
-
-      if (img && navigator.share) {
-        // Use Web Share API if available (mobile devices)
-        try {
-          const response = await fetch(img.src)
-          const blob = await response.blob()
-          const file = new File([blob], 'producto.jpg', { type: 'image/jpeg' })
-
-          const text = `Hola 👋\n¿Sigue disponible este producto?${name}\n\n${productUrl}`
-
-          await navigator.share({
-            title: productName || 'Producto',
-            text: text,
-            files: [file],
-          })
-          return
-        } catch (err) {
-          // Fall back to regular WhatsApp link if sharing fails
-          console.log('Web Share not supported, using WhatsApp link')
-        }
-      }
-
-      // Fallback: WhatsApp link with text only
-      const text = `Hola 👋\n¿Sigue disponible este producto?${name}\n\n${productUrl}`
+      const text = `Hola! Me interesa este producto:\n${productUrl}`
       const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`
 
       window.open(url, '_blank', 'noopener,noreferrer')
