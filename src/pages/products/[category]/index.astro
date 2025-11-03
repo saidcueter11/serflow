@@ -13,7 +13,7 @@ const { category } = Astro.params
 ---
 
 <Layout title={`Productos - ${CategoryLabels[category]}`}>
-  <main class="flex flex-col items-center font-titan w-full">
+  <main class="flex flex-col items-center font-titan w-full px-6">
     <section class="prose prose-invert w-full prose-xl">
       <ProductCardList currentCategory={category} />
     </section>
