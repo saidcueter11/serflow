@@ -1,0 +1,83 @@
+<form id="contactForm" class="flex flex-col gap-6 w-full">
+  <div class="flex flex-col gap-2">
+    <label for="fullName">Nombre</label>
+    <input
+      class="border-2 border-accent rounded-lg p-2"
+      type="text"
+      id="fullName"
+      name="fullName"
+      required
+    />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="phoneNumber">Número de teléfono</label>
+    <input
+      class="border-2 border-accent rounded-lg p-2"
+      type="tel"
+      id="phoneNumber"
+      name="phoneNumber"
+      required
+    />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="message">Mensaje</label>
+    <textarea
+      class="border-2 border-accent rounded-lg p-2"
+      name="message"
+      id="message"
+      rows="4"
+      required></textarea>
+  </div>
+
+  <button
+    type="submit"
+    class="group relative overflow-hidden rounded-md bg-primary px-8 py-2 text-neutral-50 hover:text-primary cursor-pointer border-2 border-accent w-fit"
+  >
+    <span class="relative z-10">Enviar</span>
+    <span class="absolute inset-0 overflow-hidden rounded-md">
+      <span
+        class="absolute left-0 aspect-square w-full origin-center -translate-x-full rounded-full bg-accent transition-all duration-500 group-hover:-translate-x-0 group-hover:scale-150"
+      ></span>
+    </span>
+  </button>
+</form>
+
+<script>
+  function initContactForm() {
+    const form = document.getElementById('contactForm') as HTMLFormElement
+
+    if (!form) return
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault()
+
+      const formData = new FormData(form)
+      const name = formData.get('fullName') as string
+      const phone = formData.get('phoneNumber') as string
+      const message = formData.get('message') as string
+
+      const localPhone = '+573156481243'
+      const sanitizedPhone = phone.replace(/\D/g, '')
+
+      const text = `
+📩 Nuevo servicio
+
+👤 Nombre: ${name}
+📞 Número de teléfono: ${sanitizedPhone}
+📝 Mensaje:
+${message}
+      `.trim()
+
+      const url = `https://wa.me/${localPhone}?text=${encodeURIComponent(text)}`
+      window.open(url, '_blank')
+
+      // Optional: Reset form after submission
+      form.reset()
+    })
+  }
+
+  // Initialize on page load
+  document.addEventListener('astro:page-load', initContactForm)
+</script>

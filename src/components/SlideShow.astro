@@ -1,0 +1,295 @@
+---
+import store1 from '../assets/store1.jpg'
+import store2 from '../assets/store2.jpg'
+import store3 from '../assets/store3.jpg'
+
+const slides = [
+  { id: 1, img: store1, alt: 'Slide 1' },
+  { id: 2, img: store2, alt: 'Slide 2' },
+  { id: 3, img: store3, alt: 'Slide 3' },
+]
+---
+
+<div class="slideshow-container relative w-dvw h-[80vh] overflow-hidden">
+  <!-- Slides -->
+  <div class="slides-wrapper w-full h-full relative z-0">
+    {
+      slides.map((slide, i) => (
+        <img
+          src={slide.img.src}
+          alt={slide.alt}
+          class="slide absolute w-full h-full object-cover"
+          data-index={i}
+          style={
+            i === 0
+              ? 'transform: translateX(0); opacity: 1;'
+              : 'transform: translateX(100%); opacity: 1;'
+          }
+        />
+      ))
+    }
+  </div>
+
+  <!-- Overlay text -->
+  <div
+    class="absolute inset-0 bg-primary/40 flex flex-col justify-center items-center text-center text-white px-6 z-10 pointer-events-none"
+  >
+    <h1
+      class="text-3xl md:text-5xl drop-shadow-md drop-shadow-primary font-titan"
+    >
+      Bienvenido a Serflow
+    </h1>
+    <p
+      class="mt-4 max-w-md md:text-lg font-vend-sans text-white/90 drop-shadow-md drop-shadow-primary"
+    >
+      Calidad que enamora, precios que te hacen volver.
+    </p>
+    <a
+      href="/products/miTierraQuerida"
+      data-astro-prefetch
+      class="group relative overflow-hidden rounded-md bg-primary px-8 py-2 mt-8 text-neutral-50 hover:text-primary pointer-events-auto"
+    >
+      <span class="relative z-10 font-titan font-normal">Ver productos</span>
+      <span class="absolute inset-0 rounded-md">
+        <span
+          class="absolute left-0 aspect-square w-full origin-center -translate-x-full rounded-full bg-accent transition-all duration-500 group-hover:-translate-x-0 group-hover:scale-150"
+        ></span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <button
+    class="prev-btn cursor-pointer absolute top-1/2 left-4 md:left-12 -translate-y-1/2 bg-accent text-primary rounded-full hover:-translate-x-1 transition-transform hidden lg:block z-20 pointer-events-auto p-3"
+    aria-label="Previous slide"
+  >
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+
+  <button
+    class="next-btn cursor-pointer absolute top-1/2 right-4 md:right-12 -translate-y-1/2 bg-accent text-primary rounded-full hover:translate-x-1 transition-transform hidden lg:block z-20 pointer-events-auto p-3"
+    aria-label="Next slide"
+  >
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+
+  <!-- Dots -->
+  <div
+    class="dots-container absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 pointer-events-auto"
+  >
+    {
+      slides.map((_, i) => (
+        <button
+          class={`dot size-3 rounded-full transition ${i === 0 ? 'bg-white' : 'bg-white/50 hover:bg-white'}`}
+          data-index={i}
+          aria-label={`Go to slide ${i + 1}`}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  class Slideshow {
+    private container: HTMLElement
+    private slides: NodeListOf<HTMLImageElement>
+    private dots: NodeListOf<HTMLButtonElement>
+    private prevBtn: HTMLButtonElement
+    private nextBtn: HTMLButtonElement
+    private currentIndex: number = 0
+    private direction: number = 1
+    private isPaused: boolean = false
+    private autoplayInterval: number | null = null
+    private touchStartX: number = 0
+    private touchEndX: number = 0
+    private isAnimating: boolean = false
+
+    constructor(container: HTMLElement) {
+      this.container = container
+      this.slides = container.querySelectorAll('.slide')
+      this.dots = container.querySelectorAll('.dot')
+      this.prevBtn = container.querySelector('.prev-btn')!
+      this.nextBtn = container.querySelector('.next-btn')!
+
+      this.init()
+    }
+
+    init() {
+      // Button click handlers
+      this.prevBtn?.addEventListener('click', () => {
+        this.pauseAutoplay()
+        this.changeSlide(-1)
+      })
+
+      this.nextBtn?.addEventListener('click', () => {
+        this.pauseAutoplay()
+        this.changeSlide(1)
+      })
+
+      // Dot click handlers
+      this.dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          this.pauseAutoplay()
+          const dir = i > this.currentIndex ? 1 : -1
+          this.goToSlide(i, dir)
+        })
+      })
+
+      // Touch/swipe handlers
+      this.container.addEventListener('touchstart', (e) => {
+        this.touchStartX = e.touches[0].clientX
+      })
+
+      this.container.addEventListener('touchmove', (e) => {
+        this.touchEndX = e.touches[0].clientX
+      })
+
+      this.container.addEventListener('touchend', () => {
+        this.handleSwipe()
+      })
+
+      // Start autoplay
+      this.startAutoplay()
+    }
+
+    handleSwipe() {
+      const swipeThreshold = 100
+      const diff = this.touchStartX - this.touchEndX
+
+      if (Math.abs(diff) > swipeThreshold) {
+        this.pauseAutoplay()
+        if (diff > 0) {
+          this.changeSlide(1)
+        } else {
+          this.changeSlide(-1)
+        }
+      }
+
+      this.touchStartX = 0
+      this.touchEndX = 0
+    }
+
+    changeSlide(dir: number) {
+      if (this.isAnimating) return
+      this.direction = dir
+      const total = this.slides.length
+      const nextIndex = (((this.currentIndex + dir) % total) + total) % total
+      this.goToSlide(nextIndex, dir)
+    }
+
+    goToSlide(index: number, dir: number) {
+      if (this.isAnimating) return
+      this.isAnimating = true
+
+      const currentSlide = this.slides[this.currentIndex]
+      const nextSlide = this.slides[index]
+
+      // Set initial position for next slide
+      nextSlide.style.transform = `translateX(${dir > 0 ? '100%' : '-100%'})`
+      nextSlide.style.opacity = '1'
+      nextSlide.style.zIndex = '1'
+
+      // Trigger reflow
+      nextSlide.offsetHeight
+
+      // Enable transition
+      currentSlide.style.transition =
+        'transform 0.6s ease-in-out, opacity 0.6s ease-in-out'
+      nextSlide.style.transition =
+        'transform 0.6s ease-in-out, opacity 0.6s ease-in-out'
+
+      // Animate both slides
+      currentSlide.style.transform = `translateX(${dir > 0 ? '-100%' : '100%'})`
+      currentSlide.style.zIndex = '0'
+      nextSlide.style.transform = 'translateX(0)'
+
+      // Update index
+      this.currentIndex = index
+
+      // Update dots
+      this.dots.forEach((dot, i) => {
+        if (i === this.currentIndex) {
+          dot.classList.remove('bg-white/50')
+          dot.classList.add('bg-white')
+        } else {
+          dot.classList.remove('bg-white')
+          dot.classList.add('bg-white/50')
+        }
+      })
+
+      // Reset after animation
+      setTimeout(() => {
+        this.slides.forEach((slide, i) => {
+          slide.style.transition = 'none'
+          if (i === this.currentIndex) {
+            slide.style.transform = 'translateX(0)'
+            slide.style.opacity = '1'
+            slide.style.zIndex = '1'
+          } else {
+            slide.style.transform = 'translateX(100%)'
+            slide.style.opacity = '1'
+            slide.style.zIndex = '0'
+          }
+        })
+        this.isAnimating = false
+      }, 600)
+    }
+
+    startAutoplay() {
+      this.autoplayInterval = window.setInterval(() => {
+        if (!this.isPaused) {
+          this.changeSlide(1)
+        }
+      }, 5000)
+    }
+
+    pauseAutoplay() {
+      this.isPaused = true
+      setTimeout(() => {
+        this.isPaused = false
+      }, 10000)
+    }
+
+    destroy() {
+      if (this.autoplayInterval) {
+        clearInterval(this.autoplayInterval)
+      }
+    }
+  }
+
+  // Initialize slideshow
+  document.addEventListener('astro:page-load', () => {
+    const container = document.querySelector('.slideshow-container')
+    if (container) {
+      new Slideshow(container as HTMLElement)
+    }
+  })
+</script>
+
+<style>
+  .slide {
+    will-change: transform;
+  }
+</style>
