@@ -3,27 +3,29 @@ import Title from './Title.astro'
 
 interface Props {
   title: string
+  id?: string
   description?: string
   scheduleWeekday?: string
   scheduleWeekend?: string
   flexRow?: boolean
 }
 
-const { title, flexRow, description, scheduleWeekday, scheduleWeekend } =
+const { title, id, flexRow, description, scheduleWeekday, scheduleWeekend } =
   Astro.props
 ---
 
 <section
+  id={id}
   class:list={[
-    'prose prose-invert prose-p:mt-0 prose-p:mb-0 w-full flex flex-col gap-6 px-6',
-    { 'md:flex-row-reverse items-center': flexRow },
+    'w-full max-w-6xl mx-auto flex flex-col gap-8 section-padding',
+    { 'md:flex-row-reverse md:items-center md:gap-12': flexRow },
   ]}
 >
-  <div class:list={[{ 'flex flex-col items-center gap-2': flexRow }]}>
-    <Title text={title} />
-    <p>{description}</p>
-    <p class="text-center w-max">{scheduleWeekday}</p>
-    <p class="text-center w-max">{scheduleWeekend}</p>
+  <div class:list={['flex flex-col gap-3', { 'items-center md:items-start md:min-w-[280px]': flexRow }]}>
+    <Title text={title} align={flexRow ? 'left' : 'center'} />
+    {description && <p class="text-muted font-vend-sans text-sm">{description}</p>}
+    {scheduleWeekday && <p class="text-muted font-vend-sans text-sm">🕐 {scheduleWeekday}</p>}
+    {scheduleWeekend && <p class="text-muted font-vend-sans text-sm">🕐 {scheduleWeekend}</p>}
   </div>
   <slot />
 </section>

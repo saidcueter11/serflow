@@ -10,12 +10,17 @@ export async function getStaticPaths() {
 }
 
 const { category } = Astro.params
+const categoryLabel = CategoryLabels[category]
+const pageTitle = `${categoryLabel} — Serflow`
+const pageDescription = `Explora la colección de ${categoryLabel} en Serflow. Prendas personalizadas con atención por WhatsApp en Cartagena.`
 ---
 
-<Layout title={`Productos - ${CategoryLabels[category]}`}>
-  <main class="flex flex-col items-center font-titan w-full px-6">
-    <section class="prose prose-invert w-full prose-xl">
-      <ProductCardList currentCategory={category} />
-    </section>
+<Layout title={pageTitle} description={pageDescription}>
+  <Fragment slot="head">
+    <meta property="og:locale" content="es_CO" />
+  </Fragment>
+
+  <main class="max-w-6xl mx-auto w-full section-padding py-6">
+    <ProductCardList currentCategory={category} />
   </main>
 </Layout>

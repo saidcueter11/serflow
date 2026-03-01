@@ -9,6 +9,7 @@ import miTierraQuerida from '../assets/miTierraQuerida.jpg'
 import baseball from '../assets/beisbol.jpg'
 import kids from '../assets/kids.png'
 import basketball from '../assets/basketball.jpg'
+import moda from '../assets/images/moda/moda1.webp'
 import { Image } from 'astro:assets'
 
 interface Props {
@@ -22,38 +23,46 @@ const categoryImages: Record<Categories, ImageMetadata> = {
   [Categories.beisbol]: baseball,
   [Categories.basketball]: basketball,
   [Categories.kids]: kids,
-  [Categories.moda]: miTierraQuerida,
+  [Categories.moda]: moda,
 }
 
 const categoryImage = categoryImages[currentCategory] ?? miTierraQuerida
 const filteredProductList = getProductsByCategory(currentCategory)
 ---
 
-<div class="relative min-w-full" transition:persist={currentCategory}>
+<!-- Hero banner -->
+<div class="relative w-full rounded-2xl overflow-hidden" transition:persist={currentCategory}>
   <Image
-    class="w-full h-40 object-cover object-center rounded-lg"
+    class="w-full h-48 md:h-56 object-cover object-center"
     src={categoryImage}
     fetchpriority="high"
-    alt={currentCategory}
+    alt={`Colección ${CategoryLabels[currentCategory]} de Serflow`}
     format="webp"
-    quality={80}
+    quality={75}
     widths={[640, 1280]}
     sizes="100vw"
   />
-  <span
-    class="absolute inset-0 flex items-center text-center justify-center text-3xl drop-shadow-md drop-shadow-primary bg-primary/25"
-  >
-    {CategoryLabels[currentCategory]}
-  </span>
+  <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent"></div>
+  <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+    <h1 class="text-3xl md:text-4xl font-titan font-normal text-white">
+      {CategoryLabels[currentCategory]}
+    </h1>
+    <p class="text-muted font-vend-sans text-sm mt-1">
+      {filteredProductList.length} productos disponibles
+    </p>
+  </div>
 </div>
 
-<div class="flex gap-1 text-sm flex-wrap justify-center">
+<!-- Category tabs -->
+<div class="flex gap-2 text-sm flex-wrap justify-start mt-6">
   {
     Object.values(Categories).map((category) => (
       <a
         href={`/products/${category}`}
-        class={`cursor-pointer rounded-lg px-4 font-semibold py-1 no-underline hover:bg-accent hover:text-primary transition-all duration-300 active:bg-accent/70 active:text-primary font-vend-sans ${
-          currentCategory === category ? 'bg-accent text-primary' : ''
+        class={`cursor-pointer rounded-full px-5 py-2 no-underline font-vend-sans font-medium transition-all duration-300 text-sm ${
+          currentCategory === category
+            ? 'bg-accent text-primary'
+            : 'bg-surface text-muted hover:text-white border border-primary-lighter hover:border-accent/30'
         }`}
       >
         {CategoryLabels[category]}
@@ -62,17 +71,27 @@ const filteredProductList = getProductsByCategory(currentCategory)
   }
 </div>
 
-<div
-  class="grid sm:grid-cols-2 md:grid-cols-3 gap-2 gap-y-3 mt-5 justify-center"
->
-  {
-    filteredProductList.map((product, index) => (
-      <ProductCard
-        id={product.id}
-        imagePath={product.imagePath}
-        category={currentCategory}
-        preload={index < 3}
-      />
-    ))
-  }
-</div>
+<!-- Product grid -->
+{
+  filteredProductList.length === 0 ? (
+    <div class="mt-8 rounded-2xl border border-primary-lighter bg-surface p-8 text-center">
+      <p class="text-muted font-vend-sans">
+        No hay productos disponibles en esta categoría por ahora.
+      </p>
+    </div>
+  ) : (
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-8">
+      {
+        filteredProductList.map((product, index) => (
+          <ProductCard
+            id={product.id}
+            imagePath={product.imagePath}
+            category={currentCategory}
+            altText={`${CategoryLabels[currentCategory]} #${product.id}`}
+            preload={index < 4}
+          />
+        ))
+      }
+    </div>
+  )
+}

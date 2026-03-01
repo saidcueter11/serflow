@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout
+  title="Página no encontrada — Serflow"
+  description="La página que buscas no existe. Vuelve al inicio o revisa nuestras categorías de productos."
+>
+  <main class="max-w-4xl mx-auto section-padding py-20 md:py-28 text-center">
+    <p class="text-accent font-vend-sans tracking-[0.25em] uppercase text-xs md:text-sm">Error 404</p>
+    <h1 class="mt-4 text-4xl md:text-6xl font-titan">Página no encontrada</h1>
+    <p class="mt-4 text-muted font-vend-sans max-w-xl mx-auto">
+      Lo sentimos, la página que intentas visitar no está disponible.
+      Puedes regresar al inicio o explorar nuestras categorías.
+    </p>
+
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="/" class="btn-primary">Ir al inicio</a>
+      <a href="/products/miTierraQuerida" class="btn-outline">Ver productos</a>
+    </div>
+  </main>
+</Layout>
