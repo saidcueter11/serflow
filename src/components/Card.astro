@@ -12,13 +12,21 @@ const { img, title, span } = Astro.props
 ---
 
 <div
-  class:list={['flex flex-col gap-4 items-center', { 'sm:col-span-2': span }]}
+  class:list={[
+    'group flex flex-col gap-0 rounded-2xl overflow-hidden bg-surface border border-white/5 hover:border-accent/30 transition-all duration-300',
+    { 'sm:col-span-2': span },
+  ]}
 >
-  <Image
-    src={img}
-    alt=""
-    transition:persist
-    class="rounded-xl h-48 max-w-80 w-full object-cover object-center"
-  />
-  <p class="justify-self-end text-center text-wrap">{title}</p>
+  <div class="overflow-hidden">
+    <Image
+      src={img}
+      alt={title}
+      transition:persist
+      class="w-full h-52 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+    />
+  </div>
+  <div class="p-5 flex items-center gap-3">
+    <div class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></div>
+    <p class="text-sm font-vend-sans text-white/80">{title}</p>
+  </div>
 </div>

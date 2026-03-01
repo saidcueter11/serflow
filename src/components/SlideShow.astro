@@ -1,23 +1,30 @@
 ---
+import { Image } from 'astro:assets'
+import { WhatsAppIcon } from './icons/WhatsappIcon'
 import store1 from '../assets/store1.jpg'
 import store2 from '../assets/store2.jpg'
 import store3 from '../assets/store3.jpg'
 
 const slides = [
-  { id: 1, img: store1, alt: 'Slide 1' },
-  { id: 2, img: store2, alt: 'Slide 2' },
-  { id: 3, img: store3, alt: 'Slide 3' },
+  { id: 1, img: store1, alt: 'Interior de la tienda Serflow en Cartagena' },
+  { id: 2, img: store2, alt: 'Colección de prendas personalizadas de Serflow' },
+  { id: 3, img: store3, alt: 'Muestras de productos listos para personalizar en Serflow' },
 ]
 ---
 
-<div class="slideshow-container relative w-full h-[85vh] overflow-x-hidden">
+<div class="slideshow-container relative w-full h-[78vh] md:h-[90vh] min-h-[420px] md:min-h-[500px] overflow-x-hidden">
   <!-- Slides -->
   <div class="slides-wrapper w-full h-full relative z-0">
     {
       slides.map((slide, i) => (
-        <img
-          src={slide.img.src}
+        <Image
+          src={slide.img}
           alt={slide.alt}
+          widths={[640, 1024, 1920]}
+          sizes="100vw"
+          quality={75}
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : 'auto'}
           class="slide absolute w-full h-full object-cover"
           data-index={i}
           style={
@@ -30,46 +37,57 @@ const slides = [
     }
   </div>
 
+  <!-- Gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-primary/20 z-5"></div>
+
   <!-- Overlay text -->
   <div
-    class="absolute inset-0 bg-primary/40 flex flex-col justify-center items-center text-center text-white px-6 z-10 pointer-events-none"
+    class="absolute inset-0 flex flex-col justify-end items-center text-center text-white px-6 pb-24 z-10 pointer-events-none"
   >
+    <span class="text-accent font-vend-sans text-sm md:text-base tracking-[0.3em] uppercase mb-4">
+      Cartagena, Colombia
+    </span>
     <h1
-      class="text-3xl md:text-5xl drop-shadow-md drop-shadow-primary font-titan"
+      class="text-4xl md:text-6xl lg:text-7xl drop-shadow-md font-titan leading-tight"
     >
-      Bienvenido a Serflow
+      Bienvenido a <span class="gold-gradient">Serflow</span>
     </h1>
     <p
-      class="mt-4 max-w-md md:text-lg font-vend-sans text-white/90 drop-shadow-md drop-shadow-primary"
+      class="mt-4 max-w-lg md:text-lg font-vend-sans text-white/80 leading-relaxed"
     >
       Calidad que enamora, precios que te hacen volver.
     </p>
-    <a
-      href="/products/miTierraQuerida"
-      data-astro-prefetch
-      class="group relative overflow-hidden rounded-md bg-primary px-8 py-2 mt-8 text-neutral-50 hover:text-primary pointer-events-auto"
-    >
-      <span class="relative z-10 font-titan font-normal">Ver productos</span>
-      <span class="absolute inset-0 rounded-md">
-        <span
-          class="absolute left-0 aspect-square w-full origin-center -translate-x-full rounded-full bg-accent transition-all duration-500 group-hover:-translate-x-0 group-hover:scale-150"
-        ></span>
-      </span>
-    </a>
+    <div class="flex flex-col sm:flex-row gap-4 mt-8 pointer-events-auto">
+      <a
+        href="/products/miTierraQuerida"
+        class="btn-primary text-base"
+      >
+        Ver productos
+      </a>
+      <a
+        href="https://wa.me/573156481243?text=Hola!%20Quiero%20más%20información"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-outline text-base"
+      >
+        <WhatsAppIcon className="size-5" />
+        Contáctanos
+      </a>
+    </div>
   </div>
 
   <!-- Navigation Buttons -->
   <button
-    class="prev-btn cursor-pointer absolute top-1/2 left-4 md:left-12 -translate-y-1/2 bg-accent text-primary rounded-full hover:-translate-x-1 transition-transform hidden lg:block z-20 pointer-events-auto p-3"
+    class="prev-btn cursor-pointer absolute top-1/2 left-4 md:left-12 -translate-y-1/2 bg-white/10 hover:bg-accent text-white hover:text-primary rounded-full hover:-translate-x-1 transition-all hidden lg:block z-20 pointer-events-auto p-3 backdrop-blur-sm"
     aria-label="Previous slide"
   >
     <svg
-      width="12"
-      height="12"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
+      stroke-width="2.5"
       stroke-linecap="round"
       stroke-linejoin="round"
     >
@@ -78,16 +96,16 @@ const slides = [
   </button>
 
   <button
-    class="next-btn cursor-pointer absolute top-1/2 right-4 md:right-12 -translate-y-1/2 bg-accent text-primary rounded-full hover:translate-x-1 transition-transform hidden lg:block z-20 pointer-events-auto p-3"
+    class="next-btn cursor-pointer absolute top-1/2 right-4 md:right-12 -translate-y-1/2 bg-white/10 hover:bg-accent text-white hover:text-primary rounded-full hover:translate-x-1 transition-all hidden lg:block z-20 pointer-events-auto p-3 backdrop-blur-sm"
     aria-label="Next slide"
   >
     <svg
-      width="12"
-      height="12"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
+      stroke-width="2.5"
       stroke-linecap="round"
       stroke-linejoin="round"
     >
@@ -97,12 +115,12 @@ const slides = [
 
   <!-- Dots -->
   <div
-    class="dots-container absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 pointer-events-auto"
+    class="dots-container absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20 pointer-events-auto"
   >
     {
       slides.map((_, i) => (
         <button
-          class={`dot size-3 rounded-full transition ${i === 0 ? 'bg-white' : 'bg-white/50 hover:bg-white'}`}
+          class={`dot h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-accent w-8' : 'bg-white/40 hover:bg-white/60 w-4'}`}
           data-index={i}
           aria-label={`Go to slide ${i + 1}`}
         />
@@ -231,11 +249,11 @@ const slides = [
       // Update dots
       this.dots.forEach((dot, i) => {
         if (i === this.currentIndex) {
-          dot.classList.remove('bg-white/50')
-          dot.classList.add('bg-white')
+          dot.classList.remove('bg-white/40', 'w-4')
+          dot.classList.add('bg-accent', 'w-8')
         } else {
-          dot.classList.remove('bg-white')
-          dot.classList.add('bg-white/50')
+          dot.classList.remove('bg-accent', 'w-8')
+          dot.classList.add('bg-white/40', 'w-4')
         }
       })
 

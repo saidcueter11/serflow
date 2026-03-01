@@ -1,6 +1,7 @@
 ---
 import type { ImageMetadata } from 'astro'
 import { Image } from 'astro:assets'
+import { WhatsAppIcon } from './icons/WhatsappIcon'
 
 interface Props {
   images: ImageMetadata[]
@@ -21,7 +22,8 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
   data-product-name={productName}
 >
   <div
-    class="relative overflow-hidden rounded-lg h-full w-full aspect-square bg-gray-900"
+    class="relative overflow-hidden rounded-2xl h-full w-full aspect-square bg-surface"
+    data-zoom-container
   >
     <!-- Images Container -->
     <div class="relative w-full h-full" data-images-container>
@@ -42,12 +44,45 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
               fetchpriority={index === initialIndex ? 'high' : 'auto'}
               decoding="async"
               quality={80}
-              class="w-full h-full object-cover object-center rounded-lg"
+              widths={[640, 960, 1280]}
+              sizes="(max-width: 768px) 100vw, 768px"
+              class="w-full h-full object-cover object-center rounded-2xl"
+              data-zoom-image
               transition:name={`product-image-${id}`}
             />
           </div>
         ))
       }
+    </div>
+
+    <!-- Desktop: Zoom lens overlay -->
+    <div
+      data-zoom-lens
+      class="hidden md:block pointer-events-none absolute w-40 h-40 rounded-full border-2 border-accent/60 shadow-lg shadow-black/30 z-40 opacity-0 transition-opacity duration-150"
+      style="background-repeat: no-repeat; display: none;"
+    >
+    </div>
+
+    <!-- Mobile: Full-screen zoom overlay -->
+    <div
+      data-zoom-mobile-overlay
+      class="md:hidden absolute inset-0 z-40 rounded-2xl opacity-0 pointer-events-none transition-opacity duration-200"
+      style="background-repeat: no-repeat; background-size: 250%;"
+    >
+    </div>
+
+    <!-- Zoom hint icon -->
+    <div
+      data-zoom-hint
+      class="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-muted text-xs px-2.5 py-1.5 rounded-full z-30 flex items-center gap-1.5 pointer-events-none"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.35-4.35" stroke-linecap="round" />
+        <path d="M11 8v6M8 11h6" stroke-linecap="round" />
+      </svg>
+      <span class="hidden md:inline">Hover para zoom</span>
+      <span class="md:hidden">Toca para zoom</span>
     </div>
 
     {/* Navigation Arrows */}
@@ -58,7 +93,7 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
             type="button"
             aria-label="Imagen anterior"
             data-prev
-            class="cursor-pointer absolute left-4 top-1/2 -translate-y-1/2 hover:-translate-x-0.5 bg-accent/90 hover:bg-accent rounded-full p-2 md:flex hidden transition-all z-30 backdrop-blur-sm"
+            class="cursor-pointer absolute left-4 top-1/2 -translate-y-1/2 hover:-translate-x-0.5 bg-primary-lighter/80 hover:bg-accent rounded-full p-2.5 md:flex hidden transition-all z-30 backdrop-blur-sm text-muted hover:text-primary"
           >
             <svg
               class="w-6 h-6"
@@ -78,7 +113,7 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
             type="button"
             aria-label="Siguiente imagen"
             data-next
-            class="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 bg-accent/90 hover:bg-accent rounded-full p-2 md:flex hidden hover:translate-x-0.5 transition-all z-30 backdrop-blur-sm"
+            class="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 bg-primary-lighter/80 hover:bg-accent rounded-full p-2.5 md:flex hidden hover:translate-x-0.5 transition-all z-30 backdrop-blur-sm text-muted hover:text-primary"
           >
             <svg
               class="w-6 h-6"
@@ -125,14 +160,10 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
   {/* WhatsApp Button */}
   <button
     data-whatsapp
-    class="flex items-center mx-auto w-3/4 min-w-fit justify-center gap-2 bg-accent text-primary hover:bg-accent/80 active:bg-accent/80 cursor-pointer font-titan px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+    class="flex items-center mx-auto w-full justify-center gap-3 bg-accent text-primary hover:bg-accent/90 active:bg-accent/80 cursor-pointer font-titan px-6 py-4 rounded-2xl font-normal transition-all shadow-lg shadow-accent/10 hover:shadow-xl hover:shadow-accent/20 active:scale-[0.98] text-lg"
     aria-label="Contactar por WhatsApp"
   >
-    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path
-        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-      ></path>
-    </svg>
+    <WhatsAppIcon className="w-5 h-5" />
     Preguntar por WhatsApp
   </button>
 </div>
@@ -147,12 +178,25 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
     private touchStartX: number | null = null
     private totalSlides: number
 
+    // Zoom state
+    private zoomContainer: HTMLElement | null
+    private zoomLens: HTMLElement | null
+    private zoomMobileOverlay: HTMLElement | null
+    private zoomHint: HTMLElement | null
+    private isMobileZoomActive: boolean = false
+    private mobileZoomTimeout: number | null = null
+
     constructor(sliderElement: HTMLElement) {
       this.container = sliderElement
       this.slides = sliderElement.querySelectorAll('[data-slide]')
       this.dots = sliderElement.querySelectorAll('[data-dot]')
       this.counter = sliderElement.querySelector('[data-counter]')
       this.totalSlides = this.slides.length
+
+      this.zoomContainer = sliderElement.querySelector('[data-zoom-container]')
+      this.zoomLens = sliderElement.querySelector('[data-zoom-lens]')
+      this.zoomMobileOverlay = sliderElement.querySelector('[data-zoom-mobile-overlay]')
+      this.zoomHint = sliderElement.querySelector('[data-zoom-hint]')
 
       // Find initial active slide
       this.currentIndex = Array.from(this.slides).findIndex((slide) =>
@@ -176,16 +220,8 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
         dot.addEventListener('click', () => this.goTo(index))
       })
 
-      // Touch events
-      const imagesContainer = this.container.querySelector(
-        '[data-images-container]',
-      )
-      imagesContainer?.addEventListener('touchstart', (e) =>
-        this.handleTouchStart(e as TouchEvent),
-      )
-      imagesContainer?.addEventListener('touchmove', (e) =>
-        this.handleTouchMove(e as TouchEvent),
-      )
+      // Touch events for sliding
+      const imagesContainer = this.container.querySelector('[data-images-container]')
 
       // Keyboard navigation
       this.container.addEventListener('keydown', (e) => {
@@ -196,8 +232,182 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
       // WhatsApp button
       const whatsappBtn = this.container.querySelector('[data-whatsapp]')
       whatsappBtn?.addEventListener('click', () => this.handleWhatsApp())
+
+      // --- Desktop zoom ---
+      if (this.zoomContainer && this.zoomLens) {
+        this.zoomContainer.addEventListener('mouseenter', () => this.onDesktopZoomEnter())
+        this.zoomContainer.addEventListener('mousemove', (e) => this.onDesktopZoomMove(e))
+        this.zoomContainer.addEventListener('mouseleave', () => this.onDesktopZoomLeave())
+      }
+
+      // --- Mobile zoom ---
+      if (this.zoomContainer && this.zoomMobileOverlay) {
+        this.zoomContainer.addEventListener('touchstart', (e) => this.onMobileTouchStart(e), { passive: false })
+        this.zoomContainer.addEventListener('touchmove', (e) => this.onMobileTouchMove(e), { passive: false })
+        this.zoomContainer.addEventListener('touchend', (e) => this.onMobileTouchEnd(e))
+      }
     }
 
+    // --- Desktop zoom methods ---
+    private getCurrentImageSrc(): string | null {
+      const activeSlide = this.slides[this.currentIndex]
+      const img = activeSlide?.querySelector('img') as HTMLImageElement | null
+      return img?.currentSrc || img?.src || null
+    }
+
+    private onDesktopZoomEnter() {
+      const src = this.getCurrentImageSrc()
+      if (!src || !this.zoomLens || !this.zoomContainer) return
+
+      const rect = this.zoomContainer.getBoundingClientRect()
+      const zoomFactor = 2.5
+      const bgW = rect.width * zoomFactor
+      const bgH = rect.height * zoomFactor
+
+      this.zoomLens.style.display = 'block'
+      this.zoomLens.style.backgroundImage = `url(${src})`
+      this.zoomLens.style.backgroundSize = `${bgW}px ${bgH}px`
+      requestAnimationFrame(() => {
+        this.zoomLens!.style.opacity = '1'
+      })
+
+      if (this.zoomHint) this.zoomHint.style.opacity = '0'
+    }
+
+    private onDesktopZoomMove(e: MouseEvent) {
+      if (!this.zoomLens || !this.zoomContainer) return
+
+      const rect = this.zoomContainer.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      const zoomFactor = 2.5
+      const bgW = rect.width * zoomFactor
+      const bgH = rect.height * zoomFactor
+      const lensSize = 160 // w-40 = 10rem = 160px
+
+      // Background position: map cursor position to zoomed image
+      const bgX = (x / rect.width) * bgW - lensSize / 2
+      const bgY = (y / rect.height) * bgH - lensSize / 2
+
+      // Position lens centered on cursor
+      const lensX = x - lensSize / 2
+      const lensY = y - lensSize / 2
+
+      this.zoomLens.style.left = `${lensX}px`
+      this.zoomLens.style.top = `${lensY}px`
+      this.zoomLens.style.backgroundPosition = `-${bgX}px -${bgY}px`
+    }
+
+    private onDesktopZoomLeave() {
+      if (!this.zoomLens) return
+      this.zoomLens.style.opacity = '0'
+      setTimeout(() => {
+        this.zoomLens!.style.display = 'none'
+      }, 150)
+      if (this.zoomHint) this.zoomHint.style.opacity = '1'
+    }
+
+    // --- Mobile zoom methods ---
+    private mobileTouchStartX: number = 0
+    private mobileTouchStartY: number = 0
+    private mobileTouchStartTime: number = 0
+    private longPressTriggered: boolean = false
+
+    private onMobileTouchStart(e: TouchEvent) {
+      const touch = e.touches[0]
+      this.mobileTouchStartX = touch.clientX
+      this.mobileTouchStartY = touch.clientY
+      this.mobileTouchStartTime = Date.now()
+      this.longPressTriggered = false
+
+      // Long press to activate zoom
+      this.mobileZoomTimeout = window.setTimeout(() => {
+        this.longPressTriggered = true
+        this.activateMobileZoom(touch)
+        // Vibrate if supported
+        if (navigator.vibrate) navigator.vibrate(30)
+      }, 300)
+    }
+
+    private onMobileTouchMove(e: TouchEvent) {
+      const touch = e.touches[0]
+      const dx = Math.abs(touch.clientX - this.mobileTouchStartX)
+      const dy = Math.abs(touch.clientY - this.mobileTouchStartY)
+
+      if (this.isMobileZoomActive) {
+        e.preventDefault()
+        this.updateMobileZoom(touch)
+      } else if (dx > 10 || dy > 10) {
+        // User is swiping, cancel long press and handle slide swipe
+        this.cancelMobileZoom()
+
+        // Handle horizontal swipe for slides
+        if (!this.touchStartX && dx > dy) {
+          this.touchStartX = this.mobileTouchStartX
+        }
+        if (this.touchStartX !== null) {
+          const diff = this.touchStartX - touch.clientX
+          if (Math.abs(diff) > 50) {
+            diff > 0 ? this.next() : this.prev()
+            this.touchStartX = null
+          }
+        }
+      }
+    }
+
+    private onMobileTouchEnd(_e: TouchEvent) {
+      if (this.isMobileZoomActive) {
+        this.deactivateMobileZoom()
+      } else {
+        this.cancelMobileZoom()
+        this.touchStartX = null
+      }
+    }
+
+    private activateMobileZoom(touch: Touch) {
+      const src = this.getCurrentImageSrc()
+      if (!src || !this.zoomMobileOverlay || !this.zoomContainer) return
+
+      this.isMobileZoomActive = true
+      this.zoomMobileOverlay.style.backgroundImage = `url(${src})`
+      this.zoomMobileOverlay.style.pointerEvents = 'auto'
+      this.zoomMobileOverlay.style.opacity = '1'
+
+      this.updateMobileZoom(touch)
+      if (this.zoomHint) this.zoomHint.style.opacity = '0'
+    }
+
+    private updateMobileZoom(touch: Touch) {
+      if (!this.zoomMobileOverlay || !this.zoomContainer) return
+
+      const rect = this.zoomContainer.getBoundingClientRect()
+      const x = touch.clientX - rect.left
+      const y = touch.clientY - rect.top
+      const percX = Math.max(0, Math.min(100, (x / rect.width) * 100))
+      const percY = Math.max(0, Math.min(100, (y / rect.height) * 100))
+
+      this.zoomMobileOverlay.style.backgroundPosition = `${percX}% ${percY}%`
+    }
+
+    private deactivateMobileZoom() {
+      this.isMobileZoomActive = false
+      if (this.zoomMobileOverlay) {
+        this.zoomMobileOverlay.style.opacity = '0'
+        this.zoomMobileOverlay.style.pointerEvents = 'none'
+      }
+      if (this.zoomHint) this.zoomHint.style.opacity = '1'
+      this.cancelMobileZoom()
+    }
+
+    private cancelMobileZoom() {
+      if (this.mobileZoomTimeout) {
+        clearTimeout(this.mobileZoomTimeout)
+        this.mobileZoomTimeout = null
+      }
+    }
+
+    // --- Slide navigation ---
     private goTo(index: number) {
       const direction = index > this.currentIndex ? 1 : -1
 

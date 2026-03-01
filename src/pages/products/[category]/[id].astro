@@ -1,7 +1,6 @@
 ---
 import ProductPreview from '../../../components/ProductPreview.astro'
 import Layout from '../../../layouts/Layout.astro'
-import BackButton from '../../../components/utils/BackButton'
 import { CategoryLabels, mockProducts } from '../../../mocks/mockProducts'
 
 export const getStaticPaths = () => {
@@ -41,9 +40,29 @@ const imageUrl = `${siteUrl}${imageUrlRelative}`
 // SEO-friendly title and description
 const pageTitle = `${CategoryLabels[product.category]} #${product.id}`
 const pageDescription = `¿Te interesa este producto de ${CategoryLabels[product.category]}? ¡Contáctanos por WhatsApp para más información!`
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: pageTitle,
+  image: [imageUrl],
+  description: pageDescription,
+  category: CategoryLabels[product.category],
+  brand: {
+    '@type': 'Brand',
+    name: 'Serflow',
+  },
+  url: productUrl,
+  offers: {
+    '@type': 'Offer',
+    availability: 'https://schema.org/InStock',
+    priceCurrency: 'COP',
+    price: '0',
+    description: 'Consultar precio por WhatsApp',
+  },
+}
 ---
 
-<Layout title={pageTitle}>
+<Layout title={pageTitle} description={pageDescription}>
   <Fragment slot="head">
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="product" />
@@ -56,7 +75,7 @@ const pageDescription = `¿Te interesa este producto de ${CategoryLabels[product
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="1200" />
     <meta property="og:image:alt" content={pageTitle} />
-    <meta property="og:site_name" content="Tu Tienda" />
+    <meta property="og:site_name" content="Serflow" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -68,15 +87,26 @@ const pageDescription = `¿Te interesa este producto de ${CategoryLabels[product
     <meta property="og:locale" content="es_CO" />
 
     <!-- Additional SEO -->
-    <meta name="description" content={pageDescription} />
-    <link rel="canonical" href={productUrl} />
+    <meta property="product:availability" content="in stock" />
+    <script type="application/ld+json" set:html={JSON.stringify(productSchema)}></script>
   </Fragment>
 
   <div
-    class="mt-12 max-w-3xl w-full h-full mx-auto flex flex-col gap-3 font-vend-sans px-6"
+    class="mt-8 mb-10 md:mb-14 max-w-3xl w-full h-full mx-auto flex flex-col gap-4 font-vend-sans section-padding"
   >
-    <aside>
-      <BackButton fallbackUrl={`/products/${product.category}`} client:load />
+    <aside class="z-20">
+      <a
+        id="back-link"
+        href={`/products/${product.category}`}
+        class="inline-flex items-center gap-2 text-accent group cursor-pointer"
+      >
+        <span class="bg-accent text-primary rounded-full w-6 h-6 inline-flex items-center justify-center text-sm">
+          ←
+        </span>
+        <span class="underline-hover group-hover:after:origin-bottom group-hover:after:scale-x-100 group-active:after:scale-x-100 group-active:after:origin-bottom">
+          Volver atrás
+        </span>
+      </a>
     </aside>
 
     <main class="w-full h-full">
@@ -89,4 +119,15 @@ const pageDescription = `¿Te interesa este producto de ${CategoryLabels[product
       />
     </main>
   </div>
+
+  <script is:inline>
+    const backLink = document.getElementById('back-link')
+
+    backLink?.addEventListener('click', (e) => {
+      if (window.history.length > 1 && document.referrer) {
+        e.preventDefault()
+        window.history.back()
+      }
+    })
+  </script>
 </Layout>

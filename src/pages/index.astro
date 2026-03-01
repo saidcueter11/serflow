@@ -8,73 +8,157 @@ import SlideShow from '../components/SlideShow.astro'
 import Layout from '../layouts/Layout.astro'
 import { WhatsAppIcon } from '../components/icons/WhatsappIcon'
 import ContactForm from '../components/ContactForm.astro'
+import CategoryShowcase from '../components/CategoryShowcase.astro'
 import hat1 from '../assets/hat1.jpg'
 import hat2 from '../assets/hat2.jpg'
 import hat3 from '../assets/hat3.jpg'
+
+const homeDescription =
+  'Serflow en Cartagena: prendas personalizadas con diseños únicos, calidad premium y atención directa por WhatsApp.'
+
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ClothingStore',
+  name: 'Serflow',
+  description: homeDescription,
+  image: 'https://serflowctg.netlify.app/favicon.svg',
+  telephone: '+57 315 6481243',
+  email: 'distribuidoraelmayorista@hotmail.com',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Cartagena',
+    addressCountry: 'CO',
+  },
+  areaServed: 'Cartagena, Colombia',
+  url: 'https://serflowctg.netlify.app/',
+  sameAs: [
+    'https://wa.me/573156481243',
+  ],
+}
 ---
 
-<Layout title="Serflow">
-  <main class="flex flex-col items-center my-8 gap-12 font-vend-sans">
-    <SlideShow />
-    <SectionContainer title="¿Quiénes somos?">
-      <p class="text-center font-vend-sans">
-        Somos una tienda dedicada a la creación de prendas personalizadas que
-        reflejan tu identidad. <br /><br /> Creemos que la ropa no solo se usa, se
-        vive. Por eso combinamos calidad, creatividad y libertad para que cada cliente
-        lleve algo verdaderamente suyo.
-      </p>
-    </SectionContainer>
+<Layout
+  title="Serflow — Prendas personalizadas en Cartagena"
+  description={homeDescription}
+>
+  <Fragment slot="head">
+    <meta property="og:locale" content="es_CO" />
+    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)}></script>
+  </Fragment>
 
-    <SectionContainer title="¿Por qué elegirnos?">
-      <div
-        class="grid sm:grid-cols-2 gap-8 items-baseline prose prose-img:m-0 prose-invert"
-      >
-        <Card img={hat1} title="Diseños 100 % personalizados" />
-        <Card img={hat2} title="Bordados y estampados de alta calidad" />
-        <Card img={hat3} title="Atención personalizada" span />
+  <!-- Hero -->
+  <SlideShow />
+
+  <main class="flex flex-col items-center gap-20 md:gap-28 py-16 md:py-24">
+    <!-- About -->
+    <SectionContainer title="¿Quiénes somos?">
+      <div class="max-w-2xl mx-auto text-center">
+        <p class="text-muted font-vend-sans leading-relaxed text-base md:text-lg">
+          Somos una tienda en <span class="text-accent font-medium">Cartagena</span> dedicada a la
+          creación de prendas personalizadas que reflejan tu identidad.
+        </p>
+        <p class="text-muted font-vend-sans leading-relaxed text-base md:text-lg mt-4">
+          Creemos que la ropa no solo se usa, <span class="text-white font-medium">se vive</span>.
+          Por eso combinamos calidad, creatividad y libertad para que cada
+          cliente lleve algo verdaderamente suyo.
+        </p>
       </div>
     </SectionContainer>
 
+    <!-- Categories -->
+    <SectionContainer title="Nuestras Categorías">
+      <CategoryShowcase />
+    </SectionContainer>
+
+    <!-- Why Us -->
+    <SectionContainer title="¿Por qué elegirnos?">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
+        <Card img={hat1} title="Diseños 100 % personalizados" />
+        <Card img={hat2} title="Bordados y estampados de alta calidad" />
+        <Card img={hat3} title="Atención personalizada por WhatsApp" />
+      </div>
+    </SectionContainer>
+
+    <!-- Location -->
     <SectionContainer
-      title="Ubicación"
+      title="Encuéntranos"
+      id="ubicacion"
       description="Calle fictia #67-112"
-      scheduleWeekday="Lunes a sábado, 8 a. m. - 6 p. m."
-      scheduleWeekend="Domingo y festivos, 8 a. m. - 2 p. m."
+      scheduleWeekday="Lunes a sábado, 8 a.m. – 6 p.m."
+      scheduleWeekend="Domingo y festivos, 8 a.m. – 2 p.m."
       flexRow
     >
-      <div class="w-full">
+      <div class="w-full rounded-2xl overflow-hidden shadow-xl shadow-black/20">
         <iframe
+          title="Mapa de ubicación de Serflow en Cartagena"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.1040576904143!2d-75.5238772!3d10.4133097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ef62592f68c041b%3A0x3b6e98a99be2e1de!2sSerflow!5e0!3m2!1ses-419!2sco!4v1747794709936!5m2!1ses-419!2sco"
-          class="w-full rounded-xl"
+          class="w-full aspect-video"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
     </SectionContainer>
 
-    <SectionContainer title="Contáctanos">
-      <div class="flex md:flex-row flex-col gap-8">
-        <ContactForm />
-        <div>
-          <div>
-            <h4 class="font-medium">Contacto</h4>
-            <span class="text-sm tracking-wider"
-              >distribuidoraelmayorista@hotmail.com</span
-            >
+    <!-- Contact -->
+    <section id="contacto" class="w-full max-w-6xl mx-auto section-padding">
+      <div class="bg-surface rounded-3xl p-8 md:p-12 border border-primary-lighter/70">
+        <div class="flex md:flex-row flex-col gap-10 md:gap-16">
+          <div class="flex-1">
+            <div class="flex flex-col gap-2 mb-8">
+              <div class="h-0.5 w-10 bg-accent rounded-full"></div>
+              <h2 class="text-2xl md:text-3xl font-titan font-normal text-white">
+                Contáctanos
+              </h2>
+              <p class="text-muted/90 font-vend-sans text-sm mt-1">
+                ¿Tienes alguna pregunta? Escríbenos y te responderemos por WhatsApp.
+              </p>
+            </div>
+            <ContactForm />
           </div>
+          <div class="md:w-64 flex flex-col gap-6 font-vend-sans">
+            <div class="flex flex-col gap-1.5">
+              <h4 class="font-medium text-accent text-sm tracking-wide uppercase">
+                Correo
+              </h4>
+              <span class="text-muted text-sm break-all">
+                distribuidoraelmayorista@hotmail.com
+              </span>
+            </div>
 
-          <div>
-            <h4 class="font-medium">Localizados en</h4>
-            <span class="text-sm tracking-wider">Cartagena, Colombia</span>
-          </div>
+            <div class="flex flex-col gap-1.5">
+              <h4 class="font-medium text-accent text-sm tracking-wide uppercase">
+                Ubicación
+              </h4>
+              <span class="text-muted text-sm">Cartagena, Colombia</span>
+            </div>
 
-          <div class="flex items-center gap-4 mt-10">
-            <FacebookIcon />
-            <InstagramIcon />
-            <WhatsAppIcon />
-            <TiktokIcon />
+            <div class="flex flex-col gap-3">
+              <h4 class="font-medium text-accent text-sm tracking-wide uppercase">
+                Síguenos
+              </h4>
+              <div class="flex items-center gap-3">
+                <span class="text-muted/60" aria-label="Facebook próximamente" title="Facebook próximamente">
+                  <FacebookIcon />
+                </span>
+                <span class="text-muted/60" aria-label="Instagram próximamente" title="Instagram próximamente">
+                  <InstagramIcon />
+                </span>
+                <a
+                  href="https://wa.me/573156481243"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-muted/80 hover:text-accent transition-colors"
+                  aria-label="WhatsApp"
+                >
+                  <WhatsAppIcon />
+                </a>
+                <span class="text-muted/60" aria-label="TikTok próximamente" title="TikTok próximamente">
+                  <TiktokIcon />
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </SectionContainer>
+    </section>
   </main>
 </Layout>

@@ -1,0 +1,105 @@
+---
+import { Image } from 'astro:assets'
+import Logo from '../assets/LOGO SERFLOW.png'
+import { FacebookIcon } from './icons/FacebookIcon'
+import { InstagramIcon } from './icons/InstagramIcon'
+import { TiktokIcon } from './icons/TiktokIcon'
+import { WhatsAppIcon } from './icons/WhatsappIcon'
+---
+
+<footer class="bg-surface border-t border-primary-lighter/70 mt-auto">
+  <div class="max-w-6xl mx-auto section-padding py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <!-- Brand -->
+      <div class="flex flex-col gap-4">
+        <Image src={Logo} alt="Serflow" class="w-28" />
+        <p class="text-muted text-sm font-vend-sans leading-relaxed max-w-xs">
+          Calidad que enamora, precios que te hacen volver. Prendas
+          personalizadas en Cartagena, Colombia.
+        </p>
+      </div>
+
+      <!-- Quick links -->
+      <div class="flex flex-col gap-4 font-vend-sans">
+        <h4 class="text-accent font-titan font-normal text-lg">Navegación</h4>
+        <nav class="flex flex-col gap-2">
+          <a
+            href="/"
+            class="text-muted hover:text-white transition-colors text-sm"
+            >Inicio</a
+          >
+          <a
+            href="/products/miTierraQuerida"
+            class="text-muted hover:text-white transition-colors text-sm"
+            >Productos</a
+          >
+          <a
+            href="/#ubicacion"
+            class="text-muted hover:text-white transition-colors text-sm"
+            >Ubicación</a
+          >
+          <a
+            href="/#contacto"
+            class="text-muted hover:text-white transition-colors text-sm"
+            >Contacto</a
+          >
+        </nav>
+      </div>
+
+      <!-- Contact -->
+      <div class="flex flex-col gap-4 font-vend-sans">
+        <h4 class="text-accent font-titan font-normal text-lg">Contacto</h4>
+        <div class="flex flex-col gap-2 text-sm text-muted">
+          <span>📍 Cartagena, Colombia</span>
+          <span>📧 distribuidoraelmayorista@hotmail.com</span>
+          <span>🕐 Lun–Sáb: 8 a.m. – 6 p.m.</span>
+          <span>🕐 Dom y festivos: 8 a.m. – 2 p.m.</span>
+        </div>
+        <div class="flex items-center gap-3 mt-2">
+          <span
+            class="text-muted/60"
+            aria-label="Facebook próximamente"
+            title="Facebook próximamente"
+          >
+            <FacebookIcon />
+          </span>
+          <span
+            class="text-muted/60"
+            aria-label="Instagram próximamente"
+            title="Instagram próximamente"
+          >
+            <InstagramIcon />
+          </span>
+          <a
+            href="https://wa.me/573156481243"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-muted hover:text-accent transition-colors"
+            aria-label="WhatsApp"
+          >
+            <WhatsAppIcon />
+          </a>
+          <span
+            class="text-muted/60"
+            aria-label="TikTok próximamente"
+            title="TikTok próximamente"
+          >
+            <TiktokIcon />
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div
+      class="mt-10 pt-6 border-t border-primary-lighter/70 flex flex-col md:flex-row justify-between items-center gap-3"
+    >
+      <p class="text-muted/60 text-xs font-vend-sans">
+        © {new Date().getFullYear()} Serflow. Todos los derechos reservados.
+      </p>
+      <p class="text-muted/40 text-xs font-vend-sans">
+        Hecho con ❤️ en Cartagena
+      </p>
+    </div>
+  </div>
+</footer>

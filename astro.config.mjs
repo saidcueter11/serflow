@@ -2,10 +2,15 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react'
+import sitemap from '@astrojs/sitemap'
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://serflowctg.netlify.app/',
+  prefetch: {
+    defaultStrategy: 'hover',
+    prefetchAll: true,
+  },
   vite: {
     plugins: [tailwindcss()]
   },
@@ -14,5 +19,5 @@ export default defineConfig({
     port: 4231,
   },
 
-  integrations: [react()]
+  integrations: [react(), sitemap()]
 });
