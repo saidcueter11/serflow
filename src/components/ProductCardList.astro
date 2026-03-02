@@ -1,54 +1,46 @@
 ---
 import {
-  Categories,
-  CategoryLabels,
+  getCategories,
   getProductsByCategory,
-} from '../mocks/mockProducts'
+  getCategoryBySlug,
+} from '../lib/products'
 import ProductCard from './ProductCard.astro'
-import miTierraQuerida from '../assets/miTierraQuerida.jpg'
-import baseball from '../assets/beisbol.jpg'
-import kids from '../assets/kids.png'
-import basketball from '../assets/basketball.jpg'
-import moda from '../assets/images/moda/moda1.webp'
-import { Image } from 'astro:assets'
 
 interface Props {
-  currentCategory: Categories
+  currentCategorySlug: string
 }
 
-const { currentCategory } = Astro.props as Props
+const { currentCategorySlug } = Astro.props
 
-const categoryImages: Record<Categories, ImageMetadata> = {
-  [Categories.miTierraQuerida]: miTierraQuerida,
-  [Categories.beisbol]: baseball,
-  [Categories.basketball]: basketball,
-  [Categories.kids]: kids,
-  [Categories.moda]: moda,
-}
+const [categories, products, currentCategory] = await Promise.all([
+  getCategories(),
+  getProductsByCategory(currentCategorySlug),
+  getCategoryBySlug(currentCategorySlug),
+])
 
-const categoryImage = categoryImages[currentCategory] ?? miTierraQuerida
-const filteredProductList = getProductsByCategory(currentCategory)
+const categoryLabel = currentCategory?.label ?? currentCategorySlug
+const categoryImage = currentCategory?.image_url
 ---
 
 <!-- Hero banner -->
-<div class="relative w-full rounded-2xl overflow-hidden" transition:persist={currentCategory}>
-  <Image
-    class="w-full h-48 md:h-56 object-cover object-center"
-    src={categoryImage}
-    fetchpriority="high"
-    alt={`Colección ${CategoryLabels[currentCategory]} de Serflow`}
-    format="webp"
-    quality={75}
-    widths={[640, 1280]}
-    sizes="100vw"
-  />
+<div class="relative w-full rounded-2xl overflow-hidden" transition:persist={currentCategorySlug}>
+  {categoryImage ? (
+    <img
+      class="w-full h-48 md:h-56 object-cover object-center"
+      src={categoryImage}
+      fetchpriority="high"
+      alt={`Colección ${categoryLabel} de Serflow`}
+    />
+  ) : (
+    <div class="w-full h-48 md:h-56 bg-zinc-800" />
+  )}
   <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent"></div>
   <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
     <h1 class="text-3xl md:text-4xl font-titan font-normal text-white">
-      {CategoryLabels[currentCategory]}
+      {categoryLabel}
     </h1>
     <p class="text-muted font-vend-sans text-sm mt-1">
-      {filteredProductList.length} productos disponibles
+      {products.length} productos disponibles
     </p>
   </div>
 </div>
@@ -56,16 +48,16 @@ const filteredProductList = getProductsByCategory(currentCategory)
 <!-- Category tabs -->
 <div class="flex gap-2 text-sm flex-wrap justify-start mt-6">
   {
-    Object.values(Categories).map((category) => (
+    categories.map((category) => (
       <a
-        href={`/products/${category}`}
+        href={`/products/${category.slug}`}
         class={`cursor-pointer rounded-full px-5 py-2 no-underline font-vend-sans font-medium transition-all duration-300 text-sm ${
-          currentCategory === category
+          currentCategorySlug === category.slug
             ? 'bg-accent text-primary'
             : 'bg-surface text-muted hover:text-white border border-primary-lighter hover:border-accent/30'
         }`}
       >
-        {CategoryLabels[category]}
+        {category.label}
       </a>
     ))
   }
@@ -73,7 +65,7 @@ const filteredProductList = getProductsByCategory(currentCategory)
 
 <!-- Product grid -->
 {
-  filteredProductList.length === 0 ? (
+  products.length === 0 ? (
     <div class="mt-8 rounded-2xl border border-primary-lighter bg-surface p-8 text-center">
       <p class="text-muted font-vend-sans">
         No hay productos disponibles en esta categoría por ahora.
@@ -81,17 +73,15 @@ const filteredProductList = getProductsByCategory(currentCategory)
     </div>
   ) : (
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-8">
-      {
-        filteredProductList.map((product, index) => (
-          <ProductCard
-            id={product.id}
-            imagePath={product.imagePath}
-            category={currentCategory}
-            altText={`${CategoryLabels[currentCategory]} #${product.id}`}
-            preload={index < 4}
-          />
-        ))
-      }
+      {products.map((product, index) => (
+        <ProductCard
+          slug={product.slug}
+          imageUrl={product.image_urls[0] ?? ''}
+          categorySlug={currentCategorySlug}
+          altText={`${categoryLabel} — ${product.name}`}
+          preload={index < 4}
+        />
+      ))}
     </div>
   )
 }

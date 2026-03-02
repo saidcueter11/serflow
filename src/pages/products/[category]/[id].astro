@@ -1,52 +1,49 @@
 ---
 import ProductPreview from '../../../components/ProductPreview.astro'
 import Layout from '../../../layouts/Layout.astro'
-import { CategoryLabels, mockProducts } from '../../../mocks/mockProducts'
+import { getProducts } from '../../../lib/products'
+import type { Product } from '../../../lib/types'
 
-export const getStaticPaths = () => {
-  return mockProducts.map((product) => ({
-    params: { category: product.category, id: product.id.toString() },
+export async function getStaticPaths() {
+  const products = await getProducts()
+  return products.map((product) => ({
+    params: {
+      category: product.categories?.slug ?? '',
+      id: product.slug,
+    },
     props: { product },
   }))
 }
 
-const { product } = Astro.props
-
-// Load only this specific product's image
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '../../../assets/images/**/*.webp',
-  { eager: true },
-)
-const imagePath = `../../../assets/images/${product.imagePath}`
-
-if (!images[imagePath]) {
-  throw new Error(`Image not found: ${imagePath}`)
+interface Props {
+  product: Product
 }
 
-const imageModule = images[imagePath]
+const { product } = Astro.props
 
-// For now, since each product has only 1 image, create an array with just that image
-const productImages = [imageModule.default]
+const productImages = product.image_urls
+const mainImage = productImages[0] ?? ''
+const categorySlug = product.categories?.slug ?? ''
+const categoryLabel = product.categories?.label ?? ''
 
 // Build proper URLs
 const siteUrl =
-  Astro.site?.toString().replace(/\/$/, '') || 'https://yoursite.com'
-const productUrl = `${siteUrl}/products/${product.category}/${product.id}`
-
-// Get absolute image URL - Astro images have .src property with relative path
-const imageUrlRelative = imageModule.default.src
-const imageUrl = `${siteUrl}${imageUrlRelative}`
+  Astro.site?.toString().replace(/\/$/, '') || 'https://serflowctg.netlify.app'
+const productUrl = `${siteUrl}/products/${categorySlug}/${product.slug}`
+const imageUrl = mainImage
 
 // SEO-friendly title and description
-const pageTitle = `${CategoryLabels[product.category]} #${product.id}`
-const pageDescription = `¿Te interesa este producto de ${CategoryLabels[product.category]}? ¡Contáctanos por WhatsApp para más información!`
+const pageTitle = product.name
+const pageDescription =
+  product.description ||
+  `¿Te interesa este producto de ${categoryLabel}? ¡Contáctanos por WhatsApp para más información!`
 const productSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: pageTitle,
-  image: [imageUrl],
+  image: productImages,
   description: pageDescription,
-  category: CategoryLabels[product.category],
+  category: categoryLabel,
   brand: {
     '@type': 'Brand',
     name: 'Serflow',
@@ -56,8 +53,8 @@ const productSchema = {
     '@type': 'Offer',
     availability: 'https://schema.org/InStock',
     priceCurrency: 'COP',
-    price: '0',
-    description: 'Consultar precio por WhatsApp',
+    price: product.price?.toString() ?? '0',
+    description: product.price ? undefined : 'Consultar precio por WhatsApp',
   },
 }
 ---
@@ -97,7 +94,7 @@ const productSchema = {
     <aside class="z-20">
       <a
         id="back-link"
-        href={`/products/${product.category}`}
+        href={`/products/${categorySlug}`}
         class="inline-flex items-center gap-2 text-accent group cursor-pointer"
       >
         <span class="bg-accent text-primary rounded-full w-6 h-6 inline-flex items-center justify-center text-sm">
@@ -111,10 +108,10 @@ const productSchema = {
 
     <main class="w-full h-full">
       <ProductPreview
-        id={product.id}
-        mainImage={imageModule.default}
+        slug={product.slug}
+        mainImage={mainImage}
         images={productImages}
-        alt={CategoryLabels[product.category]}
+        alt={categoryLabel}
         productName={pageTitle}
       />
     </main>
