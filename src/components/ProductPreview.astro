@@ -1,19 +1,17 @@
 ---
-import type { ImageMetadata } from 'astro'
-import { Image } from 'astro:assets'
 import { WhatsAppIcon } from './icons/WhatsappIcon'
 
 interface Props {
-  images: ImageMetadata[]
-  mainImage: ImageMetadata
+  images: string[]
+  mainImage: string
   alt: string
-  id: number
+  slug: string
   productName?: string
 }
 
-const { images, mainImage, alt, id, productName } = Astro.props
+const { images, mainImage, alt, slug, productName } = Astro.props
 const hasMultipleImages = images.length > 1
-const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
+const initialIndex = images.findIndex((img) => img === mainImage) || 0
 ---
 
 <div
@@ -37,18 +35,15 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
             }`}
             data-slide={index}
           >
-            <Image
+            <img
               src={image}
               alt={`${alt} - imagen ${index + 1} de ${images.length}`}
               loading={index === initialIndex ? 'eager' : 'lazy'}
               fetchpriority={index === initialIndex ? 'high' : 'auto'}
               decoding="async"
-              quality={80}
-              widths={[640, 960, 1280]}
-              sizes="(max-width: 768px) 100vw, 768px"
               class="w-full h-full object-cover object-center rounded-2xl"
               data-zoom-image
-              transition:name={`product-image-${id}`}
+              transition:name={index === initialIndex ? `product-image-${slug}` : undefined}
             />
           </div>
         ))

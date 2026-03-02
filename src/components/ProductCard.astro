@@ -1,27 +1,18 @@
 ---
-import type { Categories } from '../mocks/mockProducts'
-import { Image } from 'astro:assets'
-
 interface Props {
-  id: number
-  imagePath: string
-  category: Categories
+  slug: string
+  imageUrl: string
+  categorySlug: string
   altText?: string
   preload?: boolean
 }
 
-const { id, imagePath, category, altText, preload } = Astro.props
-
-// Dynamically import only the image we need
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/images/**/*.webp',
-)
-const imageSrc = await images[`../assets/images/${imagePath}`]()
+const { slug, imageUrl, categorySlug, altText, preload } = Astro.props
 ---
 
 <div class="group">
   <a
-    href={`/products/${category}/${id}`}
+    href={`/products/${categorySlug}/${slug}`}
     class="block rounded-2xl overflow-hidden bg-surface border border-white/5 hover:border-accent/20 transition-all duration-300"
     style="border-radius: 1rem; overflow: hidden;"
   >
@@ -29,24 +20,20 @@ const imageSrc = await images[`../assets/images/${imagePath}`]()
       <!-- Loading skeleton -->
       <div
         class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-light via-primary-lighter to-primary-light bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"
-        data-image-id={id}
+        data-image-id={slug}
       >
       </div>
 
       <!-- Actual image -->
-      <Image
-        src={imageSrc.default}
-        alt={altText ?? `${category} ${id}`}
-        format="webp"
-        widths={[320, 640]}
-        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
+      <img
+        src={imageUrl}
+        alt={altText ?? slug}
         fetchpriority={preload ? 'high' : 'auto'}
         loading={preload ? 'eager' : 'lazy'}
         decoding="async"
-        quality={78}
         class="w-full h-full object-cover object-center relative z-10 rounded-2xl animate-[fadeIn_0.3s_ease-in] group-hover:scale-105 transition-transform duration-500"
-        transition:name={`product-image-${id}`}
-        onload={`document.querySelector('[data-image-id="${id}"]')?.classList.add('hidden')`}
+        transition:name={`product-image-${slug}`}
+        onload={`document.querySelector('[data-image-id="${slug}"]')?.classList.add('hidden')`}
       />
 
       <!-- Hover overlay with CTA -->

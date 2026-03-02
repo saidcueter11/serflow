@@ -1,18 +1,24 @@
 ---
 import ProductCardList from '../../../components/ProductCardList.astro'
 import Layout from '../../../layouts/Layout.astro'
-import { Categories, CategoryLabels } from '../../../mocks/mockProducts'
+import { getCategories } from '../../../lib/products'
+import type { Category } from '../../../lib/types'
 
 export async function getStaticPaths() {
-  return Object.values(Categories).map((category) => ({
-    params: { category },
+  const categories = await getCategories()
+  return categories.map((category) => ({
+    params: { category: category.slug },
+    props: { category },
   }))
 }
 
-const { category } = Astro.params
-const categoryLabel = CategoryLabels[category]
-const pageTitle = `${categoryLabel} — Serflow`
-const pageDescription = `Explora la colección de ${categoryLabel} en Serflow. Prendas personalizadas con atención por WhatsApp en Cartagena.`
+interface Props {
+  category: Category
+}
+
+const { category } = Astro.props
+const pageTitle = `${category.label} — Serflow`
+const pageDescription = `Explora la colección de ${category.label} en Serflow. Prendas personalizadas con atención por WhatsApp en Cartagena.`
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
@@ -21,6 +27,6 @@ const pageDescription = `Explora la colección de ${categoryLabel} en Serflow. P
   </Fragment>
 
   <main class="max-w-6xl mx-auto w-full section-padding py-6">
-    <ProductCardList currentCategory={category} />
+    <ProductCardList currentCategorySlug={category.slug} />
   </main>
 </Layout>

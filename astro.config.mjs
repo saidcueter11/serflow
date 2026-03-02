@@ -7,6 +7,14 @@ import sitemap from '@astrojs/sitemap'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://serflowctg.netlify.app/',
+  image: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+    ],
+  },
   prefetch: {
     defaultStrategy: 'hover',
     prefetchAll: true,

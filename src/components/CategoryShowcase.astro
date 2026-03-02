@@ -1,63 +1,27 @@
 ---
-import { Image } from 'astro:assets'
-import {
-  Categories,
-  CategoryLabels,
-  getProductsByCategory,
-} from '../mocks/mockProducts'
-import miTierraQuerida from '../assets/miTierraQuerida.jpg'
-import baseball from '../assets/beisbol.jpg'
-import kids from '../assets/kids.png'
-import basketball from '../assets/basketball.jpg'
-import moda from '../assets/images/moda/moda1.webp'
+import { getCategoriesWithCounts } from '../lib/products'
 
-const categories = [
-  {
-    key: Categories.miTierraQuerida,
-    label: CategoryLabels[Categories.miTierraQuerida],
-    image: miTierraQuerida,
-  },
-  {
-    key: Categories.beisbol,
-    label: CategoryLabels[Categories.beisbol],
-    image: baseball,
-  },
-  {
-    key: Categories.basketball,
-    label: CategoryLabels[Categories.basketball],
-    image: basketball,
-  },
-  {
-    key: Categories.kids,
-    label: CategoryLabels[Categories.kids],
-    image: kids,
-  },
-  {
-    key: Categories.moda,
-    label: CategoryLabels[Categories.moda],
-    image: moda,
-  },
-].map((category) => ({
-  ...category,
-  count: getProductsByCategory(category.key).length,
-}))
+const categories = await getCategoriesWithCounts()
 ---
 
 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
   {
     categories.map((cat) => (
       <a
-        href={`/products/${cat.key}`}
+        href={`/products/${cat.slug}`}
         class="group relative rounded-2xl overflow-hidden aspect-[3/4] block"
       >
-        <Image
-          src={cat.image}
-          alt={cat.label}
-          class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-          widths={[320, 640]}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          quality={75}
-        />
+        {cat.image_url ? (
+          <img
+            src={cat.image_url}
+            alt={cat.label}
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+          />
+        ) : (
+          <div class="absolute inset-0 bg-zinc-800" />
+        )}
         <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/30 to-transparent" />
         <div class="absolute inset-0 bg-accent/0 group-hover:bg-accent/10 transition-colors duration-300" />
         <div class="absolute bottom-0 left-0 right-0 p-4">
@@ -65,7 +29,7 @@ const categories = [
             {cat.label}
           </h3>
           <span class="text-muted font-vend-sans text-xs mt-1 block">
-            {cat.count} productos
+            {cat.product_count} productos
           </span>
         </div>
       </a>
