@@ -245,6 +245,7 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
         this.zoomContainer.addEventListener('touchstart', (e) => this.onMobileTouchStart(e), { passive: false })
         this.zoomContainer.addEventListener('touchmove', (e) => this.onMobileTouchMove(e), { passive: false })
         this.zoomContainer.addEventListener('touchend', (e) => this.onMobileTouchEnd(e))
+        this.zoomContainer.addEventListener('touchcancel', () => this.onMobileTouchCancel())
       }
     }
 
@@ -311,19 +312,25 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
     // --- Mobile zoom methods ---
     private mobileTouchStartX: number = 0
     private mobileTouchStartY: number = 0
-    private mobileTouchStartTime: number = 0
-    private longPressTriggered: boolean = false
+    private activeTouchId: number | null = null
 
     private onMobileTouchStart(e: TouchEvent) {
+      if (e.touches.length === 0) return
+
       const touch = e.touches[0]
+      this.activeTouchId = touch.identifier
       this.mobileTouchStartX = touch.clientX
       this.mobileTouchStartY = touch.clientY
-      this.mobileTouchStartTime = Date.now()
-      this.longPressTriggered = false
+
+      // If already zooming, just update position from current touch
+      if (this.isMobileZoomActive) {
+        e.preventDefault()
+        this.updateMobileZoom(touch)
+        return
+      }
 
       // Long press to activate zoom
       this.mobileZoomTimeout = window.setTimeout(() => {
-        this.longPressTriggered = true
         this.activateMobileZoom(touch)
         // Vibrate if supported
         if (navigator.vibrate) navigator.vibrate(30)
@@ -331,7 +338,13 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
     }
 
     private onMobileTouchMove(e: TouchEvent) {
-      const touch = e.touches[0]
+      if (e.touches.length === 0) return
+
+      const touch =
+        this.activeTouchId !== null
+          ? Array.from(e.touches).find((t) => t.identifier === this.activeTouchId) ?? e.touches[0]
+          : e.touches[0]
+
       const dx = Math.abs(touch.clientX - this.mobileTouchStartX)
       const dy = Math.abs(touch.clientY - this.mobileTouchStartY)
 
@@ -356,13 +369,28 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
       }
     }
 
-    private onMobileTouchEnd(_e: TouchEvent) {
+    private onMobileTouchEnd(e: TouchEvent) {
       if (this.isMobileZoomActive) {
-        this.deactivateMobileZoom()
+        const stillHoldingSameTouch =
+          this.activeTouchId !== null &&
+          Array.from(e.touches).some((t) => t.identifier === this.activeTouchId)
+
+        if (!stillHoldingSameTouch) {
+          this.deactivateMobileZoom()
+          this.activeTouchId = null
+        }
       } else {
         this.cancelMobileZoom()
         this.touchStartX = null
+        this.activeTouchId = null
       }
+    }
+
+    private onMobileTouchCancel() {
+      this.deactivateMobileZoom()
+      this.cancelMobileZoom()
+      this.touchStartX = null
+      this.activeTouchId = null
     }
 
     private activateMobileZoom(touch: Touch) {
@@ -371,7 +399,7 @@ const initialIndex = images.findIndex((img) => img.src === mainImage.src) || 0
 
       this.isMobileZoomActive = true
       this.zoomMobileOverlay.style.backgroundImage = `url(${src})`
-      this.zoomMobileOverlay.style.pointerEvents = 'auto'
+      this.zoomMobileOverlay.style.pointerEvents = 'none'
       this.zoomMobileOverlay.style.opacity = '1'
 
       this.updateMobileZoom(touch)

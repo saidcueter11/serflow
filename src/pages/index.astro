@@ -1,5 +1,4 @@
 ---
-import Card from '../components/Card.astro'
 import { FacebookIcon } from '../components/icons/FacebookIcon'
 import { TiktokIcon } from '../components/icons/TiktokIcon'
 import { InstagramIcon } from '../components/icons/InstagramIcon'
@@ -9,9 +8,6 @@ import Layout from '../layouts/Layout.astro'
 import { WhatsAppIcon } from '../components/icons/WhatsappIcon'
 import ContactForm from '../components/ContactForm.astro'
 import CategoryShowcase from '../components/CategoryShowcase.astro'
-import hat1 from '../assets/hat1.jpg'
-import hat2 from '../assets/hat2.jpg'
-import hat3 from '../assets/hat3.jpg'
 
 const homeDescription =
   'Serflow en Cartagena: prendas personalizadas con diseños únicos, calidad premium y atención directa por WhatsApp.'
@@ -35,6 +31,27 @@ const localBusinessSchema = {
     'https://wa.me/573156481243',
   ],
 }
+
+const reasons = [
+  {
+    title: 'Diseño totalmente a tu gusto',
+    description:
+      'Cada prenda se adapta a tu idea, estilo y necesidad. Nada genérico, todo pensado para ti.',
+    accent: '01',
+  },
+  {
+    title: 'Acabados de alta calidad',
+    description:
+      'Trabajamos bordado y estampado con materiales duraderos para que tu prenda se vea y se sienta premium.',
+    accent: '02',
+  },
+  {
+    title: 'Atención rápida por WhatsApp',
+    description:
+      'Te asesoramos directamente, resolvemos dudas y coordinamos tu pedido sin vueltas.',
+    accent: '03',
+  },
+]
 ---
 
 <Layout
@@ -72,10 +89,40 @@ const localBusinessSchema = {
 
     <!-- Why Us -->
     <SectionContainer title="¿Por qué elegirnos?">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
-        <Card img={hat1} title="Diseños 100 % personalizados" />
-        <Card img={hat2} title="Bordados y estampados de alta calidad" />
-        <Card img={hat3} title="Atención personalizada por WhatsApp" />
+      <div class="w-full max-w-6xl mx-auto">
+        <p class="text-muted text-center max-w-2xl mx-auto font-vend-sans mb-8 md:mb-10">
+          Más que vender prendas, te acompañamos para que tu idea cobre vida con identidad propia.
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-4 md:gap-5">
+          {
+            reasons.map((reason) => (
+              <article class="group relative rounded-2xl border border-primary-lighter bg-surface/70 p-5 md:p-6 hover:border-accent/40 transition-colors duration-300">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/15 text-accent font-titan text-sm mb-4">
+                  {reason.accent}
+                </span>
+                <h3 class="text-white text-lg md:text-xl leading-snug font-titan font-normal mb-2.5">
+                  {reason.title}
+                </h3>
+                <p class="text-muted font-vend-sans text-sm md:text-base leading-relaxed">
+                  {reason.description}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="mt-6 md:mt-8 flex flex-wrap items-center justify-center gap-2.5 md:gap-3">
+          <span class="px-3.5 py-1.5 rounded-full text-xs md:text-sm bg-primary-lighter text-muted border border-primary-lighter/70">
+            Respuesta rápida
+          </span>
+          <span class="px-3.5 py-1.5 rounded-full text-xs md:text-sm bg-primary-lighter text-muted border border-primary-lighter/70">
+            Calidad premium
+          </span>
+          <span class="px-3.5 py-1.5 rounded-full text-xs md:text-sm bg-primary-lighter text-muted border border-primary-lighter/70">
+            Diseño personalizado
+          </span>
+        </div>
       </div>
     </SectionContainer>
 
@@ -99,7 +146,7 @@ const localBusinessSchema = {
     </SectionContainer>
 
     <!-- Contact -->
-    <section id="contacto" class="w-full max-w-6xl mx-auto section-padding">
+    <section id="contacto" class="w-full max-w-6xl mx-auto section-padding scroll-mt-24 md:scroll-mt-28">
       <div class="bg-surface rounded-3xl p-8 md:p-12 border border-primary-lighter/70">
         <div class="flex md:flex-row flex-col gap-10 md:gap-16">
           <div class="flex-1">
@@ -146,7 +193,7 @@ const localBusinessSchema = {
                   href="https://wa.me/573156481243"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-muted/80 hover:text-accent transition-colors"
+                  class="text-accent hover:opacity-80 transition-opacity"
                   aria-label="WhatsApp"
                 >
                   <WhatsAppIcon />
