@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # The PUBLIC_* Supabase keys are intentionally inlined into the client bundle
+  # by Astro at build time. Tell Netlify's secrets scanner to allow them.
+  SECRETS_SCAN_OMIT_KEYS = "PUBLIC_SUPABASE_ANON_KEY,PUBLIC_SUPABASE_URL"
