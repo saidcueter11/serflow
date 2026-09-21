@@ -243,8 +243,8 @@ const slides = [
       // Trigger reflow
       nextSlide.offsetHeight
 
-      currentSlide.style.transition = 'transform 380ms cubic-bezier(0.22, 1, 0.36, 1)'
-      nextSlide.style.transition = 'transform 380ms cubic-bezier(0.22, 1, 0.36, 1)'
+      currentSlide.style.transition = 'transform 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+      nextSlide.style.transition = 'transform 500ms cubic-bezier(0.4, 0, 0.2, 1)'
 
       // Animate both slides
       currentSlide.style.transform = `translateX(${dir > 0 ? '-100%' : '100%'})`
@@ -279,7 +279,7 @@ const slides = [
           }
         })
         this.isAnimating = false
-      }, 380)
+      }, 500)
     }
 
     startAutoplay() {

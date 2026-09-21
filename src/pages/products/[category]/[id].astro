@@ -1,25 +1,33 @@
 ---
 import ProductPreview from '../../../components/ProductPreview.astro'
+import ProductCard from '../../../components/ProductCard.astro'
 import Layout from '../../../layouts/Layout.astro'
 import { getProducts } from '../../../lib/products'
 import type { Product } from '../../../lib/types'
 
 export async function getStaticPaths() {
   const products = await getProducts()
-  return products.map((product) => ({
-    params: {
-      category: product.categories?.slug ?? '',
-      id: product.slug,
-    },
-    props: { product },
-  }))
+  return products.map((product) => {
+    const categorySlug = product.categories?.slug ?? ''
+    const related = products.filter(
+      (p) => p.slug !== product.slug && (p.categories?.slug ?? '') === categorySlug,
+    )
+    return {
+      params: {
+        category: categorySlug,
+        id: product.slug,
+      },
+      props: { product, related },
+    }
+  })
 }
 
 interface Props {
   product: Product
+  related: Product[]
 }
 
-const { product } = Astro.props
+const { product, related } = Astro.props
 
 const productImages = product.image_urls
 const mainImage = productImages[0] ?? ''
@@ -93,7 +101,6 @@ const productSchema = {
   >
     <aside class="z-20">
       <a
-        id="back-link"
         href={`/products/${categorySlug}`}
         class="inline-flex items-center gap-2 text-accent group cursor-pointer"
       >
@@ -117,14 +124,23 @@ const productSchema = {
     </main>
   </div>
 
-  <script is:inline>
-    const backLink = document.getElementById('back-link')
-
-    backLink?.addEventListener('click', (e) => {
-      if (window.history.length > 1 && document.referrer) {
-        e.preventDefault()
-        window.history.back()
-      }
-    })
-  </script>
+  {
+    related.length > 0 && (
+      <section class="max-w-6xl mx-auto w-full section-padding mb-14">
+        <h2 class="font-titan text-xl md:text-2xl text-white mb-4">Más de {categoryLabel}</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          {related.map((item, index) => (
+            <ProductCard
+              slug={item.slug}
+              imageUrl={item.image_urls[0] ?? ''}
+              categorySlug={categorySlug}
+              altText={`${categoryLabel} — ${item.name}`}
+              preload={index < 2}
+              index={index}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
 </Layout>
