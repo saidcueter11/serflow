@@ -1,0 +1,40 @@
+---
+import CatalogImage from './CatalogImage.astro'
+import type { Promo } from '../lib/types'
+
+interface Props {
+  promo: Promo
+}
+
+const { promo } = Astro.props
+const src = promo.banner_url || promo.image_urls[0] || ''
+---
+
+{
+  src && (
+    <a
+      href={`/promos/${promo.slug}`}
+      class="block w-full max-w-6xl mx-auto section-padding"
+    >
+      <div class="relative aspect-[12/5] rounded-2xl overflow-hidden bg-surface ring-1 ring-white/15">
+        <CatalogImage
+          src={src}
+          alt={promo.title}
+          sizes="(min-width: 1024px) 72rem, 100vw"
+          widths={[640, 960, 1280]}
+          preload
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/30 to-transparent" />
+        <div class="absolute left-4 bottom-4 md:left-6 md:bottom-6 pr-16">
+          <p class="text-accent font-vend-sans text-[10px] md:text-xs tracking-[0.2em] uppercase mb-1">
+            Campana
+          </p>
+          <h2 class="font-titan text-xl md:text-3xl text-white leading-tight">
+            {promo.title}
+          </h2>
+        </div>
+      </div>
+    </a>
+  )
+}

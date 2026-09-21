@@ -1,4 +1,5 @@
 ---
+import { getImage } from 'astro:assets'
 import ProductPreview from '../../../components/ProductPreview.astro'
 import ProductCard from '../../../components/ProductCard.astro'
 import Layout from '../../../layouts/Layout.astro'
@@ -39,6 +40,20 @@ const siteUrl =
   Astro.site?.toString().replace(/\/$/, '') || 'https://serflowctg.netlify.app'
 const productUrl = `${siteUrl}/products/${categorySlug}/${product.slug}`
 const imageUrl = mainImage
+let ogImage = imageUrl
+if (mainImage) {
+  try {
+    const jpg = await getImage({
+      src: mainImage,
+      inferSize: true,
+      width: 1200,
+      format: 'jpg',
+    })
+    ogImage = new URL(jpg.src, `${siteUrl}/`).href
+  } catch {
+    ogImage = imageUrl
+  }
+}
 
 // SEO-friendly title and description
 const pageTitle = product.name
@@ -74,9 +89,9 @@ const productSchema = {
     <meta property="og:url" content={productUrl} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
-    <meta property="og:image" content={imageUrl} />
-    <meta property="og:image:secure_url" content={imageUrl} />
-    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:secure_url" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="1200" />
     <meta property="og:image:alt" content={pageTitle} />
@@ -86,7 +101,7 @@ const productSchema = {
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={pageDescription} />
-    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image" content={ogImage} />
 
     <!-- WhatsApp specific (some versions respect these) -->
     <meta property="og:locale" content="es_CO" />
