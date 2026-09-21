@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Serflow — mock promos + WhatsApp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #17160f;
+        --surface: #1f1d15;
+        --lighter: #312e22;
+        --accent: #ffd700;
+        --muted: #b8b6aa;
+        --admin: #18181b;
+        --admin-card: #27272a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: radial-gradient(circle at 10% -20%, #232116 0%, #17160f 42%);
+        color: #fff;
+        padding: 24px 16px 80px;
+      }
+      h1, h2, h3 { font-family: "Space Grotesk", sans-serif; font-weight: 500; }
+      h1 { font-size: 1.5rem; margin: 0 0 8px; }
+      h2 { font-size: 1.15rem; margin: 40px 0 8px; }
+      .lead, .note { color: var(--muted); font-size: 0.9rem; line-height: 1.5; max-width: 42rem; }
+      .note { margin: 0 0 20px; }
+      .pick {
+        display: inline-block;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 0 0 10px;
+      }
+      a { color: var(--accent); }
+      .devices {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 28px;
+        align-items: flex-start;
+      }
+      .col { display: flex; flex-direction: column; gap: 8px; }
+      .device {
+        width: 390px;
+        height: 760px;
+        border-radius: 36px;
+        overflow: hidden;
+        background: var(--bg);
+        box-shadow: 0 0 0 10px #0c0b08, 0 24px 50px rgb(0 0 0 / 0.55);
+      }
+      .device.admin { background: var(--admin); box-shadow: 0 0 0 10px #09090b, 0 24px 50px rgb(0 0 0 / 0.55); }
+      .device.wa { background: #0b141a; box-shadow: 0 0 0 10px #061015, 0 24px 50px rgb(0 0 0 / 0.55); }
+      .scroll { height: 100%; overflow-y: auto; padding: 12px 14px 28px; }
+      .status {
+        height: 22px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: var(--muted);
+        padding: 0 6px 8px;
+      }
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .nav b { color: #fff; font-family: "Space Grotesk", sans-serif; font-size: 0.95rem; }
+      .hero {
+        height: 210px;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .hero img, .cover img, .shot img, .thumb img, .og img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .hero .grad {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgb(23 22 15 / 0.92), transparent 55%);
+      }
+      .hero .copy { position: absolute; left: 14px; right: 14px; bottom: 12px; }
+      .hero h3 { margin: 0; font-size: 1.4rem; }
+      .hero p { margin: 4px 0 0; font-size: 0.75rem; color: rgb(255 255 255 / 0.75); }
+      .strip {
+        display: block;
+        height: 92px;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 16px;
+        text-decoration: none;
+        color: #fff;
+      }
+      .strip .grad {
+        position: absolute; inset: 0;
+        background: linear-gradient(to right, rgb(23 22 15 / 0.75), transparent 70%);
+      }
+      .strip .copy { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); }
+      .strip small { color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.62rem; }
+      .strip strong { display: block; font-family: "Space Grotesk", sans-serif; font-size: 1.05rem; }
+      .cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .cat {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        border-radius: 14px;
+        overflow: hidden;
+        background: var(--surface);
+      }
+      .cat span {
+        position: absolute; left: 8px; bottom: 8px;
+        font-family: "Space Grotesk", sans-serif; font-size: 0.78rem;
+      }
+      .cat.featured { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+      .badge {
+        position: absolute; top: 8px; left: 8px;
+        background: var(--accent); color: var(--bg);
+        font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+        padding: 3px 7px; border-radius: 999px; font-weight: 600;
+      }
+      .cover {
+        height: 280px; border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 12px;
+      }
+      .cover .grad {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgb(23 22 15 / 0.9), transparent 50%);
+      }
+      .cover .copy { position: absolute; left: 14px; bottom: 12px; }
+      .cover h3 { margin: 0; font-size: 1.5rem; }
+      .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 16px; }
+      .shot { aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--surface); }
+      .wa-btn {
+        display: block; text-align: center; background: var(--accent); color: var(--bg);
+        border-radius: 14px; padding: 12px; font-family: "Space Grotesk", sans-serif;
+        font-size: 0.95rem; text-decoration: none;
+      }
+      .admin-h { font-size: 1.15rem; margin: 0 0 14px; color: #fafafa; }
+      .row {
+        display: flex; gap: 10px; align-items: center;
+        background: var(--admin-card); border-radius: 12px; padding: 10px; margin-bottom: 8px;
+      }
+      .row .thumb { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; flex: none; }
+      .row .meta { flex: 1; min-width: 0; }
+      .row .meta b { display: block; font-size: 0.85rem; }
+      .row .meta span { font-size: 0.7rem; color: #a1a1aa; }
+      .tog {
+        width: 40px; height: 22px; border-radius: 999px; background: #3f3f46; position: relative; flex: none;
+      }
+      .tog.on { background: #fbbf24; }
+      .tog i {
+        position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+        border-radius: 50%; background: #fff; display: block;
+      }
+      .tog.on i { left: 20px; }
+      .field { margin: 12px 0; }
+      .field label { display: block; font-size: 0.75rem; color: #a1a1aa; margin-bottom: 6px; }
+      .field input {
+        width: 100%; background: #27272a; border: 1px solid #3f3f46; color: #fff;
+        border-radius: 10px; padding: 10px 12px; font: inherit;
+      }
+      .drop {
+        border: 2px dashed #3f3f46; border-radius: 12px; padding: 18px; text-align: center;
+        color: #a1a1aa; font-size: 0.8rem;
+      }
+      .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+      .thumbs div { aspect-ratio: 1; border-radius: 8px; overflow: hidden; position: relative; }
+      .thumbs .portada {
+        position: absolute; bottom: 3px; left: 3px; background: #fbbf24; color: #18181b;
+        font-size: 0.55rem; font-weight: 700; padding: 1px 4px; border-radius: 4px;
+      }
+      .save {
+        width: 100%; margin-top: 14px; background: #fbbf24; color: #18181b; border: 0;
+        border-radius: 10px; padding: 12px; font-weight: 600; font-family: inherit;
+      }
+      .wa-bar {
+        background: #1f2c34; margin: -12px -14px 12px; padding: 10px 14px 12px;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .wa-bar .av {
+        width: 36px; height: 36px; border-radius: 50%; background: #075e54;
+        display: grid; place-items: center; font-size: 0.85rem;
+      }
+      .wa-bar b { display: block; font-size: 0.88rem; }
+      .wa-bar span { font-size: 0.68rem; color: #8696a0; }
+      .bubble {
+        background: #005c4b; border-radius: 8px 8px 2px 8px;
+        padding: 8px 10px; max-width: 86%; margin-left: auto; font-size: 0.82rem; line-height: 1.4;
+      }
+      .bubble .t { color: #8696a0; font-size: 0.65rem; text-align: right; margin-top: 4px; }
+      .og {
+        margin-top: 8px; background: #025144; border-radius: 8px; overflow: hidden;
+      }
+      .og .pic { height: 140px; }
+      .og .cap { padding: 8px 10px; }
+      .og .cap small { color: #99beb5; font-size: 0.65rem; }
+      .og .cap b { display: block; font-size: 0.8rem; margin-top: 2px; }
+      .hint { font-size: 0.72rem; color: #8696a0; margin: 10px 4px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Serflow — mocks (sin codigo de app)</h1>
+    <p class="lead">
+      Issues:
+      <a href="https://github.com/saidcueter11/serflow/issues/18">catalogo #18</a>,
+      <a href="https://github.com/saidcueter11/serflow-admin/issues/11">admin #11</a>,
+      <a href="https://github.com/saidcueter11/serflow/issues/19">WhatsApp #19</a>.
+      Elige A o B para el banner. WhatsApp: hoy vs propuesto (no se puede adjuntar el archivo).
+    </p>
+
+    <h2>1. Home con promo</h2>
+    <p class="note">Misma home de ahora. Si no hay promo activa, no hay hueco. Fotos de stand-in.</p>
+    <div class="devices">
+      <div class="col">
+        <span class="pick">A — tira bajo el hero (recomendado)</span>
+        <div class="device">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>Serflow</span></div>
+            <div class="nav"><b>Serflow</b><span>Menu</span></div>
+            <div class="hero">
+              <img src="preview-assets/tierra2.webp" alt="" />
+              <div class="grad"></div>
+              <div class="copy">
+                <h3>Bienvenido a Serflow</h3>
+                <p>Cartagena, Colombia</p>
+              </div>
+            </div>
+            <a class="strip" href="#promo">
+              <img src="preview-assets/kid2.webp" alt="" />
+              <div class="grad"></div>
+              <div class="copy">
+                <small>Campana</small>
+                <strong>Halloween 2026</strong>
+              </div>
+            </a>
+            <div class="cats">
+              <div class="cat"><img src="preview-assets/tierra2.webp" alt="" /><span>Mi Tierra</span></div>
+              <div class="cat"><img src="preview-assets/beisbol2.webp" alt="" /><span>Beisbol</span></div>
+              <div class="cat"><img src="preview-assets/basket1.webp" alt="" /><span>Basket</span></div>
+              <div class="cat"><img src="preview-assets/moda2.webp" alt="" /><span>Moda</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <span class="pick">B — tile de campana en categorias</span>
+        <div class="device">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>Serflow</span></div>
+            <div class="nav"><b>Serflow</b><span>Menu</span></div>
+            <div class="hero">
+              <img src="preview-assets/tierra2.webp" alt="" />
+              <div class="grad"></div>
+              <div class="copy">
+                <h3>Bienvenido a Serflow</h3>
+                <p>Cartagena, Colombia</p>
+              </div>
+            </div>
+            <div class="cats">
+              <div class="cat featured">
+                <img src="preview-assets/kid2.webp" alt="" />
+                <span class="badge">Campana</span>
+                <span>Halloween 2026</span>
+              </div>
+              <div class="cat"><img src="preview-assets/tierra2.webp" alt="" /><span>Mi Tierra</span></div>
+              <div class="cat"><img src="preview-assets/beisbol2.webp" alt="" /><span>Beisbol</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col" id="promo">
+        <span class="pick">Pagina de la campana</span>
+        <div class="device">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>Serflow</span></div>
+            <div class="nav"><span style="color:var(--accent)">← Volver</span><b>Novedades</b><span></span></div>
+            <div class="cover">
+              <img src="preview-assets/kid2.webp" alt="" />
+              <div class="grad"></div>
+              <div class="copy">
+                <small style="color:var(--accent);letter-spacing:.12em;text-transform:uppercase;font-size:.62rem">Campana</small>
+                <h3>Halloween 2026</h3>
+              </div>
+            </div>
+            <div class="shots">
+              <div class="shot"><img src="preview-assets/moda2.webp" alt="" /></div>
+              <div class="shot"><img src="preview-assets/basket2.webp" alt="" /></div>
+              <div class="shot"><img src="preview-assets/beisbol2.webp" alt="" /></div>
+              <div class="shot"><img src="preview-assets/tierra2.webp" alt="" /></div>
+            </div>
+            <a class="wa-btn" href="#">Preguntar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>2. Admin</h2>
+    <p class="note">Una activa a la vez. Mismo upload con compress. Publicar para que salga en el catalogo.</p>
+    <div class="devices">
+      <div class="col">
+        <span class="pick">Lista</span>
+        <div class="device admin">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>Admin</span></div>
+            <h3 class="admin-h">Promos</h3>
+            <div class="row">
+              <div class="thumb"><img src="preview-assets/kid2.webp" alt="" /></div>
+              <div class="meta"><b>Halloween 2026</b><span>4 fotos · halloween</span></div>
+              <div class="tog on"><i></i></div>
+            </div>
+            <div class="row">
+              <div class="thumb"><img src="preview-assets/moda2.webp" alt="" /></div>
+              <div class="meta"><b>Nuevas refs</b><span>apagada</span></div>
+              <div class="tog"><i></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <span class="pick">Editar</span>
+        <div class="device admin">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>Admin</span></div>
+            <h3 class="admin-h">Halloween 2026</h3>
+            <div class="field">
+              <label>Titulo</label>
+              <input value="Halloween 2026" readonly />
+            </div>
+            <div class="field">
+              <label>Slug</label>
+              <input value="halloween" readonly />
+            </div>
+            <div class="drop">Arrastra fotos — se comprimen solas</div>
+            <div class="thumbs">
+              <div><img src="preview-assets/kid2.webp" alt="" /><span class="portada">Portada</span></div>
+              <div><img src="preview-assets/moda2.webp" alt="" /></div>
+              <div><img src="preview-assets/basket2.webp" alt="" /></div>
+              <div><img src="preview-assets/beisbol2.webp" alt="" /></div>
+            </div>
+            <button class="save" type="button">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>3. WhatsApp de la ficha</h2>
+    <p class="note">
+      <code>wa.me</code> no pega la foto como archivo. Lo que si: el preview del link
+      (og:image JPEG) + la URL de la foto en el texto.
+    </p>
+    <div class="devices">
+      <div class="col">
+        <span class="pick">Hoy</span>
+        <div class="device wa">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>WhatsApp</span></div>
+            <div class="wa-bar">
+              <div class="av">S</div>
+              <div><b>Serflow</b><span>+57 315 648 1243</span></div>
+            </div>
+            <div class="bubble">
+              Hola! Me interesa este producto:<br />
+              https://serflowctg.netlify.app/products/moda/moda-60
+              <div class="t">9:41</div>
+            </div>
+            <p class="hint">Solo texto. Sin foto de la prenda.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <span class="pick">Propuesto</span>
+        <div class="device wa">
+          <div class="scroll">
+            <div class="status"><span>9:41</span><span>WhatsApp</span></div>
+            <div class="wa-bar">
+              <div class="av">S</div>
+              <div><b>Serflow</b><span>+57 315 648 1243</span></div>
+            </div>
+            <div class="bubble">
+              Hola! Me interesa este producto:<br />
+              https://serflowctg.netlify.app/products/moda/moda-60
+              <div class="og">
+                <div class="pic"><img src="preview-assets/moda2.webp" alt="" /></div>
+                <div class="cap">
+                  <small>serflowctg.netlify.app</small>
+                  <b>Moda — gorra</b>
+                </div>
+              </div>
+              <div class="t">9:41</div>
+            </div>
+            <p class="hint">La prenda se ve en el preview del link. No es un adjunto.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

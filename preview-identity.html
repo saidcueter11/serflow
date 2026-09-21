@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="es" data-theme="a">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Serflow — como se veria la app</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --phone: 390px;
+      }
+      [data-theme="a"] {
+        --bg: #17160f;
+        --bg2: #1f1d15;
+        --line: #312e22;
+        --text: #ffffff;
+        --muted: #b8b6aa;
+        --accent: #ffd700;
+        --on-accent: #17160f;
+        --hero: 380px;
+        --header: rgba(23, 22, 15, 0.92);
+      }
+      [data-theme="b"] {
+        --bg: #1c1814;
+        --bg2: #2a241c;
+        --line: #3d3428;
+        --text: #f4efe6;
+        --muted: #b9a890;
+        --accent: #e0b12a;
+        --on-accent: #1c1814;
+        --hero: 200px;
+        --header: rgba(28, 24, 20, 0.94);
+      }
+      [data-theme="c"] {
+        --bg: #f4eee4;
+        --bg2: #ffffff;
+        --line: #e4d9c6;
+        --text: #1f1a14;
+        --muted: #6e6456;
+        --accent: #c49212;
+        --on-accent: #1f1a14;
+        --hero: 220px;
+        --header: rgba(244, 238, 228, 0.95);
+      }
+      [data-theme="d"] {
+        --bg: #111111;
+        --bg2: #1a1a1a;
+        --line: #2e2e2e;
+        --text: #f3f3f3;
+        --muted: #9a9a9a;
+        --accent: #e0b12a;
+        --on-accent: #111;
+        --hero: 0px;
+        --header: rgba(17, 17, 17, 0.96);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: #0c0c0c;
+        color: #eee;
+        padding: 20px 16px 80px;
+      }
+      h1 { font-size: 1.35rem; margin: 0 0 8px; font-weight: 600; }
+      .lead { color: #9b9b9b; max-width: 46rem; line-height: 1.55; font-size: 0.95rem; }
+      .lead a { color: #e0b12a; }
+      .controls {
+        display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 10px;
+      }
+      .controls button {
+        border: 1px solid #333;
+        background: #1a1a1a;
+        color: #ddd;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font: 500 0.8rem Inter, sans-serif;
+        cursor: pointer;
+      }
+      .controls button.on { background: #e0b12a; color: #111; border-color: #e0b12a; }
+      .hint { color: #777; font-size: 0.8rem; margin: 0 0 16px; max-width: 40rem; }
+      .stage { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+      .phone {
+        width: var(--phone);
+        height: 780px;
+        border-radius: 36px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        box-shadow: 0 0 0 10px #070707, 0 30px 60px rgb(0 0 0 / 0.55);
+        position: relative;
+      }
+      .scroll { height: 100%; overflow-y: auto; padding-bottom: 72px; }
+      .status {
+        height: 28px; display: flex; justify-content: space-between;
+        align-items: center; padding: 0 18px; font-size: 0.7rem; color: var(--muted);
+      }
+      header.app {
+        position: sticky; top: 0; z-index: 5;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 6px 14px 8px;
+        background: var(--header);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      header.app img { height: 36px; width: auto; display: block; }
+      header.app .menu { color: var(--muted); font-size: 0.85rem; }
+      .promo {
+        height: 192px;
+        position: relative;
+        overflow: hidden;
+      }
+      .promo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .promo .g {
+        position: absolute; inset: 0;
+        background: linear-gradient(to right, rgb(0 0 0 / 0.55), transparent 65%);
+      }
+      [data-theme="c"] .promo .g { background: linear-gradient(to right, rgb(31 26 20 / 0.45), transparent 65%); }
+      .promo b {
+        position: absolute; left: 16px; bottom: 14px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.35rem; font-weight: 600;
+        color: #fff;
+        text-shadow: 0 1px 8px rgb(0 0 0 / 0.6);
+      }
+      .hero {
+        height: var(--hero);
+        position: relative;
+        overflow: hidden;
+        display: var(--hero, 0) ;
+      }
+      [data-theme="d"] .hero { display: none; }
+      .hero img { width: 100%; height: 100%; object-fit: cover; }
+      .hero .g {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, var(--bg) 8%, transparent 58%);
+      }
+      .hero .copy {
+        position: absolute; left: 16px; right: 16px; bottom: 16px;
+      }
+      .hero h2 {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.7rem; font-weight: 600; line-height: 1.15;
+      }
+      .hero p { margin: 6px 0 10px; color: var(--muted); font-size: 0.82rem; line-height: 1.4; }
+      .btns { display: flex; gap: 8px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+      }
+      .btn-g { background: var(--accent); color: var(--on-accent); }
+      .btn-o { border: 1px solid var(--line); color: var(--text); background: transparent; }
+      .pad { padding: 18px 16px; }
+      .sec-t {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.15rem; margin: 0 0 10px; font-weight: 600;
+      }
+      .who { color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin: 0 0 8px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
+      .chip {
+        font-size: 0.7rem; padding: 5px 10px; border-radius: 999px;
+        background: var(--bg2); border: 1px solid var(--line); color: var(--muted);
+      }
+      .cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .cat {
+        position: relative; aspect-ratio: 3/4; border-radius: 16px; overflow: hidden;
+        background: var(--bg2);
+      }
+      .cat img { width: 100%; height: 100%; object-fit: cover; }
+      .cat span {
+        position: absolute; left: 8px; bottom: 8px; right: 8px;
+        font-family: "Space Grotesk", sans-serif; font-size: 0.85rem;
+        color: #fff; text-shadow: 0 1px 6px #000;
+      }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .card {
+        aspect-ratio: 1; border-radius: 16px; overflow: hidden;
+        background: var(--bg2); border: 1px solid var(--line);
+      }
+      .card img { width: 100%; height: 100%; object-fit: cover; }
+      .pills { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 12px; }
+      .pill {
+        flex: none; padding: 6px 12px; border-radius: 999px; font-size: 0.75rem;
+        background: var(--bg2); color: var(--muted); border: 1px solid var(--line);
+      }
+      .pill.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+      .banner {
+        height: 192px; border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 12px;
+      }
+      .banner img { width: 100%; height: 100%; object-fit: cover; }
+      .banner .g { position: absolute; inset: 0; background: linear-gradient(to top, rgb(0 0 0 / 0.7), transparent 50%); }
+      .banner h1 {
+        position: absolute; left: 14px; bottom: 12px; margin: 0;
+        font-family: "Space Grotesk", sans-serif; color: #fff; font-size: 1.6rem;
+      }
+      .pdp { padding: 12px 16px 20px; }
+      .back { color: var(--accent); font-size: 0.85rem; margin-bottom: 10px; }
+      .shot { aspect-ratio: 1; border-radius: 16px; overflow: hidden; background: var(--bg2); }
+      .shot img { width: 100%; height: 100%; object-fit: cover; }
+      .wa {
+        margin-top: 12px; display: block; text-align: center;
+        background: var(--accent); color: var(--on-accent);
+        padding: 14px; border-radius: 16px;
+        font-family: "Space Grotesk", sans-serif; font-size: 1rem;
+      }
+      .more { font-family: "Space Grotesk", sans-serif; font-size: 1rem; margin: 18px 0 8px; }
+      .fab {
+        position: absolute; right: 14px; bottom: 14px;
+        background: #25d366; color: #062;
+        border-radius: 999px; padding: 10px 14px; font-size: 0.8rem; font-weight: 600;
+        box-shadow: 0 8px 20px rgb(0 0 0 / 0.3);
+      }
+      [data-screen]:not(.show) { display: none; }
+      [data-screen].show { display: block; }
+
+      .legend {
+        max-width: 390px;
+        background: #161616;
+        border: 1px solid #2a2a2a;
+        border-radius: 14px;
+        padding: 14px 16px;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        color: #cfcfcf;
+      }
+      .legend b { color: #e0b12a; }
+    </style>
+  </head>
+  <body>
+    <h1>Asi se veria Serflow (logo real, pantallas reales)</h1>
+    <p class="lead">
+      Issue <a href="https://github.com/saidcueter11/serflow/issues/22">#22</a>.
+      No es un poster. Es la app: Inicio, Categoria, Ficha y Promos.
+      El logo de SerFlow se queda. Lo que cambia es el fondo, el hero y como se siente
+      un negocio de Bazurto (gorras, DTF, estampados, mayorista, personalizado).
+    </p>
+
+    <div class="controls" id="themes">
+      <button data-theme="a" class="on">A · Hoy</button>
+      <button data-theme="b">B · Mayorista Bazurto</button>
+      <button data-theme="c">C · Dia / claro</button>
+      <button data-theme="d">D · Catalogo de una</button>
+    </div>
+    <div class="controls" id="screens">
+      <button data-screen="home" class="on">Inicio</button>
+      <button data-screen="cat">Categoria</button>
+      <button data-screen="pdp">Ficha</button>
+      <button data-screen="promos">Promos</button>
+    </div>
+    <p class="hint">Cambia A/B/C/D y luego las pantallas. Es el mismo sitio con otra piel.</p>
+
+    <div class="stage">
+      <div class="phone" id="phone">
+        <div class="scroll">
+          <div class="status"><span>9:41</span><span>Serflow</span></div>
+          <header class="app">
+            <img src="preview-assets/logo.png" alt="SerFlow" />
+            <span class="menu">Menu</span>
+          </header>
+
+          <!-- HOME -->
+          <div data-screen="home" class="show">
+            <div class="promo">
+              <img src="preview-assets/kid2.webp" alt="" />
+              <div class="g"></div>
+              <b>2x1 en gorras</b>
+            </div>
+            <div class="hero">
+              <img src="preview-assets/tierra2.webp" alt="" />
+              <div class="g"></div>
+              <div class="copy">
+                <h2 id="heroTitle">Bienvenido a Serflow</h2>
+                <p id="heroP">Calidad que enamora, precios que te hacen volver.</p>
+                <div class="btns">
+                  <span class="btn btn-g">Ver productos</span>
+                  <span class="btn btn-o">WhatsApp</span>
+                </div>
+              </div>
+            </div>
+            <div class="pad">
+              <h3 class="sec-t" id="whoT">Quienes somos</h3>
+              <p class="who" id="whoP">
+                Tienda en Cartagena. Prendas personalizadas que reflejan tu identidad.
+              </p>
+              <div class="chips" id="chips" hidden></div>
+              <h3 class="sec-t" style="margin-top:18px">Nuestras categorias</h3>
+              <div class="cats">
+                <div class="cat"><img src="preview-assets/tierra1.webp" alt="" /><span>Mi Tierra</span></div>
+                <div class="cat"><img src="preview-assets/beisbol2.webp" alt="" /><span>Beisbol</span></div>
+                <div class="cat"><img src="preview-assets/basket1.webp" alt="" /><span>Basket</span></div>
+                <div class="cat"><img src="preview-assets/moda1.webp" alt="" /><span>Moda</span></div>
+              </div>
+            </div>
+            <div class="fab">WhatsApp</div>
+          </div>
+
+          <!-- CATEGORY -->
+          <div data-screen="cat">
+            <div class="pad">
+              <div class="banner">
+                <img src="preview-assets/moda2.webp" alt="" />
+                <div class="g"></div>
+                <h1>Moda</h1>
+              </div>
+              <div class="pills">
+                <span class="pill">Mi Tierra</span>
+                <span class="pill">Beisbol</span>
+                <span class="pill">Basket</span>
+                <span class="pill on">Moda</span>
+                <span class="pill">Kids</span>
+              </div>
+              <div class="grid">
+                <div class="card"><img src="preview-assets/moda1.webp" alt="" /></div>
+                <div class="card"><img src="preview-assets/moda2.webp" alt="" /></div>
+                <div class="card"><img src="preview-assets/moda3.webp" alt="" /></div>
+                <div class="card"><img src="preview-assets/kid2.webp" alt="" /></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PDP -->
+          <div data-screen="pdp">
+            <div class="pdp">
+              <div class="back">← Volver atras</div>
+              <div class="shot"><img src="preview-assets/moda1.webp" alt="" /></div>
+              <span class="wa">Preguntar por WhatsApp</span>
+              <h3 class="more">Mas de Moda</h3>
+              <div class="grid">
+                <div class="card"><img src="preview-assets/moda2.webp" alt="" /></div>
+                <div class="card"><img src="preview-assets/moda3.webp" alt="" /></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROMOS LIST -->
+          <div data-screen="promos">
+            <div class="pad">
+              <h3 class="sec-t">Promociones</h3>
+              <p class="who">Solo las que tienen productos. Las de 2x1 viven en el banner del inicio.</p>
+              <div class="banner" style="margin-top:12px">
+                <img src="preview-assets/kid1.webp" alt="" />
+                <div class="g"></div>
+                <h1>Halloween</h1>
+              </div>
+              <div class="grid">
+                <div class="card"><img src="preview-assets/kid2.webp" alt="" /></div>
+                <div class="card"><img src="preview-assets/kid1.webp" alt="" /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend" id="legend">
+        <b>A · Hoy.</b> Lo que ya esta en serflowctg: fondo negro, oro, hero grande, texto de marca premium.
+      </div>
+    </div>
+
+    <script>
+      const copy = {
+        a: {
+          heroTitle: "Bienvenido a Serflow",
+          heroP: "Calidad que enamora, precios que te hacen volver.",
+          whoT: "Quienes somos",
+          whoP: "Tienda en Cartagena. Prendas personalizadas que reflejan tu identidad.",
+          chips: [],
+          legend:
+            "A · Hoy. Lo que ya esta en serflowctg: fondo negro, oro, hero a media pantalla, copy de marca premium. El logo ya es este.",
+        },
+        b: {
+          heroTitle: "Gorras, DTF y mayorista en Bazurto",
+          heroP: "Uno de los puestos mas grandes de la zona. Personalizado o al por mayor, se habla por WhatsApp.",
+          whoT: "Que hacemos",
+          whoP: "Gorras, camisetas, estampados, DTF, productos locales y pedidos a tu medida. Mercado de Bazurto, Cartagena.",
+          chips: ["Gorras", "Estampados", "DTF", "Camisetas", "Al por mayor", "Personalizado"],
+          legend:
+            "B · Mayorista Bazurto. Mismo logo y mismas pantallas. Hero mas bajo para ver productos antes. Copy de puesto real, no de boutique. El oro se queda porque esta en el logo.",
+        },
+        c: {
+          heroTitle: "Serflow en Cartagena",
+          heroP: "Puesto en Bazurto. Se ve de dia: las fotos mandan, el logo sigue siendo el de siempre.",
+          whoT: "El local",
+          whoP: "Gorras y prendas al por mayor o una sola pieza personalizada. Estampados y DTF en el mismo lugar.",
+          chips: ["Gorras", "DTF", "Mayorista", "Locales"],
+          legend:
+            "C · Dia / claro. El sitio deja de ser una joyeria negra. Fondo claro para que las fotos y el logo dorado se lean como en el mercado. Misma app.",
+        },
+        d: {
+          heroTitle: "",
+          heroP: "",
+          whoT: "Catalogo",
+          whoP: "Entras y ya son las prendas. Como pedir en el puesto: ves, tocas, WhatsApp.",
+          chips: ["Gorras", "Beisbol", "Basket", "Moda", "Kids"],
+          legend:
+            "D · Catalogo de una. Sin hero. Banner de promo y de una las categorias. Para quien entra al celular a elegir gorra, no a leer marca.",
+        },
+      }
+
+      const html = document.documentElement
+      const legend = document.getElementById("legend")
+      function applyTheme(t) {
+        html.setAttribute("data-theme", t)
+        document.querySelectorAll("#themes button").forEach((b) => b.classList.toggle("on", b.dataset.theme === t))
+        const c = copy[t]
+        document.getElementById("heroTitle").textContent = c.heroTitle
+        document.getElementById("heroP").textContent = c.heroP
+        document.getElementById("whoT").textContent = c.whoT
+        document.getElementById("whoP").textContent = c.whoP
+        const box = document.getElementById("chips")
+        box.innerHTML = c.chips.map((x) => `<span class="chip">${x}</span>`).join("")
+        box.hidden = c.chips.length === 0
+        legend.innerHTML = c.legend.replace(/^([A-D] · [^.]+\.)/, "<b>$1</b>")
+      }
+      function applyScreen(s) {
+        document.querySelectorAll("[data-screen]").forEach((el) => {
+          if (el.tagName === "BUTTON") return
+          el.classList.toggle("show", el.getAttribute("data-screen") === s)
+        })
+        document.querySelectorAll("#screens button").forEach((b) => b.classList.toggle("on", b.dataset.screen === s))
+        document.querySelector(".scroll").scrollTop = 0
+      }
+      document.getElementById("themes").addEventListener("click", (e) => {
+        const b = e.target.closest("button")
+        if (b) applyTheme(b.dataset.theme)
+      })
+      document.getElementById("screens").addEventListener("click", (e) => {
+        const b = e.target.closest("button")
+        if (b) applyScreen(b.dataset.screen)
+      })
+    </script>
+  </body>
+</html>
