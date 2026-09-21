@@ -128,6 +128,30 @@ body {
   animation-delay: calc(var(--stagger, 0) * 55ms);
 }
 
+.catalog-masonry {
+  column-count: 2;
+  column-gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .catalog-masonry {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .catalog-masonry {
+    column-count: 4;
+  }
+}
+
+.catalog-masonry > * {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
 @layer components {
   .underline-hover {
     @apply relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100;

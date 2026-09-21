@@ -10,149 +10,36 @@ interface Props {
   productName?: string
 }
 
-const { images, mainImage, alt, slug, productName } = Astro.props
-const hasMultipleImages = images.length > 1
-const initialIndex = images.findIndex((img) => img === mainImage) || 0
+const { images, alt, slug, productName } = Astro.props
+const shots = images.filter(Boolean)
+const ratios = ['aspect-[3/4]', 'aspect-[4/3]', 'aspect-[3/4]']
 ---
 
-<div
-  class="relative flex flex-col gap-4 w-full h-full"
-  data-slider
-  data-product-name={productName}
-  tabindex="0"
->
-  <div
-    class="relative overflow-hidden rounded-2xl h-full w-full aspect-square bg-surface"
-    data-zoom-container
-  >
-    <!-- Images Container -->
-    <div class="relative w-full h-full" data-images-container>
-      {
-        images.map((image, index) => (
-          <div
-            class={`absolute inset-0 transition-[opacity,transform] duration-300 ease-in-out ${
-              index === initialIndex
-                ? 'opacity-100 translate-x-0'
-                : 'opacity-0 translate-x-full'
-            }`}
-            data-slide={index}
-          >
-            {image && (
-              <CatalogImage
-                src={image}
-                alt={`${alt} - imagen ${index + 1} de ${images.length}`}
-                sizes="(min-width: 768px) 768px, 100vw"
-                widths={[640, 960, 1200]}
-                preload={index === initialIndex}
-                class="w-full h-full object-cover object-center rounded-2xl"
-                transitionName={index === initialIndex ? `product-image-${slug}` : undefined}
-              />
-            )}
-          </div>
-        ))
-      }
-    </div>
+<div class="flex flex-col gap-3 w-full" data-product-name={productName}>
+  {
+    shots.map((image, i) => (
+      <div
+        class:list={[
+          'overflow-hidden rounded-2xl bg-surface shadow-[0_10px_28px_rgba(0,0,0,0.4)]',
+          ratios[i % ratios.length],
+        ]}
+      >
+        <CatalogImage
+          src={image}
+          alt={`${alt} - imagen ${i + 1} de ${shots.length}`}
+          sizes="(min-width: 640px) 36rem, 100vw"
+          widths={[640, 960, 1200]}
+          preload={i === 0}
+          class="w-full h-full object-cover object-center"
+          transitionName={i === 0 ? `product-image-${slug}` : undefined}
+        />
+      </div>
+    ))
+  }
 
-    <!-- Desktop: Zoom lens overlay -->
-    <div
-      data-zoom-lens
-      class="hidden md:block pointer-events-none absolute w-40 h-40 rounded-full border-2 border-accent/60 shadow-lg shadow-black/30 z-40 opacity-0 transition-opacity duration-150"
-      style="background-repeat: no-repeat; display: none;"
-    >
-    </div>
-
-    <div
-      data-zoom-hint
-      class="hidden [@media(hover:hover)]:flex absolute top-3 left-3 bg-black/50 text-muted text-xs px-2.5 py-1.5 rounded-full z-30 items-center gap-1.5 pointer-events-none"
-    >
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.35-4.35" stroke-linecap="round" />
-        <path d="M11 8v6M8 11h6" stroke-linecap="round" />
-      </svg>
-      <span>Hover para zoom</span>
-    </div>
-
-    {/* Navigation Arrows */}
-    {
-      hasMultipleImages && (
-        <>
-          <button
-            type="button"
-            aria-label="Imagen anterior"
-            data-prev
-            class="cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 bg-primary-lighter/80 [@media(hover:hover)]:hover:bg-accent rounded-full min-h-11 min-w-11 flex items-center justify-center z-30 text-muted [@media(hover:hover)]:hover:text-primary"
-          >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Siguiente imagen"
-            data-next
-            class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 bg-primary-lighter/80 [@media(hover:hover)]:hover:bg-accent rounded-full min-h-11 min-w-11 flex items-center justify-center z-30 text-muted [@media(hover:hover)]:hover:text-primary"
-          >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-
-          {/* Progress dots */}
-          <div class="absolute bottom-1 left-0 right-0 flex justify-center gap-1 z-30 px-2">
-            {images.map((_, i) => (
-              <button
-                type="button"
-                aria-label={`Ver imagen ${i + 1}`}
-                aria-current={i === initialIndex ? 'true' : undefined}
-                data-dot={i}
-                class="min-h-11 flex-1 max-w-14 flex items-center"
-              >
-                <span
-                  class={`h-1 w-full rounded-full transition-colors duration-200 ${
-                    i === initialIndex ? 'bg-accent' : 'bg-white/40'
-                  }`}
-                />
-              </button>
-            ))}
-          </div>
-
-          {/* Image counter */}
-          <div
-            class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full z-30"
-            data-counter
-          >
-            {initialIndex + 1} / {images.length}
-          </div>
-        </>
-      )
-    }
-  </div>
-
-  {/* WhatsApp Button */}
   <button
     data-whatsapp
-    class="flex items-center mx-auto w-full justify-center gap-3 bg-accent text-primary hover:bg-accent/90 active:bg-accent/80 cursor-pointer font-titan px-6 py-4 rounded-2xl font-normal transition-[transform,background-color,box-shadow] duration-200 shadow-lg shadow-accent/10 active:scale-[0.98] text-lg"
+    class="flex items-center mx-auto w-full justify-center gap-3 bg-accent text-primary hover:bg-accent/90 active:bg-accent/80 cursor-pointer font-titan px-6 py-4 rounded-2xl font-normal transition-[transform,background-color] duration-300 shadow-lg shadow-accent/10 active:scale-[0.98] text-lg mt-1"
     aria-label="Contactar por WhatsApp"
   >
     <WhatsAppIcon className="w-5 h-5" />
@@ -161,215 +48,18 @@ const initialIndex = images.findIndex((img) => img === mainImage) || 0
 </div>
 
 <script>
-  class ProductSlider {
-    private container: HTMLElement
-    private slides: NodeListOf<HTMLElement>
-    private dots: NodeListOf<HTMLElement>
-    private counter: HTMLElement | null
-    private currentIndex: number
-    private touchStartX: number | null = null
-    private totalSlides: number
-
-    // Zoom state
-    private zoomContainer: HTMLElement | null
-    private zoomLens: HTMLElement | null
-    private zoomHint: HTMLElement | null
-
-    constructor(sliderElement: HTMLElement) {
-      this.container = sliderElement
-      this.slides = sliderElement.querySelectorAll('[data-slide]')
-      this.dots = sliderElement.querySelectorAll('[data-dot]')
-      this.counter = sliderElement.querySelector('[data-counter]')
-      this.totalSlides = this.slides.length
-
-      this.zoomContainer = sliderElement.querySelector('[data-zoom-container]')
-      this.zoomLens = sliderElement.querySelector('[data-zoom-lens]')
-      this.zoomHint = sliderElement.querySelector('[data-zoom-hint]')
-
-      // Find initial active slide
-      this.currentIndex = Array.from(this.slides).findIndex((slide) =>
-        slide.classList.contains('opacity-100'),
-      )
-      if (this.currentIndex === -1) this.currentIndex = 0
-
-      this.init()
-    }
-
-    private init() {
-      // Navigation buttons
-      const prevBtn = this.container.querySelector('[data-prev]')
-      const nextBtn = this.container.querySelector('[data-next]')
-
-      prevBtn?.addEventListener('click', () => this.prev())
-      nextBtn?.addEventListener('click', () => this.next())
-
-      // Dots
-      this.dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => this.goTo(index))
-      })
-
-      // Keyboard navigation
-      this.container.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') this.prev()
-        if (e.key === 'ArrowRight') this.next()
-      })
-
-      const whatsappBtn = this.container.querySelector('[data-whatsapp]')
-      whatsappBtn?.addEventListener('click', () => this.handleWhatsApp())
-
-      const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-      if (canHover && this.zoomContainer && this.zoomLens) {
-        this.zoomContainer.addEventListener('mouseenter', () => this.onDesktopZoomEnter())
-        this.zoomContainer.addEventListener('mousemove', (e) => this.onDesktopZoomMove(e))
-        this.zoomContainer.addEventListener('mouseleave', () => this.onDesktopZoomLeave())
-      }
-
-      if (this.zoomContainer && this.totalSlides > 1) {
-        this.zoomContainer.addEventListener(
-          'touchstart',
-          (e) => {
-            this.touchStartX = e.touches[0].clientX
-          },
-          { passive: true },
-        )
-        this.zoomContainer.addEventListener(
-          'touchend',
-          (e) => {
-            if (this.touchStartX === null) return
-            const diff = this.touchStartX - e.changedTouches[0].clientX
-            if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev()
-            this.touchStartX = null
-          },
-          { passive: true },
-        )
-      }
-    }
-
-    // --- Desktop zoom methods ---
-    private getCurrentImageSrc(): string | null {
-      const activeSlide = this.slides[this.currentIndex]
-      const img = activeSlide?.querySelector('img') as HTMLImageElement | null
-      return img?.currentSrc || img?.src || null
-    }
-
-    private onDesktopZoomEnter() {
-      const src = this.getCurrentImageSrc()
-      if (!src || !this.zoomLens || !this.zoomContainer) return
-
-      const rect = this.zoomContainer.getBoundingClientRect()
-      const zoomFactor = 2.5
-      const bgW = rect.width * zoomFactor
-      const bgH = rect.height * zoomFactor
-
-      this.zoomLens.style.display = 'block'
-      this.zoomLens.style.backgroundImage = `url(${src})`
-      this.zoomLens.style.backgroundSize = `${bgW}px ${bgH}px`
-      requestAnimationFrame(() => {
-        this.zoomLens!.style.opacity = '1'
-      })
-
-      if (this.zoomHint) this.zoomHint.style.opacity = '0'
-    }
-
-    private onDesktopZoomMove(e: MouseEvent) {
-      if (!this.zoomLens || !this.zoomContainer) return
-
-      const rect = this.zoomContainer.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-
-      const zoomFactor = 2.5
-      const bgW = rect.width * zoomFactor
-      const bgH = rect.height * zoomFactor
-      const lensSize = 160 // w-40 = 10rem = 160px
-
-      // Background position: map cursor position to zoomed image
-      const bgX = (x / rect.width) * bgW - lensSize / 2
-      const bgY = (y / rect.height) * bgH - lensSize / 2
-
-      // Position lens centered on cursor
-      const lensX = x - lensSize / 2
-      const lensY = y - lensSize / 2
-
-      this.zoomLens.style.left = `${lensX}px`
-      this.zoomLens.style.top = `${lensY}px`
-      this.zoomLens.style.backgroundPosition = `-${bgX}px -${bgY}px`
-    }
-
-    private onDesktopZoomLeave() {
-      if (!this.zoomLens) return
-      this.zoomLens.style.opacity = '0'
-      setTimeout(() => {
-        this.zoomLens!.style.display = 'none'
-      }, 150)
-      if (this.zoomHint) this.zoomHint.style.opacity = '1'
-    }
-
-    // --- Slide navigation ---
-    private goTo(index: number) {
-      const direction = index > this.currentIndex ? 1 : -1
-
-      // Update slides
-      this.slides[this.currentIndex].classList.remove(
-        'opacity-100',
-        'translate-x-0',
-      )
-      this.slides[this.currentIndex].classList.add(
-        'opacity-0',
-        direction > 0 ? '-translate-x-full' : 'translate-x-full',
-      )
-
-      this.slides[index].classList.remove(
-        'opacity-0',
-        '-translate-x-full',
-        'translate-x-full',
-      )
-      this.slides[index].classList.add('opacity-100', 'translate-x-0')
-
-      const prevBar = this.dots[this.currentIndex]?.querySelector('span')
-      const nextBar = this.dots[index]?.querySelector('span')
-      prevBar?.classList.remove('bg-accent')
-      prevBar?.classList.add('bg-white/40')
-      nextBar?.classList.remove('bg-white/40')
-      nextBar?.classList.add('bg-accent')
-      this.dots[this.currentIndex]?.removeAttribute('aria-current')
-      this.dots[index]?.setAttribute('aria-current', 'true')
-
-      // Update counter
-      if (this.counter) {
-        this.counter.textContent = `${index + 1} / ${this.totalSlides}`
-      }
-
-      this.currentIndex = index
-    }
-
-    private next() {
-      const nextIndex = (this.currentIndex + 1) % this.totalSlides
-      this.goTo(nextIndex)
-    }
-
-    private prev() {
-      const prevIndex =
-        (this.currentIndex - 1 + this.totalSlides) % this.totalSlides
-      this.goTo(prevIndex)
-    }
-
-    private handleWhatsApp() {
-      const phoneNumber = '+573156481243'
-      const productUrl = window.location.href
-
-      const text = `Hola! Me interesa este producto:\n${productUrl}`
-      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`
-
-      window.open(url, '_blank', 'noopener,noreferrer')
-    }
-  }
-
   document.addEventListener('astro:page-load', () => {
-    document.querySelectorAll<HTMLElement>('[data-slider]').forEach((slider) => {
-      if (slider.dataset.ready === 'true') return
-      slider.dataset.ready = 'true'
-      new ProductSlider(slider)
+    document.querySelectorAll<HTMLButtonElement>('[data-whatsapp]').forEach((btn) => {
+      if (btn.dataset.ready === 'true') return
+      btn.dataset.ready = 'true'
+      btn.addEventListener('click', () => {
+        const text = `Hola! Me interesa este producto:\n${location.href}`
+        window.open(
+          `https://wa.me/+573156481243?text=${encodeURIComponent(text)}`,
+          '_blank',
+          'noopener,noreferrer',
+        )
+      })
     })
   })
 </script>

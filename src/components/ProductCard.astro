@@ -12,6 +12,8 @@ interface Props {
 
 const { slug, imageUrl, categorySlug, altText, preload, index = 99 } = Astro.props
 const stagger = index < 6 ? index : undefined
+const ratios = ['aspect-[3/4]', 'aspect-square', 'aspect-[4/5]'] as const
+const ratio = ratios[index % 3]
 ---
 
 <div
@@ -21,9 +23,9 @@ const stagger = index < 6 ? index : undefined
   <a
     href={`/products/${categorySlug}/${slug}`}
     aria-label={altText ?? 'Ver prenda'}
-    class="block rounded-2xl overflow-hidden bg-surface ring-1 ring-white/20 transition-[box-shadow,transform] duration-300 ease-out active:scale-[1.02] [@media(hover:hover)]:hover:ring-white/40 [@media(hover:hover)]:hover:scale-[1.02]"
+    class="block rounded-2xl overflow-hidden bg-surface shadow-[0_8px_22px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out active:scale-[0.98]"
   >
-    <div class="relative overflow-hidden aspect-square rounded-2xl">
+    <div class:list={['relative overflow-hidden rounded-2xl', ratio]}>
       <!-- Loading skeleton -->
       <div
         class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-light via-primary-lighter to-primary-light bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"
@@ -45,18 +47,7 @@ const stagger = index < 6 ? index : undefined
         )
       }
 
-      <span
-        class="absolute inset-0 z-20 rounded-2xl bg-black/0 [@media(hover:hover)]:group-hover:bg-black/20 transition-colors duration-300 pointer-events-none"
-        aria-hidden="true"
-      />
-      <span
-        class="absolute bottom-2 right-2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white pointer-events-none"
-        aria-hidden="true"
-      >
-        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </span>
+
     </div>
   </a>
 </div>
