@@ -20,7 +20,7 @@ const stagger = index < 6 ? index : undefined
 >
   <a
     href={`/products/${categorySlug}/${slug}`}
-    class="block rounded-2xl overflow-hidden bg-surface border border-white/5 transition-[border-color,transform] duration-200 ease-out active:scale-[1.02] [@media(hover:hover)]:hover:border-accent/20 [@media(hover:hover)]:hover:scale-[1.02]"
+    class="block rounded-2xl overflow-hidden bg-surface border border-accent/25 transition-[border-color,transform] duration-300 ease-out active:scale-[1.02] [@media(hover:hover)]:hover:border-accent/60 [@media(hover:hover)]:hover:scale-[1.02]"
   >
     <div class="relative overflow-hidden aspect-square rounded-2xl">
       <!-- Loading skeleton -->
@@ -44,11 +44,14 @@ const stagger = index < 6 ? index : undefined
         )
       }
 
-      <div class="absolute inset-0 z-20 rounded-2xl hidden [@media(hover:hover)]:flex items-end justify-center pb-4 bg-primary/0 opacity-0 [@media(hover:hover)]:group-hover:bg-primary/40 [@media(hover:hover)]:group-hover:opacity-100 transition-[opacity,background-color] duration-200">
-        <span class="bg-accent text-primary text-xs font-vend-sans font-semibold px-4 py-2 rounded-full">
-          Ver detalle
-        </span>
-      </div>
+      <span
+        class="absolute bottom-2 right-2 z-30 w-8 h-8 rounded-full bg-accent text-primary flex items-center justify-center shadow-md pointer-events-none"
+        aria-hidden="true"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
     </div>
   </a>
 </div>

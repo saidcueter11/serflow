@@ -81,5 +81,41 @@ const canonicalUrl = Astro.url.toString()
       {!hideFooter && <Footer />}
       <WhatsAppFAB />
     </div>
+    <script is:inline>
+      (function () {
+        var PREFIX = 'serflow:scroll:'
+        function categoryKey(path) {
+          var clean = path.replace(/\/$/, '')
+          return /^\/products\/[^/]+$/.test(clean) ? clean : null
+        }
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+        document.addEventListener('astro:before-preparation', function () {
+          var key = categoryKey(location.pathname)
+          if (key) sessionStorage.setItem(PREFIX + key, String(window.scrollY))
+        })
+        function restore() {
+          var key = categoryKey(location.pathname)
+          if (!key) return
+          var raw = sessionStorage.getItem(PREFIX + key)
+          if (raw == null) return
+          var y = Number(raw)
+          if (!y) return
+          var html = document.documentElement
+          var prev = html.style.scrollBehavior
+          html.style.scrollBehavior = 'auto'
+          window.scrollTo(0, y)
+          html.style.scrollBehavior = prev
+        }
+        document.addEventListener('astro:after-swap', restore)
+        document.addEventListener('astro:page-load', function () {
+          restore()
+          setTimeout(function () {
+            restore()
+            var key = categoryKey(location.pathname)
+            if (key) sessionStorage.removeItem(PREFIX + key)
+          }, 520)
+        })
+      })()
+    </script>
   </body>
 </html>

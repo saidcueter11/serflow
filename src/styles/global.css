@@ -14,9 +14,10 @@
   --font-titan: 'Space Grotesk', sans-serif;
   --font-vend-sans: 'Inter', sans-serif;
 
-  --motion-fast: 150ms;
-  --motion-med: 220ms;
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: 220ms;
+  --motion-med: 320ms;
+  --motion-slow: 480ms;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html {
@@ -65,13 +66,13 @@ body {
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: var(--motion-med);
+  animation-duration: var(--motion-slow);
 }
 
 @keyframes catalog-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -80,8 +81,8 @@ body {
 }
 
 .catalog-in {
-  animation: catalog-in var(--motion-med) var(--ease-out) both;
-  animation-delay: calc(var(--stagger, 0) * 40ms);
+  animation: catalog-in var(--motion-slow) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * 55ms);
 }
 
 @layer components {
@@ -90,11 +91,11 @@ body {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-accent text-primary font-titan font-normal px-7 py-3 rounded-full transition-[transform,background-color,box-shadow] duration-200 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 active:scale-95 cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-accent text-primary font-titan font-normal px-7 py-3 rounded-full transition-[transform,background-color,box-shadow] duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 active:scale-95 cursor-pointer;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 border-2 border-accent text-accent font-vend-sans font-semibold px-7 py-3 rounded-full transition-[transform,background-color,color] duration-200 hover:bg-accent hover:text-primary active:scale-95 cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 border-2 border-accent text-accent font-vend-sans font-semibold px-7 py-3 rounded-full transition-[transform,background-color,color] duration-300 hover:bg-accent hover:text-primary active:scale-95 cursor-pointer;
   }
 
   .glass {
