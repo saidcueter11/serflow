@@ -46,7 +46,6 @@ const initialIndex = images.findIndex((img) => img === mainImage) || 0
                 widths={[640, 960, 1200]}
                 preload={index === initialIndex}
                 class="w-full h-full object-cover object-center rounded-2xl"
-                transitionName={index === initialIndex ? `product-image-${slug}` : undefined}
               />
             )}
           </div>

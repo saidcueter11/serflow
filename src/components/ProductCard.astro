@@ -7,17 +7,12 @@ interface Props {
   categorySlug: string
   altText?: string
   preload?: boolean
-  index?: number
 }
 
-const { slug, imageUrl, categorySlug, altText, preload, index = 99 } = Astro.props
-const stagger = index < 6 ? index : undefined
+const { slug, imageUrl, categorySlug, altText, preload } = Astro.props
 ---
 
-<div
-  class:list={['group', { 'catalog-in': stagger !== undefined }]}
-  style={stagger !== undefined ? `--stagger: ${stagger}` : undefined}
->
+<div class="group">
   <a
     href={`/products/${categorySlug}/${slug}`}
     aria-label={altText ?? 'Ver prenda'}
@@ -40,7 +35,6 @@ const stagger = index < 6 ? index : undefined
             widths={[320, 480, 640]}
             preload={preload}
             class="w-full h-full object-cover object-center relative z-10 rounded-2xl"
-            transitionName={`product-image-${slug}`}
           />
         )
       }

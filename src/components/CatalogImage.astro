@@ -8,7 +8,6 @@ interface Props {
   widths?: number[]
   preload?: boolean
   class?: string
-  transitionName?: string
 }
 
 const {
@@ -18,7 +17,6 @@ const {
   widths = [320, 640, 960],
   preload = false,
   class: className,
-  transitionName,
 } = Astro.props
 ---
 
@@ -33,5 +31,4 @@ const {
   fetchpriority={preload ? 'high' : 'auto'}
   decoding="async"
   class={className}
-  transition:name={transitionName}
 />
