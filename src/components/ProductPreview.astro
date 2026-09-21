@@ -1,5 +1,6 @@
 ---
 import { WhatsAppIcon } from './icons/WhatsappIcon'
+import CatalogImage from './CatalogImage.astro'
 
 interface Props {
   images: string[]
@@ -35,16 +36,17 @@ const initialIndex = images.findIndex((img) => img === mainImage) || 0
             }`}
             data-slide={index}
           >
-            <img
-              src={image}
-              alt={`${alt} - imagen ${index + 1} de ${images.length}`}
-              loading={index === initialIndex ? 'eager' : 'lazy'}
-              fetchpriority={index === initialIndex ? 'high' : 'auto'}
-              decoding="async"
-              class="w-full h-full object-cover object-center rounded-2xl"
-              data-zoom-image
-              transition:name={index === initialIndex ? `product-image-${slug}` : undefined}
-            />
+            {image && (
+              <CatalogImage
+                src={image}
+                alt={`${alt} - imagen ${index + 1} de ${images.length}`}
+                sizes="(min-width: 768px) 768px, 100vw"
+                widths={[640, 960, 1200]}
+                preload={index === initialIndex}
+                class="w-full h-full object-cover object-center rounded-2xl"
+                transitionName={index === initialIndex ? `product-image-${slug}` : undefined}
+              />
+            )}
           </div>
         ))
       }

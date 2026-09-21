@@ -1,4 +1,6 @@
 ---
+import CatalogImage from './CatalogImage.astro'
+
 interface Props {
   slug: string
   imageUrl: string
@@ -24,17 +26,19 @@ const { slug, imageUrl, categorySlug, altText, preload } = Astro.props
       >
       </div>
 
-      <!-- Actual image -->
-      <img
-        src={imageUrl}
-        alt={altText ?? slug}
-        fetchpriority={preload ? 'high' : 'auto'}
-        loading={preload ? 'eager' : 'lazy'}
-        decoding="async"
-        class="w-full h-full object-cover object-center relative z-10 rounded-2xl animate-[fadeIn_0.3s_ease-in] group-hover:scale-105 transition-transform duration-500"
-        transition:name={`product-image-${slug}`}
-        onload={`document.querySelector('[data-image-id="${slug}"]')?.classList.add('hidden')`}
-      />
+      {
+        imageUrl && (
+          <CatalogImage
+            src={imageUrl}
+            alt={altText ?? slug}
+            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            widths={[320, 480, 640]}
+            preload={preload}
+            class="w-full h-full object-cover object-center relative z-10 rounded-2xl animate-[fadeIn_0.3s_ease-in] group-hover:scale-105 transition-transform duration-500"
+            transitionName={`product-image-${slug}`}
+          />
+        )
+      }
 
       <!-- Hover overlay with CTA -->
       <div class="absolute inset-0 z-20 rounded-2xl bg-primary/0 group-hover:bg-primary/40 transition-all duration-300 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
