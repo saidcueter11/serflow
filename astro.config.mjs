@@ -16,8 +16,8 @@ export default defineConfig({
     ],
   },
   prefetch: {
-    defaultStrategy: 'hover',
-    prefetchAll: true,
+    defaultStrategy: 'tap',
+    prefetchAll: false,
   },
   vite: {
     plugins: [tailwindcss()]

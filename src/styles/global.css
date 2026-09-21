@@ -85,33 +85,6 @@ body {
   mix-blend-mode: normal;
 }
 
-@keyframes vt-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-::view-transition-group(category-hero) {
-  animation: none;
-  overflow: hidden;
-  border-radius: 1rem;
-}
-
-::view-transition-old(category-hero) {
-  animation: vt-fade-out var(--motion-slow) linear both !important;
-  mix-blend-mode: normal;
-  height: 100%;
-}
-
-::view-transition-new(category-hero) {
-  animation: vt-fade-in var(--motion-slow) linear both !important;
-  mix-blend-mode: normal;
-  height: 100%;
-}
-
 @keyframes catalog-in {
   from {
     opacity: 0.7;

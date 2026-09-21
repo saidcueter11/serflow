@@ -29,3 +29,6 @@ pnpm-debug.log*
 .claude
 # Local Netlify folder
 .netlify
+
+preview-assets/
+preview-*.html
