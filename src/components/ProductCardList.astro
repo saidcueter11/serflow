@@ -1,96 +1,193 @@
 ---
-import { fade } from 'astro:transitions'
-import {
-  getCategories,
-  getProductsByCategory,
-  getCategoryBySlug,
-} from '../lib/products'
+import { getCategories, getProducts } from '../lib/products'
 import ProductCard from './ProductCard.astro'
 import CatalogImage from './CatalogImage.astro'
+import type { Product } from '../lib/types'
 
 interface Props {
   currentCategorySlug: string
 }
 
 const { currentCategorySlug } = Astro.props
-
-const [categories, products, currentCategory] = await Promise.all([
+const [categories, allProducts] = await Promise.all([
   getCategories(),
-  getProductsByCategory(currentCategorySlug),
-  getCategoryBySlug(currentCategorySlug),
+  getProducts(),
 ])
 
-const categoryLabel = currentCategory?.label ?? currentCategorySlug
-const categoryImage = currentCategory?.image_url
+const productsBySlug = new Map<string, Product[]>()
+for (const product of allProducts) {
+  const slug = product.categories?.slug
+  if (!slug) continue
+  const list = productsBySlug.get(slug) ?? []
+  list.push(product)
+  productsBySlug.set(slug, list)
+}
+
+const initialIndex = Math.max(
+  0,
+  categories.findIndex((c) => c.slug === currentCategorySlug),
+)
+const count = categories.length || 1
 ---
 
-<!-- Hero banner -->
-<div
-  class="relative w-full rounded-2xl overflow-hidden"
-  transition:name="category-hero"
-  transition:animate={fade({ duration: '480ms' })}
->
-  {categoryImage ? (
-    <CatalogImage
-      src={categoryImage}
-      alt={`Colección ${categoryLabel} de Serflow`}
-      sizes="100vw"
-      widths={[640, 960, 1280]}
-      preload
-      class="w-full h-48 md:h-56 object-cover object-center"
-    />
-  ) : (
-    <div class="w-full h-48 md:h-56 bg-zinc-800" />
-  )}
-  <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent"></div>
-  <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-    <h1 class="text-3xl md:text-4xl font-titan font-normal text-white">
-      {categoryLabel}
-    </h1>
-    <p class="text-muted font-vend-sans text-sm mt-1">
-      {products.length} productos disponibles
-    </p>
+<div data-category-explorer data-index={String(initialIndex)}>
+  <div class="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden">
+    <div
+      class="flex h-full ease-[cubic-bezier(0.4,0,0.2,1)] motion-safe:transition-transform motion-safe:duration-[480ms]"
+      data-banner-track
+      style={`width: ${count * 100}%; transform: translateX(-${(initialIndex / count) * 100}%)`}
+    >
+      {
+        categories.map((cat) => {
+          const list = productsBySlug.get(cat.slug) ?? []
+          return (
+            <div
+              class="relative h-full shrink-0"
+              style={`width: ${100 / count}%`}
+            >
+              {cat.image_url ? (
+                <CatalogImage
+                  src={cat.image_url}
+                  alt={`Colección ${cat.label} de Serflow`}
+                  sizes="100vw"
+                  widths={[640, 960, 1280]}
+                  preload={cat.slug === currentCategorySlug}
+                  class="absolute inset-0 w-full h-full object-cover object-center"
+                />
+              ) : (
+                <div class="absolute inset-0 bg-zinc-800" />
+              )}
+              <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent" />
+              <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                <h1 class="text-3xl md:text-4xl font-titan font-normal text-white">
+                  {cat.label}
+                </h1>
+                <p class="text-muted font-vend-sans text-sm mt-1">
+                  {list.length} producto{list.length !== 1 ? 's' : ''} disponibles
+                </p>
+              </div>
+            </div>
+          )
+        })
+      }
+    </div>
   </div>
-</div>
 
-<!-- Category tabs -->
-<div class="flex gap-2 text-sm flex-wrap justify-start mt-6">
+  <div class="flex gap-2 text-sm flex-wrap justify-start mt-6" data-category-tabs>
+    {
+      categories.map((category, i) => (
+        <a
+          href={`/products/${category.slug}`}
+          data-index={String(i)}
+          data-slug={category.slug}
+          aria-current={i === initialIndex ? 'page' : undefined}
+          class={`category-pill cursor-pointer rounded-full px-5 py-2 no-underline font-vend-sans font-medium transition-colors duration-300 text-sm ${
+            i === initialIndex
+              ? 'bg-accent text-primary'
+              : 'bg-surface text-muted hover:text-white border border-primary-lighter hover:border-accent/30'
+          }`}
+        >
+          {category.label}
+        </a>
+      ))
+    }
+  </div>
+
   {
-    categories.map((category) => (
-      <a
-        href={`/products/${category.slug}`}
-        class={`cursor-pointer rounded-full px-5 py-2 no-underline font-vend-sans font-medium transition-all duration-300 text-sm ${
-          currentCategorySlug === category.slug
-            ? 'bg-accent text-primary'
-            : 'bg-surface text-muted hover:text-white border border-primary-lighter hover:border-accent/30'
-        }`}
-      >
-        {category.label}
-      </a>
-    ))
+    categories.map((cat, i) => {
+      const list = productsBySlug.get(cat.slug) ?? []
+      const visible = i === initialIndex
+      return list.length === 0 ? (
+        <div
+          data-grid={cat.slug}
+          hidden={!visible}
+          class="mt-8 rounded-2xl border border-primary-lighter bg-surface p-8 text-center"
+        >
+          <p class="text-muted font-vend-sans">
+            No hay productos disponibles en esta categoría por ahora.
+          </p>
+        </div>
+      ) : (
+        <div
+          data-grid={cat.slug}
+          hidden={!visible}
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-8"
+        >
+          {list.map((product, index) => (
+            <ProductCard
+              slug={product.slug}
+              imageUrl={product.image_urls[0] ?? ''}
+              categorySlug={cat.slug}
+              altText={`${cat.label} — ${product.name}`}
+              preload={visible && index < 4}
+              index={index}
+            />
+          ))}
+        </div>
+      )
+    })
   }
 </div>
 
-<!-- Product grid -->
-{
-  products.length === 0 ? (
-    <div class="mt-8 rounded-2xl border border-primary-lighter bg-surface p-8 text-center">
-      <p class="text-muted font-vend-sans">
-        No hay productos disponibles en esta categoría por ahora.
-      </p>
-    </div>
-  ) : (
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-8">
-      {products.map((product, index) => (
-        <ProductCard
-          slug={product.slug}
-          imageUrl={product.image_urls[0] ?? ''}
-          categorySlug={currentCategorySlug}
-          altText={`${categoryLabel} — ${product.name}`}
-          preload={index < 4}
-          index={index}
-        />
-      ))}
-    </div>
-  )
-}
+<script>
+  function initExplorer(root: HTMLElement) {
+    if (root.dataset.ready === 'true') return
+    root.dataset.ready = 'true'
+
+    const track = root.querySelector<HTMLElement>('[data-banner-track]')
+    const pills = Array.from(root.querySelectorAll<HTMLAnchorElement>('.category-pill'))
+    const grids = Array.from(root.querySelectorAll<HTMLElement>('[data-grid]'))
+    if (!track || pills.length === 0) return
+
+    const n = pills.length
+
+    function paint(index: number) {
+      track!.style.transform = `translateX(-${(index / n) * 100}%)`
+      pills.forEach((pill, i) => {
+        const on = i === index
+        if (on) pill.setAttribute('aria-current', 'page')
+        else pill.removeAttribute('aria-current')
+        pill.classList.toggle('bg-accent', on)
+        pill.classList.toggle('text-primary', on)
+        pill.classList.toggle('bg-surface', !on)
+        pill.classList.toggle('text-muted', !on)
+        pill.classList.toggle('border', !on)
+        pill.classList.toggle('border-primary-lighter', !on)
+      })
+      grids.forEach((grid) => {
+        const i = pills.findIndex((p) => p.dataset.slug === grid.dataset.grid)
+        grid.hidden = i !== index
+      })
+      root.dataset.index = String(index)
+    }
+
+    function go(index: number, push: boolean) {
+      if (index < 0 || index >= n) return
+      paint(index)
+      const slug = pills[index].dataset.slug
+      if (push && slug) history.pushState({ serflowCat: index }, '', `/products/${slug}`)
+    }
+
+    pills.forEach((pill, i) => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault()
+        go(i, true)
+      })
+    })
+
+    window.addEventListener('popstate', () => {
+      const fromState = window.history.state?.serflowCat
+      if (typeof fromState === 'number') {
+        paint(fromState)
+        return
+      }
+      const slug = location.pathname.replace(/\/$/, '').split('/').pop()
+      const i = pills.findIndex((p) => p.dataset.slug === slug)
+      paint(i >= 0 ? i : 0)
+    })
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-category-explorer]').forEach(initExplorer)
+  })
+</script>
