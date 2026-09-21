@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Category, Product } from './types'
+import type { Category, Product, Promo } from './types'
 
 /* ── Categories ──────────────────────────────────────────── */
 
@@ -101,4 +101,25 @@ export async function getProductBySlug(
 
   if (error) return null
   return data
+}
+
+export async function getActivePromo(): Promise<Promo | null> {
+  const { data, error } = await supabase
+    .from('promos')
+    .select('*')
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (error) return null
+  return data
+}
+
+export async function getActivePromos(): Promise<Promo[]> {
+  const { data, error } = await supabase
+    .from('promos')
+    .select('*')
+    .eq('is_active', true)
+
+  if (error) return []
+  return data ?? []
 }

@@ -19,6 +19,7 @@ const initialIndex = images.findIndex((img) => img === mainImage) || 0
   class="relative flex flex-col gap-4 w-full h-full"
   data-slider
   data-product-name={productName}
+  data-images={JSON.stringify(images)}
   tabindex="0"
 >
   <div
@@ -357,8 +358,17 @@ const initialIndex = images.findIndex((img) => img === mainImage) || 0
     private handleWhatsApp() {
       const phoneNumber = '+573156481243'
       const productUrl = window.location.href
+      let photo = ''
+      try {
+        const urls = JSON.parse(this.container.dataset.images || '[]') as string[]
+        photo = urls[this.currentIndex] || urls[0] || ''
+      } catch {
+        photo = ''
+      }
 
-      const text = `Hola! Me interesa este producto:\n${productUrl}`
+      const text = photo
+        ? `Hola! Me interesa este producto:\n${productUrl}\n\nFoto: ${photo}`
+        : `Hola! Me interesa este producto:\n${productUrl}`
       const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`
 
       window.open(url, '_blank', 'noopener,noreferrer')

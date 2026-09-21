@@ -8,6 +8,10 @@ import Layout from '../layouts/Layout.astro'
 import { WhatsAppIcon } from '../components/icons/WhatsappIcon'
 import ContactForm from '../components/ContactForm.astro'
 import CategoryShowcase from '../components/CategoryShowcase.astro'
+import PromoBanner from '../components/PromoBanner.astro'
+import { getActivePromo } from '../lib/products'
+
+const promo = await getActivePromo()
 
 const homeDescription =
   'Serflow en Cartagena: prendas personalizadas con diseños únicos, calidad premium y atención directa por WhatsApp.'
@@ -65,6 +69,12 @@ const reasons = [
 
   <!-- Hero -->
   <SlideShow />
+
+  {promo && (
+    <div class="pt-6 md:pt-8">
+      <PromoBanner promo={promo} />
+    </div>
+  )}
 
   <main class="flex flex-col items-center gap-20 md:gap-28 py-16 md:py-24">
     <!-- About -->

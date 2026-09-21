@@ -29,3 +29,14 @@ export interface Product {
     label: string
   }
 }
+
+export interface Promo {
+  id: string
+  slug: string
+  title: string
+  banner_url: string | null
+  image_urls: string[]
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
