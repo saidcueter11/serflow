@@ -7,18 +7,22 @@ interface Props {
   categorySlug: string
   altText?: string
   preload?: boolean
+  index?: number
 }
 
-const { slug, imageUrl, categorySlug, altText, preload } = Astro.props
+const { slug, imageUrl, categorySlug, altText, preload, index = 99 } = Astro.props
+const stagger = index < 6 ? index : undefined
 ---
 
-<div class="group">
+<div
+  class:list={['group', { 'catalog-in': stagger !== undefined }]}
+  style={stagger !== undefined ? `--stagger: ${stagger}` : undefined}
+>
   <a
     href={`/products/${categorySlug}/${slug}`}
-    class="block rounded-2xl overflow-hidden bg-surface border border-white/5 hover:border-accent/20 transition-all duration-300"
-    style="border-radius: 1rem; overflow: hidden;"
+    class="block rounded-2xl overflow-hidden bg-surface border border-white/5 transition-[border-color,transform] duration-200 ease-out active:scale-[1.02] [@media(hover:hover)]:hover:border-accent/20 [@media(hover:hover)]:hover:scale-[1.02]"
   >
-    <div class="relative overflow-hidden aspect-square rounded-2xl" style="border-radius: 1rem;">
+    <div class="relative overflow-hidden aspect-square rounded-2xl">
       <!-- Loading skeleton -->
       <div
         class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-light via-primary-lighter to-primary-light bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"
@@ -34,15 +38,14 @@ const { slug, imageUrl, categorySlug, altText, preload } = Astro.props
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             widths={[320, 480, 640]}
             preload={preload}
-            class="w-full h-full object-cover object-center relative z-10 rounded-2xl animate-[fadeIn_0.3s_ease-in] group-hover:scale-105 transition-transform duration-500"
+            class="w-full h-full object-cover object-center relative z-10 rounded-2xl"
             transitionName={`product-image-${slug}`}
           />
         )
       }
 
-      <!-- Hover overlay with CTA -->
-      <div class="absolute inset-0 z-20 rounded-2xl bg-primary/0 group-hover:bg-primary/40 transition-all duration-300 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
-        <span class="bg-accent text-primary text-xs font-vend-sans font-semibold px-4 py-2 rounded-full translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+      <div class="absolute inset-0 z-20 rounded-2xl hidden [@media(hover:hover)]:flex items-end justify-center pb-4 bg-primary/0 opacity-0 [@media(hover:hover)]:group-hover:bg-primary/40 [@media(hover:hover)]:group-hover:opacity-100 transition-[opacity,background-color] duration-200">
+        <span class="bg-accent text-primary text-xs font-vend-sans font-semibold px-4 py-2 rounded-full">
           Ver detalle
         </span>
       </div>
@@ -60,14 +63,6 @@ const { slug, imageUrl, categorySlug, altText, preload } = Astro.props
     }
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
 </style>
 
 <script>

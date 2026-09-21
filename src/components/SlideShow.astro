@@ -12,7 +12,7 @@ const slides = [
 ]
 ---
 
-<div class="slideshow-container relative w-full h-[78vh] md:h-[90vh] min-h-[420px] md:min-h-[500px] overflow-x-hidden">
+<div class="slideshow-container relative w-full h-[62vh] md:h-[90vh] min-h-[360px] md:min-h-[500px] overflow-x-hidden">
   <!-- Slides -->
   <div class="slides-wrapper w-full h-full relative z-0">
     {
@@ -78,8 +78,8 @@ const slides = [
 
   <!-- Navigation Buttons -->
   <button
-    class="prev-btn cursor-pointer absolute top-1/2 left-4 md:left-12 -translate-y-1/2 bg-white/10 hover:bg-accent text-white hover:text-primary rounded-full hover:-translate-x-1 transition-all hidden lg:block z-20 pointer-events-auto p-3 backdrop-blur-sm"
-    aria-label="Previous slide"
+    class="prev-btn cursor-pointer absolute top-1/2 left-3 md:left-12 -translate-y-1/2 bg-white/10 [@media(hover:hover)]:hover:bg-accent text-white [@media(hover:hover)]:hover:text-primary rounded-full z-20 pointer-events-auto min-h-11 min-w-11 flex items-center justify-center"
+    aria-label="Foto anterior"
   >
     <svg
       width="14"
@@ -96,8 +96,8 @@ const slides = [
   </button>
 
   <button
-    class="next-btn cursor-pointer absolute top-1/2 right-4 md:right-12 -translate-y-1/2 bg-white/10 hover:bg-accent text-white hover:text-primary rounded-full hover:translate-x-1 transition-all hidden lg:block z-20 pointer-events-auto p-3 backdrop-blur-sm"
-    aria-label="Next slide"
+    class="next-btn cursor-pointer absolute top-1/2 right-3 md:right-12 -translate-y-1/2 bg-white/10 [@media(hover:hover)]:hover:bg-accent text-white [@media(hover:hover)]:hover:text-primary rounded-full z-20 pointer-events-auto min-h-11 min-w-11 flex items-center justify-center"
+    aria-label="Foto siguiente"
   >
     <svg
       width="14"
@@ -120,10 +120,15 @@ const slides = [
     {
       slides.map((_, i) => (
         <button
-          class={`dot h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-accent w-8' : 'bg-white/40 hover:bg-white/60 w-4'}`}
+          class="dot min-h-11 min-w-11 flex items-center justify-center"
           data-index={i}
-          aria-label={`Go to slide ${i + 1}`}
-        />
+          aria-label={`Ir a foto ${i + 1}`}
+          aria-current={i === 0 ? 'true' : undefined}
+        >
+          <span
+            class={`dot-bar h-1.5 rounded-full transition-[width,background-color] duration-200 ${i === 0 ? 'bg-accent w-8' : 'bg-white/40 w-4'}`}
+          />
+        </button>
       ))
     }
   </div>
@@ -188,12 +193,18 @@ const slides = [
         this.handleSwipe()
       })
 
-      // Start autoplay
+      this.container.addEventListener('mouseenter', () => {
+        this.isPaused = true
+      })
+      this.container.addEventListener('mouseleave', () => {
+        this.isPaused = false
+      })
+
       this.startAutoplay()
     }
 
     handleSwipe() {
-      const swipeThreshold = 100
+      const swipeThreshold = 50
       const diff = this.touchStartX - this.touchEndX
 
       if (Math.abs(diff) > swipeThreshold) {
@@ -232,11 +243,8 @@ const slides = [
       // Trigger reflow
       nextSlide.offsetHeight
 
-      // Enable transition
-      currentSlide.style.transition =
-        'transform 0.6s ease-in-out, opacity 0.6s ease-in-out'
-      nextSlide.style.transition =
-        'transform 0.6s ease-in-out, opacity 0.6s ease-in-out'
+      currentSlide.style.transition = 'transform 380ms cubic-bezier(0.22, 1, 0.36, 1)'
+      nextSlide.style.transition = 'transform 380ms cubic-bezier(0.22, 1, 0.36, 1)'
 
       // Animate both slides
       currentSlide.style.transform = `translateX(${dir > 0 ? '-100%' : '100%'})`
@@ -248,16 +256,15 @@ const slides = [
 
       // Update dots
       this.dots.forEach((dot, i) => {
-        if (i === this.currentIndex) {
-          dot.classList.remove('bg-white/40', 'w-4')
-          dot.classList.add('bg-accent', 'w-8')
-        } else {
-          dot.classList.remove('bg-accent', 'w-8')
-          dot.classList.add('bg-white/40', 'w-4')
-        }
+        const bar = dot.querySelector('.dot-bar')
+        const on = i === this.currentIndex
+        dot.toggleAttribute('aria-current', on)
+        bar?.classList.toggle('bg-accent', on)
+        bar?.classList.toggle('w-8', on)
+        bar?.classList.toggle('bg-white/40', !on)
+        bar?.classList.toggle('w-4', !on)
       })
 
-      // Reset after animation
       setTimeout(() => {
         this.slides.forEach((slide, i) => {
           slide.style.transition = 'none'
@@ -272,10 +279,13 @@ const slides = [
           }
         })
         this.isAnimating = false
-      }, 600)
+      }, 380)
     }
 
     startAutoplay() {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const slow = document.documentElement.classList.contains('slow-connection')
+      if (reduce || slow) return
       this.autoplayInterval = window.setInterval(() => {
         if (!this.isPaused) {
           this.changeSlide(1)
@@ -293,21 +303,24 @@ const slides = [
     destroy() {
       if (this.autoplayInterval) {
         clearInterval(this.autoplayInterval)
+        this.autoplayInterval = null
       }
     }
   }
 
-  // Initialize slideshow
+  let slideshow: Slideshow | null = null
+
+  document.addEventListener('astro:before-swap', () => {
+    slideshow?.destroy()
+    slideshow = null
+  })
+
   document.addEventListener('astro:page-load', () => {
+    slideshow?.destroy()
+    slideshow = null
     const container = document.querySelector('.slideshow-container')
     if (container) {
-      new Slideshow(container as HTMLElement)
+      slideshow = new Slideshow(container as HTMLElement)
     }
   })
 </script>
-
-<style>
-  .slide {
-    will-change: transform;
-  }
-</style>
