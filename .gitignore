@@ -29,3 +29,7 @@ pnpm-debug.log*
 .claude
 # Local Netlify folder
 .netlify
+
+# playwright
+test-results/
+playwright-report/
