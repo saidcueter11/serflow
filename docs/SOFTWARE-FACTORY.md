@@ -11,7 +11,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - Usuarios: clientes que llegan sobre todo desde el celular, ven categorías y productos y piden por WhatsApp (`wa.me/573156481243`). No hay carrito, cuentas, pagos ni checkout: el CTA de cada producto abre WhatsApp con el link y la foto visible.
 - El contenido (categorías, productos, promos, imágenes) se administra en el repo hermano `saidcueter11/serflow-admin` (Next.js) contra la misma Supabase. Un feature que necesita datos nuevos suele ser un par de PRs: este repo + serflow-admin (ver PR #20 y serflow-admin#11). Los agentes de este proyecto solo tocan este repo; si hace falta el lado admin, lo dicen en el issue.
 - Principios: rápido en móvil, sitio estático (Astro SSG, se reconstruye en cada deploy), copy cercano en español de Colombia. Anti-patrones: agregar backend o lógica de servidor, librerías pesadas en el cliente, romper el flujo a WhatsApp.
-- Backlog histórico en GitHub Issues (`P0`/`P1`/`P2` en el título); el trabajo de agentes entra por el board de Tempo.
+- Dueño y único decisor: Said (no hay cliente externo). El producto va a cambiar: el backlog se arma desde cero en el board de Tempo. Los GitHub Issues anteriores (#8-#23) son históricos; no se trabajan ni se migran salvo que Said lo pida.
 
 ### Git y PRs
 - Rama base: `master`. Ramas: `<feat|fix|docs|chore>/<ID>-<slug>` desde `origin/master`.
@@ -57,5 +57,6 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - App local: `npm run dev` en http://localhost:4231.
 
 ### Comunicación y tablero
+- El board de Tempo es uno solo para toda la organización (prefijo `PRI-`) y lo comparten otros proyectos. Todo issue de serflow lleva el label `proj:serflow`: al crear uno, pásalo siempre; al buscar, filtra por él (vista "Serflow"). Nunca toques issues sin ese label.
 - Canal de reporte: comentario en el issue de Tempo (no hay Slack conectado). Si algo necesita decisión de Said, el comentario empieza con "Decisión:".
 - Stages que se usan: `new-idea`, `scoping`, `spec-concept-design`, `ready-for-dev`, `backlog`, `implementation`, `pr-review`, `merged`, `deployed-production`, `wont-do`, `duplicate`.
