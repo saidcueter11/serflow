@@ -1,24 +1,6 @@
 @import "tailwindcss";
+@import "./tokens.css";
 @plugin '@tailwindcss/typography';
-
-@theme {
-  --color-primary: #17160f;
-  --color-primary-light: #242218;
-  --color-primary-lighter: #312e22;
-  --color-accent: #FFD700;
-  --color-accent-soft: #FFD70020;
-  --color-secondary: #D2BD3C;
-  --color-surface: #1f1d15;
-  --color-muted: #B8B6AA;
-
-  --font-titan: 'Space Grotesk', sans-serif;
-  --font-vend-sans: 'Inter', sans-serif;
-
-  --motion-fast: 220ms;
-  --motion-med: 320ms;
-  --motion-slow: 480ms;
-  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 html {
   scroll-behavior: smooth;
