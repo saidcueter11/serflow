@@ -58,7 +58,7 @@ export function Footer({ logoSrc }: { logoSrc: string }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Serflow en ${s.name}`}
-                className="flex size-11 items-center justify-center rounded-full border border-line text-ink transition-colors duration-[var(--motion-fast)] hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                className="flex size-11 items-center justify-center rounded-full border border-line text-accent transition-colors duration-[var(--motion-fast)] hover:border-accent hover:bg-accent/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 {SOCIAL_ICONS[s.name]}
               </a>

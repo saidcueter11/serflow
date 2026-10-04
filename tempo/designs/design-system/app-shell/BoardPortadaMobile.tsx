@@ -6,13 +6,12 @@ import { QuickFacts } from "../../../../src/components/ui/QuickFacts";
 import { MascotSlot } from "../../../../src/components/ui/MascotSlot";
 import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { MapCard } from "../../../../src/components/ui/MapCard";
-import { ContactList } from "../../../../src/components/ui/ContactList";
 import { WhatsAppFab } from "../../../../src/components/ui/WhatsAppFab";
 import { PinIcon } from "../../../../src/components/icons/PinIcon";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import {
   CATALOG_HREF,
-  WorkItems,
+  TITO,
   DisponibleSinProductos,
   type EstadoDisponible,
   LOGO,
@@ -38,7 +37,7 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
             <p className="flex-1 text-[16px] leading-relaxed text-muted">
               Estampamos, imprimimos en DTF y bordamos en Cartagena. Ven al taller o escríbenos.
             </p>
-            <MascotSlot size="lg" />
+            <MascotSlot size="lg" clip={TITO} />
           </div>
           <div className="mt-6 flex flex-col gap-3">
             <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
@@ -70,10 +69,11 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
               <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
             ))}
           </div>
-          <div className="mt-4">
-            <PersonalizadorEntry />
-          </div>
         </Section>
+
+        <div className="px-4 py-8">
+          <PersonalizadorEntry />
+        </div>
 
         <Section id="disponible" title="Disponible ahora" description="Lo que hay en el taller esta semana.">
           {estado === "productos" ? (
@@ -92,23 +92,15 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
           )}
         </Section>
 
-        <Section id="trabajos" title="Trabajos hechos" description="Algunas piezas que han salido del taller.">
-          <div className="grid grid-cols-2 gap-3">
-            <WorkItems />
-          </div>
-        </Section>
 
         <Section id="ubicacion" title="Dónde estamos">
           <MapCard />
         </Section>
 
         <Section id="contacto" title="Hablemos" description="Mándanos tu idea, una foto o el logo de tu negocio." tone="panel">
-          <ContactList />
-          <div className="mt-4">
-            <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
-              Escríbenos por WhatsApp
-            </Button>
-          </div>
+          <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
+            Escríbenos por WhatsApp
+          </Button>
         </Section>
       </main>
 

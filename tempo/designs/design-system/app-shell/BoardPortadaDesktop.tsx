@@ -6,12 +6,11 @@ import { QuickFacts } from "../../../../src/components/ui/QuickFacts";
 import { MascotSlot } from "../../../../src/components/ui/MascotSlot";
 import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { MapCard } from "../../../../src/components/ui/MapCard";
-import { ContactList } from "../../../../src/components/ui/ContactList";
 import { WhatsAppFab } from "../../../../src/components/ui/WhatsAppFab";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import {
   CATALOG_HREF,
-  WorkItems,
+  TITO,
   DisponibleSinProductos,
   type EstadoDisponible,
   LOGO,
@@ -49,7 +48,7 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
           {/* En desktop el mapa sube al hero y hace de #ubicacion; la sección Dónde estamos es solo móvil. */}
           <div id="ubicacion" className="relative">
             <MapCard tall />
-            <MascotSlot size="lg" placement="corner" />
+            <MascotSlot size="lg" placement="corner" clip={TITO} />
           </div>
         </section>
 
@@ -70,10 +69,11 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
               <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
             ))}
           </div>
-          <div className="mt-5">
-            <PersonalizadorEntry desktop />
-          </div>
         </Section>
+
+        <div className="px-12 py-14">
+          <PersonalizadorEntry desktop />
+        </div>
 
         <Section id="disponible" title="Disponible ahora" description="Lo que hay en el taller esta semana.">
           {estado === "productos" ? (
@@ -92,24 +92,11 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
           )}
         </Section>
 
-        <Section id="trabajos" title="Trabajos hechos" description="Algunas piezas que han salido del taller.">
-          <div className="grid grid-cols-4 gap-5">
-            <WorkItems />
-          </div>
-        </Section>
 
         <Section id="contacto" title="Hablemos" description="Mándanos tu idea, una foto o el logo de tu negocio." tone="panel">
-          <div className="grid grid-cols-[1fr_1.4fr] items-start gap-12">
-            <div className="flex flex-col items-start gap-5">
-              <p className="text-[17px] leading-relaxed text-muted">
-                Lo más rápido es WhatsApp: te respondemos en horario del taller y armamos el pedido contigo.
-              </p>
-              <Button variant="whatsapp" href={WHATSAPP_URL} external>
-                Escríbenos por WhatsApp
-              </Button>
-            </div>
-            <ContactList />
-          </div>
+          <Button variant="whatsapp" href={WHATSAPP_URL} external>
+            Escríbenos por WhatsApp
+          </Button>
         </Section>
       </main>
 
