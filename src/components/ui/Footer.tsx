@@ -1,11 +1,11 @@
-import { CITY, EMAIL, HOURS, WHATSAPP_DISPLAY, whatsappUrl } from '../../lib/business'
+import { ADDRESS, CITY, EMAIL, HOURS, SOCIAL, WHATSAPP_DISPLAY, whatsappUrl } from '../../lib/business'
 
 const LINK =
   'flex min-h-11 items-center gap-2 text-ink hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /**
  * Pie del sitio: logo, qué es Serflow, horario y contacto (WhatsApp y correo), todo de
- * src/lib/business.ts. Sin íconos de redes "próximamente": se agregan cuando existan las cuentas.
+ * src/lib/business.ts, más las redes como links de texto (SOCIAL).
  * pb-28 deja libre el WhatsAppFab fijo (56px + 20px de margen) sobre el último link.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
  *
@@ -19,6 +19,7 @@ export function Footer({ logoSrc }: { logoSrc: string }) {
         <div className="flex flex-col gap-3">
           <img src={logoSrc} alt="Serflow" width={69} height={24} className="h-6 w-auto self-start" />
           <p>Camisetas y gorras personalizadas · {CITY}</p>
+          {ADDRESS && <p>{ADDRESS}</p>}
         </div>
         <dl className="flex flex-col gap-1">
           {HOURS.map((h) => (
@@ -38,6 +39,13 @@ export function Footer({ logoSrc }: { logoSrc: string }) {
             <a href={`mailto:${EMAIL}`} className={`${LINK} min-w-0 break-all`}>
               {EMAIL}
             </a>
+          </li>
+          <li className="flex flex-wrap gap-x-4">
+            {SOCIAL.map((s) => (
+              <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" className={LINK}>
+                {s.name}
+              </a>
+            ))}
           </li>
         </ul>
       </div>

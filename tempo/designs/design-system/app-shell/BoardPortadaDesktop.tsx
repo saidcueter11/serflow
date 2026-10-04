@@ -14,6 +14,8 @@ import { WHATSAPP_URL } from "../../../../src/lib/business";
 import {
   CATALOG_HREF,
   CanvasNote,
+  DisponibleSinProductos,
+  type EstadoDisponible,
   LOGO,
   PersonalizadorEntry,
   ProductItems,
@@ -23,7 +25,7 @@ import {
 } from "./portada";
 
 /** La portada a 1280px, armada solo con componentes de src/components/ui. */
-export function BoardPortadaDesktop() {
+export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoDisponible }) {
   return (
     <div className="relative bg-primary font-body text-ink antialiased" style={{ width: 1280 }}>
       <Header logoSrc={LOGO} />
@@ -80,6 +82,8 @@ export function BoardPortadaDesktop() {
         </Section>
 
         <Section id="disponible" title="Disponible ahora" description="Lo que hay en el taller esta semana.">
+          {estado === "productos" ? (
+            <>
           <div className="grid grid-cols-4 gap-4">
             <ProductItems count={4} />
           </div>
@@ -89,6 +93,10 @@ export function BoardPortadaDesktop() {
             </Button>
             <span className="text-[12px] text-muted">fotos de ejemplo</span>
           </div>
+            </>
+          ) : (
+            <DisponibleSinProductos estado={estado} />
+          )}
         </Section>
 
         <div className="px-8">

@@ -14,6 +14,8 @@ import { WHATSAPP_URL } from "../../../../src/lib/business";
 import {
   CATALOG_HREF,
   CanvasNote,
+  DisponibleSinProductos,
+  type EstadoDisponible,
   LOGO,
   PersonalizadorEntry,
   ProductItems,
@@ -23,7 +25,7 @@ import {
 } from "./portada";
 
 /** La portada a 390px, armada solo con componentes de src/components/ui. */
-export function BoardPortadaMobile() {
+export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDisponible }) {
   return (
     <div className="relative bg-primary font-body text-ink antialiased" style={{ width: 390 }}>
       <Header logoSrc={LOGO} />
@@ -76,6 +78,8 @@ export function BoardPortadaMobile() {
         </Section>
 
         <Section id="disponible" title="Disponible ahora" description="Lo que hay en el taller esta semana.">
+          {estado === "productos" ? (
+            <>
           <div className="-mx-4 grid snap-x auto-cols-[200px] grid-flow-col gap-3 overflow-x-auto px-4 pb-1">
             <ProductItems count={4} />
           </div>
@@ -85,6 +89,10 @@ export function BoardPortadaMobile() {
             </Button>
             <span className="text-[11px] text-muted">fotos de ejemplo</span>
           </div>
+            </>
+          ) : (
+            <DisponibleSinProductos estado={estado} />
+          )}
         </Section>
 
         <CanvasNote>Trabajos hechos va aquí y no se renderiza: todavía no hay fotos reales de trabajos.</CanvasNote>

@@ -1,10 +1,7 @@
 import type { CSSProperties } from 'react'
 import { PinIcon } from '../icons/PinIcon'
 import { Button } from './Button'
-import { ADDRESS, CITY, HOURS, MAP_EMBED_URL } from '../../lib/business'
-
-// ponytail: búsqueda por nombre; cambiar a la dirección real cuando ADDRESS deje de ser null.
-const DIRECTIONS_URL = 'https://www.google.com/maps/search/?api=1&query=Serflow%20Cartagena'
+import { ADDRESS, CITY, DIRECTIONS_URL, HOURS, MAP_EMBED_URL } from '../../lib/business'
 
 // Calles ilustrativas solo con CSS (0 KB de imagen), con los tokens de color.
 const STREETS: CSSProperties = {

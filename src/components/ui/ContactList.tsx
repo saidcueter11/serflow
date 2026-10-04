@@ -1,13 +1,11 @@
-import { EMAIL, WHATSAPP_DISPLAY, whatsappUrl } from '../../lib/business'
+import { EMAIL, SOCIAL, WHATSAPP_DISPLAY, whatsappUrl } from '../../lib/business'
 
 const ROW =
   'flex min-h-14 items-center justify-between gap-3 px-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent'
 const LABEL = 'shrink-0 text-[13px] uppercase tracking-[.08em] text-muted'
 
 /**
- * Lista de contacto: WhatsApp y correo, una fila tocable de 56px cada uno.
- * Redes sociales: en el sitio actual son "próximamente" (index.astro, Footer.astro), así que
- * no se renderizan aquí; se agregan como filas cuando existan las cuentas.
+ * Lista de contacto: WhatsApp, correo y redes (SOCIAL en business.ts), una fila tocable de 56px cada una.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
  *
  * The canvas for this component is at tempo/designs/design-system/business-info/index.canvas.tsx.
@@ -28,6 +26,14 @@ export function ContactList() {
           <span className="min-w-0 truncate text-[13px]">{EMAIL}</span>
         </a>
       </li>
+      {SOCIAL.map((s) => (
+        <li key={s.name}>
+          <a href={s.url} target="_blank" rel="noopener noreferrer" className={ROW}>
+            <span className={LABEL}>{s.name}</span>
+            <span className="text-[15px]">{s.handle}</span>
+          </a>
+        </li>
+      ))}
     </ul>
   )
 }

@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 import logo from "../../../../src/assets/LOGO SERFLOW.png";
 import { Button } from "../../../../src/components/ui/Button";
 import { ProductCard } from "../../../../src/components/ui/ProductCard";
+import { EmptyState } from "../../../../src/components/ui/EmptyState";
+import { ErrorState } from "../../../../src/components/ui/ErrorState";
+import { WHATSAPP_URL } from "../../../../src/lib/business";
 import { CAP_GREEN, CAP_NAVY, SHIRT_BLACK, SHIRT_WHITE } from "../cards/samples";
 
 /*
@@ -97,5 +100,20 @@ export function CanvasNote({ children }: { children: ReactNode }) {
       <span className="font-semibold uppercase tracking-[.08em]">Nota del canvas · </span>
       {children}
     </div>
+  );
+}
+
+/** Estado de la sección "Disponible ahora" (PRI-121): con prendas, sin prendas o error al cargar. */
+export type EstadoDisponible = "productos" | "vacio" | "error";
+
+/** Contenido de "Disponible ahora" cuando no hay prendas que mostrar. */
+export function DisponibleSinProductos({ estado }: { estado: Exclude<EstadoDisponible, "productos"> }) {
+  if (estado === "error") return <ErrorState kind="load" retryHref="/" />;
+  return (
+    <EmptyState
+      title="No hay prendas disponibles en este momento"
+      description="Lo que llega al taller se vende rápido. Escríbenos y te contamos qué hay hoy, o mándanos tu idea y la hacemos."
+      action={{ label: "Escríbenos por WhatsApp", href: WHATSAPP_URL }}
+    />
   );
 }

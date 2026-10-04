@@ -5,12 +5,6 @@
 @source "./designs";
 /* tempo:managed:end */
 
-/* Space Grotesk 500/700 (display). Va antes de todo: @import url debe ir primero. */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap');
-
-
-
-
 /* Tokens del sitio: el canvas usa exactamente los mismos que Astro. */
 @import "../src/styles/tokens.css";
 

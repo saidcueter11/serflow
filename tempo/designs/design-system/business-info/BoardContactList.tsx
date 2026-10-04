@@ -33,10 +33,10 @@ export function BoardContactList() {
         </Demo>
       </Row>
 
-      <Row name="Redes sociales" description="Pendiente a propósito.">
+      <Row name="Redes sociales" description="Filas de texto, sin íconos.">
         <div className="text-[14px] leading-relaxed text-muted">
-          Facebook, Instagram y TikTok hoy aparecen como íconos apagados &quot;próximamente&quot; en index.astro y
-          Footer.astro. No se renderizan aquí: cuando existan las cuentas se agregan como filas con su link real.
+          Instagram, TikTok y Facebook salen de <code>SOCIAL</code> en business.ts y se muestran como filas con el
+          usuario de cada red. Sin íconos para no cargar los SVG legado; el Footer las lista también.
         </div>
       </Row>
     </PageFrame>
