@@ -33,3 +33,8 @@ pnpm-debug.log*
 # playwright
 test-results/
 playwright-report/
+
+# canvas de Tempo (generado)
+tempo/.tempo/
+tempo/node_modules/
+tempo/dist/
