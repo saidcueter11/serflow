@@ -49,8 +49,11 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y los buckets públicos de imágenes; escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
 
 ### Diseño
-- Tokens en `src/styles/global.css` (`--color-primary`, `--color-accent` #FFD700, `--color-surface`, `--color-muted`, `--motion-fast/med/slow`, `--ease-out`). Fuentes: Space Grotesk (`font-titan`, títulos) e Inter (`font-vend-sans`, texto). Tailwind 4. No inventar colores fuera de esos tokens.
-- Componentes en `src/components/` (Astro; React solo en `src/components/utils/BackButton.tsx` y los íconos).
+- Design system "Noche caribe" (PRI-121). Fuente de verdad: los canvases de `tempo/designs/design-system/` (foundations, buttons, labels, cards, media, business-info, states, app-shell). Antes de crear o revisar UI, consultar `asset_list` (Tempo) y reutilizar lo que hay; el tablero "Design System Debt" de cada familia dice qué falta migrar.
+- Tokens en `src/styles/tokens.css` (lo importan `global.css` y el host del canvas). Usar las clases Tailwind de los tokens (`bg-primary` = fondo, `bg-surface`, `bg-surface-2`, `border-line`, `text-ink`, `text-muted`, `text-accent` = dorado de marca y único acento, `text-ok`, `text-danger`, `rounded-tile`, `rounded-card`, `font-display`, `font-body`, `fabric`). Nada de hex sueltos ni duraciones fijas. Fuentes: Space Grotesk 500/700 (`font-display`) y la del sistema para texto (`font-body`); `font-titan`/`font-vend-sans` son legado.
+- Componentes nuevos en `src/components/ui/` (React estático: Astro los renderiza sin `client:*`, 0 KB de JS; sin hooks ni estado). Los `.astro` de `src/components/` son legado y se migran por PR. Controles de Tempo en `tempo/controls.ts` (el sitio no depende de `tempo-sdk`).
+- Datos del negocio (WhatsApp, correo, horarios, dirección, mapa) solo en `src/lib/business.ts`; para links de WhatsApp usar `whatsappUrl()`.
+- Sin imágenes de relleno: una sección sin su foto real se oculta (`PhotoSlot` devuelve nada sin `src`). Una sola mascota visible por página.
 - Mobile-first. Viewports de referencia: Pixel 7 y desktop (los mismos proyectos de Playwright).
 - Motion con los tokens de duración, sin animaciones que bloqueen la navegación; respetar `prefers-reduced-motion`.
 - Copy en español de Colombia, tono cercano e informal. Accesibilidad mínima: `alt` en imágenes, `aria-label` en botones con solo ícono, contraste sobre el fondo oscuro.
