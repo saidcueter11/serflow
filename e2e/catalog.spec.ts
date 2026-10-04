@@ -22,3 +22,22 @@ test('unknown route shows the 404 page', async ({ page }) => {
   expect(res?.status()).toBe(404)
   await expect(page.getByRole('heading', { name: 'Página no encontrada' })).toBeVisible()
 })
+
+// PRI-120: touch has no hover, so links must be prefetched before the tap or navigation waits on the network.
+test('visible category links are prefetched before the tap', async ({ page }) => {
+  await page.goto('/')
+  const categoryLink = page.locator('a[href^="/products/"]').filter({ has: page.locator('h3') }).first()
+  await categoryLink.scrollIntoViewIfNeeded()
+  const href = (await categoryLink.getAttribute('href'))!.replace(/\/$/, '')
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (h) =>
+          performance
+            .getEntriesByType('resource')
+            .some((e) => new URL(e.name).pathname.replace(/\/$/, '') === h),
+        href,
+      ),
+    )
+    .toBe(true)
+})

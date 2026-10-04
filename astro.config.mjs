@@ -16,7 +16,9 @@ export default defineConfig({
     ],
   },
   prefetch: {
-    defaultStrategy: 'hover',
+    // Touch has no hover: prefetch visible links so a tap doesn't wait on the network (PRI-120).
+    // Astro falls back to tap on 2G/saveData.
+    defaultStrategy: 'viewport',
     prefetchAll: true,
   },
   vite: {
