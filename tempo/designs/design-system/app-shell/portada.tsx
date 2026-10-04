@@ -1,12 +1,23 @@
 /// <reference types="vite/client" />
-import type { ReactNode } from "react";
 import logo from "../../../../src/assets/LOGO SERFLOW.png";
 import { Button } from "../../../../src/components/ui/Button";
 import { ProductCard } from "../../../../src/components/ui/ProductCard";
 import { EmptyState } from "../../../../src/components/ui/EmptyState";
 import { ErrorState } from "../../../../src/components/ui/ErrorState";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
-import { CAP_GREEN, CAP_NAVY, SHIRT_BLACK, SHIRT_WHITE } from "../cards/samples";
+import { WorkCard } from "../../../../src/components/ui/WorkCard";
+// Fotos de ejemplo mientras llegan las del cliente: gorras reales del catálogo actual.
+import capLogo from "../../../../src/assets/images/moda/moda1.webp";
+import capBordado from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida2.webp";
+import capDtf from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida5.webp";
+import capNegra from "../../../../src/assets/images/moda/moda5.webp";
+import capFlamenco from "../../../../src/assets/images/kids/kid1.webp";
+import capBulls from "../../../../src/assets/images/basket/basket1.webp";
+import capExpos from "../../../../src/assets/images/beisbol/beisbol2.webp";
+import work1 from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida3.webp";
+import work2 from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida4.webp";
+import work3 from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida6.webp";
+import work4 from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida7.webp";
 
 /*
  * Contenido compartido por los dos composites de la portada. Todo lo que es UI sale de
@@ -21,16 +32,23 @@ export const CATALOG_HREF = "/products/mi-tierra-querida";
 export const PERSONALIZER_HREF = "/personalizador";
 
 export const SERVICES = [
-  { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas.", visual: "estampado" },
-  { title: "DTF", description: "Colores vivos y con brillo. Fotos y degradados.", visual: "dtf" },
-  { title: "Bordado", description: "Hilo con relieve. El clásico de las gorras.", visual: "bordado" },
-] as const;
+  { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas.", src: capLogo },
+  { title: "DTF", description: "Colores vivos y con brillo. Fotos y degradados.", src: capDtf },
+  { title: "Bordado", description: "Hilo con relieve. El clásico de las gorras.", src: capBordado },
+];
 
 export const PRODUCTS = [
-  { name: "Camiseta oversize", meta: "Blanca · S a XL", src: SHIRT_WHITE, confirmedLabel: "Confirmado hace 2 días" },
-  { name: "Gorra trucker", meta: "Azul · bordado", src: CAP_NAVY },
-  { name: "Camiseta básica", meta: "Negra · S a XXL", src: SHIRT_BLACK },
-  { name: "Gorra snapback", meta: "Verde · bordado", src: CAP_GREEN },
+  { name: "Gorra deportiva", meta: "Negra · ajustable", src: capNegra },
+  { name: "Gorra flamenco", meta: "Vinotinto · parche", src: capFlamenco },
+  { name: "Gorra Chicago", meta: "Negra y roja · bordado", src: capBulls },
+  { name: "Gorra Expos", meta: "Azul · bordado", src: capExpos },
+];
+
+export const WORKS = [
+  { title: "Gorras bordadas con frase", technique: "Bordado", src: work1 },
+  { title: "Gorras con placa Colombia", technique: "DTF", src: work2 },
+  { title: "Gorras para un equipo", technique: "Bordado", src: work3 },
+  { title: "Gorras con diseño propio", technique: "Estampado", src: work4 },
 ];
 
 const RAZONES = [
@@ -84,24 +102,14 @@ export function ProductItems({ count }: { count: number }) {
           key={p.name}
           name={p.name}
           meta={p.meta}
-          confirmedLabel={p.confirmedLabel}
           href={CATALOG_HREF}
-          image={{ src: p.src, alt: `${p.name}, foto de ejemplo` }}
+          image={{ src: p.src, alt: p.name }}
         />
       ))}
     </>
   );
 }
 
-/** Nota del canvas (no es UI del sitio): marca algo que la página real no muestra. */
-export function CanvasNote({ children }: { children: ReactNode }) {
-  return (
-    <div className="mx-4 rounded-tile border border-dashed border-amber-400/60 px-3 py-2 text-[12px] leading-snug text-amber-300">
-      <span className="font-semibold uppercase tracking-[.08em]">Nota del canvas · </span>
-      {children}
-    </div>
-  );
-}
 
 /** Estado de la sección "Disponible ahora" (PRI-121): con prendas, sin prendas o error al cargar. */
 export type EstadoDisponible = "productos" | "vacio" | "error";
@@ -115,5 +123,16 @@ export function DisponibleSinProductos({ estado }: { estado: Exclude<EstadoDispo
       description="Lo que llega al taller se vende rápido. Escríbenos y te contamos qué hay hoy, o mándanos tu idea y la hacemos."
       action={{ label: "Escríbenos por WhatsApp", href: WHATSAPP_URL }}
     />
+  );
+}
+
+/** Trabajos hechos: fotos de ejemplo hasta que lleguen las del cliente (decisión de Said, PRI-121). */
+export function WorkItems() {
+  return (
+    <>
+      {WORKS.map((w) => (
+        <WorkCard key={w.title} title={w.title} technique={w.technique} image={{ src: w.src, alt: w.title }} />
+      ))}
+    </>
   );
 }

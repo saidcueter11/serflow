@@ -1,7 +1,6 @@
 import { Header } from "../../../../src/components/ui/Header";
 import { Section } from "../../../../src/components/ui/Section";
 import { Footer } from "../../../../src/components/ui/Footer";
-import { Eyebrow } from "../../../../src/components/ui/Eyebrow";
 import { Button } from "../../../../src/components/ui/Button";
 import { QuickFacts } from "../../../../src/components/ui/QuickFacts";
 import { MascotSlot } from "../../../../src/components/ui/MascotSlot";
@@ -13,7 +12,7 @@ import { PinIcon } from "../../../../src/components/icons/PinIcon";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import {
   CATALOG_HREF,
-  CanvasNote,
+  WorkItems,
   DisponibleSinProductos,
   type EstadoDisponible,
   LOGO,
@@ -32,8 +31,7 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
 
       <main>
         <section className="fabric relative overflow-hidden px-4 pb-8 pt-6">
-          <Eyebrow>Taller en Cartagena</Eyebrow>
-          <h1 className="mt-4 font-display text-[38px] font-medium leading-[1.05] tracking-[-0.01em]">
+          <h1 className="font-display text-[38px] font-medium leading-[1.05] tracking-[-0.01em]">
             Camisetas y gorras con tu sello.
           </h1>
           <div className="mt-3 flex items-start gap-2">
@@ -69,7 +67,7 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
         >
           <div className="grid gap-3">
             {SERVICES.map((s) => (
-              <ServiceCard key={s.title} title={s.title} description={s.description} visual={s.visual} />
+              <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
             ))}
           </div>
           <div className="mt-4">
@@ -87,7 +85,6 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
             <Button variant="ghost" href={CATALOG_HREF}>
               Ver todo →
             </Button>
-            <span className="text-[11px] text-muted">fotos de ejemplo</span>
           </div>
             </>
           ) : (
@@ -95,7 +92,11 @@ export function BoardPortadaMobile({ estado = "productos" }: { estado?: EstadoDi
           )}
         </Section>
 
-        <CanvasNote>Trabajos hechos va aquí y no se renderiza: todavía no hay fotos reales de trabajos.</CanvasNote>
+        <Section id="trabajos" title="Trabajos hechos" description="Algunas piezas que han salido del taller.">
+          <div className="grid grid-cols-2 gap-3">
+            <WorkItems />
+          </div>
+        </Section>
 
         <Section id="ubicacion" title="Dónde estamos">
           <MapCard />

@@ -1,13 +1,28 @@
+import type { ReactNode } from 'react'
 import { PinIcon } from '../icons/PinIcon'
+import { ClockIcon } from '../icons/ClockIcon'
 import { WhatsAppIcon } from '../icons/WhatsappIcon'
 import { StatusPill } from './StatusPill'
-import { ADDRESS, CITY, HOURS, WHATSAPP_DISPLAY, whatsappUrl } from '../../lib/business'
+import { ADDRESS, HOURS, WHATSAPP_DISPLAY, whatsappUrl } from '../../lib/business'
 
-const ROW = 'flex min-h-14 items-center gap-3 px-4 text-[14px]'
-const LINK_ROW = `${ROW} focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent`
+const ITEM = 'flex min-h-12 min-w-0 items-center gap-3 text-left'
+const LINK = `${ITEM} rounded-tile focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`
+
+function Fact({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+  return (
+    <>
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent">{icon}</span>
+      <span className="flex min-w-0 flex-col">
+        <span className="text-[12px] text-muted">{label}</span>
+        <span className="text-[14px] font-semibold leading-snug text-ink">{children}</span>
+      </span>
+    </>
+  )
+}
 
 /**
- * Tarjeta de datos rápidos bajo el hero: dónde estamos, horario entre semana y WhatsApp.
+ * Datos rápidos bajo el titular: dónde estamos, horario y WhatsApp. Sin caja: tres datos con ícono,
+ * apilados en teléfono y en fila cuando el contenedor tiene espacio.
  * Ubicación lleva a la sección del mapa (#ubicacion); WhatsApp abre el chat.
  * El sitio es estático y no sabe si el taller está abierto: openNow solo se muestra si quien
  * lo usa lo calcula y lo pasa (undefined = no se muestra nada).
@@ -19,31 +34,33 @@ const LINK_ROW = `${ROW} focus-visible:outline-2 focus-visible:-outline-offset-2
 export function QuickFacts({ openNow }: { openNow?: boolean }) {
   const weekday = HOURS[0]
   return (
-    <ul className="divide-y divide-line rounded-card border border-line bg-surface font-body text-ink">
-      <li>
-        <a href="#ubicacion" className={LINK_ROW}>
-          <PinIcon className="size-5 shrink-0 text-accent" />
-          <span className="min-w-0">
-            {CITY} · <span className="text-muted">{ADDRESS ?? 'Dirección por confirmar'}</span>
-          </span>
-          <span aria-hidden="true" className="ml-auto text-muted">›</span>
-        </a>
-      </li>
-      <li className={`${ROW} justify-between`}>
-        <span>
-          {weekday.short} <span className="text-muted">{weekday.time}</span>
-        </span>
-        {openNow && <StatusPill tone="ok">Abierto ahora</StatusPill>}
-      </li>
-      <li>
-        <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className={LINK_ROW}>
-          <WhatsAppIcon className="size-5 shrink-0 text-accent" />
-          <span className="min-w-0">
-            {WHATSAPP_DISPLAY} <span className="text-muted">· te respondemos aquí</span>
-          </span>
-          <span aria-hidden="true" className="ml-auto text-muted">›</span>
-        </a>
-      </li>
-    </ul>
+    <div className="@container font-body">
+      <ul className="grid gap-3 @2xl:grid-cols-3 @2xl:gap-6">
+        <li>
+          <a href="#ubicacion" className={LINK}>
+            <Fact icon={<PinIcon className="size-5" />} label="Dónde estamos">
+              {ADDRESS ?? 'Dirección por confirmar'}
+            </Fact>
+          </a>
+        </li>
+        <li className={ITEM}>
+          <Fact icon={<ClockIcon className="size-5" />} label={weekday.days}>
+            {weekday.time}
+          </Fact>
+          {openNow && (
+            <span className="ml-auto">
+              <StatusPill tone="ok">Abierto ahora</StatusPill>
+            </span>
+          )}
+        </li>
+        <li>
+          <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className={LINK}>
+            <Fact icon={<WhatsAppIcon className="size-5" />} label="WhatsApp">
+              {WHATSAPP_DISPLAY}
+            </Fact>
+          </a>
+        </li>
+      </ul>
+    </div>
   )
 }

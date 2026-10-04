@@ -1,7 +1,6 @@
 import { Header } from "../../../../src/components/ui/Header";
 import { Section } from "../../../../src/components/ui/Section";
 import { Footer } from "../../../../src/components/ui/Footer";
-import { Eyebrow } from "../../../../src/components/ui/Eyebrow";
 import { Button } from "../../../../src/components/ui/Button";
 import { QuickFacts } from "../../../../src/components/ui/QuickFacts";
 import { MascotSlot } from "../../../../src/components/ui/MascotSlot";
@@ -9,11 +8,10 @@ import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { MapCard } from "../../../../src/components/ui/MapCard";
 import { ContactList } from "../../../../src/components/ui/ContactList";
 import { WhatsAppFab } from "../../../../src/components/ui/WhatsAppFab";
-import { PinIcon } from "../../../../src/components/icons/PinIcon";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import {
   CATALOG_HREF,
-  CanvasNote,
+  WorkItems,
   DisponibleSinProductos,
   type EstadoDisponible,
   LOGO,
@@ -33,8 +31,7 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
       <main>
         <section className="fabric relative grid grid-cols-[1.15fr_1fr] items-center gap-14 px-12 py-16">
           <div>
-            <Eyebrow>Taller en Cartagena</Eyebrow>
-            <h1 className="mt-5 font-display text-[68px] font-medium leading-[1.05] tracking-[-0.01em]">
+            <h1 className="font-display text-[68px] font-medium leading-[1.05] tracking-[-0.01em]">
               Camisetas y gorras con tu sello.
             </h1>
             <p className="mt-5 max-w-[500px] text-[19px] leading-relaxed text-muted">
@@ -43,9 +40,6 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
             <div className="mt-8 flex gap-3">
               <Button variant="whatsapp" href={WHATSAPP_URL} external>
                 Escríbenos por WhatsApp
-              </Button>
-              <Button variant="secondary" href="#ubicacion" icon={<PinIcon className="size-4" />}>
-                Cómo llegar
               </Button>
             </div>
             <div className="mt-8 max-w-[520px]">
@@ -73,7 +67,7 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
         >
           <div className="grid grid-cols-3 gap-5">
             {SERVICES.map((s) => (
-              <ServiceCard key={s.title} title={s.title} description={s.description} visual={s.visual} />
+              <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
             ))}
           </div>
           <div className="mt-5">
@@ -91,7 +85,6 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
             <Button variant="ghost" href={CATALOG_HREF}>
               Ver todo →
             </Button>
-            <span className="text-[12px] text-muted">fotos de ejemplo</span>
           </div>
             </>
           ) : (
@@ -99,21 +92,23 @@ export function BoardPortadaDesktop({ estado = "productos" }: { estado?: EstadoD
           )}
         </Section>
 
-        <div className="px-8">
-          <CanvasNote>
-            Trabajos hechos va aquí y no se renderiza: todavía no hay fotos reales de trabajos. Dónde estamos tampoco:
-            en desktop el mapa está en el hero.
-          </CanvasNote>
-        </div>
+        <Section id="trabajos" title="Trabajos hechos" description="Algunas piezas que han salido del taller.">
+          <div className="grid grid-cols-4 gap-5">
+            <WorkItems />
+          </div>
+        </Section>
 
         <Section id="contacto" title="Hablemos" description="Mándanos tu idea, una foto o el logo de tu negocio." tone="panel">
-          <div className="grid grid-cols-[minmax(0,560px)_auto] items-center gap-10">
-            <ContactList />
-            <div>
+          <div className="grid grid-cols-[1fr_1.4fr] items-start gap-12">
+            <div className="flex flex-col items-start gap-5">
+              <p className="text-[17px] leading-relaxed text-muted">
+                Lo más rápido es WhatsApp: te respondemos en horario del taller y armamos el pedido contigo.
+              </p>
               <Button variant="whatsapp" href={WHATSAPP_URL} external>
                 Escríbenos por WhatsApp
               </Button>
             </div>
+            <ContactList />
           </div>
         </Section>
       </main>

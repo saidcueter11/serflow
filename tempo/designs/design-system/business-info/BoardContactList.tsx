@@ -33,10 +33,11 @@ export function BoardContactList() {
         </Demo>
       </Row>
 
-      <Row name="Redes sociales" description="Filas de texto, sin íconos.">
+      <Row name="Redes sociales" description="Tarjetas con ícono, como el resto.">
         <div className="text-[14px] leading-relaxed text-muted">
-          Instagram, TikTok y Facebook salen de <code>SOCIAL</code> en business.ts y se muestran como filas con el
-          usuario de cada red. Sin íconos para no cargar los SVG legado; el Footer las lista también.
+          Instagram, TikTok y Facebook salen de <code>SOCIAL</code> en business.ts. Cada forma de contacto es una
+          tarjeta de 64px con ícono, nombre y usuario; WhatsApp va arriba a todo el ancho. El Footer muestra las redes
+          como íconos de 44px.
         </div>
       </Row>
     </PageFrame>
