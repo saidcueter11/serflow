@@ -24,3 +24,12 @@ test('header "Visítanos" goes to the map', async ({ page, isMobile }) => {
   await expect(page).toHaveURL(/#visitanos$/)
   await expect(page.locator('#visitanos')).toBeInViewport()
 })
+
+test('with reduced motion the hero keeps its first photo and hides the rest', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const slides = page.locator('.hero-carousel figure')
+  await expect(slides.first()).toHaveCSS('opacity', '1')
+  await expect(slides.first().locator('img')).toBeVisible()
+  await expect(slides.nth(1)).toHaveCSS('opacity', '0')
+})

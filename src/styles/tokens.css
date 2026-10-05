@@ -108,6 +108,7 @@
   .reveal-up, .reveal-wipe, .thread-reveal, .thread-needle, .anim-slide, .anim-slide figcaption, .anim-bar {
     animation: none !important;
   }
-  .anim-slide:not(:first-child) { opacity: 0; }
+  /* first-of-type y no first-child: el <style> del carrusel va antes de las fotos */
+  figure.anim-slide:not(:first-of-type) { opacity: 0; }
   .thread-needle { display: none; }
 }
