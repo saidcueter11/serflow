@@ -52,3 +52,62 @@
     repeating-linear-gradient(45deg, rgb(255 255 255 / 0.028) 0 1px, transparent 1px 5px),
     repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 5px);
 }
+
+/*
+ * Movimiento de la portada (PRI-129, "B ajustada"). Todo CSS, 0 KB de JS salvo el trazado del hilo.
+ * Canvas: tempo/designs/design-system/motion/index.canvas.tsx
+ * Lo que depende del scroll (view() / scroll()) solo corre donde el navegador lo soporta; si no, se ve quieto.
+ * prefers-reduced-motion apaga todo al final de este bloque.
+ */
+@keyframes sf-up { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
+@keyframes sf-grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+@keyframes sf-wipe { from { clip-path: inset(0 0 100% 0) } to { clip-path: inset(0) } }
+@keyframes sf-ticker { to { transform: translateX(-50%) } }
+@keyframes sf-ring { from { box-shadow: 0 0 0 0 rgb(255 215 0 / 0.6) } to { box-shadow: 0 0 0 20px rgb(255 215 0 / 0) } }
+@keyframes sf-zoom { from { transform: scale(1) } to { transform: scale(1.08) } }
+@keyframes sf-draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+@keyframes sf-follow { from { offset-distance: 0% } to { offset-distance: 100% } }
+@keyframes sf-glint { 0%, 100% { opacity: 0.1; transform: scale(0.6) } 50% { opacity: 0.45; transform: scale(1.2) } }
+
+/* Entrada escalonada al cargar: cada hijo entra 100ms después del anterior */
+.anim-enter > * { animation: sf-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.anim-enter > :nth-child(2) { animation-delay: 0.1s; }
+.anim-enter > :nth-child(3) { animation-delay: 0.2s; }
+.anim-enter > :nth-child(4) { animation-delay: 0.3s; }
+
+/* Costura dorada bajo un título; se cose al aparecer */
+.stitch-title::after {
+  content: '';
+  display: block;
+  width: 84px;
+  height: 3px;
+  margin-top: 12px;
+  transform-origin: left;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 9px, transparent 9px 15px);
+}
+
+.anim-ticker { animation: sf-ticker 40s linear infinite; }
+.anim-ring { animation: sf-ring 1.6s ease-out 4s 3; }
+.anim-zoom { animation: sf-zoom var(--zoom-duration, 24s) ease-out infinite alternate; }
+.thread-glint { transform-box: fill-box; transform-origin: center; animation: sf-glint 1.4s ease-in-out infinite; }
+
+@supports (animation-timeline: view()) {
+  /* Sube al entrar en pantalla */
+  .reveal-up { animation: sf-up linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+  /* La foto se destapa de arriba abajo */
+  .reveal-wipe { animation: sf-wipe linear both; animation-timeline: view(); animation-range: entry 10% entry 70%; }
+  .stitch-title::after { animation: sf-grow linear both; animation-timeline: view(); animation-range: entry 20% entry 80%; }
+}
+@supports (animation-timeline: scroll()) {
+  .thread-reveal { animation: sf-draw linear both; animation-timeline: scroll(root); }
+  .thread-needle { animation: sf-follow linear both; animation-timeline: scroll(root); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-enter > *, .stitch-title::after, .anim-ticker, .anim-ring, .anim-zoom, .thread-glint,
+  .reveal-up, .reveal-wipe, .thread-reveal, .thread-needle, .anim-slide, .anim-slide figcaption, .anim-bar {
+    animation: none !important;
+  }
+  .anim-slide:not(:first-child) { opacity: 0; }
+  .thread-needle { display: none; }
+}

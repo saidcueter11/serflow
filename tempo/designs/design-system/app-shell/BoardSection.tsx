@@ -75,7 +75,7 @@ export function BoardSection() {
 
       <Row
         name="Panel"
-        description="Superficie rounded-card con trama fabric. Una por página: el cierre Hablemos. No la uses para destacar secciones al azar."
+        description="Superficie rounded-card con trama fabric. Máximo una por página. No la uses para destacar secciones al azar."
       >
         <Pair>
           {(w) => (

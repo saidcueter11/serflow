@@ -2,18 +2,26 @@
 import { getImage } from 'astro:assets'
 import Layout from '../layouts/Layout.astro'
 import { HomePage, type HomeProduct } from '../components/home/HomePage'
-import { getCategories, getProducts } from '../lib/products'
+import { PromoBar } from '../components/ui/PromoBar'
+import type { Slide } from '../components/ui/HeroCarousel'
+import { getActivePromos, getCategories, getProducts } from '../lib/products'
 import { ADDRESS, EMAIL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL } from '../lib/business'
-// Fotos de ejemplo del catálogo actual hasta que el admin pueda cambiarlas (decisión de Said, PRI-129).
-import capLogo from '../assets/images/moda/moda1.webp'
-import capDtf from '../assets/images/miTierraQuerida/miTierraQuerida5.webp'
+// Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
+// pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
+// 0y3DOYVP2bs, KL8EGoKDNcQ, kixK2sNVPyo
+import camisetas from '../assets/images/stock/camisetas-estampadas.jpg'
+import estampadoProceso from '../assets/images/stock/estampado-proceso.jpg'
+import gorraBordada from '../assets/images/stock/gorra-bordada.jpg'
+import amigosGorras from '../assets/images/stock/amigos-gorras.jpg'
+import estampadoRasero from '../assets/images/stock/estampado-rasero.jpg'
+import camisetaDtf from '../assets/images/stock/camiseta-dtf.jpg'
+import gorraBordada2 from '../assets/images/stock/gorra-bordada-2.jpg'
+// Foto del catálogo para "Diseña la tuya"
 import capBordado from '../assets/images/miTierraQuerida/miTierraQuerida2.webp'
 
 const PRODUCT_COUNT = 4
 
-const [products, categories] = await Promise.all([getProducts(), getCategories()])
-
-const currency = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
+const [products, categories, promos] = await Promise.all([getProducts(), getCategories(), getActivePromos()])
 
 const homeProducts: HomeProduct[] = await Promise.all(
   products
@@ -21,10 +29,10 @@ const homeProducts: HomeProduct[] = await Promise.all(
     .slice(0, PRODUCT_COUNT)
     .map(async (p) => {
       const img = await getImage({ src: p.image_urls[0], width: 480, height: 360, format: 'webp', quality: 75 })
-      const meta = [p.categories?.label, p.price ? currency.format(p.price) : null].filter(Boolean).join(' · ')
       return {
         name: p.name,
-        meta,
+        // Sin precio en la portada (pedido del reviewer, PRI-129): el precio se conversa por WhatsApp.
+        meta: p.categories?.label ?? '',
         href: `/products/${p.categories!.slug}/${p.slug}`,
         image: { src: img.src, alt: p.name },
       }
@@ -32,11 +40,30 @@ const homeProducts: HomeProduct[] = await Promise.all(
 )
 
 const [estampado, dtf, bordado, personalizador] = await Promise.all([
-  getImage({ src: capLogo, width: 640, format: 'webp', quality: 75 }),
-  getImage({ src: capDtf, width: 640, format: 'webp', quality: 75 }),
-  getImage({ src: capBordado, width: 640, format: 'webp', quality: 75 }),
+  getImage({ src: estampadoRasero, width: 640, format: 'webp', quality: 75 }),
+  getImage({ src: camisetaDtf, width: 640, format: 'webp', quality: 75 }),
+  getImage({ src: gorraBordada2, width: 640, format: 'webp', quality: 75 }),
   getImage({ src: capBordado, width: 900, format: 'webp', quality: 75 }),
 ])
+
+// Carrusel del hero: 4 fotos del resultado. Si hay promo activa, su banner entra primero y sale la última foto.
+const HERO = [
+  { src: camisetas, caption: 'Camisetas con tu diseño', alt: 'Dos personas con camisetas negras estampadas', position: '50% 35%' },
+  { src: estampadoProceso, caption: 'Estampado en el taller', alt: 'Manos pasando el rasero sobre una plancha de estampado', position: '50% 50%' },
+  { src: gorraBordada, caption: 'Gorras bordadas', alt: 'Gorra blanca con bordado rojo', position: '50% 40%' },
+  { src: amigosGorras, caption: 'Para tu equipo o tu grupo', alt: 'Dos amigos con gorras personalizadas riéndose', position: '50% 30%' },
+]
+const heroSlides: Slide[] = await Promise.all(
+  HERO.map(async ({ src, ...rest }) => ({ ...rest, src: (await getImage({ src, width: 1400, format: 'webp', quality: 72 })).src })),
+)
+const promoWithCover = promos.find((p) => p.banner_url || p.image_urls[0])
+if (promoWithCover) {
+  const cover = promoWithCover.banner_url || promoWithCover.image_urls[0]
+  const img = await getImage({ src: cover, width: 1400, height: 900, format: 'webp', quality: 72 })
+  heroSlides.splice(heroSlides.length - 1, 1)
+  heroSlides.unshift({ src: img.src, caption: 'Promo', alt: promoWithCover.title, promo: true })
+}
+const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}` }))
 
 // "Ver todo" lleva a la primera categoría; desde ahí las pestañas llevan a las demás.
 const catalogHref = categories[0] ? `/products/${categories[0].slug}` : '/'
@@ -73,12 +100,21 @@ const localBusinessSchema = {
 <Layout title="Serflow: camisetas y gorras personalizadas en Cartagena" description={homeDescription}>
   <Fragment slot="head">
     <meta property="og:locale" content="es_CO" />
+    <link rel="preload" as="image" href={heroSlides[0].src} fetchpriority="high" />
     <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+  </Fragment>
+  <Fragment slot="top">
+    <PromoBar promos={promoLinks} />
   </Fragment>
 
   <HomePage
+    slides={heroSlides}
     products={homeProducts}
     images={{ estampado: estampado.src, dtf: dtf.src, bordado: bordado.src, personalizador: personalizador.src }}
     catalogHref={catalogHref}
   />
 </Layout>
+
+<script>
+  import '../scripts/thread'
+</script>

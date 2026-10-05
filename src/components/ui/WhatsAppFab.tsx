@@ -14,7 +14,8 @@ const PLACEMENT = {
 }
 
 /**
- * Botón flotante de WhatsApp: uno por página, abre el chat con el taller.
+ * Botón flotante de WhatsApp: la única entrada genérica a WhatsApp de la página (PRI-129). Late 3 veces
+ * a los 4 s (anim-ring) para que se note sin molestar.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
  *
  * The canvas for this component is at tempo/designs/design-system/buttons/index.canvas.tsx.
@@ -27,7 +28,7 @@ export function WhatsAppFab({ text, placement = 'fixed' }: Props) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escríbenos por WhatsApp"
-      className={`${PLACEMENT[placement]} flex size-14 items-center justify-center rounded-full bg-accent text-primary shadow-[0_8px_24px_rgba(0,0,0,.5)] transition-transform duration-[var(--motion-fast)] ease-out active:scale-95`}
+      className={`${PLACEMENT[placement]} anim-ring flex size-14 items-center justify-center rounded-full bg-accent text-primary shadow-[0_8px_24px_rgba(0,0,0,.5)] transition-transform duration-[var(--motion-fast)] ease-out active:scale-95`}
     >
       <WhatsAppIcon className="size-7" />
     </a>

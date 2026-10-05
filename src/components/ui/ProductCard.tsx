@@ -29,17 +29,19 @@ export function ProductCard({
   return (
     <a
       href={href}
-      className="block w-full overflow-hidden rounded-card border border-line bg-surface text-ink no-underline transition-colors duration-(--motion-fast) hover:border-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="group block w-full overflow-hidden rounded-card border border-line bg-surface text-ink no-underline transition-[transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
-      <img
-        src={image.src}
-        alt={image.alt}
-        width={400}
-        height={300}
-        loading="lazy"
-        decoding="async"
-        className="fabric aspect-[4/3] h-auto w-full bg-surface-2 object-cover"
-      />
+      <div className="overflow-hidden">
+        <img
+          src={image.src}
+          alt={image.alt}
+          width={400}
+          height={300}
+          loading="lazy"
+          decoding="async"
+          className="fabric reveal-wipe aspect-[4/3] h-auto w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
+      </div>
       <div className="flex flex-col items-start gap-1 p-3">
         {confirmedLabel && <span className="text-[12px] font-semibold leading-tight text-accent">{confirmedLabel}</span>}
         <h3 className="font-display text-[15px] font-bold leading-tight">{name}</h3>

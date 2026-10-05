@@ -24,8 +24,8 @@ export function BoardHeader() {
         title="Header"
         description={
           <>
-            Logo + nav + WhatsApp desde 896px de ancho; debajo, logo + menú <Code>{"<details>"}</Code> sin JS. No es
-            sticky. Props: <Code>logoSrc</Code>, <Code>links</Code> (por defecto las 4 anclas del home) y{" "}
+            Logo + nav desde 896px de ancho; debajo, logo + menú <Code>{"<details>"}</Code> sin JS. Sin botón de WhatsApp: esa
+            entrada es el WhatsAppFab. No es sticky. Props: <Code>logoSrc</Code>, <Code>links</Code> (por defecto las 3 anclas del home) y{" "}
             <Code>current</Code> (el href que lleva aria-current).
           </>
         }
@@ -68,9 +68,8 @@ export function BoardHeader() {
         description="No es sticky ni fixed, no lleva backdrop-blur y no tiene drawer con focus trap. Para otra página, pasa links propios; no lo dupliques."
       >
         <div className="text-[14px] leading-relaxed text-muted">
-          Las anclas de <Code>NAV_LINKS</Code> apuntan a <Code>/#quienes-somos</Code>, <Code>/#que-hacemos</Code> y{" "}
-          <Code>/#disponible</Code>, así funcionan desde cualquier página. Sin "Ubicación": el mapa vive en el hero en desktop y
-          en su sección en mobile (decisión de Said, PRI-129).
+          Las anclas de <Code>NAV_LINKS</Code> apuntan a <Code>/#que-hacemos</Code>, <Code>/#disponible</Code> y{" "}
+          <Code>/#visitanos</Code> (el mapa con dirección y horario), así funcionan desde cualquier página (PRI-129).
         </div>
       </Row>
     </PageFrame>

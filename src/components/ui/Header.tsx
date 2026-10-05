@@ -1,14 +1,10 @@
-import { Button } from './Button'
-import { WHATSAPP_URL } from '../../lib/business'
-
 type Link = { label: string; href: string }
 
-// Con "/" delante para que funcionen desde cualquier página. Sin "Ubicación": decisión de Said (PRI-129),
-// el mapa vive en lugares distintos en mobile y desktop.
+// Con "/" delante para que funcionen desde cualquier página. Visítanos lleva al mapa con dirección y horario.
 export const NAV_LINKS: Link[] = [
-  { label: 'Quiénes somos', href: '/#quienes-somos' },
   { label: 'Qué hacemos', href: '/#que-hacemos' },
   { label: 'Disponible ahora', href: '/#disponible' },
+  { label: 'Visítanos', href: '/#visitanos' },
 ]
 
 const LINK = {
@@ -19,7 +15,8 @@ const STATE = { current: 'text-ink', other: 'text-muted' }
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /**
- * Cabecera del sitio. Desktop (desde 896px de ancho): logo + nav + Button whatsapp.
+ * Cabecera del sitio. Desktop (desde 896px de ancho): logo + nav. Sin botón de WhatsApp: esa entrada
+ * es el WhatsAppFab, una sola por página (decisión de Said, PRI-129).
  * Móvil: logo + menú con <details>/<summary>, cero JS; el panel se abre encima del contenido.
  * No es sticky ni fixed: en móvil no le quita alto a la pantalla ni repinta con el scroll;
  * el WhatsAppFab ya da la acción principal siempre a mano.
@@ -49,9 +46,6 @@ export function Header({ logoSrc, links = NAV_LINKS, current }: { logoSrc: strin
               {l.label}
             </a>
           ))}
-          <Button variant="whatsapp" href={WHATSAPP_URL} external>
-            Escríbenos
-          </Button>
         </nav>
 
         <details className="group @4xl:hidden">
@@ -65,7 +59,7 @@ export function Header({ logoSrc, links = NAV_LINKS, current }: { logoSrc: strin
             />
             <span aria-hidden="true" className="absolute hidden h-0.5 w-5 -rotate-45 bg-ink group-open:block" />
           </summary>
-          <div className="absolute inset-x-0 top-full z-40 flex flex-col gap-4 border-b border-line bg-surface pb-5 pt-2 shadow-[0_16px_32px_rgba(0,0,0,.45)]">
+          <div className="absolute inset-x-0 top-full z-40 border-b border-line bg-surface pb-2 pt-2 shadow-[0_16px_32px_rgba(0,0,0,.45)]">
             <nav aria-label="Principal" className="flex flex-col divide-y divide-line">
               {links.map((l) => (
                 <a
@@ -78,11 +72,6 @@ export function Header({ logoSrc, links = NAV_LINKS, current }: { logoSrc: strin
                 </a>
               ))}
             </nav>
-            <div className="px-4">
-              <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
-                Escríbenos por WhatsApp
-              </Button>
-            </div>
           </div>
         </details>
       </div>

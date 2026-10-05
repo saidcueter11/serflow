@@ -19,7 +19,7 @@ export function BoardFooter() {
 
       <Row
         name="Móvil"
-        description="Una columna. Los links de WhatsApp y correo miden 44px de alto. El FAB (dibujado aquí donde queda en pantalla) no tapa ningún link."
+        description="Una columna. Cómo llegar y horario y el correo miden 44px de alto; sin dirección, horario ni WhatsApp (salen una sola vez en la portada). El FAB (dibujado aquí donde queda en pantalla) no tapa ningún link."
       >
         <div className="relative overflow-hidden rounded-card border border-line" style={{ width: 390 }}>
           <Footer logoSrc={LOGO} />
