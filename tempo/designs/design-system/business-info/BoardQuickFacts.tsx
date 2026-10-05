@@ -17,7 +17,7 @@ export function BoardQuickFacts() {
 
       <Row
         name="Por defecto"
-        description="Sin props. Sin dirección confirmada muestra 'Dirección por confirmar'. No hay estado abierto/cerrado porque el sitio estático no lo sabe."
+        description="Sin props. Muestra la dirección de business.ts (si falta, 'Dirección por confirmar'). No hay estado abierto/cerrado porque el sitio estático no lo sabe."
       >
         <Demo label="375px">
           <div className="w-[375px]">

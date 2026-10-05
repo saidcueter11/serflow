@@ -7,9 +7,20 @@ export const WHATSAPP_DEFAULT_TEXT = 'Hola! Quiero más información'
 export const EMAIL = 'distribuidoraelmayorista@hotmail.com'
 export const CITY = 'Cartagena, Colombia'
 
-// La dirección que muestra el sitio hoy ("Calle fictia #67-112") es de relleno.
-// null hasta que el cliente la confirme; la UI muestra "Dirección por confirmar".
-export const ADDRESS: string | null = null
+// Confirmada con el cliente (PRI-121). La UI muestra "Dirección por confirmar" si vuelve a null.
+export const ADDRESS: string | null = 'Mercado Bazurto, C.C. Bazurtico, local 31'
+export const POSTAL_CODE = '130001'
+
+// "Cómo llegar": búsqueda en Google Maps por nombre + dirección.
+export const DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  'Serflow, Centro Comercial Bazurtico local 31, Mercado Bazurto, Cartagena',
+)}`
+
+export const SOCIAL = [
+  { name: 'Instagram', handle: '@serflow_serflow', url: 'https://www.instagram.com/serflow_serflow/' },
+  { name: 'TikTok', handle: '@serflow4', url: 'https://www.tiktok.com/@serflow4' },
+  { name: 'Facebook', handle: 'Serflow', url: 'https://www.facebook.com/people/Serflow/100054522471881/' },
+] as const
 
 export const HOURS = [
   { days: 'Lunes a sábado', short: 'Lun a sáb', time: '8 a.m. – 6 p.m.' },

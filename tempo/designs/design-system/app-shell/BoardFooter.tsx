@@ -11,7 +11,7 @@ export function BoardFooter() {
         description={
           <>
             Logo, qué es Serflow, horario y contacto, todo de <Code>src/lib/business.ts</Code>. Una prop:{" "}
-            <Code>logoSrc</Code>. Sin íconos de redes deshabilitados. El padding de abajo (pb-28) deja libre el
+            <Code>logoSrc</Code>. Redes como links de texto (Instagram, TikTok, Facebook). El padding de abajo (pb-28) deja libre el
             WhatsAppFab fijo.
           </>
         }

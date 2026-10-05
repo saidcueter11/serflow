@@ -26,8 +26,9 @@ export function BoardIntro() {
         </ul>
         <p className="text-[15px] leading-relaxed text-muted">
           <strong className="text-ink">Una sola fuente de verdad:</strong> número, correo, ciudad, dirección, horario y
-          embed del mapa salen de <Code>src/lib/business.ts</Code>. Ningún componente los repite. Mientras{" "}
-          <Code>ADDRESS</Code> sea <Code>null</Code>, la UI dice &quot;Dirección por confirmar&quot;. El sitio es
+          embed del mapa salen de <Code>src/lib/business.ts</Code>. Ningún componente los repite. La dirección
+          (Mercado Bazurto, C.C. Bazurtico, local 31) ya está confirmada; si <Code>ADDRESS</Code> vuelve a{" "}
+          <Code>null</Code>, la UI dice &quot;Dirección por confirmar&quot;. El sitio es
           estático: nunca dice &quot;Abierto ahora&quot; a menos que quien lo use pase <Code>openNow</Code>.
         </p>
 
@@ -41,7 +42,7 @@ export function BoardIntro() {
           <Stat label="Componentes" value="3" detail="QuickFacts · MapCard · ContactList" />
           <Stat label="Filas" value="56px" detail="alto mínimo de cada fila tocable" />
           <Stat label="Mapa" value="0" detail="requests a Google hasta tocar" />
-          <Stat label="Dirección" value="null" detail="se muestra 'Dirección por confirmar'" />
+          <Stat label="Dirección" value="Bazurtico 31" detail="Mercado Bazurto, Cartagena" />
           <Stat label="JS" value="0 KB" detail="details nativo, links y markup" />
         </div>
       </div>

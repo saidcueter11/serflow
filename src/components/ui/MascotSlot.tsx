@@ -3,6 +3,11 @@ interface Props {
   size: 'sm' | 'md' | 'lg'
   /** Pose pre-renderizada (PNG/WebP, < 40 KB, lienzo 160:190). Sin pose se ve la silueta placeholder. */
   pose?: { src: string; alt: string }
+  /**
+   * Clip animado con transparencia (PRI-124): HEVC para Safari/iPhone, WebM VP9 para Chrome/Android, y póster.
+   * Se reproduce una vez, sin sonido. Con "reducir movimiento" solo se ve el póster. Tiene prioridad sobre pose.
+   */
+  clip?: { hevc?: string; webm: string; poster: string; alt: string }
   /** corner: absoluta, asomada arriba a la derecha de un padre relative. Nunca fixed ni sticky. */
   placement?: 'inline' | 'corner'
 }
@@ -20,18 +25,45 @@ const PLACEMENT = {
 }
 
 /**
- * Mascota: tití cabeciblanco. Máximo una visible por página, sin animación, nunca sigue el scroll.
+ * Mascota: Tito, un tití cabeciblanco. Máximo una visible por página, nunca sigue el scroll.
+ * Con clip: video corto que se reproduce una vez (lienzo cuadrado); sin clip: pose fija o silueta.
  * La regla de "una por página" es de composición: este componente no la puede imponer.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
  *
  * The canvas for this component is at tempo/designs/design-system/media/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
  */
-export function MascotSlot({ size, pose, placement = 'inline' }: Props) {
+export function MascotSlot({ size, pose, clip, placement = 'inline' }: Props) {
   const s = SIZE[size]
   return (
     <figure className={`${PLACEMENT[placement]} ${s.box} flex shrink-0 flex-col items-center`}>
-      {pose ? (
+      {clip ? (
+        <>
+          <video
+            autoPlay
+            muted
+            playsInline
+            preload="metadata"
+            poster={clip.poster}
+            width={s.width}
+            height={s.width}
+            aria-label={clip.alt}
+            className="h-auto w-full motion-reduce:hidden"
+          >
+            {/* HEVC primero: Safari no respeta la transparencia de WebM. */}
+            {clip.hevc && <source src={clip.hevc} type='video/mp4; codecs="hvc1"' />}
+            <source src={clip.webm} type="video/webm" />
+          </video>
+          <img
+            src={clip.poster}
+            alt={clip.alt}
+            width={s.width}
+            height={s.width}
+            decoding="async"
+            className="hidden h-auto w-full motion-reduce:block"
+          />
+        </>
+      ) : pose ? (
         <img
           src={pose.src}
           alt={pose.alt}

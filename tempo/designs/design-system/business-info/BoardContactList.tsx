@@ -33,10 +33,11 @@ export function BoardContactList() {
         </Demo>
       </Row>
 
-      <Row name="Redes sociales" description="Pendiente a propósito.">
+      <Row name="Redes sociales" description="Tarjetas con ícono, como el resto.">
         <div className="text-[14px] leading-relaxed text-muted">
-          Facebook, Instagram y TikTok hoy aparecen como íconos apagados &quot;próximamente&quot; en index.astro y
-          Footer.astro. No se renderizan aquí: cuando existan las cuentas se agregan como filas con su link real.
+          Instagram, TikTok y Facebook salen de <code>SOCIAL</code> en business.ts. Cada forma de contacto es una
+          tarjeta de 64px con ícono, nombre y usuario; WhatsApp va arriba a todo el ancho. El Footer muestra las redes
+          como íconos de 44px.
         </div>
       </Row>
     </PageFrame>
