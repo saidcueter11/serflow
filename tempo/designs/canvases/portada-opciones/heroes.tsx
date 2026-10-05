@@ -82,11 +82,24 @@ function PillFab() {
   );
 }
 
-/** Una foto de prenda. Sin src (señal lenta) queda el marco del color de superficie con su alto fijo: nada salta. */
+/**
+ * Propuesta: foto de prenda del hero (PhotoSlot no aplica: su proporción es fija y es para fotos del taller).
+ * Alto fijo, la única imagen eager de la página. Sin cargar (señal lenta) queda el marco de superficie: nada salta.
+ */
 function Photo({ className, loading = false }: { className: string; loading?: boolean }) {
   return (
     <div className={`overflow-hidden bg-surface-2 ${className}`}>
-      {!loading && <img src={capCartagena} alt={PHOTO_ALT} className="h-full w-full object-cover" />}
+      {!loading && (
+        <img
+          src={capCartagena}
+          alt={PHOTO_ALT}
+          width={640}
+          height={853}
+          loading="eager"
+          fetchPriority="high"
+          className="h-full w-full object-cover"
+        />
+      )}
     </div>
   );
 }
@@ -116,7 +129,7 @@ export function HeroA({ viewport, loading = false }: { viewport: Viewport; loadi
           <p className="max-w-[500px] text-[19px] leading-relaxed text-muted">{FRASE}</p>
           <Tecnicas />
           <div className="mt-3">
-            <Button variant="secondary" href="#que-hacemos">
+            <Button variant="ghost" href="#que-hacemos">
               Ver lo que hacemos ↓
             </Button>
           </div>
@@ -132,7 +145,7 @@ export function HeroA({ viewport, loading = false }: { viewport: Viewport; loadi
         <p className="text-[16px] leading-relaxed text-muted">{FRASE}</p>
         <Tecnicas />
         <div className="mt-2">
-          <Button variant="secondary" href="#que-hacemos" fullWidth>
+          <Button variant="ghost" href="#que-hacemos">
             Ver lo que hacemos ↓
           </Button>
         </div>

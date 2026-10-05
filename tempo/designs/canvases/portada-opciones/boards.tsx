@@ -67,7 +67,9 @@ export function Intro() {
       <Block label="Cómo leer el canvas">
         Una fila por opción: nota (qué resuelve y qué sacrifica), mobile 390 y desktop 1280, y los estados a la derecha. Cada
         pantalla está cortada en el pliegue (844 px en mobile, 800 en desktop): es exactamente lo que se ve sin hacer scroll.
-        Los nombres y el contenido son los del doc de Producto.
+        Los nombres y el contenido son los del doc de Producto. Los h1 bajan a 30-32 px en mobile y 56-60 px en desktop
+        (la portada aprobada usa 38 y 68) porque el título ahora suma "en Cartagena" y tiene que caber con la foto antes del
+        pliegue.
       </Block>
       <Block label="Fotos">
         Son de ejemplo, del catálogo actual (src/assets/images). Todas son gorras: no hay ninguna foto de camiseta. Ver
@@ -83,7 +85,8 @@ const POLICY: { punto: string; a: string; b: string; c: string }[] = [
   { punto: "Header (desktop y menú móvil)", a: "Sale", b: "Sale", c: "Sale" },
   { punto: "QuickFacts del hero", a: "Sale", b: "Sale", c: "Sale" },
   { punto: "Sección Hablemos", a: "Sale", b: "Sale", c: "Sale" },
-  { punto: "Footer", a: "Sale el número", b: "Sale el número", c: "Sale el número" },
+  { punto: "Footer", a: "Sale WhatsApp (número y link)", b: "Sale WhatsApp (número y link)", c: "Sale WhatsApp (número y link)" },
+  { punto: "Diseña la tuya (personalizador)", a: "No cuenta: su botón lleva al personalizador", b: "No cuenta: su botón lleva al personalizador", c: "No aparece" },
   { punto: "Estado vacío de Disponible ahora", a: "Queda (contextual)", b: "Queda (contextual)", c: "Queda (contextual)" },
   { punto: "Ficha de producto", a: "Queda (contextual)", b: "Queda (contextual)", c: "Queda (contextual)" },
 ];
@@ -131,14 +134,15 @@ export function Politica() {
       <div className="grid grid-cols-2 gap-8">
         <Block label="Dirección y horario">
           Una vez en la página, en Visítanos (#visitanos, reemplaza a #ubicacion): MapCard en A y C; en B es la tarjeta
-          compacta del hero y no se repite abajo. El hero solo dice "Cartagena". El Footer muestra el link "Cómo llegar y
-          horario" a /#visitanos.
+          compacta del hero y no se repite abajo. En A y C el hero solo dice "Cartagena"; en B el hero es Visítanos. El
+          Footer muestra el link "Cómo llegar y horario" a /#visitanos.
         </Block>
         <Block label="Cambios en el design system al implementar">
           <Bullets
             items={[
-              "Header: sin botón de WhatsApp (las 3).",
-              "Footer: sin horario, dirección ni número; link a /#visitanos (las 3).",
+              "Header: sin botón de WhatsApp, y en NAV_LINKS Visítanos (#visitanos) reemplaza a Ubicación (las 3).",
+              "Footer: sin horario, dirección ni WhatsApp; link a /#visitanos (las 3).",
+              "Foto de prenda del hero: alto fijo, eager y fetchpriority high (A y B).",
               "WhatsAppFab: prop label para la pastilla (solo A).",
               "MapCard: variante compacta (solo B).",
             ]}
@@ -193,10 +197,12 @@ export function NotaA() {
         "El hero no tiene botón de WhatsApp: lo reemplaza la pastilla flotante.",
         "Dirección y horario quedan al final, en Visítanos.",
         "Sale la sección Quiénes somos: queda la frase del hero.",
+        "La pastilla mide unos 220 px de ancho: al hacer scroll tapa más contenido que el ícono (el Footer ya deja libre el final).",
+        "El link del hero es de baja énfasis a propósito: la única acción dorada en pantalla es la pastilla.",
       ]}
       whatsapp="1 genérica (la pastilla flotante) + la ficha de producto y el estado vacío."
       orden="Hero, Qué hacemos, Disponible ahora, Diseña la tuya (si hay personalizador), Visítanos, Footer."
-      nuevo="WhatsAppFab con label (pastilla de 48 px)."
+      nuevo="WhatsAppFab con label (pastilla de 48 px) y la foto de prenda del hero. Con señal lenta la foto deja su marco y el texto se lee igual (estado a la derecha; en B se comporta igual)."
     />
   );
 }
@@ -219,7 +225,7 @@ export function NotaB() {
       ]}
       whatsapp="2 genéricas (botón del hero + flotante) + la ficha y el estado vacío."
       orden="Hero con Visítanos, Qué hacemos, Disponible ahora, Quiénes somos corto, Diseña la tuya, Footer."
-      nuevo="MapCard compacta (dirección, dos horarios y Cómo llegar)."
+      nuevo="MapCard compacta (dirección, dos horarios y Cómo llegar) y la foto de prenda del hero."
     />
   );
 }
@@ -238,6 +244,8 @@ export function NotaC() {
         "Depende de que haya prendas activas en el admin. Vacía, la primera pantalla no muestra ninguna prenda (estado a la derecha).",
         "Vende inventario y no personalización: va contra el PRD.",
         "Fotos chicas (200 px) y cuatro imágenes que cargar arriba.",
+        "El hero no tiene acción dorada: la acción son las prendas.",
+        "Hoy las primeras prendas son gorras de equipos con licencia (Chicago, Expos): en una portada que dice personalizadas, confunde.",
       ]}
       whatsapp="1 genérica (flotante) + cada ficha + el estado vacío."
       orden="Hero con Disponible ahora, Qué hacemos, Visítanos, Footer."

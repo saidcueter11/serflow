@@ -27,7 +27,7 @@ export default function PortadaOpcionesCanvas() {
       <Storyboard id="NotaA" name="A · Vitrina · nota" component={NotaA} layout={{ x: 0, y: 1100, width: 400, height: 1000, intrinsicSizing: "root-element" }} />
       <Storyboard id="AMobile" name="A · Vitrina · mobile 390" component={AMobile} layout={{ x: 460, y: 1100, width: 390, height: 844, intrinsicSizing: "root-element" }} />
       <Storyboard id="ADesktop" name="A · Vitrina · desktop 1280" component={ADesktop} layout={{ x: 900, y: 1100, width: 1280, height: 800, intrinsicSizing: "root-element" }} />
-      <Storyboard id="AMobileCargando" name="A · Vitrina · foto cargando (señal lenta)" component={AMobileCargando} layout={{ x: 2230, y: 1100, width: 390, height: 844, intrinsicSizing: "root-element" }} />
+      <Storyboard id="AMobileCargando" name="A · Vitrina · foto cargando, señal lenta (igual en B)" component={AMobileCargando} layout={{ x: 2230, y: 1100, width: 390, height: 844, intrinsicSizing: "root-element" }} />
 
       <Storyboard id="NotaB" name="B · Taller · nota" component={NotaB} layout={{ x: 0, y: 2250, width: 400, height: 1000, intrinsicSizing: "root-element" }} />
       <Storyboard id="BMobile" name="B · Taller · mobile 390" component={BMobile} layout={{ x: 460, y: 2250, width: 390, height: 844, intrinsicSizing: "root-element" }} />
