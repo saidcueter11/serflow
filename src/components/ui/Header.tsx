@@ -3,11 +3,12 @@ import { WHATSAPP_URL } from '../../lib/business'
 
 type Link = { label: string; href: string }
 
+// Con "/" delante para que funcionen desde cualquier página. Sin "Ubicación": decisión de Said (PRI-129),
+// el mapa vive en lugares distintos en mobile y desktop.
 export const NAV_LINKS: Link[] = [
-  { label: 'Quiénes somos', href: '#quienes-somos' },
-  { label: 'Qué hacemos', href: '#que-hacemos' },
-  { label: 'Disponible ahora', href: '#disponible' },
-  { label: 'Ubicación', href: '#ubicacion' },
+  { label: 'Quiénes somos', href: '/#quienes-somos' },
+  { label: 'Qué hacemos', href: '/#que-hacemos' },
+  { label: 'Disponible ahora', href: '/#disponible' },
 ]
 
 const LINK = {

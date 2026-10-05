@@ -67,14 +67,13 @@ defineAsset(Header, {
     "La cabecera de todas las páginas, una vez, en Layout.astro: logo, nav de anclas y Button whatsapp desde 896px; menú details/summary sin JS debajo. logoSrc lo pasa quien llama (Astro: Logo.src). links por defecto = las 4 anclas del home (NAV_LINKS); current = href con aria-current. No la hagas sticky/fixed ni le pongas backdrop-blur, no agregues un drawer con JS y no la uses como barra de acciones dentro de una sección.",
   variants: {
     Home: { props: { logoSrc: LOGO_SAMPLE } },
-    "Con sección actual": { props: { logoSrc: LOGO_SAMPLE, current: "#que-hacemos" } },
+    "Con sección actual": { props: { logoSrc: LOGO_SAMPLE, current: "/#que-hacemos" } },
     "Otra página": {
       props: {
         logoSrc: LOGO_SAMPLE,
         links: [
           { label: "Inicio", href: "/" },
           { label: "Disponible ahora", href: "/#disponible" },
-          { label: "Ubicación", href: "/#ubicacion" },
         ],
       },
     },

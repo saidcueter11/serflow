@@ -36,7 +36,7 @@ export function BoardHeader() {
         description="Desde @4xl (896px). Nav de 15px en muted, el actual en ink. Un solo Button whatsapp: el del header cuenta como la acción de la primera pantalla."
       >
         <div className="overflow-hidden rounded-card border border-line">
-          <Header logoSrc={LOGO} current="#quienes-somos" />
+          <Header logoSrc={LOGO} current="/#quienes-somos" />
         </div>
       </Row>
 
@@ -55,7 +55,7 @@ export function BoardHeader() {
       >
         <Phone height={470}>
           <MenuOpen>
-            <Header logoSrc={LOGO} current="#que-hacemos" />
+            <Header logoSrc={LOGO} current="/#que-hacemos" />
           </MenuOpen>
           <div className="px-4 pt-6">
             <div className="font-display text-[38px] font-medium leading-[1.05] text-ink">Camisetas y gorras con tu sello.</div>
@@ -68,8 +68,9 @@ export function BoardHeader() {
         description="No es sticky ni fixed, no lleva backdrop-blur y no tiene drawer con focus trap. Para otra página, pasa links propios; no lo dupliques."
       >
         <div className="text-[14px] leading-relaxed text-muted">
-          Las anclas de <Code>NAV_LINKS</Code> asumen los ids <Code>quienes-somos</Code>, <Code>que-hacemos</Code>,{" "}
-          <Code>disponible</Code> y <Code>ubicacion</Code> en el home. Desde otra página usa <Code>/#ubicacion</Code>.
+          Las anclas de <Code>NAV_LINKS</Code> apuntan a <Code>/#quienes-somos</Code>, <Code>/#que-hacemos</Code> y{" "}
+          <Code>/#disponible</Code>, así funcionan desde cualquier página. Sin "Ubicación": el mapa vive en el hero en desktop y
+          en su sección en mobile (decisión de Said, PRI-129).
         </div>
       </Row>
     </PageFrame>
