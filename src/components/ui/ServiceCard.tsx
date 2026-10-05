@@ -23,17 +23,19 @@ export function ServiceCard({
   image?: { src: string; alt: string };
 }) {
   return (
-    <article className="rounded-card border border-line bg-surface p-3">
+    <article className="group reveal-up rounded-card border border-line bg-surface p-3 transition-[transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-secondary">
       {image ? (
-        <img
-          src={image.src}
-          alt={image.alt}
-          width={400}
-          height={240}
-          loading="lazy"
-          decoding="async"
-          className="h-24 w-full rounded-tile bg-surface-2 object-cover"
-        />
+        <div className="overflow-hidden rounded-tile">
+          <img
+            src={image.src}
+            alt={image.alt}
+            width={400}
+            height={240}
+            loading="lazy"
+            decoding="async"
+            className="reveal-wipe h-24 w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          />
+        </div>
       ) : (
         <Swatch visual={visual} />
       )}

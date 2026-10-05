@@ -14,6 +14,16 @@ import capNegra from "../../../../src/assets/images/moda/moda5.webp";
 import capFlamenco from "../../../../src/assets/images/kids/kid1.webp";
 import capBulls from "../../../../src/assets/images/basket/basket1.webp";
 import capExpos from "../../../../src/assets/images/beisbol/beisbol2.webp";
+import camisetas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
+import estampadoProceso from "../../../../src/assets/images/stock/estampado-proceso.jpg";
+import gorraBordada from "../../../../src/assets/images/stock/gorra-bordada.jpg";
+import amigosGorras from "../../../../src/assets/images/stock/amigos-gorras.jpg";
+import estampadoRasero from "../../../../src/assets/images/stock/estampado-rasero.jpg";
+import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
+import gorraBordada2 from "../../../../src/assets/images/stock/gorra-bordada-2.jpg";
+import type { Slide } from "../../../../src/components/ui/HeroCarousel";
+import type { PromoLink } from "../../../../src/components/ui/PromoBar";
+import type { HomeImages } from "../../../../src/components/home/HomePage";
 
 /*
  * Contenido compartido por los dos composites de la portada. Todo lo que es UI sale de
@@ -22,6 +32,19 @@ import capExpos from "../../../../src/assets/images/beisbol/beisbol2.webp";
  */
 
 export const LOGO: string = logo;
+
+// Datos de muestra para la portada real (HomePage) en los composites: las mismas fotos stock que index.astro.
+export const HOME_SLIDES: Slide[] = [
+  { src: camisetas, caption: "Camisetas con tu diseño", alt: "Dos personas con camisetas negras estampadas", position: "50% 35%" },
+  { src: estampadoProceso, caption: "Estampado en el taller", alt: "Manos pasando el rasero sobre una plancha de estampado" },
+  { src: gorraBordada, caption: "Gorras bordadas", alt: "Gorra blanca con bordado rojo", position: "50% 40%" },
+  { src: amigosGorras, caption: "Para tu equipo o tu grupo", alt: "Dos amigos con gorras personalizadas riéndose", position: "50% 30%" },
+];
+export const HOME_IMAGES: HomeImages = { estampado: estampadoRasero, dtf: camisetaDtf, bordado: gorraBordada2, personalizador: capBordado };
+export const PROMOS_SAMPLE: PromoLink[] = [
+  { title: "2x1 en gorras bordadas este fin de semana", href: "/promos/2x1-gorras" },
+  { title: "10% en camisetas para equipos de fútbol", href: "/promos/equipos" },
+];
 
 /**
  * Clip de Tito. tempo/public/mascota enlaza a public/mascota, así que las rutas sirven igual que en el sitio.

@@ -7,7 +7,8 @@ const TONE = {
 }
 
 /**
- * Envoltorio de sección del home: Eyebrow opcional, título h2, descripción y contenido.
+ * Envoltorio de sección del home: Eyebrow opcional, título h2 con costura dorada (stitch-title,
+ * se cose al aparecer), descripción y contenido.
  * Padding px-4 py-8 en móvil, px-12 py-14 desde 768px de ancho (container query, no md:,
  * para que el canvas lo muestre igual). tone panel = superficie con trama (para "Hablemos").
  * scroll-mt-4 basta porque el Header no es sticky: el ancla no queda tapada.
@@ -42,7 +43,7 @@ export function Section({
               <Eyebrow>{eyebrow}</Eyebrow>
             </div>
           )}
-          <h2 id={titleId} className="font-display text-[28px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[40px]">
+          <h2 id={titleId} className="stitch-title font-display text-[28px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[40px]">
             {title}
           </h2>
           {description && <p className="mt-2 max-w-[60ch] text-[15px] leading-relaxed text-muted @3xl:text-[17px]">{description}</p>}

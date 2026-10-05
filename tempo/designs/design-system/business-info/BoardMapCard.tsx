@@ -15,6 +15,17 @@ export function BoardMapCard() {
       />
 
       <Row
+        name="Abierta (portada)"
+        description="open: el mapa de Google se ve de una, como lo pidió el cliente. Es #visitanos en la portada; iframe lazy, así que en el celular (debajo del hero) no frena la primera pantalla."
+      >
+        <Demo label="400px">
+          <div className="w-[400px]">
+            <MapCard open title="Visítanos" />
+          </div>
+        </Demo>
+      </Row>
+
+      <Row
         name="Cerrado (primera pintura)"
         description="Así carga siempre. El área del mapa es el <summary> de un <details>: tocarla abre el mapa real de Google debajo."
       >

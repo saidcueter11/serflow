@@ -1,9 +1,9 @@
 import { Canvas, Storyboard } from "tempo-sdk/canvas";
 import Mobilecompleta from "./MobileCompleta";
 import Mobilesinproductos from "./MobileSinProductos";
-import Mobileerrorcarga from "./MobileErrorCarga";
 import Desktopcompleta from "./DesktopCompleta";
 import Desktopsinproductos from "./DesktopSinProductos";
+import DesktopConPromos from "./DesktopConPromos";
 
 export default function PortadaFinalCanvas() {
   return (
@@ -21,22 +21,22 @@ export default function PortadaFinalCanvas() {
         layout={{ x: 440, y: 0, width: 390, height: 4200, intrinsicSizing: "root-element" }}
       />
       <Storyboard
-        id="MobileErrorCarga"
-        name="Mobile 390 · error de carga"
-        component={Mobileerrorcarga}
-        layout={{ x: 880, y: 0, width: 390, height: 4200, intrinsicSizing: "root-element" }}
-      />
-      <Storyboard
         id="DesktopCompleta"
         name="Desktop 1280 · completa"
         component={Desktopcompleta}
-        layout={{ x: 1320, y: 0, width: 1280, height: 3000, intrinsicSizing: "root-element" }}
+        layout={{ x: 880, y: 0, width: 1280, height: 3000, intrinsicSizing: "root-element" }}
       />
       <Storyboard
         id="DesktopSinProductos"
         name="Desktop 1280 · sin prendas disponibles"
         component={Desktopsinproductos}
-        layout={{ x: 2650, y: 0, width: 1280, height: 3000, intrinsicSizing: "root-element" }}
+        layout={{ x: 2210, y: 0, width: 1280, height: 3000, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="DesktopConPromos"
+        name="Desktop 1280 · con 2 promos activas"
+        component={DesktopConPromos}
+        layout={{ x: 3540, y: 0, width: 1280, height: 3000, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );

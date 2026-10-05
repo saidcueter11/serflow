@@ -7,8 +7,7 @@ import { BoardIntro } from "./BoardIntro";
 import { BoardHeader } from "./BoardHeader";
 import { BoardSection } from "./BoardSection";
 import { BoardFooter } from "./BoardFooter";
-import { BoardPortadaMobile } from "./BoardPortadaMobile";
-import { BoardPortadaDesktop } from "./BoardPortadaDesktop";
+import { BoardPortadaDesktop, BoardPortadaMobile } from "./BoardPortada";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
 
 export default function AppShellCanvas() {
@@ -36,13 +35,13 @@ export default function AppShellCanvas() {
       />
       <Storyboard
         id="PortadaMobile"
-        name="Composite · Portada mobile 390"
+        name="Composite · Portada mobile 390 (HomePage real)"
         component={BoardPortadaMobile}
         layout={{ x: 6360, y: 0, width: 390, height: 3860, intrinsicSizing: "root-element" }}
       />
       <Storyboard
         id="PortadaDesktop"
-        name="Composite · Portada desktop 1280"
+        name="Composite · Portada desktop 1280 (HomePage real)"
         component={BoardPortadaDesktop}
         layout={{ x: 6800, y: 0, width: 1280, height: 2950, intrinsicSizing: "root-element" }}
       />
@@ -64,17 +63,16 @@ const LOGO_SAMPLE =
 defineAsset(Header, {
   libraries: ["Design System"],
   usageInstructions:
-    "La cabecera de todas las páginas, una vez, en Layout.astro: logo, nav de anclas y Button whatsapp desde 896px; menú details/summary sin JS debajo. logoSrc lo pasa quien llama (Astro: Logo.src). links por defecto = las 4 anclas del home (NAV_LINKS); current = href con aria-current. No la hagas sticky/fixed ni le pongas backdrop-blur, no agregues un drawer con JS y no la uses como barra de acciones dentro de una sección.",
+    "La cabecera de todas las páginas, una vez, en Layout.astro (debajo de PromoBar si hay promos): logo y nav de anclas desde 896px; menú details/summary sin JS debajo. Sin botón de WhatsApp: esa entrada es el WhatsAppFab (PRI-129). logoSrc lo pasa quien llama (Astro: Logo.src). links por defecto = las 3 anclas del home (NAV_LINKS: Qué hacemos, Disponible ahora, Visítanos); current = href con aria-current. No la hagas sticky/fixed ni le pongas backdrop-blur, no agregues un drawer con JS ni botones de acción.",
   variants: {
     Home: { props: { logoSrc: LOGO_SAMPLE } },
-    "Con sección actual": { props: { logoSrc: LOGO_SAMPLE, current: "#que-hacemos" } },
+    "Con sección actual": { props: { logoSrc: LOGO_SAMPLE, current: "/#que-hacemos" } },
     "Otra página": {
       props: {
         logoSrc: LOGO_SAMPLE,
         links: [
           { label: "Inicio", href: "/" },
           { label: "Disponible ahora", href: "/#disponible" },
-          { label: "Ubicación", href: "/#ubicacion" },
         ],
       },
     },
@@ -84,7 +82,7 @@ defineAsset(Header, {
 defineAsset(Section, {
   libraries: ["Design System"],
   usageInstructions:
-    "Envoltorio de cada bloque del home: id (ancla del nav), eyebrow opcional, título h2 en font-display 28/40px, descripción y contenido; padding px-4 py-8 móvil, px-12 py-14 desde 768px. tone panel = superficie con trama, una por página (Hablemos). No para el hero (lleva h1 y layout propio), no le pases datos del negocio como props (van en el contenido: MapCard, ContactList) y no la anides.",
+    "Envoltorio de cada bloque del home: id (ancla del nav), eyebrow opcional, título h2 en font-display 28/40px con costura dorada que se cose al aparecer (stitch-title), descripción y contenido; padding px-4 py-8 móvil, px-12 py-14 desde 768px. tone panel = superficie con trama, máximo una por página. No para el hero (lleva h1 y layout propio), no le pases datos del negocio como props (van en el contenido: MapCard, ContactList) y no la anides.",
   variants: {
     "Quiénes somos": {
       props: {
@@ -102,13 +100,12 @@ defineAsset(Section, {
         children: "Lista de ServiceCard aquí.",
       },
     },
-    "Panel Hablemos": {
+    Panel: {
       props: {
-        id: "contacto",
-        title: "Hablemos",
-        description: "Mándanos tu idea, una foto o el logo de tu negocio.",
+        title: "Diseña la tuya",
+        description: "Sube tu diseño y míralo sobre la prenda.",
         tone: "panel",
-        children: "ContactList y Button whatsapp aquí.",
+        children: "Contenido del panel aquí.",
       },
     },
   },
@@ -117,7 +114,7 @@ defineAsset(Section, {
 defineAsset(Footer, {
   libraries: ["Design System"],
   usageInstructions:
-    "El pie de todas las páginas, una vez, en Layout.astro: logo, qué es Serflow, horario y WhatsApp/correo, todo de src/lib/business.ts. logoSrc lo pasa quien llama (Astro: Logo.src). Su pb-28 deja libre el WhatsAppFab. No le agregues íconos de redes hasta que existan las cuentas ni copies el contacto a mano en otra parte.",
+    "El pie de todas las páginas, una vez, en Layout.astro: logo, qué es Serflow, link Cómo llegar y horario (/#visitanos), correo y redes, de src/lib/business.ts. Sin dirección, horario ni WhatsApp: salen una sola vez (MapCard en Visítanos y el WhatsAppFab). Sin fondo propio, para que se vea el hilo de la portada. logoSrc lo pasa quien llama (Astro: Logo.src). Su pb-28 deja libre el WhatsAppFab. No copies el contacto a mano en otra parte.",
   variants: {
     Default: { props: { logoSrc: LOGO_SAMPLE } },
   },

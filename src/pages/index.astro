@@ -1,20 +1,75 @@
 ---
-import { FacebookIcon } from '../components/icons/FacebookIcon'
-import { TiktokIcon } from '../components/icons/TiktokIcon'
-import { InstagramIcon } from '../components/icons/InstagramIcon'
-import SectionContainer from '../components/SectionContainer.astro'
-import SlideShow from '../components/SlideShow.astro'
+import { getImage } from 'astro:assets'
 import Layout from '../layouts/Layout.astro'
-import { WhatsAppIcon } from '../components/icons/WhatsappIcon'
-import ContactForm from '../components/ContactForm.astro'
-import CategoryShowcase from '../components/CategoryShowcase.astro'
-import PromoBanner from '../components/PromoBanner.astro'
-import { getActivePromo } from '../lib/products'
+import { HomePage, type HomeProduct } from '../components/home/HomePage'
+import { PromoBar } from '../components/ui/PromoBar'
+import type { Slide } from '../components/ui/HeroCarousel'
+import { getActivePromos, getCategories, getProducts } from '../lib/products'
+import { ADDRESS, EMAIL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL } from '../lib/business'
+// Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
+// pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
+// 0y3DOYVP2bs, KL8EGoKDNcQ, kixK2sNVPyo
+import camisetas from '../assets/images/stock/camisetas-estampadas.jpg'
+import estampadoProceso from '../assets/images/stock/estampado-proceso.jpg'
+import gorraBordada from '../assets/images/stock/gorra-bordada.jpg'
+import amigosGorras from '../assets/images/stock/amigos-gorras.jpg'
+import estampadoRasero from '../assets/images/stock/estampado-rasero.jpg'
+import camisetaDtf from '../assets/images/stock/camiseta-dtf.jpg'
+import gorraBordada2 from '../assets/images/stock/gorra-bordada-2.jpg'
+// Foto del catálogo para "Diseña la tuya"
+import capBordado from '../assets/images/miTierraQuerida/miTierraQuerida2.webp'
 
-const promo = await getActivePromo()
+const PRODUCT_COUNT = 4
+
+const [products, categories, promos] = await Promise.all([getProducts(), getCategories(), getActivePromos()])
+
+const homeProducts: HomeProduct[] = await Promise.all(
+  products
+    .filter((p) => p.image_urls.length > 0 && p.categories?.slug)
+    .slice(0, PRODUCT_COUNT)
+    .map(async (p) => {
+      const img = await getImage({ src: p.image_urls[0], width: 480, height: 360, format: 'webp', quality: 75 })
+      return {
+        name: p.name,
+        // Sin precio en la portada (pedido del reviewer, PRI-129): el precio se conversa por WhatsApp.
+        meta: p.categories?.label ?? '',
+        href: `/products/${p.categories!.slug}/${p.slug}`,
+        image: { src: img.src, alt: p.name },
+      }
+    }),
+)
+
+const [estampado, dtf, bordado, personalizador] = await Promise.all([
+  getImage({ src: estampadoRasero, width: 640, format: 'webp', quality: 75 }),
+  getImage({ src: camisetaDtf, width: 640, format: 'webp', quality: 75 }),
+  getImage({ src: gorraBordada2, width: 640, format: 'webp', quality: 75 }),
+  getImage({ src: capBordado, width: 900, format: 'webp', quality: 75 }),
+])
+
+// Carrusel del hero: 4 fotos del resultado. Si hay promo activa, su banner entra primero y sale la última foto.
+const HERO = [
+  { src: camisetas, caption: 'Camisetas con tu diseño', alt: 'Dos personas con camisetas negras estampadas', position: '50% 35%' },
+  { src: estampadoProceso, caption: 'Estampado en el taller', alt: 'Manos pasando el rasero sobre una plancha de estampado', position: '50% 50%' },
+  { src: gorraBordada, caption: 'Gorras bordadas', alt: 'Gorra blanca con bordado rojo', position: '50% 40%' },
+  { src: amigosGorras, caption: 'Para tu equipo o tu grupo', alt: 'Dos amigos con gorras personalizadas riéndose', position: '50% 30%' },
+]
+const heroSlides: Slide[] = await Promise.all(
+  HERO.map(async ({ src, ...rest }) => ({ ...rest, src: (await getImage({ src, width: 1400, format: 'webp', quality: 72 })).src })),
+)
+const promoWithCover = promos.find((p) => p.banner_url || p.image_urls[0])
+if (promoWithCover) {
+  const cover = promoWithCover.banner_url || promoWithCover.image_urls[0]
+  const img = await getImage({ src: cover, width: 1400, height: 900, format: 'webp', quality: 72 })
+  heroSlides.splice(heroSlides.length - 1, 1)
+  heroSlides.unshift({ src: img.src, caption: 'Promo', alt: promoWithCover.title, promo: true })
+}
+const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}` }))
+
+// "Ver todo" lleva a la primera categoría; desde ahí las pestañas llevan a las demás.
+const catalogHref = categories[0] ? `/products/${categories[0].slug}` : '/'
 
 const homeDescription =
-  'Serflow en Cartagena: prendas personalizadas con diseños únicos, calidad premium y atención directa por WhatsApp.'
+  'Serflow en Cartagena: camisetas y gorras con estampado, DTF y bordado. Ven al taller en el Mercado Bazurto o escríbenos por WhatsApp.'
 
 const localBusinessSchema = {
   '@context': 'https://schema.org',
@@ -22,200 +77,44 @@ const localBusinessSchema = {
   name: 'Serflow',
   description: homeDescription,
   image: 'https://serflowctg.netlify.app/favicon.svg',
-  telephone: '+57 315 6481243',
-  email: 'distribuidoraelmayorista@hotmail.com',
+  telephone: WHATSAPP_DISPLAY,
+  email: EMAIL,
   address: {
     '@type': 'PostalAddress',
-    addressLocality: 'Cartagena',
+    streetAddress: ADDRESS ?? undefined,
+    postalCode: POSTAL_CODE,
+    addressLocality: 'Cartagena de Indias',
+    addressRegion: 'Bolívar',
     addressCountry: 'CO',
   },
+  openingHoursSpecification: [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '08:00', closes: '18:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday'], opens: '08:00', closes: '14:00' },
+  ],
   areaServed: 'Cartagena, Colombia',
   url: 'https://serflowctg.netlify.app/',
-  sameAs: [
-    'https://wa.me/573156481243',
-  ],
+  sameAs: [WHATSAPP_URL, ...SOCIAL.map((s) => s.url)],
 }
-
-const reasons = [
-  {
-    title: 'Diseño totalmente a tu gusto',
-    description:
-      'Cada prenda se adapta a tu idea, estilo y necesidad. Nada genérico, todo pensado para ti.',
-    accent: '01',
-  },
-  {
-    title: 'Acabados de alta calidad',
-    description:
-      'Trabajamos bordado y estampado con materiales duraderos para que tu prenda se vea y se sienta premium.',
-    accent: '02',
-  },
-  {
-    title: 'Atención rápida por WhatsApp',
-    description:
-      'Te asesoramos directamente, resolvemos dudas y coordinamos tu pedido sin vueltas.',
-    accent: '03',
-  },
-]
 ---
 
-<Layout
-  title="Serflow — Prendas personalizadas en Cartagena"
-  description={homeDescription}
->
+<Layout title="Serflow: camisetas y gorras personalizadas en Cartagena" description={homeDescription}>
   <Fragment slot="head">
     <meta property="og:locale" content="es_CO" />
-    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)}></script>
+    <link rel="preload" as="image" href={heroSlides[0].src} fetchpriority="high" />
+    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+  </Fragment>
+  <Fragment slot="top">
+    <PromoBar promos={promoLinks} />
   </Fragment>
 
-  <!-- Hero -->
-  <SlideShow />
-
-  {promo && (
-    <div class="pt-6 md:pt-8">
-      <PromoBanner promo={promo} />
-    </div>
-  )}
-
-  <main class="flex flex-col items-center gap-20 md:gap-28 py-16 md:py-24">
-    <!-- About -->
-    <SectionContainer title="¿Quiénes somos?">
-      <div class="max-w-2xl mx-auto text-center">
-        <p class="text-muted font-vend-sans leading-relaxed text-base md:text-lg">
-          Somos una tienda en <span class="text-accent font-medium">Cartagena</span> dedicada a la
-          creación de prendas personalizadas que reflejan tu identidad.
-        </p>
-        <p class="text-muted font-vend-sans leading-relaxed text-base md:text-lg mt-4">
-          Creemos que la ropa no solo se usa, <span class="text-white font-medium">se vive</span>.
-          Por eso combinamos calidad, creatividad y libertad para que cada
-          cliente lleve algo verdaderamente suyo.
-        </p>
-      </div>
-    </SectionContainer>
-
-    <!-- Categories -->
-    <SectionContainer title="Nuestras Categorías">
-      <CategoryShowcase />
-    </SectionContainer>
-
-    <!-- Why Us -->
-    <SectionContainer title="¿Por qué elegirnos?">
-      <div class="w-full max-w-6xl mx-auto">
-        <p class="text-muted text-center max-w-2xl mx-auto font-vend-sans mb-8 md:mb-10">
-          Más que vender prendas, te acompañamos para que tu idea cobre vida con identidad propia.
-        </p>
-
-        <div class="grid md:grid-cols-3 gap-4 md:gap-5">
-          {
-            reasons.map((reason) => (
-              <article class="group relative rounded-2xl border border-primary-lighter bg-surface/70 p-5 md:p-6 hover:border-accent/40 transition-colors duration-300">
-                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/15 text-accent font-titan text-sm mb-4">
-                  {reason.accent}
-                </span>
-                <h3 class="text-white text-lg md:text-xl leading-snug font-titan font-normal mb-2.5">
-                  {reason.title}
-                </h3>
-                <p class="text-muted font-vend-sans text-sm md:text-base leading-relaxed">
-                  {reason.description}
-                </p>
-              </article>
-            ))
-          }
-        </div>
-
-        <div class="mt-6 md:mt-8 flex flex-wrap items-center justify-center gap-2.5 md:gap-3">
-          <span class="px-3.5 py-1.5 rounded-full text-xs md:text-sm bg-primary-lighter text-muted border border-primary-lighter/70">
-            Respuesta rápida
-          </span>
-          <span class="px-3.5 py-1.5 rounded-full text-xs md:text-sm bg-primary-lighter text-muted border border-primary-lighter/70">
-            Calidad premium
-          </span>
-          <span class="px-3.5 py-1.5 rounded-full text-xs md:text-sm bg-primary-lighter text-muted border border-primary-lighter/70">
-            Diseño personalizado
-          </span>
-        </div>
-      </div>
-    </SectionContainer>
-
-    <!-- Location -->
-    <SectionContainer
-      title="Encuéntranos"
-      id="ubicacion"
-      description="Calle fictia #67-112"
-      scheduleWeekday="Lunes a sábado, 8 a.m. – 6 p.m."
-      scheduleWeekend="Domingo y festivos, 8 a.m. – 2 p.m."
-      flexRow
-    >
-      <div class="w-full rounded-2xl overflow-hidden shadow-xl shadow-black/20">
-        <iframe
-          title="Mapa de ubicación de Serflow en Cartagena"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.1040576904143!2d-75.5238772!3d10.4133097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ef62592f68c041b%3A0x3b6e98a99be2e1de!2sSerflow!5e0!3m2!1ses-419!2sco!4v1747794709936!5m2!1ses-419!2sco"
-          class="w-full aspect-video"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
-    </SectionContainer>
-
-    <!-- Contact -->
-    <section id="contacto" class="w-full max-w-6xl mx-auto section-padding scroll-mt-24 md:scroll-mt-28">
-      <div class="bg-surface rounded-3xl p-8 md:p-12 border border-primary-lighter/70">
-        <div class="flex md:flex-row flex-col gap-10 md:gap-16">
-          <div class="flex-1">
-            <div class="flex flex-col gap-2 mb-8">
-              <div class="h-0.5 w-10 bg-accent rounded-full"></div>
-              <h2 class="text-2xl md:text-3xl font-titan font-normal text-white">
-                Contáctanos
-              </h2>
-              <p class="text-muted/90 font-vend-sans text-sm mt-1">
-                ¿Tienes alguna pregunta? Escríbenos y te responderemos por WhatsApp.
-              </p>
-            </div>
-            <ContactForm />
-          </div>
-          <div class="md:w-64 flex flex-col gap-6 font-vend-sans">
-            <div class="flex flex-col gap-1.5">
-              <h4 class="font-medium text-accent text-sm tracking-wide uppercase">
-                Correo
-              </h4>
-              <span class="text-muted text-sm break-all">
-                distribuidoraelmayorista@hotmail.com
-              </span>
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-              <h4 class="font-medium text-accent text-sm tracking-wide uppercase">
-                Ubicación
-              </h4>
-              <span class="text-muted text-sm">Cartagena, Colombia</span>
-            </div>
-
-            <div class="flex flex-col gap-3">
-              <h4 class="font-medium text-accent text-sm tracking-wide uppercase">
-                Síguenos
-              </h4>
-              <div class="flex items-center gap-3">
-                <span class="text-muted/60" aria-label="Facebook próximamente" title="Facebook próximamente">
-                  <FacebookIcon />
-                </span>
-                <span class="text-muted/60" aria-label="Instagram próximamente" title="Instagram próximamente">
-                  <InstagramIcon />
-                </span>
-                <a
-                  href="https://wa.me/573156481243"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-accent hover:opacity-80 transition-opacity"
-                  aria-label="WhatsApp"
-                >
-                  <WhatsAppIcon />
-                </a>
-                <span class="text-muted/60" aria-label="TikTok próximamente" title="TikTok próximamente">
-                  <TiktokIcon />
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+  <HomePage
+    slides={heroSlides}
+    products={homeProducts}
+    images={{ estampado: estampado.src, dtf: dtf.src, bordado: bordado.src, personalizador: personalizador.src }}
+    catalogHref={catalogHref}
+  />
 </Layout>
+
+<script>
+  import '../scripts/thread'
+</script>

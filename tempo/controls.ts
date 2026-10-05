@@ -19,6 +19,10 @@ import { ErrorState } from "../src/components/ui/ErrorState";
 import { Header } from "../src/components/ui/Header";
 import { Section } from "../src/components/ui/Section";
 import { Footer } from "../src/components/ui/Footer";
+import { HeroCarousel } from "../src/components/ui/HeroCarousel";
+import { Ticker } from "../src/components/ui/Ticker";
+import { PromoBar } from "../src/components/ui/PromoBar";
+import { Thread } from "../src/components/ui/Thread";
 
 defineControls(Button, {
   children: { type: "text" },
@@ -92,6 +96,8 @@ defineControls(QuickFacts, {
 
 defineControls(MapCard, {
   tall: { type: "boolean" },
+  open: { type: "boolean" },
+  title: { type: "text" },
 });
 
 defineControls(EmptyState, {
@@ -125,4 +131,24 @@ defineControls(Section, {
 
 defineControls(Footer, {
   logoSrc: { type: "text" },
+});
+
+defineControls(HeroCarousel, {
+  slides: { type: "object" },
+  className: { type: "text" },
+  children: false,
+});
+
+defineControls(Ticker, {
+  items: { type: "object" },
+});
+
+defineControls(PromoBar, {
+  promos: { type: "object" },
+});
+
+defineControls(Thread, {
+  width: { type: "number" },
+  height: { type: "number" },
+  viewport: { type: "number" },
 });

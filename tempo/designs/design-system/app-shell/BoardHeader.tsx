@@ -24,8 +24,8 @@ export function BoardHeader() {
         title="Header"
         description={
           <>
-            Logo + nav + WhatsApp desde 896px de ancho; debajo, logo + menú <Code>{"<details>"}</Code> sin JS. No es
-            sticky. Props: <Code>logoSrc</Code>, <Code>links</Code> (por defecto las 4 anclas del home) y{" "}
+            Logo + nav desde 896px de ancho; debajo, logo + menú <Code>{"<details>"}</Code> sin JS. Sin botón de WhatsApp: esa
+            entrada es el WhatsAppFab. No es sticky. Props: <Code>logoSrc</Code>, <Code>links</Code> (por defecto las 3 anclas del home) y{" "}
             <Code>current</Code> (el href que lleva aria-current).
           </>
         }
@@ -36,7 +36,7 @@ export function BoardHeader() {
         description="Desde @4xl (896px). Nav de 15px en muted, el actual en ink. Un solo Button whatsapp: el del header cuenta como la acción de la primera pantalla."
       >
         <div className="overflow-hidden rounded-card border border-line">
-          <Header logoSrc={LOGO} current="#quienes-somos" />
+          <Header logoSrc={LOGO} current="/#quienes-somos" />
         </div>
       </Row>
 
@@ -55,7 +55,7 @@ export function BoardHeader() {
       >
         <Phone height={470}>
           <MenuOpen>
-            <Header logoSrc={LOGO} current="#que-hacemos" />
+            <Header logoSrc={LOGO} current="/#que-hacemos" />
           </MenuOpen>
           <div className="px-4 pt-6">
             <div className="font-display text-[38px] font-medium leading-[1.05] text-ink">Camisetas y gorras con tu sello.</div>
@@ -68,8 +68,8 @@ export function BoardHeader() {
         description="No es sticky ni fixed, no lleva backdrop-blur y no tiene drawer con focus trap. Para otra página, pasa links propios; no lo dupliques."
       >
         <div className="text-[14px] leading-relaxed text-muted">
-          Las anclas de <Code>NAV_LINKS</Code> asumen los ids <Code>quienes-somos</Code>, <Code>que-hacemos</Code>,{" "}
-          <Code>disponible</Code> y <Code>ubicacion</Code> en el home. Desde otra página usa <Code>/#ubicacion</Code>.
+          Las anclas de <Code>NAV_LINKS</Code> apuntan a <Code>/#que-hacemos</Code>, <Code>/#disponible</Code> y{" "}
+          <Code>/#visitanos</Code> (el mapa con dirección y horario), así funcionan desde cualquier página (PRI-129).
         </div>
       </Row>
     </PageFrame>
