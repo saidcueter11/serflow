@@ -18,6 +18,7 @@ import {
 import { B2Desktop, B2Mobile, B2Slides, NotaB2, PROMOS_DEMO } from "./b2";
 import { MascotaBoard } from "./mascota";
 import { MascotaEstilosBoard } from "./mascota-estilos";
+import { LooneyBoard, SpriteBoard } from "./looney";
 
 const B2MobileLargo = () => <B2Mobile height={1500} />;
 const B2MobilePromo = () => <B2Mobile promos={PROMOS_DEMO} />;
@@ -33,6 +34,8 @@ export default function PortadaOpcionesCanvas() {
       <Storyboard id="B2MobileLargo" name="B ajustada · mobile, primer scroll" component={B2MobileLargo} layout={{ x: 2230, y: -2300, width: 390, height: 1500, intrinsicSizing: "root-element" }} />
       <Storyboard id="B2MobilePromo" name="B ajustada · con 2 promos activas · mobile" component={B2MobilePromo} layout={{ x: 1580, y: -1300, width: 390, height: 844, intrinsicSizing: "root-element" }} />
       <Storyboard id="B2DesktopPromo" name="B ajustada · con 2 promos activas · desktop" component={B2DesktopPromo} layout={{ x: 2030, y: -1300, width: 1280, height: 800, intrinsicSizing: "root-element" }} />
+      <Storyboard id="MascotaSprite" name="Mascota · cuadro por cuadro" component={SpriteBoard} layout={{ x: 3620, y: -3500, width: 760, height: 620, intrinsicSizing: "root-element" }} />
+      <Storyboard id="MascotaLooney" name="Mascota · cartoon animado (prueba)" component={LooneyBoard} layout={{ x: 2520, y: -3500, width: 1040, height: 620, intrinsicSizing: "root-element" }} />
       <Storyboard id="MascotaEstilos" name="Mascota · estilos posibles" component={MascotaEstilosBoard} layout={{ x: 1420, y: -3500, width: 1040, height: 620, intrinsicSizing: "root-element" }} />
       <Storyboard id="Mascota" name="Mascota SVG · borrador" component={MascotaBoard} layout={{ x: 460, y: -3500, width: 900, height: 420, intrinsicSizing: "root-element" }} />
       <Storyboard id="B2Slides" name="B ajustada · las 4 fotos del carrusel" component={B2Slides} layout={{ x: 460, y: -1300, width: 1060, height: 400, intrinsicSizing: "root-element" }} />
