@@ -86,7 +86,9 @@ type GaleriaProps = { c: Cat; cats: Cat[]; photos?: Photo[]; more?: Parameters<t
 
 const H1 = "stitch-title font-display text-[38px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[68px]";
 
-function Galeria({ c, cats, photos = c.photos, more, quitada = false, bloque, size }: GaleriaProps & { size: "dense" | "comfy" }) {
+function Galeria({ c, cats, photos = c.photos, more, quitada = false, bloque, size: elegido }: GaleriaProps & { size: "dense" | "comfy" }) {
+  // Con 1 o 2 fotos el muro se ve vacío: pasan a 2 columnas grandes.
+  const size = photos.length < 3 ? "comfy" : elegido;
   return (
     <main className="@container">
       <div className="px-4 pt-6 @3xl:px-12 @3xl:pt-10">
@@ -120,11 +122,10 @@ export const GaleriaA = (p: GaleriaProps) => <Galeria {...p} size="dense" />;
 /** B · Fotos grandes: 2 columnas con aire (4 en desktop). La capa del visor se abre encima. */
 export const GaleriaB = (p: GaleriaProps) => <Galeria {...p} size="comfy" />;
 
-/** El cierre de un bloque de 60 en una categoría con cientos (vista recortada: lo de arriba son las fotos 1 a 51). */
-export function FinDeBloque({ photos, arriba, more }: { photos: Photo[]; arriba: number; more: NonNullable<GaleriaProps["more"]> }) {
+/** El cierre de un bloque de 60 en una categoría con cientos (vista recortada: arriba quedan las primeras 51 fotos). */
+export function FinDeBloque({ photos, more }: { photos: Photo[]; more: NonNullable<GaleriaProps["more"]> }) {
   return (
     <main className="@container pb-12 pt-1">
-      <p className="px-4 pb-3 text-center text-[12px] uppercase tracking-[.14em] text-muted">… las primeras {arriba} fotos, arriba</p>
       <PhotoGrid photos={photos} more={more} />
     </main>
   );
@@ -178,7 +179,7 @@ export function CapaB({ c, cats, i }: { c: Cat; cats: Cat[]; i: number }) {
 
 /* ================= C: estantes por categoría ================= */
 
-/** C · Estantes: /products muestra todas las categorías, una fila de fotos cada una. "Ver las N" lleva a la galería de A. */
+/** C · Estantes: /products muestra todas las categorías, una fila de fotos cada una. "Ver todas" lleva a la galería de A. */
 export function EstantesC({ cats }: { cats: Cat[] }) {
   return (
     <main className="@container">

@@ -49,7 +49,8 @@ type Props = {
  *   y las flechas del teclado navegan al vecino reemplazando el historial, así Atrás vuelve a la galería y no
  *   foto por foto.
  * - Señal lenta: la miniatura (photo.thumb, ~12 KB, casi siempre ya en caché desde la galería) es el fondo del
- *   marco y la grande la tapa al llegar. Solo CSS; si la grande no llega, queda la miniatura y el botón funciona.
+ *   marco y la grande la tapa al llegar. Si la grande falla, un onerror de una línea (this.hidden = true) la quita
+ *   para que no se vea el ícono de imagen rota: queda la miniatura y el botón funciona.
  * - Volver: link a la galería con #f-<n>, cae en la misma foto (también si llegó por un link de WhatsApp).
  * - page: debajo del Header, botón en el flujo; desde @4xl, foto a la izquierda y datos a la derecha.
  *   layer: en el sitio es un <dialog> a pantalla completa (fixed); X cierra y vuelve a la galería.
@@ -135,7 +136,7 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
             Volver a {category.label}
           </a>
           <div>
-            <h1 className="font-display text-[22px] font-medium leading-tight @4xl:text-[40px]">{title}</h1>
+            <h1 className="font-display text-[28px] font-medium leading-tight @4xl:text-[40px]">{title}</h1>
             {description && <p className="mt-2 line-clamp-2 text-[15px] leading-relaxed text-muted @4xl:line-clamp-none @4xl:text-[16px]">{description}</p>}
           </div>
           {cta(false)}

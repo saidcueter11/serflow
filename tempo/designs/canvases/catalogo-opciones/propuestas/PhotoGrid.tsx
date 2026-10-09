@@ -41,14 +41,16 @@ export function PhotoTile({ photo, eager = false, rounded = false, morph = true,
   )
 }
 
-type More = { href: string; shown: number; total: number; state?: 'idle' | 'loading' | 'error' }
+/** from: en las páginas de bloque (/p/2), la primera foto de la página; shown: la última. */
+type More = { href: string; shown: number; total: number; from?: number; state?: 'idle' | 'loading' | 'error' }
 
 /**
  * PROPUESTA (PRI-130). Va a src/components/ui/PhotoGrid.tsx cuando Said apruebe el canvas
  * tempo/designs/canvases/catalogo-opciones; ahí se declara su asset en el canvas de cards.
  *
  * Galería de fotos de una categoría. dense: 3 columnas pegadas en el celular y 6 en desktop, para recorrer
- * cientos; comfy: 2 y 4 con aire, fotos más grandes. Las primeras `eager` (9) cargan de una; el resto, lazy.
+ * cientos; comfy: 2 y 4 con aire, fotos más grandes. Las primeras `eager` (12, las que se ven sin scroll) cargan
+ * de una; el resto, lazy.
  * En el visor, eager=0 y morph=false: la grilla "Más de X" no compite con la foto grande ni vuela.
  * Muchas fotos: el HTML trae bloques de 60. more pinta el cierre del bloque: cuántas se ven y "Ver 60 más",
  * que es un link a la página estática siguiente (/products/<cat>/p/2) y funciona sin JS. Con JS (~15 líneas)
@@ -56,8 +58,9 @@ type More = { href: string; shown: number; total: number; state?: 'idle' | 'load
  * El error no usa ErrorState a propósito: trae su propio WhatsApp y aquí WhatsApp es solo el flotante.
  * Sin scroll infinito: el footer se alcanza y el cliente decide cuándo gastar datos.
  */
-export function PhotoGrid({ photos, size = 'dense', more, eager = 9, morph = true }: { photos: Photo[]; size?: 'dense' | 'comfy'; more?: More; eager?: number; morph?: boolean }) {
+export function PhotoGrid({ photos, size = 'dense', more, eager = 12, morph = true }: { photos: Photo[]; size?: 'dense' | 'comfy'; more?: More; eager?: number; morph?: boolean }) {
   const next = more ? Math.min(60, more.total - more.shown) : 0
+  const viendo = more && `Viendo ${more.from ? `${more.from} a ${more.shown}` : more.shown} de ${plural(more.total)}`
   const sizes = size === 'dense' ? '(min-width: 768px) 16vw, 33vw' : '(min-width: 768px) 25vw, 50vw'
   return (
     <div className="@container font-body">
@@ -72,12 +75,10 @@ export function PhotoGrid({ photos, size = 'dense', more, eager = 9, morph = tru
         <div aria-live="polite" className="mt-6 flex flex-col items-center gap-3 px-4 text-center">
           {more.state === 'error' ? (
             <p className="text-[15px] text-ink">
-              Viendo {more.shown} de {plural(more.total)}. No cargaron las {next} siguientes: revisa la señal y toca otra vez.
+              {viendo}. No cargaron las {next} siguientes: revisa la señal y toca otra vez.
             </p>
           ) : (
-            <p className="text-[14px] text-muted">
-              Viendo {more.shown} de {plural(more.total)}
-            </p>
+            <p className="text-[14px] text-muted">{viendo}</p>
           )}
           {more.state === 'loading' ? (
             <p role="status" className="flex min-h-12 items-center text-[15px] font-semibold text-ink">

@@ -54,7 +54,8 @@ export function Intro() {
         los nombres de hoy ("Beisbol #26") no se muestran.
       </p>
       <p className="text-[15px] leading-relaxed text-muted">
-        Dos componentes nuevos marcados <Tag>Propuesta</Tag>: PhotoGrid (la galería) y PhotoViewer (el visor). Siguen
+        Componentes nuevos marcados <Tag>Propuesta</Tag>: PhotoGrid (la galería), PhotoViewer (el visor) y, solo para la
+        opción C, PhotoShelf (el estante). Siguen
         CategoryNav (pestañas, ya propuesta) y lo del design system: Header, Footer, WhatsAppFab, Button, EmptyState,
         Section. Las opciones de la ronda anterior (lista y ficha) se reemplazaron; quedan en el commit d017e24.
       </p>
@@ -101,7 +102,7 @@ export function Decisiones() {
         </Block>
         <Block label="Moverse entre categorías">
           CategoryNav arriba de la galería: links con el conteo de fotos, una fila que se desliza en el celular, la
-          actual en dorado. Desde el visor, "← Béisbol" vuelve a la galería en la misma foto (#f-26), también si llegó
+          actual en dorado. "Catálogo" del Header queda marcado en todas las páginas /products/**. Desde el visor, "← Béisbol" vuelve a la galería en la misma foto (#f-26), también si llegó
           por un link de WhatsApp o de Google; si la foto está después de la 60, vuelve a su bloque (/p/2#f-...).
         </Block>
         <Block label="Cientos de fotos y señal lenta">
@@ -291,7 +292,7 @@ export const NotaC = () => (
       "Sirve como portada del catálogo (/products) cuando haya muchas categorías.",
     ]}
     sacrifica={[
-      "Un paso más: para ver una categoría entera hay que tocar \"Ver las N\" (y se llega a la galería de A).",
+      "Un paso más: para ver una categoría entera hay que tocar \"Ver todas\" (y se llega a la galería de A).",
       "30 miniaturas en la primera página, aunque lazy.",
       "Con 5 categorías, las pestañas de A ya dicen lo mismo.",
     ]}
@@ -313,8 +314,9 @@ export function EstadosA() {
           "Cientos (340 en Béisbol): cierre del primer bloque con \"Ver 60 más\", cargando y sin señal (aviso propio y no ErrorState, que trae su WhatsApp; cuando se toque src/, una opción de ErrorState sin WhatsApp lo reemplaza).",
           "Visor completo con \"Más de Béisbol\" y footer.",
           "Primera foto: sin flecha atrás.",
-          "Con descripción real: una línea bajo el título.",
-          "Foto grande llegando: se ve la miniatura (fondo del marco, ~12 KB) hasta que la grande la tapa; el botón ya funciona. Si la grande no llega, queda la miniatura.",
+          "Con descripción real: bajo el título, hasta dos líneas en el celular.",
+          "Foto grande llegando: se ve la miniatura (fondo del marco, ~12 KB, más gruesa) hasta que la grande la tapa; el botón ya funciona. Si la grande falla, se oculta y queda la miniatura.",
+          "Categoría con 1 o 2 fotos: la galería pasa a 2 columnas grandes, para que no se vea vacía.",
           "Foto después de la 60: \"← Béisbol\" vuelve a su bloque. La página del bloque dice \"Fotos 61 a 120 de 340\" y tiene \"← Ver las anteriores\".",
           "Categoría con una foto: \"1 foto\" en singular; el visor sin flechas ni \"Más de\".",
           "Link viejo a una foto borrada: la galería de su categoría con un aviso arriba, no la 404.",
@@ -410,13 +412,13 @@ export const GaleriaAMobileVacia = () => (
 );
 export const GaleriaAMobileCientos = () => (
   <Pantalla viewport="mobile" header={false}>
-    <FinDeBloque photos={bloque} arriba={51} more={MORE} />
+    <FinDeBloque photos={bloque} more={MORE} />
   </Pantalla>
 );
 export const GaleriaAMobileCargandoMas = () => (
   <Pantalla viewport="mobile" header={false}>
     <FinDeBloque
-      arriba={51}
+     
       photos={[...bloque, ...BEISBOL_340.photos.slice(60, 66).map((p) => ({ ...p, src: SIN_CARGAR, thumb: SIN_CARGAR }))]}
       more={{ ...MORE, state: "loading" }}
     />
@@ -424,7 +426,7 @@ export const GaleriaAMobileCargandoMas = () => (
 );
 export const GaleriaAMobileSinSenal = () => (
   <Pantalla viewport="mobile" header={false}>
-    <FinDeBloque photos={bloque} arriba={51} more={{ ...MORE, state: "error" }} />
+    <FinDeBloque photos={bloque} more={{ ...MORE, state: "error" }} />
   </Pantalla>
 );
 export const VisorAMobileCompleta = () => (
@@ -442,9 +444,12 @@ export const VisorAMobileDescripcion = () => (
     <VisorPagina c={MTQ} i={5} description={DESCRIPCION} />
   </Pantalla>
 );
+// La miniatura real es de 320 px: el blur imita cómo se ve estirada mientras llega la grande (solo canvas).
 export const VisorAMobileCargando = () => (
   <Pantalla viewport="mobile" fold fab={false}>
-    <VisorPagina c={{ ...BEISBOL, photos: BEISBOL.photos.map((p, i) => (i === 11 ? { ...p, src: SIN_CARGAR } : p)) }} i={11} />
+    <div className="[&_div[aria-hidden]]:blur-[3px]">
+      <VisorPagina c={{ ...BEISBOL, photos: BEISBOL.photos.map((p, i) => (i === 11 ? { ...p, src: SIN_CARGAR } : p)) }} i={11} />
+    </div>
   </Pantalla>
 );
 export const VisorADesktopCompleta = () => (
@@ -469,7 +474,7 @@ export const GaleriaAMobileBloque2 = () => (
       cats={CATS.map((c) => (c.slug === BEISBOL_340.slug ? BEISBOL_340 : c))}
       photos={BEISBOL_340.photos.slice(60, 120)}
       bloque={{ desde: 61, hasta: 120, anterior: BEISBOL_340.href }}
-      more={{ href: "/products/beisbol/p/3", shown: 120, total: 340 }}
+      more={{ href: "/products/beisbol/p/3", from: 61, shown: 120, total: 340 }}
     />
   </Pantalla>
 );
