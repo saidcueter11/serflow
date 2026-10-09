@@ -64,7 +64,8 @@ function Vacia({ c }: { c: Cat }) {
   );
 }
 
-const subtitulo = (c: Cat) => `${fotos(c.count)} de lo que hacemos. Toca la que te guste y pídela por WhatsApp.`;
+const subtitulo = (c: Cat) =>
+  c.count === 1 ? "1 foto de lo que hacemos. Tócala y pídela por WhatsApp." : `${fotos(c.count)} de lo que hacemos. Toca la que te guste y pídela por WhatsApp.`;
 
 /**
  * Link viejo a una foto que se borró (de un chat o de Google): una regla de Netlify manda /products/<cat>/<lo-que-sea>
@@ -88,7 +89,7 @@ const H1 = "stitch-title font-display text-[38px] font-medium leading-[1.05] tra
 
 function Galeria({ c, cats, photos = c.photos, more, quitada = false, bloque, size: elegido }: GaleriaProps & { size: "dense" | "comfy" }) {
   // Con 1 o 2 fotos el muro se ve vacío: pasan a 2 columnas grandes.
-  const size = photos.length < 3 ? "comfy" : elegido;
+  const size = photos.length > 0 && photos.length < 3 ? "comfy" : elegido;
   return (
     <main className="@container">
       <div className="px-4 pt-6 @3xl:px-12 @3xl:pt-10">

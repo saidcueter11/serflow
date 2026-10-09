@@ -96,9 +96,9 @@ export function Decisiones() {
           vacía sin WhatsApp propio (la vacía señala el flotante). Precio nunca, aunque products.price tenga valor.
         </Block>
         <Block label="Moverse entre fotos">
-          Flechas de 44 px a los lados de la foto: links a la anterior y la siguiente, funcionan sin JS. Con ~15 líneas
-          de script: deslizar con el dedo y ← → en el teclado. Cambiar de foto reemplaza el historial, así Atrás vuelve a
-          la galería y no foto por foto. En la primera foto no hay flecha atrás; en la última, no hay siguiente.
+          Flechas de 44 px a los lados de la foto: links a la anterior y la siguiente, funcionan sin JS y reemplazan el
+          historial (data-astro-history="replace"), así Atrás vuelve a la galería y no foto por foto. Con ~15 líneas de
+          script: deslizar con el dedo y ← → en el teclado, igual. En la primera foto no hay flecha atrás; en la última, no hay siguiente.
         </Block>
         <Block label="Moverse entre categorías">
           CategoryNav arriba de la galería: links con el conteo de fotos, una fila que se desliza en el celular, la
@@ -106,7 +106,7 @@ export function Decisiones() {
           por un link de WhatsApp o de Google; si la foto está después de la 60, vuelve a su bloque (/p/2#f-...).
         </Block>
         <Block label="Cientos de fotos y señal lenta">
-          El HTML trae bloques de 60. Miniaturas de 320 px en WebP (~12 KB), lazy salvo las primeras 9, con tamaño fijo
+          El HTML trae bloques de 60. Miniaturas de 320 px en WebP (~12 KB), lazy salvo las primeras 12 (las que se ven sin scroll), con tamaño fijo
           (no salta nada) y la trama del marco mientras cargan. Al final del bloque, "Ver 60 más": link a la página
           estática siguiente (/products/beisbol/p/2), sin JS; con JS agrega las fotos ahí mismo y guarda en history.state
           cuántos bloques hay, así Atrás desde el visor los vuelve a poner y cae en la foto. Sin scroll infinito: el footer
@@ -115,7 +115,7 @@ export function Decisiones() {
         <Block label="Movimiento (todo CSS)">
           Costura dorada en el título (stitch-title). Las fotos se destapan al entrar (reveal-wipe, como ProductCard); con
           el mouse, un borde gris (sin scale: está en la deuda de cards). Al abrir el visor, la foto crece desde su cuadro
-          (view-transition-name con el ClientRouter que ya existe). Todo apagado con reducir movimiento y con la clase
+          (view-transition-name solo en la foto tocada, con el ClientRouter que ya existe). Todo apagado con reducir movimiento y con la clase
           slow-connection de global.css; al implementar, sumarle .slow-connection::view-transition-group(*), -old(*) y
           -new(*), que hoy no cubre.
         </Block>

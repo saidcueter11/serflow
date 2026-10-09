@@ -14,11 +14,13 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-vis
 /**
  * Una foto que abre su visor. Cuadrada (las del catálogo son 3:4 con la prenda al centro: el cuadrado la muestra
  * entera), sin texto encima. Mientras carga se ve la trama del marco; width/height fijos, así no salta nada.
- * id f-<n>: el "volver" del visor cae justo en esta foto. morph: view-transition-name, la foto crece hasta el visor
- * (ClientRouter ya hace transiciones entre páginas; con reducir movimiento no se anima). Sin morph en "Más de X"
- * del visor: si no, esas 6 también volarían desde la galería.
+ * id f-<n>: el "volver" del visor cae justo en esta foto. morph: la foto crece hasta el visor (view-transition-name,
+ * con el ClientRouter que ya existe; con reducir movimiento no se anima). Al implementar, el nombre se pone solo a
+ * la foto tocada (en astro:before-preparation), no a las 60 del bloque. Sin morph en "Más de X" del visor.
+ * sizes: solo en comfy y estantes, que usan srcSet; el muro (dense) usa la miniatura de 320 sola, la misma URL que el
+ * visor pone de fondo, así ya está en caché.
  */
-export function PhotoTile({ photo, eager = false, rounded = false, morph = true, sizes }: { photo: Photo; eager?: boolean; rounded?: boolean; morph?: boolean; sizes: string }) {
+export function PhotoTile({ photo, eager = false, rounded = false, morph = true, sizes }: { photo: Photo; eager?: boolean; rounded?: boolean; morph?: boolean; sizes?: string }) {
   return (
     <a
       href={photo.href}
@@ -27,8 +29,8 @@ export function PhotoTile({ photo, eager = false, rounded = false, morph = true,
     >
       <img
         src={photo.thumb}
-        srcSet={photo.srcSet}
-        sizes={photo.srcSet ? sizes : undefined}
+        srcSet={sizes ? photo.srcSet : undefined}
+        sizes={sizes && photo.srcSet ? sizes : undefined}
         alt={photo.alt}
         width={320}
         height={320}
@@ -61,7 +63,7 @@ type More = { href: string; shown: number; total: number; from?: number; state?:
 export function PhotoGrid({ photos, size = 'dense', more, eager = 12, morph = true }: { photos: Photo[]; size?: 'dense' | 'comfy'; more?: More; eager?: number; morph?: boolean }) {
   const next = more ? Math.min(60, more.total - more.shown) : 0
   const viendo = more && `Viendo ${more.from ? `${more.from} a ${more.shown}` : more.shown} de ${plural(more.total)}`
-  const sizes = size === 'dense' ? '(min-width: 768px) 16vw, 33vw' : '(min-width: 768px) 25vw, 50vw'
+  const sizes = size === 'dense' ? undefined : '(min-width: 768px) 25vw, 50vw'
   return (
     <div className="@container font-body">
       <ul className={size === 'dense' ? 'grid grid-cols-3 gap-1 @3xl:grid-cols-6 @3xl:gap-2' : 'grid grid-cols-2 gap-3 @3xl:grid-cols-4 @3xl:gap-4'}>

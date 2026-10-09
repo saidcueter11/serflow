@@ -17,6 +17,7 @@ function Arrow({ href, dir }: { href?: string; dir: 'left' | 'right' }) {
   return (
     <a
       href={href}
+      data-astro-history="replace"
       aria-label={dir === 'left' ? 'Foto anterior' : 'Foto siguiente'}
       className={`absolute top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-primary/80 text-ink transition-colors duration-(--motion-fast) hover:border-accent hover:text-accent ${dir === 'left' ? 'left-2 @4xl:left-4' : 'right-2 @4xl:right-4'} ${FOCUS}`}
     >
@@ -45,9 +46,9 @@ type Props = {
  *
  * Una foto del catálogo en grande, con lo mínimo para pedirla. La foto va entera (3:4, object-contain).
  * Título = categoría + número; no depende de nombre ni descripción.
- * - Anterior / siguiente: links a las fotos vecinas, funcionan sin JS. Con JS (~15 líneas): deslizar con el dedo
- *   y las flechas del teclado navegan al vecino reemplazando el historial, así Atrás vuelve a la galería y no
- *   foto por foto.
+ * - Anterior / siguiente: links a las fotos vecinas, funcionan sin JS; data-astro-history="replace" (ClientRouter)
+ *   hace que no sumen historial, así Atrás vuelve a la galería y no foto por foto. Con JS (~15 líneas): deslizar
+ *   con el dedo y las flechas del teclado navegan al vecino igual.
  * - Señal lenta: la miniatura (photo.thumb, ~12 KB, casi siempre ya en caché desde la galería) es el fondo del
  *   marco y la grande la tapa al llegar. Si la grande falla, un onerror de una línea (this.hidden = true) la quita
  *   para que no se vea el ícono de imagen rota: queda la miniatura y el botón funciona.
@@ -103,7 +104,7 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
             </svg>
           </a>
         </div>
-        <div className="fabric relative min-h-0 flex-1 overflow-hidden bg-surface-2">
+        <div className="relative min-h-0 flex-1 overflow-hidden bg-surface-2">
           {img}
           <Arrow href={prevHref} dir="left" />
           <Arrow href={nextHref} dir="right" />
@@ -124,7 +125,7 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
             <Chevron dir="left" />
             {category.label}
           </a>
-          <div className="fabric relative aspect-[3/4] overflow-hidden bg-surface-2 @4xl:aspect-auto @4xl:h-[640px] @4xl:rounded-card">
+          <div className="relative aspect-[3/4] overflow-hidden bg-surface-2 @4xl:aspect-auto @4xl:h-[640px] @4xl:rounded-card">
             {img}
               <Arrow href={prevHref} dir="left" />
             <Arrow href={nextHref} dir="right" />
