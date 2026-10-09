@@ -1,5 +1,5 @@
 import { Canvas, Storyboard } from "tempo-sdk/canvas";
-import { CapaBDesktop, CapaBMobile, Decisiones, EstadosA, EstantesCDesktop, EstantesCMobile, GaleriaADesktop, GaleriaADesktopCompleta, GaleriaAMobile, GaleriaAMobileCargandoMas, GaleriaAMobileCientos, GaleriaAMobileCompleta, GaleriaAMobileLenta, GaleriaAMobileSinSenal, GaleriaAMobileVacia, GaleriaBDesktop, GaleriaBMobile, Intro, Mensajes, NotaA, NotaB, NotaC, Recomendacion, SeccionEstados, SeccionOpciones, VisorADesktop, VisorADesktopCompleta, VisorAMobile, VisorAMobileCargando, VisorAMobileCompleta, VisorAMobileDescripcion, VisorAMobilePrimera } from "./boards";
+import { CapaBDesktop, CapaBMobile, Decisiones, EstadosA, EstantesCDesktop, EstantesCMobile, GaleriaADesktop, GaleriaADesktopCompleta, GaleriaAMobile, GaleriaAMobileCargandoMas, GaleriaAMobileCientos, GaleriaAMobileCompleta, GaleriaAMobileFotoQuitada, GaleriaAMobileLenta, GaleriaAMobileSinSenal, GaleriaAMobileVacia, GaleriaBDesktop, GaleriaBMobile, Intro, Mensajes, NotaA, NotaB, NotaC, Recomendacion, SeccionEstados, SeccionOpciones, VisorADesktop, VisorADesktopCompleta, VisorAMobile, VisorAMobileCargando, VisorAMobileCompleta, VisorAMobileDescripcion, VisorAMobilePrimera, VisorAMobileUnaFoto } from "./boards";
 
 // PRI-130, segunda ronda: el catálogo como galería de fotos. Una fila por opción (nota, galería y visor en mobile 390
 // y desktop 1280 cortados en el pliegue) y, al final, los estados de la opción recomendada (A).
@@ -42,6 +42,8 @@ export default function CatalogoOpcionesCanvas() {
       <Storyboard id="VisorAMobilePrimera" name="A · visor · primera foto" component={VisorAMobilePrimera} layout={{ x: 900, y: 7250, width: 390, height: 844, intrinsicSizing: "root-element" }} />
       <Storyboard id="VisorAMobileDescripcion" name="A · visor · con descripción" component={VisorAMobileDescripcion} layout={{ x: 1340, y: 7250, width: 390, height: 844, intrinsicSizing: "root-element" }} />
       <Storyboard id="VisorAMobileCargando" name="A · visor · foto grande llegando" component={VisorAMobileCargando} layout={{ x: 1780, y: 7250, width: 390, height: 844, intrinsicSizing: "root-element" }} />
+      <Storyboard id="GaleriaAMobileFotoQuitada" name="A · link a una foto borrada" component={GaleriaAMobileFotoQuitada} layout={{ x: 4430, y: 5050, width: 390, height: 844, intrinsicSizing: "root-element" }} />
+      <Storyboard id="VisorAMobileUnaFoto" name="A · visor · categoría con una sola foto" component={VisorAMobileUnaFoto} layout={{ x: 3560, y: 7250, width: 390, height: 1500, intrinsicSizing: "root-element" }} />
       <Storyboard id="VisorADesktopCompleta" name="A · visor completo con descripción · desktop" component={VisorADesktopCompleta} layout={{ x: 2230, y: 7250, width: 1280, height: 1600, intrinsicSizing: "root-element" }} />
     </Canvas>
   );

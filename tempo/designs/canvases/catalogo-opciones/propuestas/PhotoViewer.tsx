@@ -36,7 +36,7 @@ type Props = {
   description?: string
   /** page: el visor es su propia página (opciones A y C). layer: capa encima de la galería (opción B). */
   variant?: 'page' | 'layer'
-  /** Solo para el canvas: la foto grande todavía no llega y se ve la miniatura ya bajada, borrosa. */
+  /** Solo para el canvas: pinta el momento en que la foto grande todavía no llega (se ve la miniatura). */
   loading?: boolean
 }
 
@@ -49,7 +49,9 @@ type Props = {
  * Título = categoría + número; no depende de nombre ni descripción.
  * - Anterior / siguiente: links a las fotos vecinas, funcionan sin JS. Con JS (~15 líneas): deslizar con el dedo
  *   y las flechas del teclado navegan al vecino reemplazando el historial, así Atrás vuelve a la galería y no
- *   foto por foto. La miniatura que ya se bajó en la galería sirve de fondo mientras llega la grande.
+ *   foto por foto.
+ * - Señal lenta: la miniatura (photo.thumb, ~12 KB, casi siempre ya en caché desde la galería) es el fondo del
+ *   marco y la grande la tapa al llegar. Solo CSS; si la grande no llega, queda la miniatura y el botón funciona.
  * - Volver: link a la galería con #f-<n>, cae en la misma foto (también si llegó por un link de WhatsApp).
  * - page: debajo del Header, botón en el flujo; desde @4xl, foto a la izquierda y datos a la derecha.
  *   layer: en el sitio es un <dialog> a pantalla completa (fixed); X cierra y vuelve a la galería.
@@ -58,7 +60,7 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
   const back = `${category.href}#f-${photo.n}`
   const title = (
     <>
-      {category.label} <span className="text-muted">· N.º {photo.n}</span>
+      {category.label} <span className="whitespace-nowrap text-muted">· N.º {photo.n}</span>
     </>
   )
   const cta = (center: boolean) => (
@@ -66,25 +68,26 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
       <Button variant="whatsapp" href={whatsappUrl(waText)} external fullWidth>
         Pedir esta por WhatsApp
       </Button>
-      <p className={`text-center text-[13px] leading-snug text-muted ${center ? '' : '@4xl:text-left'}`}>Se abre WhatsApp con esta foto en el mensaje.</p>
+      <p className={`text-center text-[13px] leading-snug text-muted ${center ? '' : '@4xl:text-left'}`}>Se abre WhatsApp con el link de esta foto.</p>
     </div>
   )
+  // La capa (B) no lleva view-transition-name: la miniatura de la galería, en el mismo documento, ya lo tiene.
   const img = (
-    <img
-      src={photo.src}
-      alt={photo.alt}
-      width={900}
-      height={1200}
-      fetchPriority="high"
-      decoding="async"
-      style={{ viewTransitionName: `foto-${photo.n}` }}
-      className={`h-full w-full object-contain ${loading ? 'scale-105 blur-xs' : ''}`}
-    />
-  )
-  const cargando = loading && (
-    <span role="status" className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-primary/85 px-3 py-1 text-[13px] font-semibold text-ink">
-      Cargando la foto…
-    </span>
+    <>
+      <div aria-hidden="true" className="absolute inset-0 bg-contain bg-center bg-no-repeat blur-xs" style={{ backgroundImage: `url("${photo.thumb}")` }} />
+      {!loading && (
+        <img
+          src={photo.src}
+          alt={photo.alt}
+          width={900}
+          height={1200}
+          fetchPriority="high"
+          decoding="async"
+          style={variant === 'page' ? { viewTransitionName: `foto-${photo.n}` } : undefined}
+          className="relative h-full w-full object-contain"
+        />
+      )}
+    </>
   )
 
   if (variant === 'layer') {
@@ -100,13 +103,12 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
         </div>
         <div className="fabric relative min-h-0 flex-1 overflow-hidden bg-surface-2">
           {img}
-          {cargando}
           <Arrow href={prevHref} dir="left" />
           <Arrow href={nextHref} dir="right" />
         </div>
         <div className="mx-auto w-full max-w-[420px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
-          {description && <p className="mb-3 text-center text-[15px] leading-relaxed text-muted">{description}</p>}
           {cta(true)}
+          {description && <p className="mt-2 line-clamp-2 text-center text-[14px] leading-relaxed text-muted">{description}</p>}
         </div>
       </div>
     )
@@ -122,8 +124,7 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
           </a>
           <div className="fabric relative aspect-[3/4] overflow-hidden bg-surface-2 @4xl:aspect-auto @4xl:h-[640px] @4xl:rounded-card">
             {img}
-            {cargando}
-            <Arrow href={prevHref} dir="left" />
+              <Arrow href={prevHref} dir="left" />
             <Arrow href={nextHref} dir="right" />
           </div>
         </div>
@@ -132,11 +133,9 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
             <Chevron dir="left" />
             Volver a {category.label}
           </a>
-          <div>
-            <h1 className="font-display text-[24px] font-medium leading-tight @4xl:text-[34px]">{title}</h1>
-            {description && <p className="mt-2 text-[15px] leading-relaxed text-muted @4xl:text-[16px]">{description}</p>}
-          </div>
+          <h1 className="font-display text-[24px] font-medium leading-tight @4xl:text-[34px]">{title}</h1>
           {cta(false)}
+          {description && <p className="text-[15px] leading-relaxed text-muted @4xl:text-[16px]">{description}</p>}
           <p className="hidden text-[13px] text-muted @4xl:block">También puedes pasar de foto con ← y → del teclado.</p>
         </div>
       </div>

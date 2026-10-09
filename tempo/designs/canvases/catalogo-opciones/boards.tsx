@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { CapaB, EstantesC, FinDeBloque, GaleriaA, GaleriaB, Pantalla, VisorPagina } from "./paginas";
-import { BEISBOL, BEISBOL_340, CAMISETAS, CATS, CATS_CON_VACIA, DESCRIPCION, MODA, MTQ, SIN_CARGAR, pedido } from "./data";
+import { BEISBOL, BEISBOL_340, CAMISETAS, CATS, CATS_CON_VACIA, DESCRIPCION, MODA, MTQ, SIN_CARGAR, UNA_FOTO, pedido } from "./data";
 
 /* ---------------- Narración (no es producto) ---------------- */
 
@@ -64,8 +64,8 @@ export function Intro() {
         el pliegue. Al final, los estados de la opción recomendada a página completa.
       </Block>
       <Block label="Fotos">
-        Las del catálogo actual (src/assets/images), con su número de archivo como número de foto. Sin personas ni datos
-        personales.
+        Las del catálogo actual (src/assets/images), con el número que cada una tiene hoy en producción. Sin personas ni
+        datos personales.
       </Block>
     </Card>
   );
@@ -78,10 +78,10 @@ export function Decisiones() {
       <Title>Lo que no cambia entre opciones</Title>
       <div className="grid grid-cols-2 gap-x-10 gap-y-6">
         <Block label="Cómo se nombra una foto">
-          Categoría + número: "Béisbol · N.º 26". El número sale del slug de hoy (beisbol-26 → 26), así las URLs no
-          cambian y ningún link viejo se rompe. Cada foto nueva recibe en serflow-admin el siguiente número de su
-          categoría; no se reutiliza ni se renumera al reordenar o borrar. Es lo que el cliente dice y lo que el taller
-          busca.
+          Categoría + número: "Béisbol · N.º 26". El número es el de hoy (legacy_id, el mismo del slug beisbol-26), así
+          las URLs no cambian y ningún link viejo se rompe. Ya es único en todo el catálogo (Béisbol va del 26 al 49,
+          Niños del 82 al 91): con el número solo, el taller encuentra la foto. Cada foto nueva recibe en serflow-admin
+          el siguiente número; no se reutiliza ni se renumera al reordenar o borrar.
         </Block>
         <Block label="Nombre y descripción">
           La galería no muestra texto encima de las fotos. El visor muestra la descripción solo si el admin escribió una
@@ -101,7 +101,7 @@ export function Decisiones() {
         <Block label="Moverse entre categorías">
           CategoryNav arriba de la galería: links con el conteo de fotos, una fila que se desliza en el celular, la
           actual en dorado. Desde el visor, "← Béisbol" vuelve a la galería en la misma foto (#f-26), también si llegó
-          por un link de WhatsApp o de Google.
+          por un link de WhatsApp o de Google; si la foto está después de la 60, vuelve a su bloque (/p/2#f-...).
         </Block>
         <Block label="Cientos de fotos y señal lenta">
           El HTML trae bloques de 60. Miniaturas de 320 px en WebP (~12 KB), lazy salvo las primeras 9, con tamaño fijo
@@ -110,9 +110,10 @@ export function Decisiones() {
           footer se alcanza y el cliente decide cuándo gastar datos.
         </Block>
         <Block label="Movimiento (todo CSS)">
-          Costura dorada en el título (stitch-title). Las fotos se destapan al entrar (reveal-wipe, como ProductCard) y
-          crecen un 4% con el mouse. Al abrir el visor, la foto crece desde su cuadro (view-transition-name con el
-          ClientRouter que ya existe). Todo apagado con reducir movimiento y en conexión lenta.
+          Costura dorada en el título (stitch-title). Las fotos se destapan al entrar (reveal-wipe, como ProductCard); con
+          el mouse, un borde gris (sin scale: está en la deuda de cards). Al abrir el visor, la foto crece desde su cuadro
+          (view-transition-name con el ClientRouter que ya existe). Todo apagado con reducir movimiento y con la clase
+          slow-connection de global.css.
         </Block>
         <Block label="SEO y lo que no sale">
           Cada foto con visor propio tiene título "Béisbol N.º 26 · Serflow", og:image (la vista previa de WhatsApp) y
@@ -148,7 +149,8 @@ export function Recomendacion() {
         <Bullets
           items={[
             "Elegir A, B o C.",
-            "Número de foto estable (sale del slug de hoy; serflow-admin asigna el siguiente). ¿De acuerdo? Toca serflow-admin.",
+            "Número de foto = el de hoy (legacy_id, ya en el slug, único en todo el catálogo); serflow-admin asigna el siguiente a las nuevas. ¿De acuerdo? Toca serflow-admin.",
+            "Links de fotos borradas: una regla en netlify.toml que manda a la galería con aviso, en vez de la 404. Es zona sensible (pasa por Seguridad).",
             "Renombrar en serflow-admin \"Beisbol\" y \"Basketball\" a Béisbol y Básquet, si te gustan así.",
             "Sigue pendiente de la ronda anterior: sumar \"Catálogo\" al Header. Recomiendo que sí.",
           ]}
@@ -248,7 +250,7 @@ export const NotaA = () => (
       "El visor trae \"Más de Béisbol\" debajo: se sigue mirando sin volver.",
     ]}
     sacrifica={[
-      "Las miniaturas son chicas (124 px en el celular): el detalle se ve en el visor.",
+      "Las miniaturas son chicas (127 px en el celular): el detalle se ve en el visor.",
       "Pasar de foto carga una página (~1 foto); con mala señal tarda lo que tarda esa foto, con la miniatura de fondo mientras.",
     ]}
     whatsapp="Flotante en la galería; en el visor, el botón de la foto (sin flotante)."
@@ -305,11 +307,14 @@ export function EstadosA() {
           "Galería completa: Mi Tierra Querida, 25 fotos, en 390 y 1280.",
           "Señal lenta: las fotos que no han llegado muestran la trama del marco; el resto de la página se lee y se toca igual.",
           "Categoría vacía: la pestaña dice 0 antes de entrar; EmptyState sin WhatsApp propio (señala el flotante) y salida a otra categoría.",
-          "Cientos (340 en Béisbol): cierre del primer bloque con \"Ver 60 más\", cargando y sin señal.",
+          "Cientos (340 en Béisbol): cierre del primer bloque con \"Ver 60 más\", cargando y sin señal (aviso propio y no ErrorState, que trae su WhatsApp).",
           "Visor completo con \"Más de Béisbol\" y footer.",
           "Primera foto: sin flecha atrás.",
           "Con descripción real: una línea bajo el título.",
-          "Foto grande llegando: la miniatura ya bajada, borrosa, y \"Cargando la foto…\"; el botón ya funciona.",
+          "Foto grande llegando: se ve la miniatura (fondo del marco, ~12 KB) hasta que la grande la tapa; el botón ya funciona. Si la grande no llega, queda la miniatura.",
+          "Foto después de la 60: \"← Béisbol\" vuelve a su bloque (/products/beisbol/p/2#f-...).",
+          "Categoría con una foto: sin flechas, sin \"Más de\" y \"1 foto\" en singular.",
+          "Link viejo a una foto borrada: la galería de su categoría con un aviso arriba, no la 404.",
           "Sin estado de error de página: es estática; si Supabase falla, falla el build y sigue el deploy anterior.",
         ]}
       />
@@ -441,5 +446,15 @@ export const VisorAMobileCargando = () => (
 export const VisorADesktopCompleta = () => (
   <Pantalla viewport="desktop" fab={false}>
     <VisorPagina c={MTQ} i={5} description={DESCRIPCION} />
+  </Pantalla>
+);
+export const GaleriaAMobileFotoQuitada = () => (
+  <Pantalla viewport="mobile" fold>
+    <GaleriaA c={BEISBOL} cats={CATS} quitada />
+  </Pantalla>
+);
+export const VisorAMobileUnaFoto = () => (
+  <Pantalla viewport="mobile" fab={false}>
+    <VisorPagina c={UNA_FOTO} i={0} />
   </Pantalla>
 );

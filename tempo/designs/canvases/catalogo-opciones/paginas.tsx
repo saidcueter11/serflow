@@ -8,7 +8,7 @@ import { Section } from "../../../../src/components/ui/Section";
 import { CategoryNav } from "./propuestas/CategoryNav";
 import { PhotoGrid, PhotoShelf, type Photo } from "./propuestas/PhotoGrid";
 import { PhotoViewer } from "./propuestas/PhotoViewer";
-import { CATALOG_CURRENT, CATALOG_NAV, LOGO, MTQ, pedido, vecinas, type Cat } from "./data";
+import { CATALOG_CURRENT, CATALOG_NAV, LOGO, PRIMERA, fotos, pedido, vecinas, type Cat } from "./data";
 
 /*
  * Páginas del catálogo para el canvas catalogo-opciones (PRI-130). Lo que es UI sale de src/components/ui o de
@@ -58,17 +58,29 @@ function Vacia({ c }: { c: Cat }) {
       <EmptyState
         title={`Todavía no hay fotos de ${c.label}`}
         description="Igual lo hacemos por encargo, con tu diseño o tu logo. Escríbenos por WhatsApp (el botón dorado de abajo) y te mostramos ejemplos."
-        action={{ label: `Mira ${MTQ.label}`, href: MTQ.href }}
+        action={{ label: `Mira ${PRIMERA.label}`, href: PRIMERA.href }}
       />
     </div>
   );
 }
 
-const subtitulo = (c: Cat) => `${c.count} fotos de lo que hacemos. Toca la que te guste y pídela por WhatsApp.`;
+const subtitulo = (c: Cat) => `${fotos(c.count)} de lo que hacemos. Toca la que te guste y pídela por WhatsApp.`;
 
-type GaleriaProps = { c: Cat; cats: Cat[]; photos?: Photo[]; more?: Parameters<typeof PhotoGrid>[0]["more"] };
+/**
+ * Link viejo a una foto que se borró (de un chat o de Google): una regla de Netlify manda /products/<cat>/<lo-que-sea>
+ * que no exista a /products/<cat>#quitada, y este aviso se muestra con :target. Sin JS. Toca netlify.toml (Seguridad).
+ */
+function Quitada({ c }: { c: Cat }) {
+  return (
+    <p id="quitada" role="status" className="mx-4 mb-4 rounded-tile border border-line bg-surface px-4 py-3 text-[15px] leading-relaxed @3xl:mx-0">
+      Esa foto ya no está en el catálogo. Estas son las de {c.label} que hay ahora.
+    </p>
+  );
+}
 
-function Galeria({ c, cats, photos = c.photos, more, size }: GaleriaProps & { size: "dense" | "comfy" }) {
+type GaleriaProps = { c: Cat; cats: Cat[]; photos?: Photo[]; more?: Parameters<typeof PhotoGrid>[0]["more"]; quitada?: boolean };
+
+function Galeria({ c, cats, photos = c.photos, more, quitada, size }: GaleriaProps & { size: "dense" | "comfy" }) {
   return (
     <main className="@container">
       <div className="px-4 pt-6 @3xl:px-12 @3xl:pt-10">
@@ -79,6 +91,7 @@ function Galeria({ c, cats, photos = c.photos, more, size }: GaleriaProps & { si
         </div>
       </div>
       <div className={`pb-12 pt-5 @3xl:px-12 @3xl:pb-16 @3xl:pt-8 ${size === "comfy" ? "px-4" : ""}`}>
+        {quitada && <Quitada c={c} />}
         {photos.length > 0 ? <PhotoGrid photos={photos} size={size} more={more} /> : <Vacia c={c} />}
       </div>
     </main>
@@ -103,29 +116,35 @@ export function FinDeBloque({ photos, more }: { photos: Photo[]; more: NonNullab
 
 /* ================= Visor (A y C: página propia) ================= */
 
+/** Galería a la que vuelve: la página del bloque de 60 donde está la foto (la 61 está en /p/2), anclada en ella. */
+const galeria = (c: Cat, i: number) => (i < 60 ? c.href : `${c.href}/p/${Math.floor(i / 60) + 1}`);
+
 export function VisorPagina({ c, i, description, loading }: { c: Cat; i: number; description?: string; loading?: boolean }) {
   const p = c.photos[i];
+  const mas = vecinas(c, i);
   return (
     <main className="@container pb-4 pt-1">
       <PhotoViewer
         photo={p}
-        category={c}
+        category={{ label: c.label, href: galeria(c, i) }}
         prevHref={c.photos[i - 1]?.href}
         nextHref={c.photos[i + 1]?.href}
         waText={pedido(c, p)}
         description={description}
         loading={loading}
       />
-      <Section id="mas" title={`Más de ${c.label}`}>
-        <div className="-mx-4 @3xl:mx-0">
-          <PhotoGrid photos={vecinas(c, i)} />
-        </div>
-        <div className="mt-3">
-          <Button variant="ghost" href={`${c.href}#f-${p.n}`}>
-            Ver las {c.count} de {c.label} →
-          </Button>
-        </div>
-      </Section>
+      {mas.length > 0 && (
+        <Section id="mas" title={`Más de ${c.label}`}>
+          <div className="-mx-4 @3xl:mx-0">
+            <PhotoGrid photos={mas} eager={0} />
+          </div>
+          <div className="mt-3">
+            <Button variant="ghost" href={`${galeria(c, i)}#f-${p.n}`}>
+              Ver las {c.count} de {c.label} →
+            </Button>
+          </div>
+        </Section>
+      )}
     </main>
   );
 }
@@ -155,7 +174,7 @@ export function EstantesC({ cats }: { cats: Cat[] }) {
         </p>
       </div>
       <div className="flex flex-col gap-8 px-4 pb-12 pt-7 @3xl:gap-12 @3xl:px-12 @3xl:pb-16 @3xl:pt-10">
-        {cats.map((c) => (
+        {cats.filter((c) => c.count > 0).map((c) => (
           <PhotoShelf key={c.href} label={c.label} href={c.href} count={c.count} photos={c.photos.slice(0, 6)} />
         ))}
       </div>
