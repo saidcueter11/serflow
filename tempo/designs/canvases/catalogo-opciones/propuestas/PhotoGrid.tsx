@@ -14,10 +14,11 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-vis
 /**
  * Una foto que abre su visor. Cuadrada (las del catálogo son 3:4 con la prenda al centro: el cuadrado la muestra
  * entera), sin texto encima. Mientras carga se ve la trama del marco; width/height fijos, así no salta nada.
- * id f-<n>: el "volver" del visor cae justo en esta foto. view-transition-name: la foto crece hasta el visor
- * (ClientRouter ya hace transiciones entre páginas; con reducir movimiento no se anima).
+ * id f-<n>: el "volver" del visor cae justo en esta foto. morph: view-transition-name, la foto crece hasta el visor
+ * (ClientRouter ya hace transiciones entre páginas; con reducir movimiento no se anima). Sin morph en "Más de X"
+ * del visor: si no, esas 6 también volarían desde la galería.
  */
-export function PhotoTile({ photo, eager = false, rounded = false, sizes }: { photo: Photo; eager?: boolean; rounded?: boolean; sizes: string }) {
+export function PhotoTile({ photo, eager = false, rounded = false, morph = true, sizes }: { photo: Photo; eager?: boolean; rounded?: boolean; morph?: boolean; sizes: string }) {
   return (
     <a
       href={photo.href}
@@ -33,7 +34,7 @@ export function PhotoTile({ photo, eager = false, rounded = false, sizes }: { ph
         height={320}
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
-        style={{ viewTransitionName: `foto-${photo.n}` }}
+        style={morph ? { viewTransitionName: `foto-${photo.n}` } : undefined}
         className="reveal-wipe size-full object-cover"
       />
     </a>
@@ -48,14 +49,14 @@ type More = { href: string; shown: number; total: number; state?: 'idle' | 'load
  *
  * Galería de fotos de una categoría. dense: 3 columnas pegadas en el celular y 6 en desktop, para recorrer
  * cientos; comfy: 2 y 4 con aire, fotos más grandes. Las primeras `eager` (9) cargan de una; el resto, lazy.
- * En el visor, eager=0: la grilla "Más de X" no compite con la foto grande.
+ * En el visor, eager=0 y morph=false: la grilla "Más de X" no compite con la foto grande ni vuela.
  * Muchas fotos: el HTML trae bloques de 60. more pinta el cierre del bloque: cuántas se ven y "Ver 60 más",
  * que es un link a la página estática siguiente (/products/<cat>/p/2) y funciona sin JS. Con JS (~15 líneas)
  * trae ese HTML y agrega las fotos aquí mismo (state loading); si falla, queda el aviso y el mismo botón (error).
  * El error no usa ErrorState a propósito: trae su propio WhatsApp y aquí WhatsApp es solo el flotante.
  * Sin scroll infinito: el footer se alcanza y el cliente decide cuándo gastar datos.
  */
-export function PhotoGrid({ photos, size = 'dense', more, eager = 9 }: { photos: Photo[]; size?: 'dense' | 'comfy'; more?: More; eager?: number }) {
+export function PhotoGrid({ photos, size = 'dense', more, eager = 9, morph = true }: { photos: Photo[]; size?: 'dense' | 'comfy'; more?: More; eager?: number; morph?: boolean }) {
   const next = more ? Math.min(60, more.total - more.shown) : 0
   const sizes = size === 'dense' ? '(min-width: 768px) 16vw, 33vw' : '(min-width: 768px) 25vw, 50vw'
   return (
@@ -63,14 +64,16 @@ export function PhotoGrid({ photos, size = 'dense', more, eager = 9 }: { photos:
       <ul className={size === 'dense' ? 'grid grid-cols-3 gap-1 @3xl:grid-cols-6 @3xl:gap-2' : 'grid grid-cols-2 gap-3 @3xl:grid-cols-4 @3xl:gap-4'}>
         {photos.map((p, i) => (
           <li key={p.href}>
-            <PhotoTile photo={p} eager={i < eager} rounded={size === 'comfy'} sizes={sizes} />
+            <PhotoTile photo={p} eager={i < eager} rounded={size === 'comfy'} morph={morph} sizes={sizes} />
           </li>
         ))}
       </ul>
       {more && next > 0 && (
         <div aria-live="polite" className="mt-6 flex flex-col items-center gap-3 px-4 text-center">
           {more.state === 'error' ? (
-            <p className="text-[15px] text-ink">No cargaron las fotos. Revisa la señal y toca otra vez.</p>
+            <p className="text-[15px] text-ink">
+              Viendo {more.shown} de {plural(more.total)}. No cargaron las {next} siguientes: revisa la señal y toca otra vez.
+            </p>
           ) : (
             <p className="text-[14px] text-muted">
               Viendo {more.shown} de {plural(more.total)}

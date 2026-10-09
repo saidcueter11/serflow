@@ -36,8 +36,6 @@ type Props = {
   description?: string
   /** page: el visor es su propia página (opciones A y C). layer: capa encima de la galería (opción B). */
   variant?: 'page' | 'layer'
-  /** Solo para el canvas: pinta el momento en que la foto grande todavía no llega (se ve la miniatura). */
-  loading?: boolean
 }
 
 /**
@@ -56,11 +54,14 @@ type Props = {
  * - page: debajo del Header, botón en el flujo; desde @4xl, foto a la izquierda y datos a la derecha.
  *   layer: en el sitio es un <dialog> a pantalla completa (fixed); X cierra y vuelve a la galería.
  */
-export function PhotoViewer({ photo, category, prevHref, nextHref, waText, description, variant = 'page', loading = false }: Props) {
+export function PhotoViewer({ photo, category, prevHref, nextHref, waText, description, variant = 'page' }: Props) {
   const back = `${category.href}#f-${photo.n}`
   const title = (
     <>
-      {category.label} <span className="whitespace-nowrap text-muted">· N.º {photo.n}</span>
+      {category.label}{' '}
+      <span className="whitespace-nowrap text-muted @4xl:block">
+        <span className="@4xl:hidden">· </span>N.º {photo.n}
+      </span>
     </>
   )
   const cta = (center: boolean) => (
@@ -74,19 +75,17 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
   // La capa (B) no lleva view-transition-name: la miniatura de la galería, en el mismo documento, ya lo tiene.
   const img = (
     <>
-      <div aria-hidden="true" className="absolute inset-0 bg-contain bg-center bg-no-repeat blur-xs" style={{ backgroundImage: `url("${photo.thumb}")` }} />
-      {!loading && (
-        <img
-          src={photo.src}
-          alt={photo.alt}
-          width={900}
-          height={1200}
-          fetchPriority="high"
-          decoding="async"
-          style={variant === 'page' ? { viewTransitionName: `foto-${photo.n}` } : undefined}
-          className="relative h-full w-full object-contain"
-        />
-      )}
+      <div aria-hidden="true" className="absolute inset-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url("${photo.thumb}")` }} />
+      <img
+        src={photo.src}
+        alt={description ?? photo.alt}
+        width={900}
+        height={1200}
+        fetchPriority="high"
+        decoding="async"
+        style={variant === 'page' ? { viewTransitionName: `foto-${photo.n}` } : undefined}
+        className="relative h-full w-full object-contain"
+      />
     </>
   )
 
@@ -94,7 +93,9 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
     return (
       <div role="dialog" aria-modal="true" aria-label={`${category.label}, foto N.º ${photo.n}`} className="@container fixed inset-0 z-50 flex flex-col bg-primary font-body text-ink">
         <div className="flex items-center justify-between gap-3 px-4 py-2">
-          <p className="font-display text-[17px] font-medium">{title}</p>
+          <p className="font-display text-[17px] font-medium">
+            {category.label} <span className="text-muted">· N.º {photo.n}</span>
+          </p>
           <a href={back} aria-label="Cerrar y volver a la galería" className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-line hover:border-muted ${FOCUS}`}>
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />
@@ -107,8 +108,8 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
           <Arrow href={nextHref} dir="right" />
         </div>
         <div className="mx-auto w-full max-w-[420px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+          {description && <p className="mb-3 line-clamp-2 text-center text-[14px] leading-relaxed text-muted">{description}</p>}
           {cta(true)}
-          {description && <p className="mt-2 line-clamp-2 text-center text-[14px] leading-relaxed text-muted">{description}</p>}
         </div>
       </div>
     )
@@ -133,10 +134,12 @@ export function PhotoViewer({ photo, category, prevHref, nextHref, waText, descr
             <Chevron dir="left" />
             Volver a {category.label}
           </a>
-          <h1 className="font-display text-[24px] font-medium leading-tight @4xl:text-[34px]">{title}</h1>
+          <div>
+            <h1 className="font-display text-[22px] font-medium leading-tight @4xl:text-[40px]">{title}</h1>
+            {description && <p className="mt-2 line-clamp-2 text-[15px] leading-relaxed text-muted @4xl:line-clamp-none @4xl:text-[16px]">{description}</p>}
+          </div>
           {cta(false)}
-          {description && <p className="text-[15px] leading-relaxed text-muted @4xl:text-[16px]">{description}</p>}
-          <p className="hidden text-[13px] text-muted @4xl:block">También puedes pasar de foto con ← y → del teclado.</p>
+          {(prevHref || nextHref) && <p className="hidden text-[13px] text-muted @4xl:block">También puedes pasar de foto con ← y → del teclado.</p>}
         </div>
       </div>
     </div>

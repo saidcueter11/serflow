@@ -57,7 +57,7 @@ function Vacia({ c }: { c: Cat }) {
     <div className="px-4 @3xl:px-12">
       <EmptyState
         title={`Todavía no hay fotos de ${c.label}`}
-        description="Igual lo hacemos por encargo, con tu diseño o tu logo. Escríbenos por WhatsApp (el botón dorado de abajo) y te mostramos ejemplos."
+        description="Igual lo hacemos por encargo, con tu diseño o tu logo. Escríbenos por WhatsApp y te mostramos ejemplos."
         action={{ label: `Mira ${PRIMERA.label}`, href: PRIMERA.href }}
       />
     </div>
@@ -69,29 +69,45 @@ const subtitulo = (c: Cat) => `${fotos(c.count)} de lo que hacemos. Toca la que 
 /**
  * Link viejo a una foto que se borró (de un chat o de Google): una regla de Netlify manda /products/<cat>/<lo-que-sea>
  * que no exista a /products/<cat>#quitada, y este aviso se muestra con :target. Sin JS. Toca netlify.toml (Seguridad).
+ * visible: solo canvas, pinta la página como llega con #quitada.
  */
-function Quitada({ c }: { c: Cat }) {
+function Quitada({ c, visible }: { c: Cat; visible: boolean }) {
   return (
-    <p id="quitada" role="status" className="mx-4 mb-4 rounded-tile border border-line bg-surface px-4 py-3 text-[15px] leading-relaxed @3xl:mx-0">
+    <p id="quitada" role="status" className={`${visible ? "block" : "hidden target:block"} mx-4 mb-4 rounded-tile border border-line bg-surface px-4 py-3 text-[15px] leading-relaxed @3xl:mx-0`}>
       Esa foto ya no está en el catálogo. Estas son las de {c.label} que hay ahora.
     </p>
   );
 }
 
-type GaleriaProps = { c: Cat; cats: Cat[]; photos?: Photo[]; more?: Parameters<typeof PhotoGrid>[0]["more"]; quitada?: boolean };
+/** Página de un bloque después del primero (/products/<cat>/p/2): dónde está y cómo volver a las anteriores. */
+type Bloque = { desde: number; hasta: number; anterior: string };
 
-function Galeria({ c, cats, photos = c.photos, more, quitada, size }: GaleriaProps & { size: "dense" | "comfy" }) {
+type GaleriaProps = { c: Cat; cats: Cat[]; photos?: Photo[]; more?: Parameters<typeof PhotoGrid>[0]["more"]; quitada?: boolean; bloque?: Bloque };
+
+const H1 = "stitch-title font-display text-[38px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[68px]";
+
+function Galeria({ c, cats, photos = c.photos, more, quitada = false, bloque, size }: GaleriaProps & { size: "dense" | "comfy" }) {
   return (
     <main className="@container">
       <div className="px-4 pt-6 @3xl:px-12 @3xl:pt-10">
-        <h1 className="stitch-title font-display text-[34px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[52px]">{c.label}</h1>
+        <h1 className={H1}>{c.label}</h1>
         {c.count > 0 && <p className="mt-3 text-[15px] leading-relaxed text-muted @3xl:text-[17px]">{subtitulo(c)}</p>}
         <div className="mt-5">
           <CategoryNav categories={cats} current={c.href} />
         </div>
       </div>
       <div className={`pb-12 pt-5 @3xl:px-12 @3xl:pb-16 @3xl:pt-8 ${size === "comfy" ? "px-4" : ""}`}>
-        {quitada && <Quitada c={c} />}
+        <Quitada c={c} visible={quitada} />
+        {bloque && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 px-4 @3xl:px-0">
+            <p className="text-[14px] text-muted">
+              Fotos {bloque.desde} a {bloque.hasta} de {c.count}
+            </p>
+            <Button variant="secondary" href={bloque.anterior}>
+              ← Ver las anteriores
+            </Button>
+          </div>
+        )}
         {photos.length > 0 ? <PhotoGrid photos={photos} size={size} more={more} /> : <Vacia c={c} />}
       </div>
     </main>
@@ -105,10 +121,10 @@ export const GaleriaA = (p: GaleriaProps) => <Galeria {...p} size="dense" />;
 export const GaleriaB = (p: GaleriaProps) => <Galeria {...p} size="comfy" />;
 
 /** El cierre de un bloque de 60 en una categoría con cientos (vista recortada: lo de arriba son las fotos 1 a 51). */
-export function FinDeBloque({ photos, more }: { photos: Photo[]; more: NonNullable<GaleriaProps["more"]> }) {
+export function FinDeBloque({ photos, arriba, more }: { photos: Photo[]; arriba: number; more: NonNullable<GaleriaProps["more"]> }) {
   return (
     <main className="@container pb-12 pt-1">
-      <p className="px-4 pb-3 text-center text-[12px] uppercase tracking-[.14em] text-muted">… fotos 1 a {photos[0].n - 1} arriba</p>
+      <p className="px-4 pb-3 text-center text-[12px] uppercase tracking-[.14em] text-muted">… las primeras {arriba} fotos, arriba</p>
       <PhotoGrid photos={photos} more={more} />
     </main>
   );
@@ -119,7 +135,7 @@ export function FinDeBloque({ photos, more }: { photos: Photo[]; more: NonNullab
 /** Galería a la que vuelve: la página del bloque de 60 donde está la foto (la 61 está en /p/2), anclada en ella. */
 const galeria = (c: Cat, i: number) => (i < 60 ? c.href : `${c.href}/p/${Math.floor(i / 60) + 1}`);
 
-export function VisorPagina({ c, i, description, loading }: { c: Cat; i: number; description?: string; loading?: boolean }) {
+export function VisorPagina({ c, i, description }: { c: Cat; i: number; description?: string }) {
   const p = c.photos[i];
   const mas = vecinas(c, i);
   return (
@@ -131,12 +147,11 @@ export function VisorPagina({ c, i, description, loading }: { c: Cat; i: number;
         nextHref={c.photos[i + 1]?.href}
         waText={pedido(c, p)}
         description={description}
-        loading={loading}
       />
       {mas.length > 0 && (
         <Section id="mas" title={`Más de ${c.label}`}>
           <div className="-mx-4 @3xl:mx-0">
-            <PhotoGrid photos={mas} eager={0} />
+            <PhotoGrid photos={mas} eager={0} morph={false} />
           </div>
           <div className="mt-3">
             <Button variant="ghost" href={`${galeria(c, i)}#f-${p.n}`}>
@@ -168,7 +183,7 @@ export function EstantesC({ cats }: { cats: Cat[] }) {
   return (
     <main className="@container">
       <div className="px-4 pt-6 @3xl:px-12 @3xl:pt-10">
-        <h1 className="stitch-title font-display text-[34px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[52px]">Catálogo</h1>
+        <h1 className={H1}>Catálogo</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-muted @3xl:text-[17px]">
           Fotos de lo que hacemos, por categoría. Toca la que te guste y pídela por WhatsApp.
         </p>
