@@ -11,7 +11,8 @@ const KEY = process.env.PUBLIC_SUPABASE_ANON_KEY
 if (!REAL || !KEY) throw new Error('Missing PUBLIC_SUPABASE_URL / PUBLIC_SUPABASE_ANON_KEY')
 
 // Fotos de productos reales: así las promos sembradas pasan por la misma optimización de imágenes que en prod.
-const res = await fetch(`${REAL}/rest/v1/products?select=image_urls&is_active=eq.true&limit=30`, {
+// Sin el producto "prueba": su foto tiene datos personales y el repo es público (capturas de PR, PRI-159).
+const res = await fetch(`${REAL}/rest/v1/products?select=image_urls&is_active=eq.true&slug=neq.prueba&order=sort_order&limit=30`, {
   headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
 })
 const photos = (await res.json()).flatMap((p) => p.image_urls)
