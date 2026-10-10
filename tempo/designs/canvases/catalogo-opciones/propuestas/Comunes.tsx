@@ -54,7 +54,7 @@ export function FotoCard({ p, aspect = '4 / 5', className = '' }: { p: Prenda; a
           loading="lazy"
           decoding="async"
           style={{ aspectRatio: aspect }}
-          className="fabric reveal-wipe h-auto w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+          className="fabric reveal-wipe h-auto w-full bg-surface-2 object-cover transition-transform duration-(--motion-slow) ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
         />
       </div>
       {p.nuevo && <Nuevo className="absolute left-2.5 top-2.5" />}

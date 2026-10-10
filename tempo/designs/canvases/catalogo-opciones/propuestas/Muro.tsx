@@ -18,7 +18,7 @@ const GIRO = ['-rotate-2', 'rotate-1', 'rotate-[-1deg]', 'rotate-2', 'rotate-[1.
 export function Marquilla({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <span
-      className={`inline-flex items-center rounded-[3px] bg-primary px-2.5 py-1.5 font-display text-[11px] font-bold uppercase leading-none tracking-[.12em] text-accent outline-1 -outline-offset-[3px] outline-accent/70 [outline-style:dashed] ${className}`}
+      className={`inline-block max-w-full truncate rounded-[3px] bg-primary px-2 py-1.5 font-display text-[11px] font-bold uppercase leading-none tracking-[.06em] text-accent @3xl:px-2.5 @3xl:tracking-[.12em] outline-1 -outline-offset-[3px] outline-accent/70 [outline-style:dashed] ${className}`}
     >
       {children}
     </span>
@@ -57,15 +57,18 @@ export function Polaroid({ p, i = 0, grande = false, children }: { p: Prenda; i?
             height={500}
             loading="lazy"
             decoding="async"
-            className="fabric reveal-wipe aspect-[4/5] h-auto w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+            className="fabric reveal-wipe aspect-[4/5] h-auto w-full object-cover transition-transform duration-(--motion-slow) ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
           />
         )}
       </div>
-      <div className="mt-2 flex items-center justify-between gap-2 @3xl:mt-3">
+      {/* Varias fotos: en la esquina de la foto, así la marquilla tiene la fila entera. */}
+      <MasFotos n={grande ? 0 : p.fotos.length} className="absolute bottom-12 right-3.5 z-10 @3xl:bottom-14 @3xl:right-5" />
+      <div className="mt-2 flex min-w-0 @3xl:mt-3">
+        {/* En el celular solo la categoría (el número está en el alt y en el visor); desde @3xl, también el N.º. */}
         <Marquilla>
-          {p.label} · N.º {p.n}
+          {p.label}
+          <span className={grande ? '' : 'hidden @3xl:inline'}> · N.º {p.n}</span>
         </Marquilla>
-        <MasFotos n={grande ? 0 : p.fotos.length} className="bg-primary/90" />
       </div>
       {p.nuevo && <Nuevo tone="cinta" className="absolute -right-2 top-5 z-10" />}
     </>
@@ -75,7 +78,7 @@ export function Polaroid({ p, i = 0, grande = false, children }: { p: Prenda; i?
     <a
       href={p.href}
       id={`f-${p.n}`}
-      className={`group ${papel} ${GIRO[i % GIRO.length]} transition-transform duration-(--motion-slow) ease-out hover:-translate-y-1 motion-reduce:hover:translate-y-0 hover:rotate-0 ${FOCUS}`}
+      className={`group ${papel} ${GIRO[i % GIRO.length]} transition-transform duration-(--motion-slow) ease-out motion-reduce:transition-none hover:-translate-y-1 motion-reduce:hover:translate-y-0 hover:rotate-0 ${FOCUS}`}
     >
       {contenido}
     </a>

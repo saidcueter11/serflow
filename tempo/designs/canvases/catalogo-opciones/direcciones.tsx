@@ -35,7 +35,7 @@ function Vacia({ g }: { g: Grupo }) {
   return (
     <EmptyState
       title={`Todavía no hay fotos de ${g.label}`}
-      description="Igual la hacemos por encargo, con el logo de tu empresa. Escríbenos por WhatsApp y te mostramos trabajos parecidos."
+      description="Igual te hacemos lo que necesites por encargo, con el logo de tu empresa. Escríbenos por WhatsApp y te mostramos trabajos parecidos."
       action={{ label: "Ver lo más nuevo", href: TODO_HREF }}
     />
   );

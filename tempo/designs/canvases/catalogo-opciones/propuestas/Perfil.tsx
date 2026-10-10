@@ -54,17 +54,16 @@ export function CabeceraPerfil({ logo, trabajos, categorias, titulo, texto }: { 
   )
 }
 
-export type Destacada = { label: string; href: string; count: number; portada?: string; nuevo?: boolean }
+export type Destacada = { label: string; href: string; count: number; portada?: string }
 
 /**
  * Historias destacadas = las categorías. Círculo con la portada (categories.image_url; sin portada, la trama),
  * label y conteo. La actual: anillo dorado grueso y texto en ink (no solo color: también aria-current y el peso).
- * "Hay nuevas" se dice con un punto + texto para lector, no solo con el anillo.
  */
 export function Destacadas({ items, current }: { items: Destacada[]; current: string }) {
   return (
     <nav aria-label="Categorías" className="@container">
-      <ul className="flex gap-4 overflow-x-auto px-4 py-1 [scrollbar-width:none] @3xl:gap-10 @3xl:px-12 @3xl:pl-[124px]">
+      <ul className="flex scroll-px-4 gap-4 overflow-x-auto px-4 py-1 [scrollbar-width:none] @3xl:gap-10 @3xl:px-12 @3xl:pl-[124px]">
         {items.map((d) => {
           const on = d.href === current
           return (
@@ -75,11 +74,6 @@ export function Destacadas({ items, current }: { items: Destacada[]; current: st
                   <span className="block size-16 overflow-hidden rounded-full border-2 border-primary bg-surface-2 @3xl:size-[76px]">
                     {d.portada ? <img src={d.portada} alt="" width={76} height={76} className="size-full object-cover" /> : <span className="fabric block size-full" />}
                   </span>
-                  {d.nuevo && (
-                    <span className="absolute -right-0.5 top-0.5 size-3.5 rounded-full border-2 border-primary bg-accent">
-                      <span className="sr-only">, hay fotos nuevas</span>
-                    </span>
-                  )}
                 </span>
                 <span className={`w-full truncate text-center text-[12px] leading-tight ${on ? 'font-bold text-ink' : 'font-medium text-ink/85'}`}>{d.label}</span>
                 <span className="text-[11px] leading-none text-muted">{d.count}</span>
@@ -96,8 +90,8 @@ export function Destacadas({ items, current }: { items: Destacada[]; current: st
 export function CuadroIG({ p }: { p: Prenda }) {
   return (
     <a href={p.href} id={`f-${p.n}`} className={`group relative block aspect-square overflow-hidden bg-surface-2 ${FOCUS} focus-visible:-outline-offset-2`}>
-      <img src={p.fotos[0].src} alt={p.alt} width={320} height={320} loading="lazy" decoding="async" className="fabric reveal-wipe size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100" />
-      <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-primary/55 text-[15px] font-semibold text-ink opacity-0 transition-opacity duration-(--motion-med) group-hover:opacity-100 group-focus-visible:opacity-100">
+      <img src={p.fotos[0].src} alt={p.alt} width={320} height={320} loading="lazy" decoding="async" className="fabric reveal-wipe size-full object-cover transition-transform duration-(--motion-slow) ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100" />
+      <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-primary/70 text-[15px] font-semibold text-ink opacity-0 transition-opacity duration-(--motion-med) group-hover:opacity-100 group-focus-visible:opacity-100">
         {p.label}
       </span>
       {p.nuevo && <Nuevo className="absolute left-1.5 top-1.5" />}
@@ -121,5 +115,5 @@ export function GrillaIG({ prendas }: { prendas: Prenda[] }) {
 
 export const destacadas = (grupos: Grupo[], todo: { count: number; portada?: string }, todoHref: string): Destacada[] => [
   { label: 'Todo', href: todoHref, count: todo.count, portada: todo.portada },
-  ...grupos.map((x) => ({ label: x.label, href: x.href, count: x.count, portada: x.portada, nuevo: x.prendas.some((p) => p.nuevo) })),
+  ...grupos.map((x) => ({ label: x.label, href: x.href, count: x.count, portada: x.portada })),
 ]

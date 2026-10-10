@@ -52,7 +52,9 @@ export function Intro3() {
       <Block label="Fotos">
         Las del catálogo actual (gorras sobre fondo gris, con su número de hoy) y las de Unsplash que ya usa la portada
         (gente con camisetas y gorras), mientras llegan las reales (PRI-150). Las de Unsplash tienen fecha vieja: no salen
-        como "Nuevo" ni arriba de todo, así lo primero que se ve es el catálogo de hoy. El visor de las cuatro usa la misma prenda,
+        como "Nuevo" ni arriba de todo, así lo primero que se ve es el catálogo de hoy. Aquí aparecen como prendas (N.º 93
+        a 98) solo para ver cada dirección con fotos de gente; en producción no son productos: van como portadas de
+        categoría hasta que el taller suba las suyas. El visor de las cuatro usa la misma prenda,
         Béisbol N.º 26, una foto real del catálogo: así se compara el diseño, no la foto.
       </Block>
       <Block label="Te dejé un comentario en cada nota">Responde ahí qué te gusta y qué no de cada dirección; no hace falta elegir una sola.</Block>
@@ -104,9 +106,11 @@ export function Decisiones3() {
           dorado, alt "Béisbol, foto N.º 26", "Nuevo" siempre con texto, nunca solo color.
         </Block>
         <Block label="Componentes">
-          Del design system: Header, Footer, WhatsAppFab, Button whatsapp/ghost, Section, EmptyState, Thread (1), Ticker
-          (3). Propuestas: CategoryNav, Nuevo, la tarjeta solo-foto (ProductCard con name opcional, no un componente
-          nuevo), FotosPrenda (visor) y la pieza de cada dirección (Polaroid, Masonry, GrupoUso, Perfil).
+          Del design system: Header, Footer, WhatsAppFab, Button whatsapp/secondary/ghost, Section, EmptyState, Thread
+          (1), Ticker (3). Propuestas: CategoryNav, Nuevo, FotosPrenda (visor) y la pieza de cada dirección (Polaroid y
+          Marquilla, Masonry, GrupoUso, Perfil). La tarjeta solo-foto de 3 no es un componente nuevo: ProductCard gana
+          name y meta opcionales, aspect (4:3 o 4:5) y las marcas Nuevo y varias fotos encima. Al aprobar, el papel del
+          muro y la marquilla piden un token de superficie clara y un radio chico.
         </Block>
         <Block label="Lo que pide fuera de este repo">
           serflow-admin: la frase por categoría y cambiar las portadas de categoría (image_url), que hoy son fotos
@@ -150,7 +154,7 @@ export const Nota1 = () => (
       "Menos fotos por pantalla: 4 en el celular antes del pliegue (2 columnas), 5 a 10 en desktop.",
       "El Thread hoy es solo de la portada (regla del design system): hay que ampliarla al catálogo.",
     ]}
-    pide="Nada en la base. Marquilla y Polaroid nuevos en el design system."
+    pide="En la base, solo la frase de categoría (categories.tagline, opcional: sin ella sale solo el label). Marquilla y Polaroid nuevos en el design system."
   />
 );
 
@@ -169,7 +173,7 @@ export const Nota2 = () => (
       "En el celular no hay hover: la categoría solo se ve en el visor.",
       "El orden baja por columna: \"lo más nuevo primero\" se lee menos claro.",
     ]}
-    pide="Nada en la base. Gana mucho con fotos de gente usando las prendas (PRI-150)."
+    pide="La frase de categoría (opcional) en el visor. Gana mucho con fotos de gente usando las prendas (PRI-150)."
   />
 );
 
@@ -201,7 +205,7 @@ export const Nota4 = () => (
     calida={[
       "La familiaridad: nadie tiene que aprender nada.",
       "El post habla en primera persona (\"serflow Gorras bordadas para tu equipo...\") y dice hace cuánto se hizo.",
-      "Más fotos por pantalla que ninguna: 12 antes del pliegue en el celular.",
+      "Más fotos por pantalla que ninguna: 9 enteras antes del pliegue en el celular, y 3 asomadas.",
     ]}
     cuesta={[
       "Se ve como Instagram, no como Serflow: la marca queda en el avatar.",
@@ -302,6 +306,7 @@ export const MuroDesktop = pag(MuroGaleria, "desktop");
 export const MuroVisorMobile = vis(MuroVisor, "mobile");
 export const MuroVisorDesktop = vis(MuroVisor, "desktop");
 export const MuroVacia = pag(MuroGaleria, "mobile", DOTACION);
+export const MuroBeisbol = pag(MuroGaleria, "mobile", BEISBOL);
 
 export const MasonryMobile = pag(MasonryGaleria, "mobile");
 export const MasonryDesktop = pag(MasonryGaleria, "desktop");
