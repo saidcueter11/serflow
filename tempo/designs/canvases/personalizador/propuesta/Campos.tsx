@@ -12,7 +12,7 @@ const FOCO = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visib
 /** Para <label> que envuelven un input oculto: el foco está en el input, el anillo se pinta en la etiqueta. */
 const FOCO_LABEL = "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent";
 
-/** Encabezado de paso: el mismo círculo numerado de "Diseña la tuya" en la portada. */
+/** Encabezado de paso: el mismo círculo numerado de "Diseña la tuya" en la portada (HomePage). Al construir, sacar un componente compartido. */
 export function Paso({ n, titulo, children, ancla }: { n: number; titulo: string; children: ReactNode; ancla?: string }) {
   return (
     <section data-ancla={ancla} aria-labelledby={`paso-${n}`} className="flex flex-col gap-4">
@@ -54,7 +54,7 @@ export function Aviso({ titulo, children, accion, icono }: { titulo: string; chi
 }
 
 const AVISOS: Partial<Record<EstadoDiseno, { titulo: string; texto: string }>> = {
-  pesada: { titulo: "Esta imagen está muy pesada para verla aquí", texto: "Igual nos sirve: mándala en el chat." },
+  pesada: { titulo: "Esta imagen pesa mucho para verla aquí", texto: "Igual nos sirve: mándala en el chat." },
   baja: {
     titulo: "Tu imagen es pequeña",
     texto: "Puede verse pixelada en la prenda. Si tienes una más grande, súbela; si no, igual la revisamos en el taller.",
@@ -111,7 +111,7 @@ export function CampoDiseno({
             <span className="flex items-center gap-1.5 text-[13px] text-muted">
               {estado === "procesando" ? (
                 <>
-                  <Girador className="size-3.5" /> Preparando tu diseño…
+                  <Girador className="size-3.5" /> Preparando…
                 </>
               ) : (
                 fila.detalle
@@ -262,7 +262,7 @@ export function Nota({ valor = "" }: { valor?: string }) {
  * Envío. Celular: barra fija abajo (reemplaza al WhatsAppFab en esta página). Escritorio: al final del panel.
  * Usa el Button whatsapp del design system; abre la hoja "Revisa y envía", no WhatsApp directo.
  */
-export function BarraEnvio({ resumen, fija = true, esperando = false }: { resumen: string; fija?: boolean; esperando?: boolean }) {
+export function BarraEnvio({ resumen, fija = true, esperando = false, conVista = true }: { resumen: string; fija?: boolean; esperando?: boolean; conVista?: boolean }) {
   return (
     <div className={`${fija ? "sticky bottom-0 z-30 border-t border-line bg-primary px-4 pb-4 pt-3" : "rounded-card border border-line bg-surface p-4"} flex flex-col gap-2`}>
       <p className="truncate text-[13px] text-muted">{resumen}</p>
@@ -272,7 +272,7 @@ export function BarraEnvio({ resumen, fija = true, esperando = false }: { resume
           {esperando ? "Preparando la vista previa…" : "Enviar a Serflow por WhatsApp"}
         </Button>
       </div>
-      <p className="text-center text-[12px] text-muted">Vista previa: el taller confirma colores y medidas.</p>
+      <p className="text-center text-[12px] text-muted">{conVista ? "Vista previa: el taller confirma colores y medidas." : "El taller confirma colores y medidas."}</p>
     </div>
   );
 }

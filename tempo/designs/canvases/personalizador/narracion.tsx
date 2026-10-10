@@ -139,7 +139,9 @@ export function Decisiones() {
           "Si preparar el diseño tarda más de 5 s: Seguir sin vista previa. La hoja de envío sale sin el paso de guardar y el mensaje dice te lo mando en el siguiente mensaje.",
           "Espalda: otra foto por color y otra área (35 cm). Cambiar de pecho a espalda conserva el diseño y su tamaño relativo.",
           "Barra de envío fija abajo en celular con el resumen en una línea (prenda, técnica, ubicación y cantidad); reemplaza al WhatsAppFab en esta página. En escritorio va al final del panel, fija abajo. Mientras prepara la vista previa, el botón muestra el girador.",
-          "Guardar vista previa en celular usa el menú de compartir (en iPhone, Guardar imagen la deja en Fotos; una descarga quedaría en Archivos). Guardada sale solo si esa acción terminó.",
+          "El paso 1 de la hoja guarda las dos imágenes (diseño y vista previa): en iPhone con el menú de compartir (Guardar imágenes las deja en Fotos; una descarga quedaría en Archivos), en Android con descarga directa (quedan en Descargas, que la galería de WhatsApp muestra). Guardadas sale solo si esa acción terminó. Así el paso 3 no supone que la imagen ya estaba en la galería (una foto tomada con la cámara desde la web no se guarda sola).",
+          "Compartir (secundario) manda las imágenes y el mensaje armado juntos.",
+          "Footer: su espacio de abajo (pb-28) es para el WhatsAppFab; en /personaliza no hay botón flotante, así que al construir conviene un prop para quitarlo.",
           "Hoja de envío: el mensaje primero (Así le llega a Serflow), luego pasos numerados. Volver al chat (pantalla C) abre wa.me sin texto para no duplicar el pedido; ahí se puede guardar la vista previa otra vez.",
           "Escritorio: la hoja es un diálogo de dos columnas con la vista previa grande a la izquierda y el botón dice Descargar.",
           "Deuda de design system que deja este feature (anotada en el tablero de States): ErrorState con reintento por acción y WhatsApp opcional; Button con estado disabled y una variante principal que no sea WhatsApp (hoy Enviar usa whatsapp porque lleva al chat); la muestra de ServiceCard exportada con tamaño.",
@@ -218,8 +220,8 @@ export function MensajeWhatsApp() {
       <Kicker>Qué llega a WhatsApp</Kicker>
       <Title>El mensaje, siempre en el mismo orden</Title>
       <p className="text-[15px] leading-relaxed text-muted">
-        El del doc de Producto, más una línea: *Tamaño:* sale del área de impresión y del tamaño que dejó el cliente. Solo va cuando hay una imagen que se
-        puede mostrar. La nota se corta en 300 caracteres y su línea no va si está vacía. El texto pasa siempre por encodeURIComponent (whatsappUrl).
+        El del doc de Producto, más una línea: *Tamaño:* sale del área de impresión y del tamaño que dejó el cliente. Solo va cuando el cliente vio la
+        vista previa (si no cargó o siguió sin ella, el tamaño sería el de fábrica). La nota se corta en 300 caracteres y su línea no va si está vacía. El texto pasa siempre por encodeURIComponent (whatsappUrl).
       </p>
       <div className="grid grid-cols-3 gap-4">
         <Block label="Con imagen">

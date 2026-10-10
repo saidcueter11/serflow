@@ -226,12 +226,12 @@ export function Personalizador(p: PersonalizadorProps) {
               </Paso>
               {escritorio && (
                 <div className="sticky bottom-0 -mt-4 bg-primary pb-6 pt-2 shadow-[0_-24px_24px_var(--color-primary)]">
-                  <BarraEnvio resumen={resumen} fija={false} esperando={modo === "procesando" || modo === "lento"} />
+                  <BarraEnvio resumen={resumen} fija={false} esperando={modo === "procesando" || modo === "lento"} conVista={modo === "listo" || modo === "ajustando" || modo === "procesando" || modo === "lento" || modo === "cargando"} />
                 </div>
               )}
             </div>
           </main>
-          {!escritorio && <BarraEnvio resumen={resumen} esperando={modo === "procesando" || modo === "lento"} />}
+          {!escritorio && <BarraEnvio resumen={resumen} esperando={modo === "procesando" || modo === "lento"} conVista={modo === "listo" || modo === "ajustando" || modo === "procesando" || modo === "lento" || modo === "cargando"} />}
         </form>
         <Footer logoSrc={LOGO} />
       </div>
@@ -240,7 +240,7 @@ export function Personalizador(p: PersonalizadorProps) {
         <button
           type="button"
           aria-label="Ver arriba la vista previa"
-          className="absolute right-3 top-3 z-30 flex w-[84px] flex-col overflow-hidden rounded-tile border-2 border-accent bg-surface shadow-[0_8px_24px_rgba(0,0,0,.5)]"
+          className="absolute right-3 top-3 z-30 flex w-[84px] flex-col overflow-hidden rounded-tile border-2 border-accent bg-surface shadow-[0_8px_24px_rgba(0,0,0,.5)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           <span className="block aspect-[4/5]">{miniatura}</span>
           <span className="py-1 text-center text-[12px] font-semibold">Ver arriba ↑</span>

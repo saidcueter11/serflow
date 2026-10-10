@@ -1,6 +1,7 @@
 /*
  * Movimiento del personalizador (Propuesta). Al construir va a src/styles/tokens.css junto a los sf-*,
- * y entra en el bloque de prefers-reduced-motion que ya existe. Todo CSS, con las duraciones de los tokens.
+ * y entra en el bloque de prefers-reduced-motion que ya existe. Hoja y fundido usan los tokens; girador (900 ms) y
+ * brillo de carga (1,4 s) son ciclos continuos: se proponen como tokens nuevos --motion-spin y --motion-shimmer.
  */
 const CSS = `
 @keyframes pz-spin { to { transform: rotate(360deg) } }

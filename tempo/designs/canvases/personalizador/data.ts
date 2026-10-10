@@ -122,7 +122,7 @@ export const DISENO_PEQUENO: Diseno = {
   pixelada: true,
 };
 export const ARCHIVO_PDF = { nombre: "logo-final.pdf", detalle: "PDF · 2,4 MB" };
-export const ARCHIVO_PESADO = { nombre: "foto-equipo.heic", detalle: "HEIC · 24 MB" };
+export const ARCHIVO_PESADO = { nombre: "foto-equipo.jpg", detalle: "JPG · 24 MB" };
 
 /** Posición del diseño dentro del área: centro (0 a 1) y ancho como fracción del área. */
 export interface Lugar {
