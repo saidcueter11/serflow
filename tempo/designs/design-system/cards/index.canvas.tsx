@@ -3,10 +3,14 @@ import { defineAsset } from "tempo-sdk/assets";
 import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { ProductCard } from "../../../../src/components/ui/ProductCard";
 import { WorkCard } from "../../../../src/components/ui/WorkCard";
+import { PromoCard } from "../../../../src/components/ui/PromoCard";
+import { PromoAfiche } from "../../../../src/components/ui/PromoAfiche";
+import { PromoGrid } from "../../../../src/components/ui/PromoGrid";
 import { BoardIntro } from "./BoardIntro";
 import { BoardServiceCard } from "./BoardServiceCard";
 import { BoardProductCard } from "./BoardProductCard";
 import { BoardWorkCard } from "./BoardWorkCard";
+import { BoardPromoCard } from "./BoardPromoCard";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
 
 export default function CardsCanvas() {
@@ -35,6 +39,12 @@ export default function CardsCanvas() {
         name="WorkCard"
         component={BoardWorkCard}
         layout={{ x: 4250, y: 0, width: 1300, height: 1600, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="PromoCard"
+        name="PromoCard, PromoAfiche y PromoGrid"
+        component={BoardPromoCard}
+        layout={{ x: 7050, y: 0, width: 1380, height: 2200, intrinsicSizing: "root-element" }}
       />
       <Storyboard
         id="DesignSystemDebt"
@@ -108,6 +118,59 @@ defineAsset(WorkCard, {
         image: { src: SAMPLE_WORK, alt: "Gorra azul con escudo bordado" },
         title: "Gorras para un equipo de fútbol",
       },
+    },
+  },
+});
+
+const SAMPLE_PROMO = {
+  slug: "2x1-gorras-bordadas",
+  title: "2x1 en gorras bordadas",
+  description: "Llevas dos gorras con el mismo bordado y pagas una. Aplica para bordados de hasta 10 cm.",
+  endsAt: "2026-10-11T23:59:00-05:00",
+  cover: { src: SAMPLE_CAP, alt: "Gorra azul oscuro bordada (foto de ejemplo)" },
+  photos: [{ src: SAMPLE_SHIRT, alt: "Camiseta blanca (foto de ejemplo)" }],
+};
+const SAMPLE_PROMO_2 = {
+  slug: "camisetas-equipos",
+  title: "10% en camisetas para equipos de fútbol",
+  description: null,
+  endsAt: null,
+  cover: { src: SAMPLE_SHIRT, alt: "Camiseta blanca lisa (foto de ejemplo)" },
+  photos: [],
+};
+
+defineAsset(PromoCard, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Una promo vigente como link a su detalle (/promos/<slug>): \"Otras promos\" del detalle y la 404 con promos. Recibe un PromoView de src/lib/promos.ts (toPromoViews en el build). headingLevel 3 dentro de una Section. Siempre dentro de PromoGrid, nunca con ancho fijo. Para /promos, donde cada promo se pide directo, usa PromoAfiche; para una prenda, ProductCard.",
+  variants: {
+    "Con fecha": { props: { promo: SAMPLE_PROMO } },
+    "Sin fecha ni descripción": { props: { promo: SAMPLE_PROMO_2 } },
+  },
+});
+
+defineAsset(PromoAfiche, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Una promo en /promos con su propio botón de WhatsApp (mensaje prellenado con el nombre y el link de la promo, vía whatsappUrl) y \"Ver las N fotos\" al detalle. Excepción documentada a \"un WhatsApp por sección\": cada afiche es su propia sección. Siempre dentro de PromoGrid. Fuera de /promos usa PromoCard.",
+  variants: {
+    "Con fecha": { props: { promo: SAMPLE_PROMO } },
+    "Sin fecha ni descripción": { props: { promo: SAMPLE_PROMO_2 } },
+  },
+});
+
+defineAsset(PromoGrid, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Lista de PromoCard o PromoAfiche sin columnas vacías: 1 por fila en móvil, 2 en tablet, 3 en desktop, y la última fila se reparte el ancho (una card sola se pone horizontal). Necesita un ancestro @container. No la uses para productos (grid de ProductCard).",
+  variants: {
+    "Dos promos": {
+      render: () => (
+        <PromoGrid>
+          <PromoCard promo={SAMPLE_PROMO} />
+          <PromoCard promo={SAMPLE_PROMO_2} />
+        </PromoGrid>
+      ),
     },
   },
 });

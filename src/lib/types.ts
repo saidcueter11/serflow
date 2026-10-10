@@ -34,9 +34,13 @@ export interface Promo {
   id: string
   slug: string
   title: string
+  description: string | null
   banner_url: string | null
   image_urls: string[]
   is_active: boolean
+  /** Fin de la promo; null = sin fecha de cierre. */
+  ends_at: string | null
+  sort_order: number
   created_at: string
   updated_at: string
 }

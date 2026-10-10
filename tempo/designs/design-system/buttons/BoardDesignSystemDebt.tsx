@@ -10,25 +10,6 @@ import { Arrow, Code, DebtBoard, Tile, type DebtRow } from "../Chrome";
  * para ilustrar la deuda en este storyboard. Nadie debe usarlas.
  */
 
-/** .btn-primary de src/styles/global.css:118 */
-function BtnPrimaryLookalike({ children }: { children: string }) {
-  return (
-    <span className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-7 py-3 font-display text-[15px] text-primary">
-      {children}
-    </span>
-  );
-}
-
-/** .btn-outline de src/styles/global.css:122 */
-function BtnOutlineLookalike({ children }: { children: string }) {
-  return (
-    <span className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-accent px-7 py-3 text-[15px] font-semibold text-accent">
-      <WhatsAppIcon className="size-5" />
-      {children}
-    </span>
-  );
-}
-
 /** WhatsAppFAB.astro:10-19, con el tooltip visible. */
 function GreenFabLookalike() {
   return (
@@ -43,7 +24,7 @@ function GreenFabLookalike() {
   );
 }
 
-/** Botón dorado a mano de ProductPreview.astro:154-161 (y promos/[slug].astro:77). */
+/** Botón dorado a mano de ProductPreview.astro:154-161. */
 function SquareGoldLookalike() {
   return (
     <span className="flex w-[300px] items-center justify-center gap-3 rounded-2xl bg-accent px-6 py-4 font-display text-[18px] text-primary shadow-lg shadow-accent/10">
@@ -54,64 +35,6 @@ function SquareGoldLookalike() {
 }
 
 const ROWS: DebtRow[] = [
-  {
-    title: "Clases .btn-primary / .btn-outline con @apply: 7 usos y jerarquía al revés",
-    body: (
-      <>
-        Los botones viejos son dos clases globales en <Code>global.css</Code>, con <Code>font-titan</Code> (legado),{" "}
-        <Code>duration-300</Code> fuera de los tokens de motion y sin sombra de presión. Los call sites las parchan con{" "}
-        <Code>!important</Code>, y en el hero el dorado lleno es "Ver productos" mientras WhatsApp queda en outline: la
-        acción que vende es la de menos peso.
-      </>
-    ),
-    bullets: [
-      <>
-        <Code>src/styles/global.css:118</Code> .btn-primary · <Code>:122</Code> .btn-outline
-      </>,
-      <>
-        <Code>src/components/Header.astro:72</Code> <Code>btn-primary text-sm !py-2 !px-5</Code> (override con !important) ·{" "}
-        <Code>:136</Code> CTA móvil
-      </>,
-      <>
-        <Code>src/components/SlideShow.astro:63</Code> btn-primary en "Ver productos" · <Code>:71</Code> btn-outline en el
-        link de WhatsApp
-      </>,
-      <>
-        <Code>src/components/ContactForm.astro:43</Code> btn-primary en el submit (Button aún no hace{" "}
-        <Code>type="submit"</Code>; se agrega cuando se migre este form)
-      </>,
-      <>
-        <Code>src/pages/404.astro:18</Code> btn-primary · <Code>:19</Code> btn-outline
-      </>,
-    ],
-    fix: (
-      <>
-        Reemplazar cada uso por <Code>{"<Button>"}</Code>: WhatsApp en <Code>variant="whatsapp"</Code>, el resto en{" "}
-        <Code>secondary</Code>. Con 0 usos, borrar las dos clases de <Code>global.css</Code>.
-      </>
-    ),
-    visual: (
-      <div className="flex flex-wrap items-start gap-4 pt-4">
-        <Tile tone="remove" label="SlideShow.astro:63" reimplemented>
-          <BtnPrimaryLookalike>Ver productos</BtnPrimaryLookalike>
-        </Tile>
-        <Tile tone="remove" label="SlideShow.astro:71" reimplemented>
-          <BtnOutlineLookalike>Contáctanos</BtnOutlineLookalike>
-        </Tile>
-        <Arrow />
-        <Tile tone="target" label="Button whatsapp + secondary">
-          <div className="flex gap-3">
-            <Button variant="whatsapp" href={whatsappUrl()} external>
-              Escríbenos por WhatsApp
-            </Button>
-            <Button variant="secondary" href="/products/mi-tierra-querida">
-              Ver productos
-            </Button>
-          </div>
-        </Tile>
-      </div>
-    ),
-  },
   {
     title: "WhatsAppFAB.astro: verde fuera de paleta, tooltip blanco con emoji",
     body: (
@@ -175,9 +98,6 @@ const ROWS: DebtRow[] = [
         <Code>src/pages/index.astro:203</Code>
       </>,
       <>
-        <Code>src/pages/promos/[slug].astro:74</Code> <Code>wa.me/+573156481243</Code> (con +)
-      </>,
-      <>
         <Code>src/components/ProductPreview.astro:359</Code> · <Code>src/components/ContactForm.astro:64</Code>{" "}
         <Code>'+573156481243'</Code> en scripts de cliente
       </>,
@@ -219,9 +139,6 @@ const ROWS: DebtRow[] = [
       <>
         <Code>src/components/ContactForm.astro:76</Code> arma la URL · <Code>:77</Code>{" "}
         <Code>window.open(url, '_blank')</Code> sin noopener
-      </>,
-      <>
-        <Code>src/pages/promos/[slug].astro:77</Code> mismo botón cuadrado, en un link
       </>,
     ],
     fix: (

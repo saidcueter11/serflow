@@ -115,14 +115,6 @@ body {
     @apply relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:w-full after:origin-bottom after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom hover:after:scale-x-100;
   }
 
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-accent text-primary font-titan font-normal px-7 py-3 rounded-full transition-[transform,background-color,box-shadow] duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20 active:scale-95 cursor-pointer;
-  }
-
-  .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 border-2 border-accent text-accent font-vend-sans font-semibold px-7 py-3 rounded-full transition-[transform,background-color,color] duration-300 hover:bg-accent hover:text-primary active:scale-95 cursor-pointer;
-  }
-
   .glass {
     @apply bg-primary/70 backdrop-blur-md border-b border-primary-lighter/60;
   }

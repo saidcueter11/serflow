@@ -1,0 +1,17 @@
+name: daily-rebuild
+
+# PRI-131: el sitio es estático y filtra las promos vencidas en el build. Un build diario a las 00:05 de Cartagena
+# (05:05 UTC) despublica las que vencieron ese día. Necesita el secret NETLIFY_BUILD_HOOK (Netlify > Site
+# configuration > Build & deploy > Build hooks).
+on:
+  schedule:
+    - cron: '5 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl --fail -sS -X POST -d '{}' "$NETLIFY_BUILD_HOOK"
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
