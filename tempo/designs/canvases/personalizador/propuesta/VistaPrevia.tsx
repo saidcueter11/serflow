@@ -383,7 +383,7 @@ export function VistaPrevia({
       )}
       {pista && modo === "listo" && !ajustando && (
         <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
-          <span className="pz-fade rounded-full bg-primary/90 px-3 py-1.5 text-[13px] font-semibold">Toca tu diseño para moverlo o cambiar el tamaño</span>
+          <span className="pz-fade rounded-full bg-primary/90 px-3 py-1.5 text-[13px] font-semibold">{escritorio ? "Haz clic en tu diseño para moverlo o cambiar el tamaño" : "Toca tu diseño para moverlo o cambiar el tamaño"}</span>
         </div>
       )}
 

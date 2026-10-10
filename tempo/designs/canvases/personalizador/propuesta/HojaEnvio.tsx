@@ -100,7 +100,7 @@ function Marco({ escritorio, titulo, children, cerrar, ancho = 600, alFinal = fa
         role="dialog"
         aria-modal="true"
         aria-labelledby="hoja-titulo"
-        className={`pz-sheet flex max-h-[92%] w-full flex-col overflow-y-auto border border-line bg-surface shadow-[0_-16px_40px_rgba(0,0,0,.5)] ${escritorio ? "rounded-card" : "rounded-t-card border-b-0"}`}
+        className={`pz-sheet flex max-h-[92%] w-full flex-col overflow-y-auto border border-line bg-surface shadow-[0_8px_24px_rgba(0,0,0,.5)] ${escritorio ? "rounded-card" : "rounded-t-card border-b-0"}`}
         style={escritorio ? { maxWidth: ancho } : undefined}
       >
         {!escritorio && <span aria-hidden="true" className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-line" />}
@@ -144,7 +144,7 @@ export function HojaEnvio({ tipo, mensaje, vistaPrevia, diseno, archivo, guardad
             {tipo === "imagen" && vistaPrevia && (
               <div>
                 <Button variant="ghost" icon={<IconGuardar />}>
-                  {escritorio ? "Descargar la vista previa otra vez" : "Guardar la vista previa otra vez"}
+                  {escritorio ? "Descargar las imágenes otra vez" : "Guardar las imágenes otra vez"}
                 </Button>
               </div>
             )}
@@ -167,7 +167,7 @@ export function HojaEnvio({ tipo, mensaje, vistaPrevia, diseno, archivo, guardad
   }
 
   const columna = escritorio && tipo === "imagen" && vistaPrevia;
-  // Sin vista previa (no cargó la foto o el cliente siguió sin ella) no hay paso de guardar: se numera desde el chat.
+  // Sin vista previa (no cargó la foto o el cliente siguió sin ella) el paso 1 solo guarda el diseño.
   const conMockup = tipo === "imagen" && !!vistaPrevia;
   const cuerpo = (
     <>
@@ -184,7 +184,9 @@ export function HojaEnvio({ tipo, mensaje, vistaPrevia, diseno, archivo, guardad
             n={1}
             titulo={
               escritorio
-                ? `Descarga ${conMockup ? "la vista previa" : "tu diseño"} para mandarla en el chat.`
+                ? conMockup
+                  ? "Descarga tu diseño y la vista previa."
+                  : "Descarga tu diseño."
                 : conMockup
                   ? "Guarda tu diseño y la vista previa en tu celular."
                   : "Guarda tu diseño en tu celular."
@@ -194,18 +196,18 @@ export function HojaEnvio({ tipo, mensaje, vistaPrevia, diseno, archivo, guardad
               {vistaPrevia && !escritorio && <div className="h-[72px] w-[58px] shrink-0 overflow-hidden rounded-tile border border-line">{vistaPrevia}</div>}
               {guardada ? (
                 <span role="status" className="flex min-h-12 items-center gap-2 text-[15px] font-semibold text-ok">
-                  <IconCheck /> {escritorio ? "Descargada" : "Guardadas"}
+                  <IconCheck /> {escritorio ? (conMockup ? "Descargadas" : "Descargado") : conMockup ? "Guardadas" : "Guardado"}
                 </span>
               ) : (
                 <Button variant="secondary" icon={<IconGuardar />}>
-                  {escritorio ? (conMockup ? "Descargar vista previa" : "Descargar diseño") : conMockup ? "Guardar imágenes" : "Guardar diseño"}
+                  {escritorio ? (conMockup ? "Descargar imágenes" : "Descargar diseño") : conMockup ? "Guardar imágenes" : "Guardar diseño"}
                 </Button>
               )}
             </div>
             {/* Celular: iPhone abre el menú de compartir con las dos imágenes (Guardar imágenes las deja en Fotos);
                 Android las descarga directo (quedan en Descargas, que la galería de WhatsApp muestra).
                 Guardadas solo cuando esa acción terminó. */}
-            {!escritorio && !guardada && <p className="text-[13px] leading-snug text-muted">En iPhone se abre un menú: elige Guardar imágenes. En Android se descargan.</p>}
+            {!escritorio && !guardada && <p className="text-[13px] leading-snug text-muted">{conMockup ? "En iPhone se abre un menú: elige Guardar imágenes. En Android se descargan." : "En iPhone se abre un menú: elige Guardar imagen. En Android se descarga."}</p>}
           </PasoHoja>
         )}
 
@@ -223,7 +225,7 @@ export function HojaEnvio({ tipo, mensaje, vistaPrevia, diseno, archivo, guardad
                 {escritorio ? "En el chat, haz clic en el + (o el clip " : "En el chat, toca el clip "}
                 <IconClip className="inline size-4 align-[-2px] text-accent" />
                 {escritorio ? ") y adjunta" : " o el + y adjunta"} tu diseño{conMockup ? " y la vista previa" : ""}
-                {escritorio ? " desde Descargas." : ": están en Fotos o en Descargas, donde los guardaste."}
+                {escritorio ? " desde Descargas." : conMockup ? ": están en Fotos o en Descargas, donde los guardaste." : ": está en Fotos o en Descargas, donde lo guardaste."}
               </>
             }
           >
@@ -261,10 +263,10 @@ export function HojaEnvio({ tipo, mensaje, vistaPrevia, diseno, archivo, guardad
       {compartir && tipo !== "sin-imagen" && (
         <div className="flex flex-col gap-2.5 border-t border-line pt-4">
           <p className="text-[14px] leading-snug text-muted">
-            ¿Ya tienes el chat de Serflow? Manda {tipo === "archivo" ? "el archivo" : "las imágenes"} y el mensaje armado directo desde el menú de tu celular.
+            En vez de los pasos 2 y 3: si ya tienes el chat de Serflow, manda {tipo === "archivo" ? "el archivo" : "las imágenes"} directo desde el menú de tu celular.
           </p>
           <Button variant="secondary" icon={<IconCompartir />}>
-            {tipo === "archivo" ? "Compartir archivo y mensaje" : "Compartir imágenes y mensaje"}
+            {tipo === "archivo" ? "Compartir archivo" : "Compartir imágenes"}
           </Button>
         </div>
       )}
