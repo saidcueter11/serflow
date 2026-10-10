@@ -1,6 +1,4 @@
-import { Button } from "../../../../src/components/ui/Button";
 import { EmptyState } from "../../../../src/components/ui/EmptyState";
-import { Eyebrow } from "../../../../src/components/ui/Eyebrow";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import { Arrow, Code, DebtBoard, type DebtRow, Tile } from "../Chrome";
 
@@ -15,24 +13,6 @@ function EmptyCategoryLookalike() {
   return (
     <div className="w-[300px] rounded-2xl border border-primary-lighter bg-surface p-8 text-center">
       <p className="text-sm text-muted">No hay productos disponibles en esta categoría por ahora.</p>
-    </div>
-  );
-}
-
-/** 404.astro:9-20 */
-function NotFoundLookalike() {
-  return (
-    <div className="flex w-[300px] flex-col items-center py-4 text-center">
-      <p className="text-xs uppercase tracking-[0.25em] text-accent">Error 404</p>
-      <h1 className="mt-4 font-display text-3xl">Página no encontrada</h1>
-      <p className="mt-4 text-sm text-muted">
-        Lo sentimos, la página que intentas visitar no está disponible. Puedes regresar al inicio o explorar nuestras
-        categorías.
-      </p>
-      <div className="mt-6 flex flex-col items-center gap-3">
-        <span className="rounded-full bg-accent px-7 py-3 font-display text-primary">Ir al inicio</span>
-        <span className="rounded-full border-2 border-accent px-7 py-3 font-semibold text-accent">Ver productos</span>
-      </div>
     </div>
   );
 }
@@ -129,37 +109,23 @@ const ROWS: DebtRow[] = [
     ),
   },
   {
-    title: "if (error) return null: un fallo se ve igual que \"no hay datos\"",
+    title: "if (error) return null en las funciones de slug, sin llamadores",
     body: (
       <>
-        Cuatro funciones convierten el error en vacío. En promos es grave: si Supabase falla en el build, no se generan
-        las páginas de campaña y un link de promo que ya circula por WhatsApp da 404. Las dos de slug no tienen ningún
-        llamador. Los dos <Code>catch {"{}"}</Code> del sitio no son deuda: dan un valor de respaldo razonable (og:image
-        sin convertir, foto vacía en el mensaje).
+        Convierten el error en vacío, así que un fallo se vería igual que "no hay datos". Hoy no las llama nadie. Las
+        promos ya lanzan con error (PRI-131). Los dos <Code>catch {"{}"}</Code> del sitio no son deuda: dan un valor de
+        respaldo razonable (og:image sin convertir, foto vacía en el mensaje).
       </>
     ),
     bullets: [
       <>
-        <Code>src/lib/products.ts:123</Code> getActivePromos → <Code>[]</Code>; lo usa{" "}
-        <Code>src/pages/promos/[slug].astro:9</Code> en getStaticPaths
-      </>,
-      <>
-        <Code>src/lib/products.ts:113</Code> getActivePromo → <Code>null</Code>; <Code>index.astro:73</Code> esconde el
-        banner
-      </>,
-      <>
-        <Code>src/lib/products.ts:27, :102</Code> getCategoryBySlug y getProductBySlug: 0 llamadores
+        <Code>src/lib/products.ts</Code> getCategoryBySlug y getProductBySlug: 0 llamadores
       </>,
       <>
         <Code>[id].astro:53</Code>, <Code>ProductPreview.astro:365</Code> catch con respaldo: se quedan
       </>,
     ],
-    fix: (
-      <>
-        Lanzar en getActivePromos y getActivePromo con error (sin campaña activa sigue siendo <Code>[]</Code> o{" "}
-        <Code>null</Code>, y la sección se oculta). Borrar las dos funciones de slug sin llamadores.
-      </>
-    ),
+    fix: <>Borrar las dos funciones de slug sin llamadores.</>,
     visual: null,
   },
   {
@@ -192,62 +158,6 @@ const ROWS: DebtRow[] = [
         <Arrow />
         <Tile tone="target" label="bg-surface-2 fabric" reimplemented>
           <GrayTileLookalike fabric />
-        </Tile>
-      </div>
-    ),
-  },
-  {
-    title: "404.astro: el único estado \"no encontrado\", con estilos legado y sin WhatsApp",
-    body: (
-      <>
-        Micro-etiqueta con tracking fuera de escala, botones de clases globales legado, fuentes legado y un link fijo a una
-        categoría que puede dejar de existir. Pide disculpas pero no ofrece hablar con el taller. Es una página, no una
-        sección: se compone con Eyebrow y Button, no con EmptyState.
-      </>
-    ),
-    bullets: [
-      <>
-        <Code>src/pages/404.astro:10</Code> <Code>tracking-[0.25em] uppercase text-xs</Code>,{" "}
-        <Code>font-vend-sans</Code>
-      </>,
-      <>
-        <Code>src/pages/404.astro:11</Code> <Code>font-titan</Code>
-      </>,
-      <>
-        <Code>src/pages/404.astro:18-19</Code> <Code>btn-primary</Code> / <Code>btn-outline</Code> (global.css:118, :122)
-      </>,
-      <>
-        <Code>src/pages/404.astro:19</Code> <Code>/products/mi-tierra-querida</Code> fijo (también Header.astro:45,
-        Footer.astro:32, SlideShow.astro:62)
-      </>,
-    ],
-    fix: (
-      <>
-        <Code>{"<Eyebrow>Error 404</Eyebrow>"}</Code> + título en <Code>font-display</Code> + copy cercano +{" "}
-        <Code>{'<Button variant="whatsapp" href={whatsappUrl()}>'}</Code> y{" "}
-        <Code>{'<Button variant="secondary" href="/">'}</Code>. Borrar btn-primary/btn-outline cuando no queden usos.
-      </>
-    ),
-    visual: (
-      <div className="flex items-start gap-4 pt-4">
-        <Tile tone="remove" label="404.astro:9-20" reimplemented>
-          <NotFoundLookalike />
-        </Tile>
-        <Arrow />
-        <Tile tone="target" label="Eyebrow + Button">
-          <div className="flex w-[300px] flex-col items-center gap-4 py-4 text-center">
-            <Eyebrow>Error 404</Eyebrow>
-            <h1 className="font-display text-[30px] font-bold leading-tight text-ink">Esta página no existe</h1>
-            <p className="text-[15px] leading-relaxed text-muted">
-              Puede que el link esté viejo. Escríbenos y te mandamos lo que buscabas.
-            </p>
-            <Button variant="whatsapp" href={WHATSAPP_URL} external>
-              Escríbenos por WhatsApp
-            </Button>
-            <Button variant="secondary" href="/">
-              Ir al inicio
-            </Button>
-          </div>
         </Tile>
       </div>
     ),

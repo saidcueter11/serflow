@@ -20,7 +20,9 @@ test('home -> product -> WhatsApp CTA, and Ver todo opens a category', async ({ 
 test('unknown route shows the 404 page', async ({ page }) => {
   const res = await page.goto('/no-existe')
   expect(res?.status()).toBe(404)
-  await expect(page.getByRole('heading', { name: 'Página no encontrada' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Esta página no existe' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' }).first()).toHaveAttribute('href', /^https:\/\/wa\.me\//)
+  await expect(page.getByRole('link', { name: 'Ir al inicio' })).toHaveAttribute('href', '/')
 })
 
 // PRI-120: touch has no hover, so links must be prefetched before the tap or navigation waits on the network.
