@@ -25,10 +25,15 @@ export function Marquilla({ children, className = '' }: { children: ReactNode; c
   )
 }
 
+/** Alfiler dorado, centrado arriba de un padre relative. */
+export const Alfiler = () => (
+  <span aria-hidden="true" className="absolute -top-2 left-1/2 z-10 size-4 -translate-x-1/2 rounded-full bg-accent shadow-[0_4px_4px_rgba(0,0,0,.55)] ring-2 ring-accent-deep" />
+)
+
 function Fijacion({ i }: { i: number }) {
   // Cinta en 2 de cada 3; alfiler en la tercera.
   return i % 3 === 2 ? (
-    <span aria-hidden="true" className="absolute -top-2 left-1/2 z-10 size-4 -translate-x-1/2 rounded-full bg-accent shadow-[0_4px_4px_rgba(0,0,0,.55)] ring-2 ring-accent-deep" />
+    <Alfiler />
   ) : (
     <span aria-hidden="true" className={`absolute -top-3 left-1/2 z-10 h-6 w-[38%] -translate-x-1/2 bg-secondary/45 shadow-[0_1px_2px_rgba(0,0,0,.25)] ${i % 2 ? 'rotate-3' : '-rotate-3'}`} />
   )
@@ -52,13 +57,13 @@ export function Polaroid({ p, i = 0, grande = false, children }: { p: Prenda; i?
             height={500}
             loading="lazy"
             decoding="async"
-            className="fabric reveal-wipe aspect-[4/5] h-auto w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className="fabric reveal-wipe aspect-[4/5] h-auto w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
           />
         )}
       </div>
       <div className="mt-2 flex items-center justify-between gap-2 @3xl:mt-3">
         <Marquilla>
-          {p.label} · {p.n}
+          {p.label} · N.º {p.n}
         </Marquilla>
         <MasFotos n={grande ? 0 : p.fotos.length} className="bg-primary/90" />
       </div>
@@ -69,7 +74,8 @@ export function Polaroid({ p, i = 0, grande = false, children }: { p: Prenda; i?
   return (
     <a
       href={p.href}
-      className={`group ${papel} ${GIRO[i % GIRO.length]} transition-transform duration-(--motion-slow) ease-out hover:-translate-y-1 hover:rotate-0 ${FOCUS}`}
+      id={`f-${p.n}`}
+      className={`group ${papel} ${GIRO[i % GIRO.length]} transition-transform duration-(--motion-slow) ease-out hover:-translate-y-1 motion-reduce:hover:translate-y-0 hover:rotate-0 ${FOCUS}`}
     >
       {contenido}
     </a>

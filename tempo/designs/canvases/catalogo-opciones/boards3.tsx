@@ -51,7 +51,8 @@ export function Intro3() {
       </Block>
       <Block label="Fotos">
         Las del catálogo actual (gorras sobre fondo gris, con su número de hoy) y las de Unsplash que ya usa la portada
-        (gente con camisetas y gorras), mientras llegan las reales (PRI-150). El visor de las cuatro usa la misma prenda,
+        (gente con camisetas y gorras), mientras llegan las reales (PRI-150). Las de Unsplash tienen fecha vieja: no salen
+        como "Nuevo" ni arriba de todo, así lo primero que se ve es el catálogo de hoy. El visor de las cuatro usa la misma prenda,
         Béisbol N.º 26, una foto real del catálogo: así se compara el diseño, no la foto.
       </Block>
       <Block label="Te dejé un comentario en cada nota">Responde ahí qué te gusta y qué no de cada dirección; no hace falta elegir una sola.</Block>
@@ -76,7 +77,7 @@ export function Decisiones3() {
         <Block label="Orden y Nuevo">
           Lo más nuevo primero (created_at). "Nuevo" sale si la prenda se subió hace menos de {DIAS_NUEVO} días: es un dato
           real, no inventado. En "Todo" las demás se intercalan por categoría para que no salgan 24 gorras de béisbol
-          seguidas. En el visor: "Hace 3 días", también de created_at.
+          seguidas. En el visor: "Hace 4 días", también de created_at.
         </Block>
         <Block label="Varias fotos por prenda">
           Las tarjetas muestran la primera foto con un ícono de fotos apiladas y cuántas son. En el visor, carrusel que se
@@ -88,8 +89,9 @@ export function Decisiones3() {
           serflow-admin; sin frase se muestra solo el label. El número (N.º 26) queda chico, para hablar por WhatsApp.
         </Block>
         <Block label="WhatsApp">
-          En el visor, "Pedir una así" con categoría, número y link a la foto (WhatsApp muestra la vista previa). En el
-          visor no va el flotante, para no tener dos. Galería y categoría vacía: solo el flotante.
+          En el visor, un botón whatsapp con categoría, número y link a la foto (WhatsApp muestra la vista previa):
+          "Pedir una así" en 1 y 2, "Quiero una así" en 3, "Pedir uno así" en 4 (el nombre que pediste). Al elegir, queda
+          uno solo. En el visor no va el flotante, para no tener dos. Galería y categoría vacía: solo el flotante.
         </Block>
         <Block label="Categoría vacía">
           EmptyState: "Todavía no hay fotos de Dotación", que igual la hacemos por encargo, y "Ver lo más nuevo" como
@@ -97,7 +99,8 @@ export function Decisiones3() {
         </Block>
         <Block label="Movimiento y accesibilidad">
           Lo de la portada: las fotos se destapan al entrar (reveal-wipe), con el mouse suben y hacen zoom (lift y zoom de
-          ProductCard), títulos con costura (stitch-title). Todo apagado con reducir movimiento. Chips de 44 px, foco
+          ProductCard), títulos con costura (stitch-title). Con reducir movimiento se apaga todo, también el lift, el zoom y
+          el enderezado (motion-reduce). Chips de 44 px, foco
           dorado, alt "Béisbol, foto N.º 26", "Nuevo" siempre con texto, nunca solo color.
         </Block>
         <Block label="Componentes">
@@ -197,7 +200,7 @@ export const Nota4 = () => (
     inspira="El perfil de Instagram: quien llega a Serflow casi siempre viene de ahí. Historias destacadas = categorías, grilla de 3, el visor es un post."
     calida={[
       "La familiaridad: nadie tiene que aprender nada.",
-      "El post habla en primera persona (\"serflow · Gorras bordadas para tu equipo...\") y dice hace cuánto se hizo.",
+      "El post habla en primera persona (\"serflow Gorras bordadas para tu equipo...\") y dice hace cuánto se hizo.",
       "Más fotos por pantalla que ninguna: 12 antes del pliegue en el celular.",
     ]}
     cuesta={[
@@ -233,8 +236,8 @@ export function Comparacion() {
           el contexto que no tienen: papel, cinta, la marquilla cosida y el hilo de la portada.
         </p>
         <p className="text-[15px] leading-relaxed">
-          Lo que le tomo a las otras: la frase de categoría de 3 (va en la marquilla del muro y en el visor) y el "Hace 3
-          días" de 4.
+          Lo que le tomo a las otras: la frase de categoría de 3 (al lado de la marquilla cuando eliges una categoría, y
+          como título del visor) y el "Hace 4 días" de 4.
         </p>
         <Block label="Lo que cuesta y cómo lo bajo">
           <Bullets

@@ -42,7 +42,8 @@ export function FotoCard({ p, aspect = '4 / 5', className = '' }: { p: Prenda; a
   return (
     <a
       href={p.href}
-      className={`group relative block w-full overflow-hidden rounded-card border border-line bg-surface no-underline transition-[transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-secondary ${FOCUS} ${className}`}
+      id={`f-${p.n}`}
+      className={`group relative block w-full overflow-hidden rounded-card border border-line bg-surface no-underline transition-[transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 motion-reduce:hover:translate-y-0 hover:border-secondary ${FOCUS} ${className}`}
     >
       <div className="overflow-hidden">
         <img
@@ -53,7 +54,7 @@ export function FotoCard({ p, aspect = '4 / 5', className = '' }: { p: Prenda; a
           loading="lazy"
           decoding="async"
           style={{ aspectRatio: aspect }}
-          className="fabric reveal-wipe h-auto w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="fabric reveal-wipe h-auto w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
         />
       </div>
       {p.nuevo && <Nuevo className="absolute left-2.5 top-2.5" />}
@@ -71,7 +72,7 @@ export function FotosPrenda({ p, aspect = '3 / 4', className = '', rounded = '',
     <div className={className}>
       <ul aria-label={`Fotos de ${p.label} N.º ${p.n}`} className={`flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] ${rounded}`}>
         {p.fotos.map((f: Foto, i) => (
-          <li key={f.src + i} className="fabric w-full shrink-0 snap-center bg-surface-2" style={{ aspectRatio: aspect }}>
+          <li key={f.src + i} id={`p${p.n}-${i + 1}`} className="fabric w-full shrink-0 snap-center bg-surface-2" style={{ aspectRatio: aspect }}>
             <img
               src={f.src}
               alt={i === 0 ? p.alt : `${p.alt}, foto ${i + 1} de ${p.fotos.length}`}
@@ -85,12 +86,29 @@ export function FotosPrenda({ p, aspect = '3 / 4', className = '', rounded = '',
         ))}
       </ul>
       {p.fotos.length > 1 && (
-        <div className="mt-3 flex items-center justify-center gap-2" aria-hidden="true">
+        <div className="mt-3 flex items-center justify-center gap-2 @3xl:hidden" aria-hidden="true">
           {p.fotos.map((f, i) => (
             <span key={f.src + i} className={`h-1.5 rounded-full ${i === 0 ? `w-5 ${papel ? 'bg-accent-deep' : 'bg-accent'}` : `w-1.5 ${papel ? 'bg-primary/35' : 'bg-muted/60'}`}`} />
           ))}
           <span className={`ml-1 text-[12px] ${papel ? 'text-primary/80' : 'text-muted'}`}>Desliza · {p.fotos.length} fotos</span>
         </div>
+      )}
+      {/* Desde @3xl (mouse y teclado): miniaturas que son links a cada foto del carrusel (#p26-2), sin JS. */}
+      {p.fotos.length > 1 && (
+        <ul aria-label="Elegir foto" className="mt-3 hidden justify-center gap-2 @3xl:flex">
+          {p.fotos.map((f, i) => (
+            <li key={f.src + i}>
+              <a
+                href={`#p${p.n}-${i + 1}`}
+                aria-label={`Ver foto ${i + 1} de ${p.fotos.length}`}
+                aria-current={i === 0 ? 'true' : undefined}
+                className={`block size-14 overflow-hidden rounded-tile border-2 ${i === 0 ? 'border-accent' : papel ? 'border-primary/20 hover:border-primary/60' : 'border-line hover:border-muted'} ${FOCUS}`}
+              >
+                <img src={f.src} alt="" width={56} height={56} className="size-full object-cover" />
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )

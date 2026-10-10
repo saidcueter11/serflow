@@ -13,10 +13,11 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
 const fotos = (n: number) => `${n} ${n === 1 ? 'foto' : 'fotos'}`
 
 /** Portada del grupo: foto con degradado y la frase encima. Sin portada, la trama con la frase (no se cae). */
-export function PortadaGrupo({ g, h = 'h1' }: { g: Grupo; h?: 'h1' | 'h2' }) {
+export function PortadaGrupo({ g, h = 'h1', enlace = true }: { g: Grupo; h?: 'h1' | 'h2'; /** false en la página de la propia categoría. */ enlace?: boolean }) {
   const H = h
+  const Caja = enlace ? 'a' : 'div'
   return (
-    <a href={g.href} className={`group relative block overflow-hidden rounded-card border border-line bg-surface ${FOCUS}`}>
+    <Caja href={enlace ? g.href : undefined} className={`group relative block overflow-hidden rounded-card border border-line bg-surface ${FOCUS}`}>
       {g.portada ? (
         <img
           src={g.portada}
@@ -25,7 +26,7 @@ export function PortadaGrupo({ g, h = 'h1' }: { g: Grupo; h?: 'h1' | 'h2' }) {
           height={600}
           loading="lazy"
           decoding="async"
-          className="reveal-wipe aspect-square w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 @3xl:aspect-[16/7]"
+          className="reveal-wipe aspect-square w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100 @3xl:aspect-[16/7]"
         />
       ) : (
         <div className="fabric aspect-[16/9] w-full bg-surface-2 @3xl:aspect-[16/5]" />
@@ -33,13 +34,14 @@ export function PortadaGrupo({ g, h = 'h1' }: { g: Grupo; h?: 'h1' | 'h2' }) {
       <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-primary via-primary/45 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-5 @3xl:p-10">
         <span className="text-[13px] font-semibold uppercase tracking-[.14em] text-accent">
-          {g.label} · {fotos(g.count)}
+          {g.label}
+          {g.count > 0 && ` · ${fotos(g.count)}`}
         </span>
         <H className="stitch-title max-w-[16ch] font-display text-[30px] font-medium leading-[1.05] tracking-[-0.01em] text-ink @3xl:max-w-[22ch] @3xl:text-[46px]">
           {g.frase ?? g.label}
         </H>
       </div>
-    </a>
+    </Caja>
   )
 }
 

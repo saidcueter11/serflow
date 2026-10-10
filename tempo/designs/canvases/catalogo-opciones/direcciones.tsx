@@ -8,7 +8,7 @@ import { Pantalla, type Viewport } from "./paginas";
 import { LOGO } from "./data";
 import { BIENVENIDA, CHIPS, GRUPOS, TODO, TODO_HREF, grupoDe, hace, mas, pedir, type Grupo, type Prenda } from "./datos3";
 import { Bienvenida, FotoCard, FotosPrenda, Nuevo } from "./propuestas/Comunes";
-import { Marquilla, Muro, Polaroid } from "./propuestas/Muro";
+import { Alfiler, Marquilla, Muro, Polaroid } from "./propuestas/Muro";
 import { Masonry } from "./propuestas/Masonry";
 import { GrupoUso, PortadaGrupo } from "./propuestas/GrupoUso";
 import { Avatar, CabeceraPerfil, Destacadas, GrillaIG, destacadas } from "./propuestas/Perfil";
@@ -84,7 +84,7 @@ export function MuroGaleria({ vp, cat }: { vp: Viewport; cat?: Grupo }) {
         <Muro prendas={prendas} hilo={vacia ? undefined : { width: vp === "mobile" ? 390 : 1184, height: 1600 }}>
           {vacia ? (
             <div className="relative mx-auto max-w-[440px] pt-2">
-              <span aria-hidden="true" className="absolute -top-1 left-1/2 z-10 size-4 -translate-x-1/2 rounded-full bg-accent shadow-[0_4px_4px_rgba(0,0,0,.55)] ring-2 ring-accent-deep" />
+              <Alfiler />
               <Vacia g={cat} />
             </div>
           ) : undefined}
@@ -108,15 +108,13 @@ export function MuroVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
           <div className="grid gap-8 @3xl:grid-cols-[minmax(0,1fr)_380px] @3xl:items-center @3xl:gap-16">
             <div className="mx-auto w-full max-w-[520px] -rotate-1">
               <Polaroid p={p} grande>
-                <FotosPrenda p={p} aspect="4 / 5" papel />
+                <FotosPrenda p={p} aspect="3 / 4" papel />
               </Polaroid>
             </div>
             <div className="flex flex-col items-start gap-4">
               <h1 className="font-display text-[30px] font-medium leading-[1.08] tracking-[-0.01em] @3xl:text-[42px]">{g.frase ?? g.label}</h1>
-              <p className="flex items-center gap-2 text-[14px] text-muted">
-                {p.nuevo && <Nuevo />}
-                Salió del taller {hace(p.dias).toLowerCase()}
-              </p>
+              {/* "Nuevo" ya va en la cinta de la foto. */}
+              <p className="text-[14px] text-muted">Salió del taller {hace(p.dias).toLowerCase()}</p>
               <div className="w-full">
                 <Pedir p={p} />
               </div>
@@ -134,9 +132,7 @@ export function MuroVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
             ))}
           </ul>
           <div className="mt-4">
-            <Button variant="ghost" href={g.href}>
-              Ver las {g.count} de {g.label} →
-            </Button>
+            <VerTodas g={g} />
           </div>
         </Section>
       )}
@@ -163,11 +159,11 @@ export function MasonryGaleria({ vp, cat }: { vp: Viewport; cat?: Grupo }) {
   );
 }
 
-function ChipCategoria({ g }: { g: Grupo }) {
+function VerTodas({ g }: { g: Grupo }) {
   return (
-    <a href={g.href} className={`inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 text-[14px] font-semibold text-ink hover:border-muted ${FOCUS}`}>
-      {g.label}
-    </a>
+    <Button variant="ghost" href={g.href}>
+      Ver las {g.count} de {g.label} →
+    </Button>
   );
 }
 
@@ -186,7 +182,9 @@ export function MasonryVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
       </div>
       <div className="flex flex-col gap-4 px-4 pt-4 @3xl:flex-row @3xl:items-center @3xl:justify-between @3xl:px-12 @3xl:pt-6">
         <div className="flex flex-wrap items-center gap-2">
-          <ChipCategoria g={g} />
+          <Button variant="secondary" href={g.href} icon={null}>
+            {g.label}
+          </Button>
           {p.nuevo && <Nuevo />}
           {g.frase && <span className="text-[14px] text-muted">{g.frase}</span>}
         </div>
@@ -197,6 +195,9 @@ export function MasonryVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
       <Section id="mas" title={`Más de ${g.label}`}>
         <div className="-mx-2 @3xl:mx-0">
           <Masonry prendas={mas(p, vp === "mobile" ? 6 : 12)} offset={3} />
+        </div>
+        <div className="mt-3">
+          <VerTodas g={g} />
         </div>
       </Section>
     </Pagina>
@@ -211,7 +212,7 @@ export function UsoGaleria({ vp, cat }: { vp: Viewport; cat?: Grupo }) {
       <Bienvenida titulo={BIENVENIDA.titulo} texto={BIENVENIDA.texto} chips={CHIPS} current={cat?.href ?? TODO_HREF} />
       {cat ? (
         <div className="flex flex-col gap-4 px-4 pt-6 @3xl:px-12 @3xl:pt-8">
-          <PortadaGrupo g={cat} h="h2" />
+          <PortadaGrupo g={cat} h="h2" enlace={false} />
           {cat.count === 0 ? (
             <Vacia g={cat} />
           ) : (
@@ -272,9 +273,7 @@ export function UsoVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
           ))}
         </ul>
         <div className="mt-1">
-          <Button variant="ghost" href={g.href}>
-            Ver las {g.count} de {g.label} →
-          </Button>
+          <VerTodas g={g} />
         </div>
       </Section>
     </Pagina>
@@ -313,7 +312,7 @@ function CabeceraPost({ g, p }: { g: Grupo; p: Prenda }) {
       <Avatar logo={LOGO} size="sm" />
       <div className="min-w-0 flex-1 leading-tight">
         <p className="text-[15px] font-bold">serflow</p>
-        <a href={g.href} className={`text-[13px] text-muted hover:text-ink ${FOCUS}`}>
+        <a href={g.href} className={`inline-flex min-h-11 items-center text-[13px] text-muted hover:text-ink ${FOCUS}`}>
           {g.label} · N.º {p.n}
         </a>
       </div>
@@ -326,7 +325,7 @@ function Pie({ g, p }: { g: Grupo; p: Prenda }) {
   return (
     <>
       <p className="text-[15px] leading-relaxed">
-        <span className="font-bold">serflow</span> {g.frase ? `${g.frase}.` : g.label} ¿Te gusta? Te hacemos uno igual o con tu logo.
+        <span className="font-bold">serflow</span> {g.frase ?? g.label}. ¿Te gusta? Te hacemos una igual o con tu logo.
       </p>
       <p className="text-[12px] uppercase tracking-[.06em] text-muted">{hace(p.dias)}</p>
     </>
@@ -338,9 +337,12 @@ export function PerfilVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
   const masDe = (
     <section aria-labelledby="mas-ig" className="mt-8 border-t border-line pt-4 @3xl:mt-12">
       <h2 id="mas-ig" className="px-4 pb-3 text-[15px] font-semibold text-muted @3xl:px-0">
-        Más de <a href={g.href} className={`text-ink underline-offset-4 hover:underline ${FOCUS}`}>{g.label}</a>
+        Más de {g.label}
       </h2>
       <GrillaIG prendas={mas(p, vp === "mobile" ? 9 : 6)} />
+      <div className="px-4 pt-3 @3xl:px-0">
+        <VerTodas g={g} />
+      </div>
     </section>
   );
   if (vp === "mobile")

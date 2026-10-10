@@ -68,7 +68,8 @@ export function Destacadas({ items, current }: { items: Destacada[]; current: st
         {items.map((d) => {
           const on = d.href === current
           return (
-            <li key={d.href} className="shrink-0">
+            // La actual entra en pantalla al cargar, sin JS (como CategoryNav).
+            <li key={d.href} className={`shrink-0 ${on ? '@max-3xl:[scroll-initial-target:nearest]' : ''}`}>
               <a href={d.href} aria-current={on ? 'page' : undefined} className={`flex w-[72px] flex-col items-center gap-1.5 rounded-tile pb-1 @3xl:w-[88px] ${FOCUS}`}>
                 <span className={`relative block rounded-full p-[3px] ${on ? 'bg-accent' : 'bg-line'}`}>
                   <span className="block size-16 overflow-hidden rounded-full border-2 border-primary bg-surface-2 @3xl:size-[76px]">
@@ -94,12 +95,12 @@ export function Destacadas({ items, current }: { items: Destacada[]; current: st
 /** Un cuadro de la grilla. Hover/foco: velo con la categoría (donde IG pone los likes). */
 export function CuadroIG({ p }: { p: Prenda }) {
   return (
-    <a href={p.href} className={`group relative block aspect-square overflow-hidden bg-surface-2 ${FOCUS} focus-visible:-outline-offset-2`}>
-      <img src={p.fotos[0].src} alt={p.alt} width={320} height={320} loading="lazy" decoding="async" className="fabric reveal-wipe size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
+    <a href={p.href} id={`f-${p.n}`} className={`group relative block aspect-square overflow-hidden bg-surface-2 ${FOCUS} focus-visible:-outline-offset-2`}>
+      <img src={p.fotos[0].src} alt={p.alt} width={320} height={320} loading="lazy" decoding="async" className="fabric reveal-wipe size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100" />
       <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-primary/55 text-[15px] font-semibold text-ink opacity-0 transition-opacity duration-(--motion-med) group-hover:opacity-100 group-focus-visible:opacity-100">
         {p.label}
       </span>
-      {p.nuevo && <Nuevo className="absolute left-1.5 top-1.5 !px-2 !py-0.5 !text-[10px]" />}
+      {p.nuevo && <Nuevo className="absolute left-1.5 top-1.5" />}
       <MasFotos n={p.fotos.length} className="absolute right-1.5 top-1.5" />
     </a>
   )

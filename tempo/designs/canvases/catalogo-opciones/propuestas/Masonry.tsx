@@ -19,7 +19,7 @@ const ratio = (p: Prenda, i: number) => (p.fotos[0].ratio === 3 / 4 ? RITMO[i % 
 
 export function TileMasonry({ p, i }: { p: Prenda; i: number }) {
   return (
-    <a href={p.href} className={`group relative block overflow-hidden rounded-tile bg-surface-2 ${FOCUS}`}>
+    <a href={p.href} id={`f-${p.n}`} className={`group relative block overflow-hidden rounded-tile bg-surface-2 ${FOCUS}`}>
       <img
         src={p.fotos[0].src}
         alt={p.alt}
@@ -28,7 +28,7 @@ export function TileMasonry({ p, i }: { p: Prenda; i: number }) {
         loading="lazy"
         decoding="async"
         style={{ aspectRatio: ratio(p, i) }}
-        className="fabric reveal-wipe h-auto w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        className="fabric reveal-wipe h-auto w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
       />
       <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-primary/80 to-transparent opacity-0 transition-opacity duration-(--motion-med) group-hover:opacity-100 group-focus-visible:opacity-100" />
       <span

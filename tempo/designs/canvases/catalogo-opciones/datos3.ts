@@ -50,6 +50,9 @@ export type Grupo = {
 
 export const DIAS_NUEVO = 21;
 
+/** Días desde created_at de la primera foto de cada categoría que es de este mes. */
+const NUEVAS: Partial<Record<Categories, number>> = { [Categories.beisbol]: 4, [Categories.miTierraQuerida]: 2, [Categories.moda]: 9 };
+
 const CATALOGO = (p: string) => ({ src: FILES[`../../../../src/assets/images/${p}`], ratio: 3 / 4 });
 
 function prenda(cat: string, label: string, n: number, fotos: Foto[], dias: number): Prenda {
@@ -71,8 +74,8 @@ function delCatalogo(key: Categories, cat: string, label: string, extras: Prenda
   const propias = base.map((m, i) => {
     const fotos = [CATALOGO(m.imagePath)];
     if (i % 4 === 0) fotos.push(CATALOGO(base[(i + 1) % base.length].imagePath), CATALOGO(base[(i + 2) % base.length].imagePath));
-    // Solo la primera de Béisbol es de este mes (la del visor); el resto, de hace meses.
-    return prenda(cat, label, m.id, fotos, i === 0 && key === Categories.beisbol ? 4 : 30 + i * 9);
+    // La primera de Béisbol, Mi Tierra Querida y Moda es de este mes; el resto, de hace meses.
+    return prenda(cat, label, m.id, fotos, i === 0 && NUEVAS[key] !== undefined ? NUEVAS[key]! : 30 + i * 9);
   });
   return [...extras, ...propias];
 }
@@ -92,7 +95,7 @@ const S = (src: string, w: number, h: number): Foto => ({ src, ratio: w / h });
 export const BEISBOL = g(
   "beisbol",
   "Béisbol",
-  delCatalogo(Categories.beisbol, "beisbol", "Béisbol", [prenda("beisbol", "Béisbol", 95, [S(gorraBordada, 1600, 2402)], 2)]),
+  delCatalogo(Categories.beisbol, "beisbol", "Béisbol", [prenda("beisbol", "Béisbol", 95, [S(gorraBordada, 1600, 2402)], 26)]),
   "Gorras bordadas para tu equipo o tu liga",
   gorraBordada,
 );
@@ -107,7 +110,7 @@ export const MODA = g(
   "moda",
   "Moda",
   delCatalogo(Categories.moda, "moda", "Moda", [
-    prenda("moda", "Moda", 96, [S(gorraBordada2, 1600, 2400)], 1),
+    prenda("moda", "Moda", 96, [S(gorraBordada2, 1600, 2400)], 28),
     prenda("moda", "Moda", 97, [S(amigosGorras, 1600, 2386)], 35),
   ]),
   "Para el día a día, con tu estilo",
@@ -131,7 +134,7 @@ export const CAMISETAS = g(
   "camisetas",
   "Camisetas",
   [
-    prenda("camisetas", "Camisetas", 93, [S(camisetasEstampadas, 1600, 2400), S(estampadoProceso, 1600, 1067)], 2),
+    prenda("camisetas", "Camisetas", 93, [S(camisetasEstampadas, 1600, 2400), S(estampadoProceso, 1600, 1067)], 23),
     prenda("camisetas", "Camisetas", 94, [S(camisetaDtf, 1600, 2000), S(estampadoRasero, 1600, 1060)], 40),
   ],
   "Estampadas con tu logo, para tu negocio o tu evento",
