@@ -18,7 +18,7 @@ const GIRO = ['-rotate-2', 'rotate-1', 'rotate-[-1deg]', 'rotate-2', 'rotate-[1.
 export function Marquilla({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <span
-      className={`inline-block max-w-full truncate rounded-[3px] bg-primary px-2 py-1.5 font-display text-[11px] font-bold uppercase leading-none tracking-[.06em] text-accent @3xl:px-2.5 @3xl:tracking-[.12em] outline-1 -outline-offset-[3px] outline-accent/70 [outline-style:dashed] ${className}`}
+      className={`inline-block max-w-full truncate rounded-[3px] bg-primary px-2 py-1.5 font-display text-[12px] font-bold uppercase leading-none tracking-[.06em] text-accent @3xl:px-2.5 @3xl:tracking-[.12em] outline-1 -outline-offset-[3px] outline-accent/70 [outline-style:dashed] ${className}`}
     >
       {children}
     </span>
@@ -67,7 +67,7 @@ export function Polaroid({ p, i = 0, grande = false, children }: { p: Prenda; i?
         {/* En el celular solo la categoría (el número está en el alt y en el visor); desde @3xl, también el N.º. */}
         <Marquilla>
           {p.label}
-          <span className={grande ? '' : 'hidden @3xl:inline'}> · N.º {p.n}</span>
+          <span className={grande ? '' : 'hidden @3xl:inline @6xl:hidden'}> · N.º {p.n}</span>
         </Marquilla>
       </div>
       {p.nuevo && <Nuevo tone="cinta" className="absolute -right-2 top-5 z-10" />}

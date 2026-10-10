@@ -63,7 +63,7 @@ export type Destacada = { label: string; href: string; count: number; portada?: 
 export function Destacadas({ items, current }: { items: Destacada[]; current: string }) {
   return (
     <nav aria-label="Categorías" className="@container">
-      <ul className="flex scroll-px-4 gap-4 overflow-x-auto px-4 py-1 [scrollbar-width:none] @3xl:gap-10 @3xl:px-12 @3xl:pl-[124px]">
+      <ul className="flex scroll-px-4 gap-4 overflow-x-auto px-4 py-1 [scrollbar-width:none] @3xl:gap-6 @3xl:px-12">
         {items.map((d) => {
           const on = d.href === current
           return (
@@ -75,8 +75,8 @@ export function Destacadas({ items, current }: { items: Destacada[]; current: st
                     {d.portada ? <img src={d.portada} alt="" width={76} height={76} className="size-full object-cover" /> : <span className="fabric block size-full" />}
                   </span>
                 </span>
-                <span className={`w-full truncate text-center text-[12px] leading-tight ${on ? 'font-bold text-ink' : 'font-medium text-ink/85'}`}>{d.label}</span>
-                <span className="text-[11px] leading-none text-muted">{d.count}</span>
+                <span className={`line-clamp-2 w-full text-center text-[12px] leading-tight ${on ? 'font-bold text-ink' : 'font-medium text-ink/85'}`}>{d.label}</span>
+                <span className="text-[12px] leading-none text-muted">{d.count}</span>
               </a>
             </li>
           )

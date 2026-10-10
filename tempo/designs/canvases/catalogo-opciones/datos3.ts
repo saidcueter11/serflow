@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 import { Categories, mockProducts } from "../../../../src/mocks/mockProducts";
 import { whatsappUrl } from "../../../../src/lib/business";
-// Fotos de Unsplash que ya usa la portada (PRI-129), mientras llegan las reales (PRI-150).
+// Fotos de Unsplash que ya usa la portada (PRI-129), mientras llegan las reales (PRI-150). Como prendas llevan
+// fecha de hace más de un año: quedan al final de su categoría y nunca como Nuevo.
 import amigosGorras from "../../../../src/assets/images/stock/amigos-gorras.jpg";
 import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
 import camisetasEstampadas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
@@ -87,7 +88,8 @@ const g = (slug: string, label: string, prendas: Prenda[], frase?: string, porta
   portada,
   href: `/products/${slug}`,
   count: prendas.length,
-  prendas,
+  // Lo más nuevo primero (created_at desc).
+  prendas: [...prendas].sort((a, b) => a.dias - b.dias),
 });
 
 const S = (src: string, w: number, h: number): Foto => ({ src, ratio: w / h });
@@ -95,7 +97,7 @@ const S = (src: string, w: number, h: number): Foto => ({ src, ratio: w / h });
 export const BEISBOL = g(
   "beisbol",
   "Béisbol",
-  delCatalogo(Categories.beisbol, "beisbol", "Béisbol", [prenda("beisbol", "Béisbol", 95, [S(gorraBordada, 1600, 2402)], 26)]),
+  delCatalogo(Categories.beisbol, "beisbol", "Béisbol", [prenda("beisbol", "Béisbol", 95, [S(gorraBordada, 1600, 2402)], 400)]),
   "Gorras bordadas para tu equipo o tu liga",
   gorraBordada,
 );
@@ -110,8 +112,8 @@ export const MODA = g(
   "moda",
   "Moda",
   delCatalogo(Categories.moda, "moda", "Moda", [
-    prenda("moda", "Moda", 96, [S(gorraBordada2, 1600, 2400)], 28),
-    prenda("moda", "Moda", 97, [S(amigosGorras, 1600, 2386)], 35),
+    prenda("moda", "Moda", 96, [S(gorraBordada2, 1600, 2400)], 410),
+    prenda("moda", "Moda", 97, [S(amigosGorras, 1600, 2386)], 420),
   ]),
   "Para el día a día, con tu estilo",
   amigosGorras,
@@ -119,7 +121,7 @@ export const MODA = g(
 export const NINOS = g(
   "kids",
   "Niños",
-  delCatalogo(Categories.kids, "kids", "Niños", [prenda("kids", "Niños", 98, [S(gorrasEstante, 1600, 1067)], 25)]),
+  delCatalogo(Categories.kids, "kids", "Niños", [prenda("kids", "Niños", 98, [S(gorrasEstante, 1600, 1067)], 400)]),
   "Para los pelaos de la casa",
   gorrasEstante,
 );
@@ -134,8 +136,8 @@ export const CAMISETAS = g(
   "camisetas",
   "Camisetas",
   [
-    prenda("camisetas", "Camisetas", 93, [S(camisetasEstampadas, 1600, 2400), S(estampadoProceso, 1600, 1067)], 23),
-    prenda("camisetas", "Camisetas", 94, [S(camisetaDtf, 1600, 2000), S(estampadoRasero, 1600, 1060)], 40),
+    prenda("camisetas", "Camisetas", 93, [S(camisetasEstampadas, 1600, 2400), S(estampadoProceso, 1600, 1067)], 400),
+    prenda("camisetas", "Camisetas", 94, [S(camisetaDtf, 1600, 2000), S(estampadoRasero, 1600, 1060)], 430),
   ],
   "Estampadas con tu logo, para tu negocio o tu evento",
   camisetasEstampadas,

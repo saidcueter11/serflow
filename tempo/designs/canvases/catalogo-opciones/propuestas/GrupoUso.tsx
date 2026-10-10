@@ -26,7 +26,7 @@ export function PortadaGrupo({ g, h = 'h1', enlace = true }: { g: Grupo; h?: 'h1
           height={600}
           loading="lazy"
           decoding="async"
-          className="reveal-wipe aspect-square w-full object-cover transition-transform duration-(--motion-slow) ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100 @3xl:aspect-[16/7]"
+          className="reveal-wipe aspect-square w-full object-cover transition-transform duration-(--motion-slow) ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100 @3xl:aspect-[16/7] @3xl:object-[center_30%]"
         />
       ) : (
         <div className="fabric aspect-[16/9] w-full bg-surface-2 @3xl:aspect-[16/5]" />

@@ -16,7 +16,7 @@ export function Nuevo({ tone = 'pill', className = '' }: { tone?: 'pill' | 'cint
     tone === 'cinta'
       ? 'rotate-6 px-3 py-1 shadow-[0_3px_8px_rgba(0,0,0,.4)] [clip-path:polygon(4%_0,100%_6%,96%_100%,0_94%)]'
       : 'rounded-full px-2.5 py-1 shadow-[0_2px_8px_rgba(0,0,0,.35)]'
-  return <span className={`pointer-events-none inline-block bg-accent font-body text-[11px] font-bold uppercase leading-none tracking-[.08em] text-primary ${look} ${className}`}>Nuevo</span>
+  return <span className={`pointer-events-none inline-block bg-accent font-body text-[12px] font-bold uppercase leading-none tracking-[.08em] text-primary ${look} ${className}`}>Nuevo</span>
 }
 
 /** La prenda tiene varias fotos (image_urls): ícono de fotos apiladas + cuántas, como en Instagram. */
@@ -102,7 +102,7 @@ export function FotosPrenda({ p, aspect = '3 / 4', className = '', rounded = '',
                 href={`#p${p.n}-${i + 1}`}
                 aria-label={`Ver foto ${i + 1} de ${p.fotos.length}`}
                 aria-current={i === 0 ? 'true' : undefined}
-                className={`block size-14 overflow-hidden rounded-tile border-2 ${i === 0 ? 'border-accent' : papel ? 'border-primary/20 hover:border-primary/60' : 'border-line hover:border-muted'} ${FOCUS}`}
+                className={`block size-14 overflow-hidden rounded-tile border-2 ${i === 0 ? (papel ? 'border-accent-deep' : 'border-accent') : papel ? 'border-primary/20 hover:border-primary/60' : 'border-line hover:border-muted'} ${papel ? 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep' : FOCUS}`}
               >
                 <img src={f.src} alt="" width={56} height={56} className="size-full object-cover" />
               </a>

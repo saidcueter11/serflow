@@ -35,7 +35,7 @@ function Vacia({ g }: { g: Grupo }) {
   return (
     <EmptyState
       title={`Todavía no hay fotos de ${g.label}`}
-      description="Igual te hacemos lo que necesites por encargo, con el logo de tu empresa. Escríbenos por WhatsApp y te mostramos trabajos parecidos."
+      description="Igual te lo hacemos por encargo, con tu logo o tu diseño. Escríbenos por el botón de WhatsApp y te mostramos trabajos parecidos."
       action={{ label: "Ver lo más nuevo", href: TODO_HREF }}
     />
   );
@@ -100,7 +100,7 @@ export function MuroVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
   return (
     <Pagina vp={vp} fold={false} fab={false}>
       <div className="px-4 pt-2 @3xl:px-12 @3xl:pt-4">
-        <Volver href={`${TODO_HREF}#f-${p.n}`}>Volver al muro</Volver>
+        <Volver href={`${g.href}#f-${p.n}`}>Volver al muro de {g.label}</Volver>
       </div>
       <div className="mt-2">
         {/* Sin hilo: aquí pasaría por detrás del texto y del botón. */}
@@ -146,11 +146,9 @@ export function MasonryGaleria({ vp, cat }: { vp: Viewport; cat?: Grupo }) {
   return (
     <Pagina vp={vp}>
       <Bienvenida titulo={BIENVENIDA.titulo} texto={BIENVENIDA.texto} chips={CHIPS} current={cat?.href ?? TODO_HREF} />
-      <div className="px-2 pt-5 @3xl:px-12 @3xl:pt-8">
+      <div className="px-4 pt-5 @3xl:px-12 @3xl:pt-8">
         {cat?.count === 0 ? (
-          <div className="px-2 @3xl:px-0">
-            <Vacia g={cat} />
-          </div>
+          <Vacia g={cat} />
         ) : (
           <Masonry prendas={lista(cat).slice(0, vp === "mobile" ? 10 : 20)} />
         )}
@@ -186,16 +184,14 @@ export function MasonryVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
             {g.label}
           </Button>
           {p.nuevo && <Nuevo />}
-          {g.frase && <span className="text-[14px] text-muted">{g.frase}</span>}
+          <h1 className="text-[15px] font-medium text-ink">{g.frase ?? g.label}</h1>
         </div>
         <div className="@3xl:w-[300px]">
           <Pedir p={p} nota={vp === "mobile"} />
         </div>
       </div>
       <Section id="mas" title={`Más de ${g.label}`}>
-        <div className="-mx-2 @3xl:mx-0">
-          <Masonry prendas={mas(p, vp === "mobile" ? 6 : 12)} offset={3} />
-        </div>
+        <Masonry prendas={mas(p, vp === "mobile" ? 6 : 12)} offset={3} />
         <div className="mt-3">
           <VerTodas g={g} />
         </div>
@@ -250,7 +246,7 @@ export function UsoVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
       </div>
       <div className="grid gap-5 px-4 pt-2 @3xl:grid-cols-[minmax(0,1fr)_400px] @3xl:items-center @3xl:gap-14 @3xl:px-12">
         <div className="relative overflow-hidden rounded-card border border-line">
-          <FotosPrenda p={p} aspect="4 / 5" className="[&>div]:pb-3" />
+          <FotosPrenda p={p} aspect="3 / 4" className="[&>div]:pb-3" />
           {p.nuevo && <Nuevo className="absolute left-3 top-3" />}
         </div>
         <div className="flex flex-col items-start gap-4">
@@ -352,6 +348,9 @@ export function PerfilVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
           <Volver href={`${g.href}#f-${p.n}`}>{g.label}</Volver>
         </div>
         <article>
+          <h1 className="sr-only">
+            {g.label}, N.º {p.n}
+          </h1>
           <CabeceraPost g={g} p={p} />
           <FotosPrenda p={p} aspect="1 / 1" />
           <div className="flex flex-col gap-3 px-4 pt-4">
@@ -367,6 +366,9 @@ export function PerfilVisor({ vp, p }: { vp: Viewport; p: Prenda }) {
       <div className="mx-auto max-w-[1000px] px-12 pt-4">
         <Volver href={`${g.href}#f-${p.n}`}>{g.label}</Volver>
         <article className="mt-2 grid grid-cols-[minmax(0,1fr)_380px] overflow-hidden rounded-card border border-line bg-surface">
+          <h1 className="sr-only">
+            {g.label}, N.º {p.n}
+          </h1>
           <FotosPrenda p={p} aspect="1 / 1" className="[&>div]:pb-3" />
           <div className="flex flex-col border-l border-line">
             <CabeceraPost g={g} p={p} />

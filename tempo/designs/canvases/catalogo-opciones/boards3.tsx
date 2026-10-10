@@ -51,8 +51,9 @@ export function Intro3() {
       </Block>
       <Block label="Fotos">
         Las del catálogo actual (gorras sobre fondo gris, con su número de hoy) y las de Unsplash que ya usa la portada
-        (gente con camisetas y gorras), mientras llegan las reales (PRI-150). Las de Unsplash tienen fecha vieja: no salen
-        como "Nuevo" ni arriba de todo, así lo primero que se ve es el catálogo de hoy. Aquí aparecen como prendas (N.º 93
+        (gente con camisetas y gorras), mientras llegan las reales (PRI-150). Las de Unsplash tienen fecha vieja: nunca salen
+        como "Nuevo" y van al final de su categoría, así lo primero que se ve es el catálogo de hoy (Camisetas solo
+        tiene de Unsplash, por eso asoma en "Todo"). Sí van como portadas de categoría. Aquí aparecen como prendas (N.º 93
         a 98) solo para ver cada dirección con fotos de gente; en producción no son productos: van como portadas de
         categoría hasta que el taller suba las suyas. El visor de las cuatro usa la misma prenda,
         Béisbol N.º 26, una foto real del catálogo: así se compara el diseño, no la foto.
@@ -93,7 +94,7 @@ export function Decisiones3() {
         <Block label="WhatsApp">
           En el visor, un botón whatsapp con categoría, número y link a la foto (WhatsApp muestra la vista previa):
           "Pedir una así" en 1 y 2, "Quiero una así" en 3, "Pedir uno así" en 4 (el nombre que pediste). Al elegir, queda
-          uno solo. En el visor no va el flotante, para no tener dos. Galería y categoría vacía: solo el flotante.
+          uno solo, y el mensaje ("¿Me hacen una así?") se ajusta a esa palabra. En el visor no va el flotante, para no tener dos. Galería y categoría vacía: solo el flotante.
         </Block>
         <Block label="Categoría vacía">
           EmptyState: "Todavía no hay fotos de Dotación", que igual la hacemos por encargo, y "Ver lo más nuevo" como
@@ -110,7 +111,8 @@ export function Decisiones3() {
           (1), Ticker (3). Propuestas: CategoryNav, Nuevo, FotosPrenda (visor) y la pieza de cada dirección (Polaroid y
           Marquilla, Masonry, GrupoUso, Perfil). La tarjeta solo-foto de 3 no es un componente nuevo: ProductCard gana
           name y meta opcionales, aspect (4:3 o 4:5) y las marcas Nuevo y varias fotos encima. Al aprobar, el papel del
-          muro y la marquilla piden un token de superficie clara y un radio chico.
+          muro y la marquilla piden un token de superficie clara, un radio chico y uno de sombra; los títulos se ajustan
+          a la escala tipográfica (hoy 64/46/42 son de prueba).
         </Block>
         <Block label="Lo que pide fuera de este repo">
           serflow-admin: la frase por categoría y cambiar las portadas de categoría (image_url), que hoy son fotos
@@ -297,7 +299,7 @@ export const SeccionDescartadas = () => (
 
 /* ---------------- Storyboards: cada página con sus datos ---------------- */
 
-const VISOR: Prenda = BEISBOL.prendas[1];
+const VISOR: Prenda = BEISBOL.prendas.find((p) => p.n === 26)!;
 const pag = (C: ComponentType<{ vp: Viewport; cat?: Grupo }>, vp: Viewport, cat?: Grupo) => () => <C vp={vp} cat={cat} />;
 const vis = (C: ComponentType<{ vp: Viewport; p: Prenda }>, vp: Viewport) => () => <C vp={vp} p={VISOR} />;
 
