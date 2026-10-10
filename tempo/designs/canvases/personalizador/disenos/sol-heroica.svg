@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Diseño de muestra de un cliente ficticio (no es UI de Serflow). Fondo transparente, como un PNG sin fondo. -->
+  <g transform="translate(300 300)">
+    <g fill="#F26B3A">
+      <path d="M-16 -150 L16 -150 L0 -225 Z" />
+      <path d="M-16 -150 L16 -150 L0 -225 Z" transform="rotate(30)" />
+      <path d="M-16 -150 L16 -150 L0 -225 Z" transform="rotate(60)" />
+      <path d="M-16 -150 L16 -150 L0 -225 Z" transform="rotate(90)" />
+      <path d="M-16 -150 L16 -150 L0 -225 Z" transform="rotate(-30)" />
+      <path d="M-16 -150 L16 -150 L0 -225 Z" transform="rotate(-60)" />
+      <path d="M-16 -150 L16 -150 L0 -225 Z" transform="rotate(-90)" />
+    </g>
+    <g fill="#FFC23C">
+      <path d="M-12 -150 L12 -150 L0 -195 Z" transform="rotate(15)" />
+      <path d="M-12 -150 L12 -150 L0 -195 Z" transform="rotate(45)" />
+      <path d="M-12 -150 L12 -150 L0 -195 Z" transform="rotate(75)" />
+      <path d="M-12 -150 L12 -150 L0 -195 Z" transform="rotate(-15)" />
+      <path d="M-12 -150 L12 -150 L0 -195 Z" transform="rotate(-45)" />
+      <path d="M-12 -150 L12 -150 L0 -195 Z" transform="rotate(-75)" />
+    </g>
+    <circle r="138" fill="#F26B3A" />
+    <circle r="116" fill="#FFC23C" />
+    <path d="M-116 30 Q -60 0 0 30 T 116 30 L 116 40 A 116 116 0 0 1 -116 40 Z" fill="#1B5FA8" />
+    <path d="M-110 62 Q -55 36 0 62 T 110 62 L 104 76 Q 55 52 0 78 T -104 76 Z" fill="#F4F1E6" />
+    <text x="0" y="4" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="84" fill="#1B3A8C">CTG</text>
+  </g>
+  <rect x="96" y="470" width="408" height="84" rx="14" fill="#1B3A8C" />
+  <text x="300" y="530" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="50" letter-spacing="3" fill="#F4F1E6">LA HEROICA</text>
+</svg>

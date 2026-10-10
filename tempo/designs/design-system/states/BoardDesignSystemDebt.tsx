@@ -252,6 +252,33 @@ const ROWS: DebtRow[] = [
       </div>
     ),
   },
+  {
+    title: "ErrorState no sirve para bloques que se reintentan sin recargar (personalizador, PRI-122)",
+    body: (
+      <>
+        Su Reintentar es un link a <Code>retryHref</Code>: recarga la página. En el personalizador eso borra la imagen que el
+        cliente subió (no se guarda en ningún lado). Además trae siempre "Escríbenos por WhatsApp" con el texto genérico,
+        que en /personaliza se salta el mensaje armado. El canvas del personalizador dibuja por eso una caja propia
+        dentro de la vista previa.
+      </>
+    ),
+    bullets: [
+      <>
+        <Code>src/components/ui/ErrorState.tsx</Code> Reintentar con <Code>href</Code> y WhatsApp fijo
+      </>,
+      <>
+        <Code>tempo/designs/canvases/personalizador/propuesta/VistaPrevia.tsx</Code> modo <Code>sin-senal</Code>
+      </>,
+    ],
+    fix: (
+      <>
+        Sumar a ErrorState un modo de reintento por acción (botón, para islas con JS) y un prop para ocultar WhatsApp donde
+        la página ya tiene su envío. Relacionado (familia buttons): Button sin estado <Code>disabled</Code> y sin variante
+        principal que no sea WhatsApp; la muestra de técnica de ServiceCard exportada con tamaño.
+      </>
+    ),
+    visual: null,
+  },
 ];
 
 export function BoardDesignSystemDebt() {
