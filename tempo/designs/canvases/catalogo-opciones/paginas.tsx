@@ -24,21 +24,25 @@ const SIZE = { mobile: { width: 390, fold: 844 }, desktop: { width: 1280, fold: 
  * Marco de Layout.astro: Header + contenido + Footer + WhatsAppFab. fold = cortar en el pliegue (lo que se ve sin
  * scroll); sin fold, la página completa. fab false = la página no lleva el flotante (el visor tiene su botón).
  * translateZ(0): lo que es fixed en el sitio (la capa de B) queda dentro del marco.
- * Solo canvas: las fotos lazy pasan a eager, porque la captura no hace scroll y las dejaría sin cargar.
+ * Solo canvas: las fotos lazy pasan a eager y reveal-wipe/reveal-up quedan quietos, porque la captura no hace scroll y
+ * dejaría tapado todo lo que está debajo del primer pliegue.
  */
-export function Pantalla({ viewport, fold = false, fab = true, header = true, children }: {
+export function Pantalla({ viewport, fold = false, fab = true, header = true, nav = CATALOG_NAV, current = CATALOG_CURRENT, children }: {
   viewport: Viewport;
   fold?: boolean;
   fab?: boolean;
   header?: boolean;
+  /** Ronda 3: "Catálogo" lleva a /products (Todo). */
+  nav?: { label: string; href: string }[];
+  current?: string;
   children: ReactNode;
 }) {
   const s = SIZE[viewport];
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => ref.current?.querySelectorAll<HTMLImageElement>("img[loading=lazy]").forEach((img) => (img.loading = "eager")), []);
   return (
-    <div ref={ref} className="relative overflow-hidden bg-primary font-body text-ink antialiased [transform:translateZ(0)]" style={{ width: s.width, height: fold ? s.fold : undefined }}>
-      {header && <Header logoSrc={LOGO} links={CATALOG_NAV} current={CATALOG_CURRENT} />}
+    <div ref={ref} className="relative overflow-hidden bg-primary font-body text-ink antialiased [transform:translateZ(0)] [&_.reveal-up]:[animation:none] [&_.reveal-wipe]:[animation:none]" style={{ width: s.width, height: fold ? s.fold : undefined }}>
+      {header && <Header logoSrc={LOGO} links={nav} current={current} />}
       {children}
       {!fold && <Footer logoSrc={LOGO} />}
       {fab && (
