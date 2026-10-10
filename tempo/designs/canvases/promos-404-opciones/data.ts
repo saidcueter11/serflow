@@ -1,13 +1,13 @@
 /// <reference types="vite/client" />
 import logo from "../../../../src/assets/LOGO SERFLOW.png";
 import { whatsappUrl } from "../../../../src/lib/business";
-// Fotos de ejemplo: gorras del catálogo actual y stock de src/assets/images/stock (las mismas de la portada).
+// Fotos de ejemplo: gorras del catálogo actual y stock de src/assets/images/stock (las mismas de la portada), sin caras reconocibles.
 import gorrasEstante from "../../../../src/assets/images/stock/gorras-estante.jpg";
 import gorraBordada from "../../../../src/assets/images/stock/gorra-bordada.jpg";
 import gorraBordada2 from "../../../../src/assets/images/stock/gorra-bordada-2.jpg";
-import camisetas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
 import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
 import estampadoRasero from "../../../../src/assets/images/stock/estampado-rasero.jpg";
+import estampadoProceso from "../../../../src/assets/images/stock/estampado-proceso.jpg";
 import miTierra2 from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida2.webp";
 import moda5 from "../../../../src/assets/images/moda/moda5.webp";
 import beisbol2 from "../../../../src/assets/images/beisbol/beisbol2.webp";
@@ -56,8 +56,9 @@ export const PROMO_EQUIPOS: PromoDemo = {
   title: "10% en camisetas para equipos de fútbol",
   description: "Desde 10 camisetas con nombre y número. Estampado o DTF, en el color de tu equipo.",
   endsAt: "2026-10-31T23:59:00-05:00",
-  cover: p(camisetas, "Dos personas con camisetas negras estampadas"),
-  photos: [p(camisetaDtf, "Camiseta con un diseño a todo color en DTF"), p(estampadoRasero, "Estampado de una camiseta en el taller")],
+  // Fotos sin caras: solo prendas y manos en el taller.
+  cover: p(camisetaDtf, "Camiseta negra con un diseño a todo color en DTF"),
+  photos: [p(estampadoRasero, "Estampado de una camiseta en el taller"), p(estampadoProceso, "Tinta de colores en el marco de serigrafía")],
 };
 
 export const PROMO_NINOS: PromoDemo = {
@@ -94,7 +95,7 @@ export function hastaCorto(endsAt: string | null): string | null {
 
 /** Mensaje contextual: Serflow sabe qué promo vio el cliente sin preguntarle. */
 export function promoMensaje(promo: PromoDemo): string {
-  return `Hola! Me interesa la promo "${promo.title}". ${SITE}/promos/${promo.slug}`;
+  return `¡Hola! Me interesa la promo "${promo.title}". ${SITE}/promos/${promo.slug}`;
 }
 
 export function promoWhatsapp(promo: PromoDemo): string {

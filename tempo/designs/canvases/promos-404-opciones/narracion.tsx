@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { PromoBar } from "../../../../src/components/ui/PromoBar";
 import { PROMO_EQUIPOS, PROMO_GORRAS, PROMO_NINOS, PROMOS_1, PROMOS_3, withPhotoCount } from "./data";
-import { PromoBarPropuesta, PromoCard, PromoGallery } from "./propuestas";
+import { PromoAfiche, PromoBarPropuesta, PromoCard, PromoGrid } from "./propuestas";
 import { barLinks } from "./pantallas";
 
 /* ---------------- Narración (no es producto) ---------------- */
@@ -48,7 +48,7 @@ function Tag({ children }: { children: ReactNode }) {
   return <span className="rounded-full border border-accent/60 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[.1em] text-accent">{children}</span>;
 }
 
-function Nota({ opcion, nombre, lee, resuelve, sacrifica, whatsapp, nuevo, rec = false }: {
+function Nota({ opcion, nombre, lee, resuelve, sacrifica, whatsapp, nuevo }: {
   opcion: string;
   nombre: string;
   lee: string;
@@ -56,13 +56,12 @@ function Nota({ opcion, nombre, lee, resuelve, sacrifica, whatsapp, nuevo, rec =
   sacrifica: string[];
   whatsapp: string;
   nuevo: string;
-  rec?: boolean;
 }) {
   return (
-    <Card width={400} tone={rec ? "rec" : "plain"}>
+    <Card width={400}>
       <div className="flex items-center gap-2">
         <Kicker>{opcion}</Kicker>
-        {rec && <Tag>Recomendada</Tag>}
+        <Tag>Descartada</Tag>
       </div>
       <Title>{nombre}</Title>
       <Block label="Lo que se lee en 1 segundo">{lee}</Block>
@@ -80,30 +79,32 @@ function Nota({ opcion, nombre, lee, resuelve, sacrifica, whatsapp, nuevo, rec =
 
 export function Intro() {
   return (
-    <Card width={620}>
-      <Kicker>PRI-131 · Promos y 404 · opciones</Kicker>
-      <Title>Promos de verdad (varias, con vigencia) y una 404 que no deja a nadie botado</Title>
+    <Card width={620} tone="rec">
+      <div className="flex items-center gap-2">
+        <Kicker>PRI-131 · Promos y 404</Kicker>
+        <Tag>Final aprobada</Tag>
+      </div>
+      <Title>Promos con su botón de WhatsApp, un afiche por promo y una 404 con salidas</Title>
       <p className="text-[15px] leading-relaxed text-muted">
         Después del SQL de PRI-131 una promo trae descripción, fecha de fin (ends_at) y orden (sort_order), y puede haber
-        varias activas. Este canvas propone las cuatro piezas que eso toca, con 2 o 3 opciones por página.
+        varias activas. Said eligió una opción por página y pidió arreglar los huecos; esta fila es lo que se construye.
       </p>
       <Bullets
         items={[
-          <><strong>Barra de promos</strong> (portada): con varias, toda la barra lleva a /promos.</>,
-          <><strong>/promos</strong> (nueva): lista de promos vigentes, con su estado vacío.</>,
-          <><strong>/promos/[slug]</strong>: título, descripción, "Válida hasta", fotos sin huecos y WhatsApp con la promo en el mensaje.</>,
-          <><strong>404</strong>: titular, Eyebrow y Button (WhatsApp e "Ir al inicio"), con el espacio de la mascota reservado.</>,
+          <><strong>/promos · C Afiches con WhatsApp:</strong> cada promo con su botón de pedir y el mensaje ya escrito con esa promo.</>,
+          <><strong>/promos/[slug] · B Afiche:</strong> en desktop la descripción y el botón van dentro del afiche; las fotos, en filas que llenan el ancho.</>,
+          <><strong>404 · C Con salidas:</strong> titular directo, WhatsApp e Ir al inicio, y debajo las promos de hoy o las secciones de la portada.</>,
+          <><strong>Barra de promos</strong> (portada): con varias, toda la barra lleva a /promos (Propuesta: cambia el link de la barra de hoy).</>,
         ]}
       />
       <Block label="Cómo leer el canvas">
-        De arriba abajo sigue el camino del cliente: 1 barra, 2 lista, 3 detalle, 4 404. En cada bloque, una fila por opción:
-        nota (qué resuelve y qué sacrifica), mobile 390 y desktop 1280; a la derecha de la recomendada, sus estados (1 promo,
-        ninguna, 1, 2, 3 y 5 fotos, promo sin fecha y sin otras promos, 404 con promos). Señal lenta y promo sin descripción
-        están en el tablero de componentes. Lo marcado <Tag>Propuesta</Tag> es UI nueva que no existe en src/components/ui todavía.
+        Arriba, la final: una fila por página con su nota (qué pediste y qué cambié), mobile 390, desktop 1280 y sus estados a la
+        derecha. Debajo, la barra y los componentes nuevos. Al final, la fila Descartadas con las opciones que no se eligieron.
+        Lo marcado <Tag>Propuesta</Tag> es UI nueva que todavía no existe en src/components/ui.
       </Block>
       <Block label="Datos y fotos">
         Promos de ejemplo (2x1 en gorras, 10% en camisetas para equipos, gorras para niños): no existen en la base. Fotos de
-        src/assets/images y src/assets/images/stock. "Hoy" en el canvas es el lunes 5 de octubre de 2026.
+        src/assets/images y src/assets/images/stock, sin caras reconocibles. "Hoy" en el canvas es el lunes 5 de octubre de 2026.
       </Block>
     </Card>
   );
@@ -135,14 +136,15 @@ export function Flujo() {
       <div className="flex items-center">
         <Paso titulo="Portada" detalle="Barra dorada arriba de todo, solo si hay promos vigentes." />
         <Flecha label="2 o más" />
-        <Paso titulo="/promos" detalle="Todas las vigentes, en el orden del admin (sort_order)." tono="gold" />
-        <Flecha label="toca una" />
+        <Paso titulo="/promos" detalle="Todas las vigentes, en el orden del admin, cada una con su botón de pedir." tono="gold" />
+        <Flecha label="ver fotos" />
         <Paso titulo="/promos/[slug]" detalle="Fotos, descripción, válida hasta y el botón de pedir." tono="gold" />
         <Flecha label="Pedir" />
-        <Paso titulo="WhatsApp" detalle='"Hola! Me interesa la promo "2x1 en gorras bordadas". <link>"' />
+        <Paso titulo="WhatsApp" detalle='"¡Hola! Me interesa la promo "2x1 en gorras bordadas". <link>"' />
       </div>
       <div className="flex items-center pl-[260px]">
-        <div className="flex w-[260px] flex-col items-end pr-3 text-[12px] text-muted">con 1 sola promo, la barra va directo al detalle ↗</div>
+        <div className="flex w-[260px] flex-col items-end pr-3 text-[12px] text-muted">con 1 sola promo, la barra va directo al detalle</div>
+        <div className="flex flex-1 justify-center text-[12px] text-muted">o "Pedir por WhatsApp" desde la lista, sin entrar al detalle</div>
       </div>
       <div className="flex items-center gap-0 border-t border-line pt-5">
         <Paso titulo="Link viejo" detalle="Una promo vencida o borrada que sigue circulando por WhatsApp." tono="muted" />
@@ -160,7 +162,7 @@ export function Flujo() {
 export function Decisiones() {
   return (
     <Card width={720}>
-      <Kicker>Decisiones de diseño (las tomé yo; van también al issue)</Kicker>
+      <Kicker>Decisiones de diseño de la final (van también al issue)</Kicker>
       <Bullets
         items={[
           <><strong>"Promo" en vez de "Campaña"</strong> en el Eyebrow del detalle: la barra, la URL y la lista ya dicen promo. Una sola palabra para lo mismo.</>,
@@ -169,21 +171,23 @@ export function Decisiones() {
           <><strong>Barra con varias promos = un solo link a /promos.</strong> Los títulos rotan pero lo que se toca no se mueve. Con una promo queda como hoy (va al detalle).</>,
           <><strong>La barra sigue solo en la portada.</strong> En /promos sería repetir la lista; en el detalle, la sección "Otras promos" cumple ese papel.</>,
           <><strong>Volver:</strong> "← Todas las promos" si hay más de una; "← Volver al inicio" si es la única. Nada de "Volver atrás".</>,
-          <><strong>Fotos sin huecos:</strong> la primera a lo ancho (4:3), las demás de a dos en cuadrado, y si sobra una va a lo ancho al final. Sirve para cualquier cantidad.</>,
-          <><strong>WhatsApp:</strong> el flotante de siempre + uno contextual solo donde reemplaza algo: el botón del detalle (reemplaza al viejo, ahora con whatsappUrl()), el del estado vacío y el de la 404. En el detalle el flotante lleva el mismo mensaje de la promo (WhatsAppFab ya acepta text).</>,
+          <><strong>Ningún hueco, con cualquier cantidad:</strong> las listas de promos (PromoGrid) ponen hasta 3 por fila y la última fila se reparte el ancho; una card sola en su fila se pone horizontal. Las fotos del detalle van en filas de 4 en desktop y la última se reparte el ancho (5 extra = 4 + 1 a lo ancho). Estado vacío y salidas de la 404, a lo ancho del contenido.</>,
+          <><strong>Detalle B en desktop:</strong> descripción y botón de pedir dentro del afiche, sobre un degradado de izquierda a derecha (el texto nunca queda sobre la foto sola). El afiche mide al menos 560 px y crece con la descripción.</>,
+          <><strong>WhatsApp:</strong> el flotante de siempre + uno contextual: uno por promo en /promos (decisión de Said: pedir en un toque), el del detalle, el del estado vacío y el de la 404. Todos con el mensaje ya escrito: "¡Hola! Me interesa la promo "2x1 en gorras bordadas". {"<link>"}". En el detalle el flotante lleva el mismo mensaje (WhatsAppFab ya acepta text).</>,
           <><strong>Sin Header nuevo:</strong> no agrego "Promos" al menú. La entrada es la barra; si no hay promos, el link no tendría a dónde llevar.</>,
-          <><strong>Títulos de página:</strong> "Promos de hoy · Serflow" (/promos), "{"{título}"} · Serflow" con la description como meta description (detalle) y "Página no encontrada · Serflow" (404). Sin "Campana" ni guiones largos.</>,
+          <><strong>Títulos de página:</strong> "Promos de hoy · Serflow" (/promos), "{"{título}"} · Serflow" con la description como meta description (detalle) y "Página no encontrada · Serflow" (404). Nada de "Campana" sin tilde ni guiones largos.</>,
           <><strong>Sin descripción:</strong> se omite el párrafo (tarjeta y detalle). Sin fotos extra: solo la portada, a lo ancho.</>,
-          <><strong>Mascota en la 404:</strong> caja vacía aria-hidden con la proporción de MascotSlot (72 px de ancho en mobile, 120 en desktop). El punteado y el texto son solo del canvas.</>,
+          <><strong>Sin mascota en la 404</strong> (PRI-124 en pausa): no se reserva espacio. Si vuelve, entra encima del Eyebrow.</>,
           <><strong>Si se aprueba "Promo":</strong> actualizar la variante "Campaña" de Eyebrow y el fix escrito en labels/BoardDesignSystemDebt.</>,
-          <><strong>Movimiento:</strong> solo lo que ya existe en tokens.css (anim-enter, reveal-up, reveal-wipe, hover de cards) y el hilo de la 404, todo CSS y apagado con reducir movimiento.</>,
+          <><strong>Movimiento:</strong> solo lo que ya existe en tokens.css (anim-enter, reveal-wipe, hover de cards), todo CSS y apagado con reducir movimiento.</>,
         ]}
       />
       <Block label="Para quién construye">
         <Bullets
           items={[
             "getActivePromos(): filtrar ends_at > ahora (o null) y ordenar por sort_order. Si falla la consulta, que falle el build (hoy devuelve [] y una promo que circula da 404: deuda del canvas de estados).",
-            "PromoCard a src/components/ui (familia cards) y PromoGallery (familia media), con defineAsset en sus canvases. PromoBar cambia: con 2 o más, un solo <a href=\"/promos\">.",
+            "PromoCard, PromoAfiche y PromoGrid a src/components/ui (familia cards), con defineAsset en su canvas. PromoBar cambia: con 2 o más, un solo <a href=\"/promos\">. PromoGallery se descartó con el detalle A.",
+            "PromoAfiche usa whatsappUrl() con el mensaje de la promo (título + link). Actualizar la regla de Button whatsapp en el design system: en /promos va uno por promo.",
             "Layout.astro: prop whatsappText para pasarle el mensaje de la promo al WhatsAppFab del detalle.",
             "404.astro: lee getActivePromos() en el build para el bloque de promos.",
             "Errores: no hay estados de error en runtime; las páginas son SSG. Una foto que no carga deja su marco con la trama (fabric) y el alt.",
@@ -196,8 +200,11 @@ export function Decisiones() {
 
 export function Recomendacion() {
   return (
-    <Card width={560} tone="rec">
-      <Kicker>Recomendación de Diseño</Kicker>
+    <Card width={560}>
+      <div className="flex items-center gap-2">
+        <Kicker>Recomendación original de Diseño</Kicker>
+        <Tag>Descartada</Tag>
+      </div>
       <Title>Lista A · Detalle A · 404 B con promos</Title>
       <Block label="/promos · A Tarjetas">
         Un solo componente nuevo (PromoCard) que también sirve en la 404 y en "Otras promos". Con 3 promos se ve todo en dos
@@ -224,13 +231,90 @@ export function Recomendacion() {
   );
 }
 
-/* ---------------- Notas por opción ---------------- */
+/* ---------------- Notas de la final ---------------- */
+
+function NotaFinal({ pagina, nombre, pediste, cambie, estados, whatsapp }: {
+  pagina: string;
+  nombre: string;
+  pediste: string;
+  cambie: ReactNode[];
+  estados: string[];
+  whatsapp: string;
+}) {
+  return (
+    <Card width={400} tone="rec">
+      <div className="flex items-center gap-2">
+        <Kicker>{pagina}</Kicker>
+        <Tag>Final aprobada</Tag>
+      </div>
+      <Title>{nombre}</Title>
+      <Block label="Lo que pediste">
+        <span className="italic text-muted">"{pediste}"</span>
+      </Block>
+      <Block label="Qué cambié">
+        <Bullets items={cambie} />
+      </Block>
+      <Block label="Estados en esta fila">
+        <Bullets items={estados} />
+      </Block>
+      <Block label="WhatsApp">{whatsapp}</Block>
+    </Card>
+  );
+}
+
+export const NotaFinalLista = () => (
+  <NotaFinal
+    pagina="/promos · C"
+    nombre="Afiches con WhatsApp"
+    pediste="Me gusta más esta opción donde tengan acceso a WhatsApp directamente y que el mensaje ya tenga un mensaje prefilled."
+    cambie={[
+      "Cada promo lleva su botón 'Pedir por WhatsApp' con el mensaje de esa promo ya escrito.",
+      "Sin columnas vacías: con 1 promo (o la que sobre en la última fila) el afiche se pone horizontal y llena el ancho.",
+      "Sin promos: el aviso va a lo ancho del contenido, no en una caja angosta a la izquierda.",
+      "El texto de arriba dice que se pide por WhatsApp. Con 1 sola foto el link dice 'Ver la promo'.",
+    ]}
+    estados={["3 promos (una sin fecha de cierre)", "1 promo", "Sin promos"]}
+    whatsapp={'Uno por promo + el flotante. Mensaje: ¡Hola! Me interesa la promo "2x1 en gorras bordadas". serflowctg.netlify.app/promos/2x1-gorras-bordadas'}
+  />
+);
+
+export const NotaFinalDetalle = () => (
+  <NotaFinal
+    pagina="/promos/[slug] · B"
+    nombre="Afiche"
+    pediste="Me gusta la opción B pero necesito un mejor manejo de espacios. / Aquí también."
+    cambie={[
+      "Desktop: descripción y botón de pedir dentro del afiche. Ya no queda una columna corta de texto junto a una larga de fotos.",
+      "Más fotos: filas de 4 en desktop; la última se reparte el ancho (4 + 1 a lo ancho, 2 mitades). En mobile, fila deslizable; con una sola foto, a lo ancho.",
+      "Otras promos: sin tercera columna vacía. Con 2 van en dos mitades; con 1, a lo ancho y horizontal.",
+      "Menos aire muerto entre bloques (el espacio lo pone cada sección, no se suma dos veces).",
+    ]}
+    estados={["5 fotos y 2 otras promos", "3 fotos y 1 otra promo", "1 foto y ninguna otra promo (vuelve al inicio)"]}
+    whatsapp="Botón 'Pedir esta promo por WhatsApp' con la promo en el mensaje. El flotante lleva el mismo mensaje."
+  />
+);
+
+export const NotaFinal404 = () => (
+  <NotaFinal
+    pagina="404 · C"
+    nombre="Con salidas"
+    pediste="Me voy con esta opción."
+    cambie={[
+      "Sin el espacio de la mascota: el titular sube y la página se lee en un vistazo.",
+      "Promos de hoy en la misma lista sin huecos del detalle (con 1 o 2 promos tampoco queda una columna vacía).",
+      "Sin promos, 'Lo que sí está' va en tres bloques a lo ancho en desktop y en lista en mobile.",
+    ]}
+    estados={["Sin promos", "Con 3 promos"]}
+    whatsapp="Botón 'Escríbenos por WhatsApp' (el mensaje dice que llegó a una página que no existe) + el flotante."
+  />
+);
+
+/* ---------------- Notas de las descartadas ---------------- */
 
 export const NotaListaA = () => (
   <Nota
     opcion="/promos · A"
     nombre="Tarjetas"
-    rec
     lee="'Promos de hoy' y tarjetas con foto, hasta cuándo va y qué es."
     resuelve={[
       "Todas pesan lo mismo: el orden lo pone sort_order, no el diseño.",
@@ -255,26 +339,10 @@ export const NotaListaB = () => (
   />
 );
 
-export const NotaListaC = () => (
-  <Nota
-    opcion="/promos · C"
-    nombre="Afiches con WhatsApp"
-    lee="Cada promo completa, con su propio botón dorado de pedir."
-    resuelve={["Se pide en un toque, sin entrar al detalle.", "La descripción se lee completa."]}
-    sacrifica={[
-      "Rompe la regla del design system: un botón de WhatsApp por sección visible. Con 3 promos hay 3 botones dorados + el flotante.",
-      "El detalle pierde su papel: queda solo para ver fotos.",
-    ]}
-    whatsapp="Uno por promo + el flotante."
-    nuevo="Tarjeta afiche con botón (en el canvas, Afiche)."
-  />
-);
-
 export const NotaDetalleA = () => (
   <Nota
     opcion="Detalle · A"
     nombre="Ficha"
-    rec
     lee="Qué es, hasta cuándo va y el botón de pedir, antes que las fotos."
     resuelve={[
       "Todo lo que decide la compra cabe en la primera pantalla del celular.",
@@ -284,22 +352,6 @@ export const NotaDetalleA = () => (
     sacrifica={["La foto principal queda debajo del pliegue en el celular.", "Se parece a una ficha de producto; menos 'cartel' que B."]}
     whatsapp="Botón 'Pedir esta promo por WhatsApp' con la promo en el mensaje. El flotante lleva el mismo mensaje."
     nuevo="PromoGallery (familia media)."
-  />
-);
-
-export const NotaDetalleB = () => (
-  <Nota
-    opcion="Detalle · B"
-    nombre="Afiche"
-    lee="La foto de la promo a toda pantalla con el título encima."
-    resuelve={["Entra por los ojos: parece un cartel de la tienda.", "Las otras fotos van en una fila que se desliza, sin huecos por construcción."]}
-    sacrifica={[
-      "En el celular el botón de pedir queda debajo del pliegue.",
-      "El título encima de la foto depende del degradado; con un banner muy claro se lee peor.",
-      "La fila deslizable esconde fotos: hay que saber que se desliza.",
-    ]}
-    whatsapp="Igual que A."
-    nuevo="Nada más allá de PromoCard."
   />
 );
 
@@ -319,7 +371,6 @@ export const Nota404B = () => (
   <Nota
     opcion="404 · B"
     nombre="Hilo suelto"
-    rec
     lee="'Se nos soltó el hilo' con la costura de la portada cortada."
     resuelve={[
       "Usa el hilo de la portada: se siente Serflow y no una página de error.",
@@ -330,18 +381,6 @@ export const Nota404B = () => (
     sacrifica={["El juego de palabras no es para todos; la alternativa es el titular de A.", "Una ilustración más que mantener (SVG chico, sin JS)."]}
     whatsapp="Igual que A."
     nuevo="Ilustración HiloSuelto (SVG en la página, no es componente del sistema)."
-  />
-);
-
-export const Nota404C = () => (
-  <Nota
-    opcion="404 · C"
-    nombre="Con salidas"
-    lee="La 404 directa y debajo 'Lo que sí está': las promos de hoy o las secciones de la portada."
-    resuelve={["Nunca queda en un callejón: siempre hay a dónde ir.", "Sin promos, ofrece Qué hacemos, Disponible ahora y Visítanos."]}
-    sacrifica={["Más larga: el mensaje principal pierde peso.", "Las tres secciones repiten el menú del Header."]}
-    whatsapp="Igual que A."
-    nuevo="Nada (usa PromoCard)."
   />
 );
 
@@ -422,7 +461,7 @@ export function ComponentesBoard() {
         <Kicker>Componentes nuevos</Kicker>
         <Tag>Propuesta</Tag>
       </div>
-      <Title>PromoCard y PromoGallery</Title>
+      <Title>PromoCard, PromoGrid y PromoAfiche</Title>
       <div className="grid grid-cols-4 gap-6">
         <div className="grid grid-rows-[auto_1fr]">
           <Etiqueta propuesta>PromoCard · con fecha</Etiqueta>
@@ -446,16 +485,29 @@ export function ComponentesBoard() {
         título h2 (h3 dentro de una Section como "Otras promos"), descripción a 2 líneas. Sin ends_at no hay píldora; sin descripción, no hay párrafo. Mientras la foto carga se
         ve la trama de tela, sin saltos de layout.
       </p>
-      <div className="border-t border-line pt-6">
-        <Etiqueta propuesta>PromoGallery · la misma regla con 1, 2, 3, 4 y 5 fotos: nunca queda un hueco</Etiqueta>
-        <div className="grid grid-cols-5 items-start gap-5">
-          {([1, 2, 3, 4, 5] as const).map((n) => (
-            <div key={n} className="@container flex flex-col gap-2">
-              <div className="text-[13px] font-semibold">{n === 1 ? "1 foto" : `${n} fotos`}</div>
-              <PromoGallery photos={[PROMO_GORRAS.cover, ...withPhotoCount(PROMO_GORRAS, n === 4 ? 5 : n).photos].slice(0, n)} />
-            </div>
-          ))}
+      <div className="flex flex-col gap-4 border-t border-line pt-6">
+        <Etiqueta propuesta>PromoGrid · 4 promos: 3 en la fila y la cuarta a lo ancho, con la card en horizontal (nunca una columna vacía)</Etiqueta>
+        <div className="@container">
+          <PromoGrid>{[...PROMOS_3, { ...PROMO_EQUIPOS, slug: "estampado-dtf", title: "Estampado DTF desde 1 unidad" }].map((p) => <PromoCard key={p.slug} promo={p} />)}</PromoGrid>
         </div>
+      </div>
+      <div className="flex flex-col gap-4 border-t border-line pt-6">
+        <Etiqueta propuesta>PromoAfiche · la card de /promos con su botón de pedir. Bordes: sin fecha de cierre, sin descripción y con 1 sola foto</Etiqueta>
+        <div className="grid grid-cols-3 items-stretch gap-5">
+          <div className="flex">
+            <PromoAfiche promo={PROMO_NINOS} />
+          </div>
+          <div className="flex">
+            <PromoAfiche promo={{ ...PROMO_GORRAS, description: null }} />
+          </div>
+          <div className="flex">
+            <PromoAfiche promo={withPhotoCount(PROMO_GORRAS, 1)} />
+          </div>
+        </div>
+        <p className="max-w-[760px] text-[15px] leading-relaxed text-muted">
+          Desde 672 px de ancho se pone horizontal (se ve en la fila final con 1 promo). El botón dorado abre WhatsApp con el
+          mensaje de esa promo; "Ver las N fotos" lleva al detalle. Sin descripción no hay párrafo y los botones se quedan abajo.
+        </p>
       </div>
     </Card>
   );

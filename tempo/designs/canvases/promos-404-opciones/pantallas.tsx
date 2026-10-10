@@ -8,8 +8,8 @@ import { StatusPill } from "../../../../src/components/ui/StatusPill";
 import { EmptyState } from "../../../../src/components/ui/EmptyState";
 import { Section } from "../../../../src/components/ui/Section";
 import { whatsappUrl } from "../../../../src/lib/business";
-import { hastaCorto, LOGO, promoWhatsapp, validaHasta, type PromoDemo } from "./data";
-import { PromoBarPropuesta, PromoCard, PromoGallery, type PromoLink } from "./propuestas";
+import { hastaCorto, LOGO, promoWhatsapp, validaHasta, type Photo, type PromoDemo } from "./data";
+import { PromoAfiche, PromoBarPropuesta, PromoCard, PromoGallery, PromoGrid, type PromoLink } from "./propuestas";
 
 /*
  * Pantallas completas de PRI-131 dentro del marco real de Layout.astro (Header, Footer y WhatsAppFab de
@@ -43,14 +43,16 @@ export const barLinks = (promos: PromoDemo[]): PromoLink[] => promos.map((p) => 
 
 export type ListaOpcion = "tarjetas" | "destacada" | "afiches";
 
-function ListaHeader({ n }: { n: number }) {
+function ListaHeader({ n, opcion }: { n: number; opcion: ListaOpcion }) {
   return (
     <div className="flex flex-col items-start gap-3 pb-6 @3xl:pb-8">
       {n > 0 && <Eyebrow>{n === 1 ? "1 promo activa" : `${n} promos activas`}</Eyebrow>}
       <h1 className={`${H1} text-[38px] @3xl:text-[68px]`}>{n > 0 ? "Promos de hoy" : "Promos"}</h1>
       {n > 0 && (
         <p className="max-w-[56ch] text-[16px] leading-relaxed text-muted @3xl:text-[19px]">
-          Precios especiales por poco tiempo. Toca una para ver las fotos y pedirla por WhatsApp.
+          {opcion === "afiches"
+            ? "Precios especiales por poco tiempo. Pide la que te guste por WhatsApp: el mensaje ya lleva el nombre de la promo."
+            : "Precios especiales por poco tiempo. Toca una para ver las fotos y pedirla por WhatsApp."}
         </p>
       )}
     </div>
@@ -93,42 +95,18 @@ function Fila({ promo }: { promo: PromoDemo }) {
   );
 }
 
-/** C · cada promo con su propio botón de WhatsApp: se pide desde la lista, sin entrar al detalle. */
-function Afiche({ promo }: { promo: PromoDemo }) {
-  const hasta = validaHasta(promo.endsAt);
-  return (
-    <article className="flex flex-col overflow-hidden rounded-card border border-line bg-surface">
-      <img src={promo.cover.src} alt={promo.cover.alt} className="fabric aspect-[16/10] h-auto w-full bg-surface-2 object-cover" />
-      <div className="flex flex-1 flex-col items-start gap-3 p-5">
-        {hasta && <StatusPill tone="accent">{hasta}</StatusPill>}
-        <h2 className="font-display text-[22px] font-bold leading-tight">{promo.title}</h2>
-        {promo.description && <p className="text-[15px] leading-relaxed text-muted">{promo.description}</p>}
-        <div className="mt-auto flex w-full flex-col gap-1 pt-2">
-          <Button variant="whatsapp" href={promoWhatsapp(promo)} external fullWidth>
-            Pedir por WhatsApp
-          </Button>
-          <Button variant="ghost" href={`/promos/${promo.slug}`}>
-            Ver las {promo.photos.length + 1} fotos →
-          </Button>
-        </div>
-      </div>
-    </article>
-  );
-}
-
 export function PromosLista({ promos, opcion = "tarjetas" }: { promos: PromoDemo[]; opcion?: ListaOpcion }) {
   const n = promos.length;
   return (
     <div className={`${PAD} pb-12 pt-6 @3xl:pb-16 @3xl:pt-10`}>
-      <ListaHeader n={n} />
+      <ListaHeader n={n} opcion={opcion} />
+      {/* A lo ancho del contenido: una caja de 560 px a la izquierda dejaba media pantalla vacía en desktop. */}
       {n === 0 && (
-        <div className="max-w-[560px]">
-          <EmptyState
-            title="Hoy no hay promos"
-            description="Cuando lanzamos una, sale en la barra dorada de la portada. Mientras tanto, escríbenos y te contamos qué hay a buen precio en el taller."
-            action={{ label: "Pregunta por WhatsApp", href: whatsappUrl("Hola! Vi que hoy no hay promos. ¿Qué tienen a buen precio en el taller?") }}
-          />
-        </div>
+        <EmptyState
+          title="Hoy no hay promos"
+          description="Cuando lanzamos una, sale en la barra dorada de la portada. Mientras tanto, escríbenos y te contamos qué hay a buen precio en el taller."
+          action={{ label: "Pregunta por WhatsApp", href: whatsappUrl("¡Hola! Vi que hoy no hay promos. ¿Qué tienen a buen precio en el taller?") }}
+        />
       )}
       {n > 0 && opcion === "tarjetas" && (
         <ul className={`grid gap-4 @3xl:grid-cols-2 @4xl:grid-cols-3 @4xl:gap-5 ${n === 1 ? "max-w-[420px] @3xl:grid-cols-1 @4xl:grid-cols-1" : ""}`}>
@@ -153,15 +131,7 @@ export function PromosLista({ promos, opcion = "tarjetas" }: { promos: PromoDemo
           )}
         </div>
       )}
-      {n > 0 && opcion === "afiches" && (
-        <ul className="grid gap-5 @3xl:grid-cols-2 @4xl:grid-cols-3">
-          {promos.map((p) => (
-            <li key={p.slug} className="flex">
-              <Afiche promo={p} />
-            </li>
-          ))}
-        </ul>
-      )}
+      {n > 0 && opcion === "afiches" && <PromoGrid>{promos.map((p) => <PromoAfiche key={p.slug} promo={p} />)}</PromoGrid>}
     </div>
   );
 }
@@ -199,14 +169,47 @@ function OtrasPromos({ promos }: { promos: PromoDemo[] }) {
   if (promos.length === 0) return null;
   return (
     <Section title="Otras promos">
-      <ul className="grid gap-4 @3xl:grid-cols-2 @4xl:grid-cols-3 @4xl:gap-5">
-        {promos.map((p) => (
-          <li key={p.slug}>
-            <PromoCard promo={p} headingLevel={3} />
-          </li>
-        ))}
-      </ul>
+      <PromoGrid>{promos.map((p) => <PromoCard key={p.slug} promo={p} headingLevel={3} />)}</PromoGrid>
     </Section>
+  );
+}
+
+/* Fila de una sola foto, de dos, de tres o de cuatro: la columna y la proporción van juntas para que la fila llene el ancho. */
+const FILA = {
+  1: "@4xl:col-span-12 @4xl:aspect-[21/9]",
+  2: "@4xl:col-span-6 @4xl:aspect-[4/3]",
+  3: "@4xl:col-span-4 @4xl:aspect-square",
+  4: "@4xl:col-span-3 @4xl:aspect-square",
+} as const;
+
+/**
+ * Las fotos de la promo después del afiche, sin huecos con cualquier cantidad.
+ * Mobile: una fila que se desliza (con una sola foto, a lo ancho). Desktop: filas de 4; la última se reparte
+ * el ancho (5 fotos extra = 4 + 1 a lo ancho, 2 = dos mitades). Sin fotos extra no se pinta.
+ */
+function MasFotos({ photos }: { photos: Photo[] }) {
+  const n = photos.length;
+  if (n === 0) return null;
+  const ultima = (n % 4 || 4) as 1 | 2 | 3 | 4;
+  return (
+    <div className="flex min-w-0 flex-col gap-3 px-4 @4xl:px-0">
+      <h2>
+        <Eyebrow>Más fotos</Eyebrow>
+      </h2>
+      <div
+        className={`-mx-4 grid snap-x scroll-px-4 grid-flow-col gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] @4xl:mx-0 @4xl:auto-cols-auto @4xl:grid-flow-row @4xl:grid-cols-12 @4xl:overflow-visible @4xl:px-0 @4xl:pb-0 ${n === 1 ? "auto-cols-[100%]" : "auto-cols-[72%]"}`}
+      >
+        {photos.map((ph, i) => (
+          <img
+            key={ph.src}
+            src={ph.src}
+            alt={ph.alt}
+            loading="lazy"
+            className={`fabric aspect-[4/5] h-auto w-full snap-start rounded-tile border border-line bg-surface-2 object-cover ${FILA[i >= n - ultima ? ultima : 4]}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -215,39 +218,38 @@ export function PromoDetalle({ promo, otras, opcion = "ficha" }: { promo: PromoD
   const fotos = [promo.cover, ...promo.photos];
 
   if (opcion === "afiche") {
+    const hayOtras = otras.length > 0;
     return (
       <>
-        <div className="@4xl:px-12 @4xl:pt-6">
-          <div className="relative overflow-hidden bg-surface-2 @4xl:rounded-card @4xl:border @4xl:border-line">
-            <img src={promo.cover.src} alt={promo.cover.alt} className="fabric aspect-[4/5] h-auto w-full object-cover @4xl:aspect-[21/9]" />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary via-primary/60 to-transparent" />
+        <div className={`flex flex-col gap-8 @4xl:gap-10 @4xl:px-12 @4xl:pt-6 ${hayOtras ? "" : "pb-12 @4xl:pb-16"}`}>
+          {/*
+           * Mobile: foto 4:5 con el título encima; descripción y botón debajo.
+           * Desktop: todo dentro del afiche (degradado de izquierda a derecha detrás del texto), así no queda
+           * una columna de texto corta al lado de una de fotos larga. El afiche crece si la descripción es larga.
+           */}
+          <div className="relative grid overflow-hidden @4xl:min-h-[560px] @4xl:content-end @4xl:rounded-card @4xl:border @4xl:border-line">
+            <img
+              src={promo.cover.src}
+              alt={promo.cover.alt}
+              className="fabric col-start-1 row-start-1 aspect-[4/5] h-auto w-full bg-surface-2 object-cover @4xl:absolute @4xl:inset-0 @4xl:col-start-auto @4xl:row-start-auto @4xl:aspect-auto @4xl:h-full"
+            />
+            <div className="pointer-events-none col-start-1 row-start-1 bg-gradient-to-t from-primary via-primary/60 to-transparent @4xl:absolute @4xl:inset-0 @4xl:col-start-auto @4xl:row-start-auto @4xl:bg-gradient-to-r @4xl:via-primary/80 @4xl:via-50% @4xl:to-85%" />
             <div className="absolute left-3 top-3 @4xl:left-6 @4xl:top-5">
               <span className="inline-flex rounded-full bg-primary/85 px-3">
-                <Volver hayOtras={otras.length > 0} />
+                <Volver hayOtras={hayOtras} />
               </span>
             </div>
-            <div className="anim-enter absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-4 pb-6 @4xl:p-10">
+            <div className="anim-enter relative col-start-1 row-start-1 flex flex-col items-start gap-3 self-end p-4 pb-6 @4xl:max-w-[600px] @4xl:p-10 @4xl:pb-5">
               <Eyebrow>Promo</Eyebrow>
-              <h1 className={`${H1} text-[38px] @4xl:text-[68px]`}>{promo.title}</h1>
+              <h1 className={`${H1} text-[38px] @4xl:text-[60px]`}>{promo.title}</h1>
               {hasta && <StatusPill tone="accent">{hasta}</StatusPill>}
             </div>
-          </div>
-        </div>
-        <div className={`${PAD} grid gap-8 pb-12 pt-6 @4xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] @4xl:gap-10 @4xl:pt-10`}>
-          <div className="flex flex-col items-start gap-5">
-            {promo.description && <p className="text-[16px] leading-relaxed text-ink/85 @4xl:text-[19px]">{promo.description}</p>}
-            <Pedir promo={promo} />
-          </div>
-          {promo.photos.length > 0 && (
-            <div className="flex min-w-0 flex-col gap-3">
-              <h2 className="text-[13px] font-semibold uppercase tracking-[.08em] text-muted">Más fotos</h2>
-              <div className="-mx-4 grid snap-x scroll-px-4 auto-cols-[72%] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] @4xl:mx-0 @4xl:auto-cols-auto @4xl:grid-flow-row @4xl:grid-cols-2 @4xl:px-0">
-                {promo.photos.map((ph) => (
-                  <img key={ph.src} src={ph.src} alt={ph.alt} loading="lazy" className="fabric aspect-[4/5] h-auto w-full snap-start rounded-tile border border-line bg-surface-2 object-cover @4xl:aspect-square" />
-                ))}
-              </div>
+            <div className="relative col-start-1 row-start-2 flex flex-col items-start gap-5 px-4 pt-2 @4xl:max-w-[600px] @4xl:px-10 @4xl:pb-10 @4xl:pt-0">
+              {promo.description && <p className="text-[16px] leading-relaxed text-ink/85 @4xl:text-[18px]">{promo.description}</p>}
+              <Pedir promo={promo} />
             </div>
-          )}
+          </div>
+          <MasFotos photos={promo.photos} />
         </div>
         <OtrasPromos promos={otras} />
       </>
@@ -277,22 +279,6 @@ export function PromoDetalle({ promo, otras, opcion = "ficha" }: { promo: PromoD
 /* ---------------- 404 ---------------- */
 
 export type NotFoundOpcion = "directa" | "hilo" | "salidas";
-
-/**
- * Lugar reservado para la mascota (PRI-124, en pausa), con la proporción de MascotSlot (160:190).
- * En el sitio es una caja vacía aria-hidden del mismo tamaño (el layout no salta cuando llegue la mascota);
- * el borde punteado y el texto existen solo en el canvas.
- */
-function EspacioMascota() {
-  return (
-    <div
-      aria-hidden
-      className="flex aspect-[160/190] w-[72px] shrink-0 items-center justify-center rounded-card border-2 border-dashed border-line p-1.5 text-center text-[12px] leading-tight text-muted @3xl:w-[120px]"
-    >
-      Mascota
-    </div>
-  );
-}
 
 /** Propuesta · ilustración de la 404 "Hilo suelto": la costura de la portada que se corta y queda colgando. CSS puro. */
 function HiloSuelto() {
@@ -324,12 +310,13 @@ function HiloSuelto() {
   );
 }
 
+/* Mobile: lista. Desktop: tres a lo ancho, para no dejar un bloque angosto con media pantalla vacía. */
 function SalidasLinks() {
   return (
-    <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
+    <ul className="grid divide-y divide-line overflow-hidden rounded-card border border-line bg-surface @3xl:grid-cols-3 @3xl:divide-x @3xl:divide-y-0">
       {NAV_LINKS.map((l) => (
         <li key={l.href}>
-          <a href={l.href} className={`flex min-h-12 items-center justify-between px-4 text-[16px] font-semibold text-ink hover:text-accent ${FOCUS}`}>
+          <a href={l.href} className={`flex min-h-12 items-center justify-between px-4 text-[16px] font-semibold text-ink hover:text-accent @3xl:min-h-20 @3xl:px-6 @3xl:text-[18px] ${FOCUS}`}>
             {l.label}
             <span aria-hidden className="text-accent">→</span>
           </a>
@@ -346,26 +333,19 @@ export function NotFound({ opcion, promos = [] }: { opcion: NotFoundOpcion; prom
     <div className="pb-4 @3xl:pb-8">
       <div className={`${PAD} pb-6 pt-10 @3xl:pt-16`}>
         <div className="mx-auto flex max-w-[600px] flex-col items-center gap-5 text-center">
-          {hilo ? (
-            <div className="flex items-end gap-1">
-              <HiloSuelto />
-              <EspacioMascota />
-            </div>
-          ) : (
-            <EspacioMascota />
-          )}
+          {hilo && <HiloSuelto />}
           <div className="anim-enter flex flex-col items-center gap-4">
             <Eyebrow>Error 404</Eyebrow>
             <h1 className={`${H1} text-[38px] @3xl:text-[68px]`}>{hilo ? "Se nos soltó el hilo" : "Esta página no existe"}</h1>
             <p className="max-w-[44ch] text-[16px] leading-relaxed text-muted @3xl:text-[19px]">
               {hilo
                 ? "Esta página no existe o ya la quitamos. Si venías por una promo, puede que ya haya terminado."
-                : "Puede que el link esté viejo o mal copiado. Escríbenos y te mandamos lo que buscabas."}
+                : "Puede que el link esté viejo o mal copiado. Si venías por una promo, puede que ya haya terminado. Escríbenos y te mandamos lo que buscabas."}
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 @3xl:w-auto @3xl:flex-row">
             <div className="w-full @3xl:w-auto">
-              <Button variant="whatsapp" href={whatsappUrl("Hola! Llegué a una página de Serflow que no existe. Estaba buscando...")} external fullWidth>
+              <Button variant="whatsapp" href={whatsappUrl("¡Hola! Llegué a una página de Serflow que no existe. Estaba buscando...")} external fullWidth>
                 Escríbenos por WhatsApp
               </Button>
             </div>
@@ -380,19 +360,11 @@ export function NotFound({ opcion, promos = [] }: { opcion: NotFoundOpcion; prom
       {salidas &&
         (promos.length > 0 ? (
           <Section title="Promos de hoy">
-            <ul className={`grid gap-4 @3xl:grid-cols-2 @4xl:grid-cols-3 @4xl:gap-5 ${promos.length === 1 ? "max-w-[420px] @3xl:grid-cols-1 @4xl:grid-cols-1" : ""}`}>
-              {promos.map((p) => (
-                <li key={p.slug}>
-                  <PromoCard promo={p} headingLevel={3} />
-                </li>
-              ))}
-            </ul>
+            <PromoGrid>{promos.map((p) => <PromoCard key={p.slug} promo={p} headingLevel={3} />)}</PromoGrid>
           </Section>
         ) : (
           <Section title="Lo que sí está">
-            <div className="max-w-[480px]">
-              <SalidasLinks />
-            </div>
+            <SalidasLinks />
           </Section>
         ))}
     </div>
