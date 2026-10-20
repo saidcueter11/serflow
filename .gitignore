@@ -39,3 +39,6 @@ playwright-report/
 tempo/.tempo/
 tempo/node_modules/
 tempo/dist/
+
+# supabase CLI (link, cache local)
+supabase/.temp/

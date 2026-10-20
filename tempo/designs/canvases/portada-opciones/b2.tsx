@@ -40,7 +40,7 @@ const SLIDE_SECONDS = 6;
 
 /**
  * Promos activas: salen de la tabla promos del admin (getActivePromos: title, slug, banner_url). Sin promos, nada cambia.
- * Hoy la base solo permite UNA activa (índice promos_one_active en supabase/02_promos.sql): para varias hay que quitar ese
+ * Hoy la base solo permite UNA activa (índice promos_one_active en supabase/migrations/20260920231621_promos.sql): para varias hay que quitar ese
  * índice (SQL nuevo) y dejar que serflow-admin active más de una.
  * Con promo: barra fija arriba de todo (no se mueve, se lee de un vistazo) que lleva a /promos/<slug>, y el banner
  * de la promo entra como primera foto del carrusel. Título, foto y activar/desactivar ya se manejan en serflow-admin.
