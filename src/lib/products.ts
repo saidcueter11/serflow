@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { livePromos } from './promos'
 import type { Category, Product, Promo } from './types'
 
 /* ── Categories ──────────────────────────────────────────── */
@@ -103,23 +104,16 @@ export async function getProductBySlug(
   return data
 }
 
-export async function getActivePromo(): Promise<Promo | null> {
-  const { data, error } = await supabase
-    .from('promos')
-    .select('*')
-    .eq('is_active', true)
-    .maybeSingle()
-
-  if (error) return null
-  return data
-}
-
+/**
+ * Promos activas y vigentes, por sort_order. Lanza si Supabase falla: un build sin promos por un error
+ * dejaría en 404 los links de promo que ya circulan por WhatsApp (Netlify conserva el deploy anterior).
+ */
 export async function getActivePromos(): Promise<Promo[]> {
   const { data, error } = await supabase
     .from('promos')
     .select('*')
     .eq('is_active', true)
 
-  if (error) return []
-  return data ?? []
+  if (error) throw new Error(`Failed to fetch promos: ${error.message}`)
+  return livePromos(data ?? [], new Date())
 }

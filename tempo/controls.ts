@@ -10,6 +10,9 @@ import { StatusPill } from "../src/components/ui/StatusPill";
 import { ServiceCard } from "../src/components/ui/ServiceCard";
 import { ProductCard } from "../src/components/ui/ProductCard";
 import { WorkCard } from "../src/components/ui/WorkCard";
+import { PromoCard } from "../src/components/ui/PromoCard";
+import { PromoAfiche } from "../src/components/ui/PromoAfiche";
+import { PromoGrid } from "../src/components/ui/PromoGrid";
 import { PhotoSlot } from "../src/components/ui/PhotoSlot";
 import { MascotSlot } from "../src/components/ui/MascotSlot";
 import { QuickFacts } from "../src/components/ui/QuickFacts";
@@ -74,6 +77,19 @@ defineControls(WorkCard, {
   title: { type: "text" },
   technique: { type: "text" },
   image: { type: "object" },
+});
+
+defineControls(PromoCard, {
+  promo: { type: "object" },
+  headingLevel: { type: "inline-radio" },
+});
+
+defineControls(PromoAfiche, {
+  promo: { type: "object" },
+});
+
+defineControls(PromoGrid, {
+  children: false,
 });
 
 defineControls(PhotoSlot, {

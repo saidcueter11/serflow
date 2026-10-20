@@ -42,11 +42,6 @@ function ScheduleLookalike() {
   );
 }
 
-/** PromoBanner.astro:30 y promos/[slug].astro:48 */
-function MicroLabelLookalike() {
-  return <p className="text-[10px] uppercase tracking-[0.2em] text-accent">Campana</p>;
-}
-
 /** Card.astro:28-31 */
 function CardDotLookalike() {
   return (
@@ -184,40 +179,6 @@ const ROWS: DebtRow[] = [
             <StatusPill tone="ok">Abierto ahora</StatusPill>
             <p className="text-sm text-muted">Lunes a sábado, 8 a.m. a 6 p.m.</p>
           </div>
-        </Tile>
-      </div>
-    ),
-  },
-  {
-    title: "Micro-etiquetas de 10px fuera de escala (y con typo)",
-    body: (
-      <>
-        <Code>text-[10px] tracking-[0.2em]</Code> está por debajo del mínimo de la escala (12px) y es difícil de leer en
-        exteriores. El texto dice <Code>Campana</Code> donde va <Code>Campaña</Code>.
-      </>
-    ),
-    bullets: [
-      <>
-        <Code>src/components/PromoBanner.astro:30</Code> <Code>text-[10px] md:text-xs tracking-[0.2em]</Code>
-      </>,
-      <>
-        <Code>src/pages/promos/[slug].astro:48</Code> <Code>text-[10px] tracking-[0.2em]</Code>
-      </>,
-    ],
-    fix: (
-      <>
-        Reemplazar por <Code>{"<Eyebrow>Campaña</Eyebrow>"}</Code> sobre el título de la promo (en el banner sobre foto,
-        la píldora surface ya da el contraste).
-      </>
-    ),
-    visual: (
-      <div className="flex items-start gap-4 pt-4">
-        <Tile tone="remove" label="PromoBanner.astro:30" reimplemented>
-          <MicroLabelLookalike />
-        </Tile>
-        <Arrow />
-        <Tile tone="target" label="Eyebrow">
-          <Eyebrow>Campaña</Eyebrow>
         </Tile>
       </div>
     ),

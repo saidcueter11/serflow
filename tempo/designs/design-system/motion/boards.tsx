@@ -68,7 +68,7 @@ export function BoardTickerPromo() {
           <PromoBar promos={PROMOS_SAMPLE.slice(0, 1)} />
         </div>
       </Row>
-      <Row name="PromoBar · 2 promos" description="Rotan cada 5 s; la etiqueta dice cuántas hay.">
+      <Row name="PromoBar · 2 promos" description="Toda la barra es un link a /promos; los títulos rotan cada 5 s y Ver las 2 queda quieto. La etiqueta dice cuántas hay.">
         <div className="w-[900px]">
           <PromoBar promos={PROMOS_SAMPLE} />
         </div>

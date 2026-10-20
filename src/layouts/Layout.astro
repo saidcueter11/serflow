@@ -11,12 +11,15 @@ interface Props {
   title: string
   description?: string
   hideFooter?: boolean
+  /** Mensaje prellenado del botón flotante de WhatsApp (p. ej. el de la promo que se está viendo). */
+  whatsappText?: string
 }
 
 const {
   title,
   description = 'Prendas personalizadas en Cartagena. Calidad que enamora, precios que te hacen volver. Contáctanos por WhatsApp.',
   hideFooter,
+  whatsappText,
 } = Astro.props
 
 const canonicalUrl = Astro.url.toString()
@@ -83,7 +86,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
         <slot />
       </div>
       {!hideFooter && <Footer logoSrc={logo.src} />}
-      <WhatsAppFab />
+      <WhatsAppFab text={whatsappText} />
     </div>
     <script is:inline>
       (function () {
