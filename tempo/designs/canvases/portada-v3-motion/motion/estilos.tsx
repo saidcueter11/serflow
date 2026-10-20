@@ -32,7 +32,7 @@ export const MOTION_CSS = `
 .mo-wait { position: relative; isolation: isolate; overflow: hidden; }
 .mo-wait::before { content: ''; position: absolute; inset: 0; z-index: -1; transform: translateX(-100%); background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .08) 50%, transparent 80%); animation: mo-sweep var(--motion-shimmer) var(--ease-out) 6 both; }
 .mo-shine { position: relative; }
-.mo-shine::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .22) 50%, transparent 80%); animation: mo-sweep var(--motion-shimmer) var(--ease-out) infinite; }
+.mo-shine::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .22) 50%, transparent 80%); animation: mo-sweep var(--motion-shimmer) var(--ease-out) infinite; }
 .mo-spin { animation: mo-spin var(--motion-spin) linear infinite; }
 
 .mo-navbar { position: fixed; inset: 0 0 auto; z-index: 60; height: 3px; transform: scaleX(0); transform-origin: left; background: repeating-linear-gradient(90deg, var(--color-accent) 0 9px, transparent 9px 15px); }

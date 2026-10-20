@@ -120,7 +120,7 @@ export function MotionSistema() {
                   ["--motion-fast", "120 ms", "Tocar, hover de color", "Ya existe"],
                   ["--motion-med", "200 ms", "Fundidos, cambio de página", "Ya existe"],
                   ["--motion-slow", "280 ms", "Hojas, foto que crece, card que sube", "Ya existe"],
-                  ["--motion-enter", "600 ms", "Entradas y lo que se posa (hoy 0.7s y 500ms fijos)", "Nuevo"],
+                  ["--motion-enter", "600 ms", "Entradas y lo que se posa (hoy 0.7s fijo en anim-enter)", "Nuevo"],
                   ["--ease-enter", "0.2, 0.7, 0.2, 1", "Entradas (hoy fija en anim-enter)", "Nuevo"],
                   ["--motion-spin", "900 ms", "Girador del personalizador (PRI-122)", "Nuevo"],
                   ["--motion-shimmer", "1.4 s", "Barrido de espera (PRI-122)", "Nuevo"],
@@ -158,12 +158,11 @@ export function MotionSistema() {
                 animan <C>transform</C>. Se arregla sumando translate a su transición.
               </li>
               <li>
-                ProductCard y PromoCard acercan la foto con el mouse, contra lo que dice su propio uso en el design system (&quot;sin scale en hover&quot;): se
+                ProductCard, PromoCard y ServiceCard acercan la foto con el mouse, contra lo que dice el uso de ProductCard en el design system (&quot;sin scale en hover&quot;): se
                 quita. El acercamiento queda solo en las fotos del catálogo (PRI-130).
               </li>
               <li>
-                Duraciones fijas fuera de los tokens: <C>0.7s</C> en anim-enter y <C>55ms</C> en catalog-in pasan a <C>--motion-enter</C> y{" "}
-                <C>--motion-fast</C>.
+                Duración fija fuera de los tokens: <C>0.7s</C> en anim-enter pasa a <C>--motion-enter</C>. El paso de <C>55ms</C> del escalonado de catalog-in se queda, documentado en su clase (<C>--stagger-step</C>), como <C>--swap-cycle</C>.
               </li>
               <li>El personalizador (PRI-122) trae sus propias pz-spin, pz-shimmer, pz-sheet y pz-fade: pasan a ser las del sistema.</li>
             </ul>

@@ -80,7 +80,7 @@ export function Intro() {
             "Cambio al design system, en su propio PR antes de la portada: Button gana la variante primary (el mismo dorado, sin ícono) para acciones que no abren WhatsApp. Hoy Diseñar mi prenda usa whatsapp sin ícono, que su uso no permite; en B y C pasa a ser el botón del hero.",
             "MapCard: la variante abierta deja de usarse en la portada. Actualizar su uso y el canvas business-info.",
             "design-system/app-shell/portada.tsx: PERSONALIZER_HREF pasa a /personaliza y PersonalizadorEntry se reemplaza por el bloque escogido. Los tres pasos en un solo lugar.",
-            "Movimiento: las clases mo-* y los cuatro tokens a tokens.css, la regla de view transitions a global.css, y las demos al canvas design-system/motion. ProductCard y PromoCard: translate en la transición y sin acercar la foto.",
+            "Movimiento: las clases mo-* y los cuatro tokens a tokens.css, la regla de view transitions a global.css, y las demos al canvas design-system/motion. ProductCard y PromoCard: translate en la transición. ProductCard, PromoCard y ServiceCard: sin acercar la foto.",
           ]}
         />
       </Block>
