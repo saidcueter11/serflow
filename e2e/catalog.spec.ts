@@ -14,7 +14,7 @@ test('home -> product -> WhatsApp CTA, and Ver todo opens a category', async ({ 
   const productHref = await productLink.getAttribute('href')
   await productLink.click()
   await expect(page).toHaveURL(new RegExp(`${productHref}/?$`))
-  await expect(page.getByRole('button', { name: 'Contactar por WhatsApp' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Pedir por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\//)
 })
 
 test('unknown route shows the 404 page', async ({ page }) => {

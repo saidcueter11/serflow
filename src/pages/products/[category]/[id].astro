@@ -1,161 +1,62 @@
 ---
-import { getImage } from 'astro:assets'
-import ProductPreview from '../../../components/ProductPreview.astro'
-import ProductCard from '../../../components/ProductCard.astro'
 import Layout from '../../../layouts/Layout.astro'
-import { getProducts } from '../../../lib/products'
-import type { Product } from '../../../lib/types'
+import { TODO_HREF } from '../../../components/catalog/CatalogPage'
+import { ViewerPage } from '../../../components/catalog/ViewerPage'
+import { loadCatalog } from '../../../lib/catalog-view'
+import { PAGE_SIZE, fotoTitulo, masDe, pageHref } from '../../../lib/catalog'
 
+// PRI-130: visor de una foto. Mismas URLs de la ficha de antes (/products/<categoría>/<slug>): los links que ya
+// circulan por WhatsApp siguen funcionando.
 export async function getStaticPaths() {
-  const products = await getProducts()
-  return products.map((product) => {
-    const categorySlug = product.categories?.slug ?? ''
-    const related = products.filter(
-      (p) => p.slug !== product.slug && (p.categories?.slug ?? '') === categorySlug,
-    )
-    return {
-      params: {
-        category: categorySlug,
-        id: product.slug,
-      },
-      props: { product, related },
-    }
-  })
+  const { groups, todo } = await loadCatalog()
+  return groups.flatMap((g) =>
+    g.items.map((item, i) => {
+      const enTodo = todo.indexOf(item)
+      return {
+        params: { category: g.slug, id: item.slug },
+        props: {
+          item,
+          category: { label: g.label, href: g.href, count: g.items.length },
+          mas: masDe(g.items, i, 12),
+          back: `${pageHref(TODO_HREF, Math.floor(enTodo / PAGE_SIZE) + 1)}#${item.tile.id}`,
+        },
+      }
+    }),
+  )
 }
 
-interface Props {
-  product: Product
-  related: Product[]
-}
-
-const { product, related } = Astro.props
-
-const productImages = product.image_urls
-const mainImage = productImages[0] ?? ''
-const categorySlug = product.categories?.slug ?? ''
-const categoryLabel = product.categories?.label ?? ''
-
-// Build proper URLs
-const siteUrl =
-  Astro.site?.toString().replace(/\/$/, '') || 'https://serflowctg.netlify.app'
-const productUrl = `${siteUrl}/products/${categorySlug}/${product.slug}`
-const imageUrl = mainImage
-let ogImage = imageUrl
-if (mainImage) {
-  try {
-    const jpg = await getImage({
-      src: mainImage,
-      inferSize: true,
-      width: 1200,
-      format: 'jpg',
-    })
-    ogImage = new URL(jpg.src, `${siteUrl}/`).href
-  } catch {
-    ogImage = imageUrl
-  }
-}
-
-// SEO-friendly title and description
-const pageTitle = product.name
-const pageDescription =
-  product.description ||
-  `¿Te interesa este producto de ${categoryLabel}? ¡Contáctanos por WhatsApp para más información!`
-const productSchema = {
+const { item, category, mas, back } = Astro.props
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://serflowctg.netlify.app'
+const url = `${siteUrl}${item.tile.href}`
+const ogImage = item.og ? new URL(item.og, `${siteUrl}/`).href : null
+const title = `${fotoTitulo(category.label, item.n)} — Serflow`
+const description = `Un trabajo de ${category.label} hecho en el taller de Serflow, Cartagena. ¿Te gusta? Te hacemos una igual o con tu logo: pídela por WhatsApp.`
+// Sin precio ni offers: el sitio no muestra precios (el precio se conversa por WhatsApp).
+const schema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
-  name: pageTitle,
-  image: productImages,
-  description: pageDescription,
-  category: categoryLabel,
-  brand: {
-    '@type': 'Brand',
-    name: 'Serflow',
-  },
-  url: productUrl,
-  offers: {
-    '@type': 'Offer',
-    availability: 'https://schema.org/InStock',
-    priceCurrency: 'COP',
-    price: product.price?.toString() ?? '0',
-    description: product.price ? undefined : 'Consultar precio por WhatsApp',
-  },
+  name: fotoTitulo(category.label, item.n),
+  image: item.photos.map((p) => new URL(p.src, `${siteUrl}/`).href),
+  description,
+  category: category.label,
+  brand: { '@type': 'Brand', name: 'Serflow' },
+  url,
 }
 ---
 
-<Layout title={pageTitle} description={pageDescription}>
+<Layout title={title} description={description} hideFab>
   <Fragment slot="head">
-    <!-- Open Graph / Facebook / WhatsApp -->
+    <!-- Open Graph: WhatsApp muestra esta foto en la vista previa del link que lleva el mensaje. -->
     <meta property="og:type" content="product" />
-    <meta property="og:url" content={productUrl} />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={pageDescription} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:image:secure_url" content={ogImage} />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="1200" />
-    <meta property="og:image:alt" content={pageTitle} />
-    <meta property="og:site_name" content="Serflow" />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={pageTitle} />
-    <meta name="twitter:description" content={pageDescription} />
-    <meta name="twitter:image" content={ogImage} />
-
-    <!-- WhatsApp specific (some versions respect these) -->
+    <meta property="og:url" content={url} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:secure_url" content={ogImage} />}
+    {ogImage && <meta property="og:image:type" content="image/jpeg" />}
+    <meta property="og:image:alt" content={item.tile.img.alt} />
     <meta property="og:locale" content="es_CO" />
-
-    <!-- Additional SEO -->
-    <meta property="product:availability" content="in stock" />
-    <script type="application/ld+json" set:html={JSON.stringify(productSchema)}></script>
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <link rel="preload" as="image" imagesrcset={item.photos[0].srcSet} imagesizes="(min-width: 1280px) 1200px, 100vw" fetchpriority="high" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </Fragment>
-
-  <div
-    class="mt-8 mb-10 md:mb-14 max-w-3xl w-full h-full mx-auto flex flex-col gap-4 font-vend-sans section-padding"
-  >
-    <aside class="z-20">
-      <a
-        href={`/products/${categorySlug}`}
-        class="inline-flex items-center gap-2 text-accent group cursor-pointer"
-      >
-        <span class="bg-accent text-primary rounded-full w-6 h-6 inline-flex items-center justify-center text-sm">
-          ←
-        </span>
-        <span class="underline-hover group-hover:after:origin-bottom group-hover:after:scale-x-100 group-active:after:scale-x-100 group-active:after:origin-bottom">
-          Volver atrás
-        </span>
-      </a>
-    </aside>
-
-    <main class="w-full h-full">
-      <ProductPreview
-        slug={product.slug}
-        mainImage={mainImage}
-        images={productImages}
-        alt={categoryLabel}
-        productName={pageTitle}
-      />
-    </main>
-  </div>
-
-  {
-    related.length > 0 && (
-      <section class="max-w-6xl mx-auto w-full section-padding mb-14">
-        <h2 class="font-titan text-xl md:text-2xl text-white mb-4">Más de {categoryLabel}</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {related.map((item, index) => (
-            <ProductCard
-              slug={item.slug}
-              imageUrl={item.image_urls[0] ?? ''}
-              categorySlug={categorySlug}
-              altText={`${categoryLabel} — ${item.name}`}
-              preload={index < 2}
-              index={index}
-            />
-          ))}
-        </div>
-      </section>
-    )
-  }
+  <ViewerPage item={item} category={category} mas={mas} back={back} />
 </Layout>

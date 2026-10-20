@@ -3,11 +3,14 @@ import { defineAsset } from "tempo-sdk/assets";
 import { Chip } from "../../../../src/components/ui/Chip";
 import { Eyebrow } from "../../../../src/components/ui/Eyebrow";
 import { StatusPill } from "../../../../src/components/ui/StatusPill";
+import { CategoryNav } from "../../../../src/components/ui/CategoryNav";
+import { NewBadge } from "../../../../src/components/ui/NewBadge";
 import { BoardIntro } from "./BoardIntro";
 import { BoardChip } from "./BoardChip";
 import { BoardEyebrow } from "./BoardEyebrow";
 import { BoardStatusPill } from "./BoardStatusPill";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
+import { BoardCategoryNav, BoardNewBadge } from "./BoardCategoryNav";
 
 export default function LabelsCanvas() {
   return (
@@ -41,6 +44,18 @@ export default function LabelsCanvas() {
         name="Design System Debt"
         component={BoardDesignSystemDebt}
         layout={{ x: 4500, y: 0, width: 1400, height: 2600, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="CategoryNav"
+        name="CategoryNav"
+        component={BoardCategoryNav}
+        layout={{ x: 0, y: 2700, width: 1100, height: 900, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="NewBadge"
+        name="NewBadge"
+        component={BoardNewBadge}
+        layout={{ x: 1150, y: 2700, width: 900, height: 700, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );
@@ -77,5 +92,33 @@ defineAsset(StatusPill, {
     "Disponible confirmado": { props: { tone: "accent", children: "Disponible · confirmado hace 2 días" } },
     "Confirmado sin punto": { props: { tone: "accent", dot: false, children: "Confirmado hace 2 días" } },
     "Cerrado": { props: { tone: "muted", children: "Cerrado" } },
+  },
+});
+
+defineAsset(CategoryNav, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Pestañas de categoría del catálogo (/products y /products/<categoría>): links con el conteo de fotos activas, \"Todo\" primero; current = href de la página con aria-current. Fila con scroll en el celular, varias filas desde @3xl. No es un Chip (eso es un radio para elegir talla o técnica) y no filtra en el cliente: cada pestaña cambia la URL. Una por página, debajo de la bienvenida del catálogo.",
+  variants: {
+    "Categoría actual": {
+      props: {
+        current: "/products/beisbol",
+        categories: [
+          { label: "Todo", href: "/products", count: 92 },
+          { label: "Mi Tierra Querida", href: "/products/mi-tierra-querida", count: 26 },
+          { label: "Beisbol", href: "/products/beisbol", count: 23 },
+          { label: "Moda", href: "/products/moda", count: 23 },
+        ],
+      },
+    },
+  },
+});
+
+defineAsset(NewBadge, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "\"Nuevo\" sobre una foto del catálogo subida hace menos de 21 días (isNuevo de src/lib/catalog.ts, en el build). Encima de la foto en Masonry (arriba a la izquierda) o junto a la categoría en el visor. Nunca inventado: solo con created_at real. No para promos (PromoBar) ni para estados (StatusPill).",
+  variants: {
+    Default: { props: {} },
   },
 });

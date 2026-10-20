@@ -1,0 +1,74 @@
+---
+import { getImage } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import { CatalogPage, TODO_HREF } from '../../components/catalog/CatalogPage'
+import { CategoryBanner } from '../../components/ui/CategoryBanner'
+import { loadCatalog } from '../../lib/catalog-view'
+import { pageHref, pages } from '../../lib/catalog'
+// Portada de "Todo" en el banner: foto de Unsplash que ya usa la portada (PRI-129), hasta que lleguen las reales (PRI-150).
+import todoCover from '../../assets/images/stock/amigos-gorras.jpg'
+
+// PRI-130: /products ("Todo") y /products/<categoría>, en bloques de 60 (/pagina/2...). El visor es [category]/[id].
+export async function getStaticPaths() {
+  const { groups, todo } = await loadCatalog()
+  const cover = await getImage({ src: todoCover, widths: [640, 960, 1280], format: 'webp', quality: 72 })
+  const views = [
+    { slug: '', label: 'Todo', href: TODO_HREF, cover: { src: cover.src, srcSet: cover.srcSet.attribute }, items: todo },
+    ...groups,
+  ]
+  const slides = views.map((v) => ({ label: v.label, count: v.items.length, image: v.cover }))
+  const chips = views.map((v) => ({ label: v.label, href: v.href, count: v.items.length }))
+  return views.flatMap((v, index) => {
+    const blocks = pages(v.items)
+    return blocks.map((items, i) => ({
+      params: { gallery: [v.slug, i > 0 ? `pagina/${i + 1}` : ''].filter(Boolean).join('/') || undefined },
+      props: {
+        index,
+        slides,
+        chips,
+        view: { label: v.label, href: v.href },
+        page: i + 1,
+        tiles: items.map((it) => it.tile),
+        next: blocks[i + 1] ? { href: pageHref(v.href, i + 2), count: blocks[i + 1].length } : undefined,
+      },
+    }))
+  })
+}
+
+const { index, slides, chips, view, page, tiles, next } = Astro.props
+const todo = view.href === TODO_HREF
+const title = `${todo ? 'Catálogo' : view.label}${page > 1 ? `, página ${page}` : ''} — Serflow`
+const description = todo
+  ? 'Así quedan los trabajos de Serflow en Cartagena: gorras y camisetas personalizadas. Toca la que te guste y pídela por WhatsApp.'
+  : `Explora la colección de ${view.label} en Serflow. Prendas personalizadas con atención por WhatsApp en Cartagena.`
+const banner = slides[index].image
+---
+
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <meta property="og:locale" content="es_CO" />
+    {banner && <link rel="preload" as="image" imagesrcset={banner.srcSet} imagesizes="(min-width: 1280px) 1200px, 100vw" fetchpriority="high" />}
+  </Fragment>
+  <main data-banner-index={index} class="@container">
+    <div class="px-4 pt-4 @3xl:px-12 @3xl:pt-6">
+      <!-- Se conserva entre categorías para que la lámina se deslice a la nueva, como antes del rediseño. -->
+      <div transition:persist="catalog-banner">
+        <CategoryBanner slides={slides} current={index} />
+      </div>
+    </div>
+    <CatalogPage chips={chips} current={view.href} label={view.label} tiles={tiles} next={next} />
+  </main>
+</Layout>
+
+<script>
+  // El banner persiste entre páginas del catálogo (transition:persist): aquí se desliza a la categoría de la página nueva.
+  document.addEventListener('astro:page-load', () => {
+    const main = document.querySelector<HTMLElement>('main[data-banner-index]')
+    const track = document.querySelector<HTMLElement>('[data-banner-track]')
+    if (!main || !track) return
+    const slides = track.querySelectorAll<HTMLElement>('[data-banner-slide]')
+    const i = Number(main.dataset.bannerIndex)
+    track.style.transform = `translateX(-${(i / slides.length) * 100}%)`
+    slides.forEach((s, k) => (k === i ? s.removeAttribute('aria-hidden') : s.setAttribute('aria-hidden', 'true')))
+  })
+</script>

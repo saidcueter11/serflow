@@ -121,7 +121,7 @@ const ROWS: DebtRow[] = [
     ),
   },
   {
-    title: "Caja gris de relleno cuando una categoría no tiene imagen",
+    title: "Resuelto en PRI-130: Caja gris de relleno cuando una categoría no tiene imagen",
     body: (
       <>
         Si <Code>cat.image_url</Code> viene vacío, la card pinta un rectángulo <Code>bg-zinc-800</Code> (fuera de la
@@ -236,7 +236,7 @@ const ROWS: DebtRow[] = [
     visual: null,
   },
   {
-    title: "CatalogImage.astro: lo que se queda",
+    title: "Resuelto en PRI-130: CatalogImage.astro: lo que se queda",
     body: (
       <>
         Para fotos de catálogo (Supabase) CatalogImage ya hace lo correcto y no se reemplaza: srcset con{" "}

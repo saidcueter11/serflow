@@ -19,6 +19,7 @@ const photos = (await res.json()).flatMap((p) => p.image_urls)
 if (photos.length < 6) throw new Error(`Need 6 product photos for the seeded promos, got ${photos.length}`)
 
 let promos = []
+let categories = []
 const proxy = http.createServer(async (req, out) => {
   if (req.url.startsWith('/rest/v1/promos')) {
     out.writeHead(200, { 'content-type': 'application/json' })
@@ -28,7 +29,12 @@ const proxy = http.createServer(async (req, out) => {
   const headers = { ...req.headers }
   for (const k of ['host', 'connection', 'keep-alive']) delete headers[k]
   const r = await fetch(REAL + req.url, { method: req.method, headers })
-  const body = Buffer.from(await r.arrayBuffer())
+  let body = Buffer.from(await r.arrayBuffer())
+  // PRI-130: categorías sembradas (p. ej. una sin fotos) al final de la lista de categorías.
+  if (categories.length && req.url.startsWith('/rest/v1/categories') && r.ok) {
+    const rows = JSON.parse(body.toString())
+    if (Array.isArray(rows)) body = Buffer.from(JSON.stringify([...rows, ...categories]))
+  }
   const h = Object.fromEntries(r.headers)
   delete h['content-encoding']
   delete h['content-length']
@@ -48,6 +54,7 @@ const run = (args, env = {}) =>
 
 for (const s of SCENARIOS) {
   promos = s.promos(photos, new Date())
+  categories = s.categories ?? []
   await run(['build', '--outDir', s.outDir], { PUBLIC_SUPABASE_URL: proxyUrl })
 }
 proxy.close()

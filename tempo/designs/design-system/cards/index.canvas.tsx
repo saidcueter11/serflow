@@ -79,7 +79,7 @@ defineAsset(ServiceCard, {
 defineAsset(ProductCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una prenda de Disponible ahora o del catálogo: foto 4:3, nombre, meta (color y tallas) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link. Es fluida: el ancho lo pone la lista (fila con scroll grid grid-flow-col auto-cols-[200px] overflow-x-auto snap-x, o las columnas de un grid). No le agregues tamaño fijo, scale en hover ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
+    "Una prenda de Disponible ahora (para el catálogo usa Masonry): foto 4:3, nombre, meta (color y tallas) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link. Es fluida: el ancho lo pone la lista (fila con scroll grid grid-flow-col auto-cols-[200px] overflow-x-auto snap-x, o las columnas de un grid). No le agregues tamaño fijo, scale en hover ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
   variants: {
     "Camiseta confirmada": {
       props: {
