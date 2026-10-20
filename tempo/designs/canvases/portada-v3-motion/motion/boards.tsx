@@ -6,6 +6,7 @@ import { ErrorState } from "../../../../../src/components/ui/ErrorState";
 import { HeroCarousel } from "../../../../../src/components/ui/HeroCarousel";
 import { ProductCard } from "../../../../../src/components/ui/ProductCard";
 import { PromoCard } from "../../../../../src/components/ui/PromoCard";
+import { PromoGrid } from "../../../../../src/components/ui/PromoGrid";
 import { Section } from "../../../../../src/components/ui/Section";
 import { WhatsAppFab } from "../../../../../src/components/ui/WhatsAppFab";
 import type { PromoView } from "../../../../../src/lib/promos";
@@ -89,15 +90,16 @@ export function MotionSistema() {
             por card. El catálogo es la excepción: cada foto se destapa (<C>reveal-wipe</C>, PRI-130) porque la foto es el contenido.
           </Regla>
           <Regla n="02" titulo="Navegar se siente continuo">
-            El ClientRouter que ya está hace fundido de 200 ms y deja quieto el header. Se suma una cosa: la foto que tocas crece hasta la página
-            siguiente (catálogo al visor, promo al detalle, vista previa de la portada al personalizador). Una sola por navegación.
+            El ClientRouter que ya está hace fundido de 200 ms, deja quieto el header y ya hace
+            crecer la foto del catálogo hasta su página. Se extiende a la promo (al detalle) y a la vista previa de la portada (al personalizador).
           </Regla>
           <Regla n="03" titulo="Tocar responde en 120 ms y se hunde">
-            Botones, cards y fotos se hunden 2 px al tocar, como el botón dorado. Con mouse, la card sube y el borde se aclara (ya existe). Nada de
-            escalar cards ni de rebotes.
+            Todo lo tocable se hunde: los botones como ya lo hacen (el dorado 3 px, lo que mide su sombra; el secundario 1 px) y cards y fotos 2 px,
+            que hoy no hacen nada. El flotante se encoge porque flota. Con mouse, la card sube y el borde se aclara (ya existe). Nada de escalar cards
+            ni de rebotes.
           </Regla>
           <Regla n="04" titulo="Esperar se ve como tela, nunca bloquea">
-            Mientras llega una foto se ve la trama con un barrido suave (6 pasadas y quieta). Si una página tarda más de 300 ms, una costura dorada
+            Mientras llega una foto se ve la trama con un barrido suave (6 pasadas y quieta). Si una página tarda más de 280 ms, una costura dorada
             avanza arriba. El girador solo en el personalizador, y después de 5 s hay salida.
           </Regla>
           <Regla n="05" titulo="Confirmar cosiendo">
@@ -150,10 +152,18 @@ export function MotionSistema() {
           <div className="rounded-card border border-line bg-surface p-5">
             <h3 className="text-[15px] font-bold">Lo que hoy está disparejo (y se arregla con esto)</h3>
             <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-5 text-[14px] leading-relaxed text-muted marker:text-accent">
-              <li>Tres formas de tocar: el botón dorado se hunde 3 px, el secundario 1 px, el flotante se encoge y las cards no hacen nada.</li>
+              <li>Las cards y las fotos no responden al tocar en el celular; solo los botones lo hacen.</li>
               <li>
-                Duraciones fijas fuera de los tokens: <C>duration-500</C> en el zoom de ProductCard y PromoCard, <C>0.7s</C> en anim-enter y{" "}
-                <C>55ms</C> en catalog-in.
+                La card que sube con el mouse salta en vez de deslizarse: Tailwind 4 mueve con la propiedad <C>translate</C> y ProductCard y PromoCard solo
+                animan <C>transform</C>. Se arregla sumando translate a su transición.
+              </li>
+              <li>
+                ProductCard y PromoCard acercan la foto con el mouse, contra lo que dice su propio uso en el design system (&quot;sin scale en hover&quot;): se
+                quita. El acercamiento queda solo en las fotos del catálogo (PRI-130).
+              </li>
+              <li>
+                Duraciones fijas fuera de los tokens: <C>0.7s</C> en anim-enter y <C>55ms</C> en catalog-in pasan a <C>--motion-enter</C> y{" "}
+                <C>--motion-fast</C>.
               </li>
               <li>El personalizador (PRI-122) trae sus propias pz-spin, pz-shimmer, pz-sheet y pz-fade: pasan a ser las del sistema.</li>
             </ul>
@@ -176,14 +186,16 @@ const FILAS: Fila[] = [
   ["Color que cambia solo (mo-swap)", "Solo portada C", "opacity + 1 foto más", "0", "Bucle cada 10 s", "Medio"],
   ["Hilo suelto de la 404 (mo-loose)", "404", "trazo SVG", "0", "Una vez", "Bajo"],
   ["Fundido entre páginas", "Todas", "opacity (captura de pantalla)", "Ya está (ClientRouter)", "Al navegar", "Muy bajo"],
-  ["Foto que crece a la página siguiente", "Catálogo, promos, portada", "transform (captura)", "0 extra", "Al navegar", "Bajo"],
-  ["Costura de carga arriba (mo-navbar)", "Todas", "transform", "2 líneas", "Solo si tarda > 300 ms", "Muy bajo"],
+  ["Foto que crece a la página siguiente", "Catálogo (ya existe), promos, portada", "transform (captura)", "0 (transition:name)", "Al navegar", "Bajo"],
+  ["Costura de carga arriba (mo-navbar)", "Todas", "transform", "2 líneas", "Solo si tarda > 280 ms", "Muy bajo"],
   ["Se hunde al tocar (mo-card)", "Cards, fotos", "transform", "0", "Al tocar", "Muy bajo"],
   ["Card que sube con el mouse", "Cards (ya existe)", "translate, border", "0", "Al pasar", "Muy bajo"],
   ["Barrido de espera (mo-wait)", "Fotos", "transform", "0", "6 pasadas", "Bajo"],
-  ["Brillo, girador y hoja (mo-shine, mo-spin, mo-sheet)", "Personalizador", "transform, opacity", "0", "Mientras espera", "Muy bajo"],
-  ["Chulito que se dibuja (mo-check)", "Personalizador", "trazo SVG", "0", "Una vez", "Muy bajo"],
-  ["Cinta, carrusel, barra de promos, latido del flotante", "Portada (ya existen)", "transform, opacity", "0", "Bucle", "Bajo"],
+  ["Brillo y girador (mo-shine, mo-spin)", "Personalizador", "transform", "0", "Bucle mientras espera", "Bajo"],
+  ["Hoja que sube (mo-sheet)", "Personalizador", "transform, opacity", "0", "Una vez", "Muy bajo"],
+  ["Chulito que se dibuja (mo-check)", "Personalizador", "trazo SVG", "0", "Una vez", "Bajo"],
+  ["Cinta, carrusel y barra de promos", "Portada (ya existen)", "transform, opacity", "0", "Bucle siempre", "Medio"],
+  ["Latido del flotante (anim-ring)", "Todas (ya existe)", "box-shadow (repinta)", "0", "3 veces a los 4 s", "Bajo"],
   ["Hilo de bordado", "Portada (ya existe)", "trazo SVG con el scroll", "thread.ts (ya está)", "Con el scroll", "Bajo"],
 ];
 
@@ -193,10 +205,10 @@ export function MotionCostos() {
       titulo="Qué cuesta cada una"
       texto={
         <>
-          Medido sobre el celular con mala señal. Todo es CSS que viaja con la hoja de estilos que ya se descarga: el CSS nuevo suma{" "}
+          Estimado para un celular con mala señal, por lo que mueve cada una. Todo es CSS que viaja con la hoja de estilos que ya se descarga: el CSS nuevo suma{" "}
           <span className="font-semibold text-ink">{MOTION_CSS_BYTES.toLocaleString("es-CO")} bytes sin comprimir</span> (medido en vivo sobre la
-          propuesta), y JS nuevo solo las 2 líneas de la costura de carga. Muy bajo = solo mueve transform u opacity, lo hace la GPU sin repintar. Bajo
-          = repinta un área chica o corre pocas veces. Medio = bucle infinito o descarga extra.
+          propuesta), y JS nuevo solo las 2 líneas de la costura de carga. Muy bajo = solo mueve transform u opacity, una vez, en la GPU sin repintar. Bajo
+          = repinta un área chica, o es un bucle que solo corre mientras se espera. Medio = bucle que corre todo el tiempo o descarga extra.
         </>
       }
     >
@@ -383,13 +395,15 @@ function PromoDetalle({ rm }: { rm: boolean }) {
           </div>
         </div>
       ) : (
-        <div ref={lista} className="grid grid-cols-2 items-start gap-3 p-3">
-          {PROMOS.map((promo, i) => (
-            <div key={promo.slug} className="mo-card" onClickCapture={(e) => abrir(e, i)}>
-              <PromoCard promo={promo} headingLevel={3} />
-            </div>
-          ))}
-          <Pista>Toca una promo</Pista>
+        <div ref={lista} className="relative p-3">
+          <PromoGrid>
+            {PROMOS.slice(0, 1).map((promo, i) => (
+              <div key={promo.slug} className="mo-card w-full" onClickCapture={(e) => abrir(e, i)}>
+                <PromoCard promo={promo} headingLevel={3} />
+              </div>
+            ))}
+          </PromoGrid>
+          <Pista>Toca la promo</Pista>
         </div>
       )}
     </div>
@@ -452,7 +466,7 @@ function SenalLenta({ rm }: { rm: boolean }) {
         </>
       ) : (
         <>
-          <span className="text-[14px] text-muted">{estado === "cargando" ? "Cargando la página (3 s de señal lenta)…" : "Simula tocar un link con 3G lenta."}</span>
+          <span className="text-[14px] text-muted">{estado === "cargando" ? "Cargando la página (3 s de espera)…" : "Simula tocar un link cuando la página tarda en llegar."}</span>
           <div onClick={() => setEstado("cargando")}>
             <Button variant="secondary" icon={null}>
               Ver gorras →
@@ -460,7 +474,7 @@ function SenalLenta({ rm }: { rm: boolean }) {
           </div>
         </>
       )}
-      {rm && <span className="text-[12px] text-muted">Con reducir movimiento la costura aparece fija, sin avanzar.</span>}
+      {rm && <span className="text-[12px] text-muted">Con reducir movimiento (o con 2G y ahorro de datos) la costura aparece fija, sin avanzar.</span>}
     </div>
   );
 }
@@ -471,23 +485,24 @@ export function MotionPaginas() {
       titulo="Entre páginas: la foto que tocas te acompaña"
       texto={
         <>
-          El sitio ya usa el ClientRouter de Astro (Layout.astro): fundido de 200 ms y header quieto. Propongo quedarnos con él (los scripts ya
-          escuchan astro:page-load y el visor de PRI-130 usa data-astro-history) y sumarle: una foto con nombre por navegación que crece hasta la
-          página siguiente, y la costura de carga cuando la señal está lenta. Aquí se simula en la misma página; en el sitio el CSS es el mismo.
+          El sitio ya usa el ClientRouter de Astro (Layout.astro): fundido de 200 ms, header quieto y la foto del catálogo que crece hasta su página
+          (transition:name en cada foto, 0 JS). Propongo quedarnos con él (los scripts ya escuchan astro:page-load y el visor de PRI-130 usa
+          data-astro-history), llevar ese mismo crecer a promos y portada, y sumar la costura de carga con señal lenta. Aquí se simula en la misma
+          página con un poco de JS de demo; en el sitio lo hace el router con el mismo CSS.
         </>
       }
     >
       <EstilosMotion />
-      <Demo titulo="Catálogo → visor" texto="La foto crece del mosaico al visor y vuelve a su sitio con Volver. Nombre foto-<n> solo en la foto tocada." costo={{ mueve: "transform (captura)", js: "0 extra", nivel: "bajo", estado: "Nuevo" }}>
+      <Demo titulo="Catálogo → visor" texto="La foto crece del mosaico al visor y vuelve a su sitio con Volver. Ya pasa hoy en el catálogo (un nombre por foto); se mantiene en el mosaico de PRI-130 con la duración del sistema." costo={{ mueve: "transform (captura)", js: "0", nivel: "bajo", estado: "Ya existe" }}>
         {(rm) => <CatalogoVisor rm={rm} />}
       </Demo>
-      <Demo titulo="Promo → detalle" texto="La portada de la promo crece hasta la cabecera del detalle; el texto entra con un fundido." costo={{ mueve: "transform (captura)", js: "0 extra", nivel: "bajo", estado: "Nuevo" }}>
+      <Demo titulo="Promo → detalle" texto="La portada de la promo crece hasta la cabecera del detalle; el texto entra con un fundido." costo={{ mueve: "transform (captura)", js: "0", nivel: "bajo", estado: "Nuevo" }}>
         {(rm) => <PromoDetalle rm={rm} />}
       </Demo>
-      <Demo titulo="Portada → personalizador" texto="La vista previa de la portada se vuelve la vista previa de /personaliza: misma foto, más grande. El panel de pasos sube." costo={{ mueve: "transform (captura)", js: "0 extra", nivel: "bajo", estado: "Nuevo" }}>
+      <Demo titulo="Portada → personalizador" texto="La vista previa de la portada se vuelve la vista previa de /personaliza: misma foto, más grande. El panel de pasos sube." costo={{ mueve: "transform (captura)", js: "0", nivel: "bajo", estado: "Nuevo" }}>
         {(rm) => <PortadaAlPersonalizador rm={rm} />}
       </Demo>
-      <Demo titulo="Señal lenta: costura de carga" texto="Si la página siguiente tarda más de 300 ms, una costura dorada avanza arriba. Así nadie toca dos veces. Con señal rápida no se alcanza a ver." costo={{ mueve: "transform", js: "2 líneas", nivel: "muy bajo", estado: "Nuevo" }}>
+      <Demo titulo="Señal lenta: costura de carga" texto="Si la página siguiente tarda más de 280 ms, una costura dorada avanza arriba. Así nadie toca dos veces. Con señal rápida no se alcanza a ver; con 2G o ahorro de datos sale fija." costo={{ mueve: "transform", js: "2 líneas", nivel: "muy bajo", estado: "Nuevo" }}>
         {(rm) => <SenalLenta rm={rm} />}
       </Demo>
     </Tablero>
@@ -510,7 +525,7 @@ export function MotionTocar() {
           </Button>
         </div>
       </Demo>
-      <Demo titulo="Cards" texto="Con mouse sube 4 px y el borde se aclara (ya existe). Nuevo: al tocar se hunde 2 px, igual que los botones. El zoom de la foto pasa de 500 ms fijo a --motion-enter." costo={{ mueve: "translate, border, transform", js: "0", nivel: "muy bajo", estado: "Cambia" }}>
+      <Demo titulo="Cards" texto="Con mouse sube 4 px y el borde se aclara (ya existe; hoy salta, se arregla la transición). Nuevo: al tocar se hunde 2 px. Se quita el acercamiento de la foto que tiene hoy, porque su uso en el design system lo prohíbe (aquí todavía se acerca: es el componente de hoy)." costo={{ mueve: "translate, border, transform", js: "0", nivel: "muy bajo", estado: "Cambia" }}>
         <div className="grid h-[300px] grid-cols-2 items-center gap-3 p-4" onClickCapture={(e) => e.preventDefault()}>
           {PRODUCTS.slice(0, 2).map((p) => (
             <div key={p.name} className="mo-card">
@@ -634,17 +649,17 @@ export function MotionCargas() {
       <Demo titulo="Foto que llega tarde" texto="Mientras llega, la trama con un barrido suave detrás; la foto la tapa al llegar. Son 6 pasadas (unos 8 s) y se queda quieta, para no gastar batería con una foto que no llegó." costo={{ mueve: "transform", js: "0", nivel: "bajo", estado: "Nuevo" }}>
         <FotoQueLlega />
       </Demo>
-      <Demo titulo="Preparando tu diseño" texto="Personalizador: brillo sobre la vista previa y girador en el botón. A los 5 s aparece Seguir sin vista previa (PRI-122)." costo={{ mueve: "transform", js: "0", nivel: "muy bajo", estado: "Cambia" }}>
-        <div className="flex h-[300px] flex-col gap-3 p-4">
-          <div className="mo-shine flex-1 overflow-hidden rounded-tile">
+      <Demo titulo="Preparando tu diseño" texto="Personalizador: brillo sobre la vista previa y girador en el botón. A los 5 s aparece Seguir sin vista previa (PRI-122)." costo={{ mueve: "transform", js: "0", nivel: "bajo", estado: "Cambia" }}>
+        <div className="flex h-[300px] flex-col items-center gap-3 p-4">
+          <div className="mo-shine h-[212px] w-[220px] shrink-0 overflow-hidden rounded-tile">
             <VistaMini aterriza="no" etiqueta="" className="h-full w-full" />
           </div>
-          <div className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent text-[15px] font-bold text-primary" role="status">
+          <div className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent text-[15px] font-bold text-primary" role="status">
             <Girador className="size-5" /> Preparando tu diseño…
           </div>
         </div>
       </Demo>
-      <Demo titulo="Hoja que sube y vista previa guardada" texto="Toca Enviar: la hoja sube en 280 ms. Toca Guardar: el chulito se dibuja. Cerrar devuelve el foco al botón." costo={{ mueve: "transform, opacity, trazo", js: "0", nivel: "muy bajo", estado: "Cambia" }}>
+      <Demo titulo="Hoja que sube y vista previa guardada" texto="Toca Enviar: la hoja sube en 280 ms. Toca Guardar: el chulito se dibuja. Cerrar o Esc la cierran y el foco vuelve al botón." costo={{ mueve: "transform, opacity, trazo", js: "0", nivel: "bajo", estado: "Cambia" }}>
         <HojaQueSube />
       </Demo>
       <Demo titulo="Error que aparece" texto="Entra con un fundido de 200 ms, sin sacudirse: quien está sin señal no necesita que la pantalla tiemble." costo={{ mueve: "opacity", js: "0", nivel: "muy bajo", estado: "Cambia" }}>

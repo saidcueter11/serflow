@@ -66,13 +66,23 @@ export function Intro() {
             "\"Diseña la tuya\" pasa a \"Diseña tu prenda\" y su botón, \"Diseñar mi prenda →\", lleva a /personaliza.",
             "La vista previa de la portada es la misma foto de camiseta y el mismo diseño de ejemplo del personalizador (PRI-122), quieta: no es el editor, avisa qué hay al otro lado. Al tocarla, crece hasta la vista previa del personalizador.",
             "En B y C el botón del hero pasa a ser Diseñar mi prenda. WhatsApp queda en el flotante y en lo contextual (Disponible vacío, cada promo, la 404).",
-            "El botón dorado sin ícono es el mismo que hoy usa Diseña la tuya (Button whatsapp con icon null).",
+            "El botón dorado sin ícono es el que hoy usa Diseña la tuya; al construir pasa a una variante propia (ver Al construir).",
           ]}
         />
       </Block>
       <Block label="Qué es nuevo">
         Carpeta propuesta/: VistaMini y los tres bloques (BloquePersonaliza, TarjetaPersonaliza, HeroPersonaliza). Son bloques de HomePage, no del design
         system. Carpeta motion/: las clases mo-* y cuatro tokens nuevos. Todo lo demás es el design system tal cual.
+      </Block>
+      <Block label="Al construir (Feature Builder)">
+        <Bullets
+          items={[
+            "Cambio al design system, en su propio PR antes de la portada: Button gana la variante primary (el mismo dorado, sin ícono) para acciones que no abren WhatsApp. Hoy Diseñar mi prenda usa whatsapp sin ícono, que su uso no permite; en B y C pasa a ser el botón del hero.",
+            "MapCard: la variante abierta deja de usarse en la portada. Actualizar su uso y el canvas business-info.",
+            "design-system/app-shell/portada.tsx: PERSONALIZER_HREF pasa a /personaliza y PersonalizadorEntry se reemplaza por el bloque escogido. Los tres pasos en un solo lugar.",
+            "Movimiento: las clases mo-* y los cuatro tokens a tokens.css, la regla de view transitions a global.css, y las demos al canvas design-system/motion. ProductCard y PromoCard: translate en la transición y sin acercar la foto.",
+          ]}
+        />
       </Block>
       <Block label="Fotos">
         Camiseta y diseño de ejemplo del canvas del personalizador, fotos stock que ya usa la portada y fotos del catálogo actual. Ninguna con datos de

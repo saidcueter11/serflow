@@ -72,9 +72,9 @@ export function TarjetaPersonaliza() {
   return (
     <a
       href={PERSONALIZA_HREF}
-      className={`mo-card fabric flex overflow-hidden rounded-card border border-secondary/50 bg-surface text-ink no-underline transition-[translate,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-accent @4xl:h-full @4xl:flex-col ${FOCUS}`}
+      className={`mo-card fabric flex overflow-hidden rounded-card border border-secondary/50 bg-surface text-ink no-underline transition-[translate,transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-accent @4xl:h-full @4xl:flex-col ${FOCUS}`}
     >
-      <VistaMini etiqueta="" className="min-h-[150px] w-[128px] shrink-0 @4xl:min-h-0 @4xl:w-full @4xl:flex-1" />
+      <VistaMini etiqueta="" carga="eager" decorativa className="min-h-[150px] w-[128px] shrink-0 @4xl:min-h-0 @4xl:w-full @4xl:flex-1" />
       <div className="flex min-w-0 flex-col justify-center gap-1.5 p-4 @4xl:gap-3 @4xl:p-6">
         <h2 className="font-display text-[20px] font-medium leading-tight @4xl:text-[28px]">Diseña tu prenda</h2>
         <p className="text-[14px] leading-snug text-muted @4xl:text-[15px]">Sube tu diseño y míralo sobre la camiseta o la gorra antes de pedirla.</p>
@@ -97,7 +97,7 @@ export function HeroPersonaliza() {
       aria-labelledby="hero-titulo"
       className="grid @4xl:grid-cols-[minmax(0,1fr)_minmax(0,500px)] @4xl:items-center @4xl:gap-14 @4xl:px-12 @4xl:pt-10"
     >
-      <VistaMini alterna etiqueta="Así se ve tu diseño" className="h-[340px] @4xl:order-2 @4xl:h-[600px] @4xl:rounded-card @4xl:border @4xl:border-line" />
+      <VistaMini alterna carga="lcp" etiqueta="Así se vería tu diseño" className="h-[340px] @4xl:order-2 @4xl:h-[600px] @4xl:rounded-card @4xl:border @4xl:border-line" />
       <div className="anim-enter flex flex-col items-start gap-3 px-4 pt-6 @4xl:gap-5 @4xl:px-0 @4xl:pt-0">
         <span className="flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-[.14em] text-accent">
           <PinIcon className="size-3.5" /> Mercado Bazurto · Cartagena
@@ -109,11 +109,11 @@ export function HeroPersonaliza() {
           Sube tu logo, tu foto o tu idea, ponla sobre la camiseta o la gorra y mándanosla. Estampado, DTF y bordado hechos en
           nuestro taller.
         </p>
-        <div className="mt-1 w-full @4xl:w-auto">
+        <div className="mt-1 flex w-full flex-col gap-5 @4xl:w-auto">
           <BotonDisenar />
-        </div>
-        <div className="hidden pt-2 @4xl:block">
-          <Pasos compacto />
+          <div className="hidden @4xl:block">
+            <Pasos compacto />
+          </div>
         </div>
       </div>
     </section>

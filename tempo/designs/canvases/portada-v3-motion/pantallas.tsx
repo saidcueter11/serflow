@@ -26,7 +26,7 @@ export const NotaHoy = () => (
     titulo="Hoy (master)"
     resuelve={[]}
     sacrifica={[
-      "El mapa de Google abierto es lo segundo que ves: en celular justo bajo el hero, en escritorio al lado del carrusel, a la misma altura.",
+      "El mapa de Google abierto es lo segundo que ves: en celular justo después de la cinta, en escritorio al lado del carrusel, a la misma altura.",
       "Diseña la tuya es el quinto bloque y su botón no lleva a ninguna parte.",
     ]}
     construir="Referencia para comparar."
@@ -56,7 +56,7 @@ export const NotaB = () => (
     titulo="En el hero"
     recomendada
     resuelve={[
-      "El botón principal del hero es Diseñar mi prenda y la tarjeta con la vista previa se ve sin bajar, en celular y en escritorio.",
+      "El botón principal del hero es Diseñar mi prenda. La tarjeta con la vista previa se ve completa en escritorio y asoma en la primera pantalla del celular.",
       "En escritorio la tarjeta ocupa la columna que hoy tiene el mapa, a la misma altura del carrusel.",
       "Se queda el carrusel con la bienvenida y la promo que entra primero.",
     ]}
@@ -74,7 +74,7 @@ export const NotaC = () => (
     letra="C"
     titulo="El personalizador es el hero"
     resuelve={[
-      "Lo primero que ves es tu diseño sobre la camiseta: el título dice lo que hace a Serflow distinto.",
+      "Lo primero que ves es un diseño sobre la camiseta: el título dice lo que hace a Serflow distinto.",
       "La camiseta cambia de negra a blanca sola: se entiende que el color se escoge.",
     ]}
     sacrifica={[

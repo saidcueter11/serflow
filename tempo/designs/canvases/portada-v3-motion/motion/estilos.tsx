@@ -20,33 +20,37 @@ export const MOTION_CSS = `
 @keyframes mo-stitch { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
 @keyframes mo-loading { from { transform: scaleX(0) } 60% { transform: scaleX(.7) } to { transform: scaleX(.94) } }
 
-.mo-land { animation: mo-land var(--motion-enter) var(--ease-enter) .35s both; }
+.mo-land { animation: mo-land var(--motion-enter) var(--ease-enter) var(--motion-slow) both; }
 @supports (animation-timeline: view()) {
   .mo-land-scroll { animation: mo-land linear both; animation-timeline: view(); animation-range: entry 30% cover 40%; }
 }
-.mo-swap { opacity: 0; animation: mo-swap 10s ease-in-out 2s infinite; }
+/* Cadencia de contenido, como los 6 s del carrusel: se declara en la clase, no es token. */
+.mo-swap { --swap-cycle: 10s; opacity: 0; animation: mo-swap var(--swap-cycle) ease-in-out calc(var(--motion-enter) * 3) infinite; }
 
 .mo-card > a:active, a.mo-card:active { transform: translateY(2px); transition-duration: var(--motion-fast); }
 
 .mo-wait { position: relative; isolation: isolate; overflow: hidden; }
-.mo-wait::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .08) 50%, transparent 80%); animation: mo-sweep var(--motion-shimmer) var(--ease-out) 6; }
+.mo-wait::before { content: ''; position: absolute; inset: 0; z-index: -1; transform: translateX(-100%); background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .08) 50%, transparent 80%); animation: mo-sweep var(--motion-shimmer) var(--ease-out) 6 both; }
 .mo-shine { position: relative; }
 .mo-shine::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .22) 50%, transparent 80%); animation: mo-sweep var(--motion-shimmer) var(--ease-out) infinite; }
 .mo-spin { animation: mo-spin var(--motion-spin) linear infinite; }
 
 .mo-navbar { position: fixed; inset: 0 0 auto; z-index: 60; height: 3px; transform: scaleX(0); transform-origin: left; background: repeating-linear-gradient(90deg, var(--color-accent) 0 9px, transparent 9px 15px); }
-html[data-navegando] .mo-navbar { animation: mo-loading 8s cubic-bezier(.1, .6, .2, 1) .3s both; }
+/* --nav-espera: avanza rápido y se frena cerca del final; nunca llega sola al 100 %. */
+html[data-navegando] .mo-navbar { --nav-espera: 8s; animation: mo-loading var(--nav-espera) var(--ease-enter) var(--motion-slow) both; }
 
 .mo-sheet { animation: mo-sheet var(--motion-slow) var(--ease-out) both; }
 .mo-fade { animation: mo-fade var(--motion-med) var(--ease-out) both; }
-.mo-check path { stroke-dasharray: 1; animation: mo-stitch var(--motion-slow) var(--ease-out) .1s both; }
-.mo-loose path { stroke-dasharray: 1; animation: mo-stitch calc(var(--motion-enter) * 2) var(--ease-enter) .3s both; }
+.mo-check path { stroke-dasharray: 1; animation: mo-stitch var(--motion-slow) var(--ease-out) var(--motion-fast) both; }
+.mo-loose path { stroke-dasharray: 1; animation: mo-stitch calc(var(--motion-enter) * 2) var(--ease-enter) var(--motion-slow) both; }
 
 ::view-transition-group(*) { animation-duration: var(--motion-slow); animation-timing-function: var(--ease-out); }
 .slow-connection::view-transition-group(*), .slow-connection::view-transition-old(*), .slow-connection::view-transition-new(*) { animation: none !important; }
+/* Sin animación (reducir movimiento o señal lenta, que apagan todo) la costura sale fija: es aviso, no adorno. */
 @media (prefers-reduced-motion: reduce) {
   html[data-navegando] .mo-navbar { transform: scaleX(1); opacity: .6; }
 }
+html.slow-connection[data-navegando] .mo-navbar { transform: scaleX(1); opacity: .6; }
 `;
 
 /*
@@ -57,7 +61,7 @@ const DEMO_CSS = `
 .sim-rm *, .sim-rm *::before, .sim-rm *::after { animation: none !important; transition: none !important; }
 .sim-rm .mo-navbar-on { transform: scaleX(1); opacity: .6; }
 .demo-stage .mo-navbar { position: absolute; }
-.demo-stage .mo-navbar-on { animation: mo-loading 8s cubic-bezier(.1, .6, .2, 1) .3s both; }
+.demo-stage .mo-navbar-on { animation: mo-loading 8s var(--ease-enter) var(--motion-slow) both; }
 `;
 
 export function EstilosMotion() {

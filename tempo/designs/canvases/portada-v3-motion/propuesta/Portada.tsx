@@ -58,7 +58,7 @@ function HeroTexto({ cta }: { cta: "whatsapp" | "personaliza" }) {
       <p className="max-w-[520px] text-[16px] leading-relaxed text-ink/85 @4xl:text-[19px]">
         {cta === "whatsapp"
           ? "Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller."
-          : "Camisetas y gorras con tu logo, tu equipo o tu idea. Diséñala aquí, mírala sobre la prenda y te la hacemos en el taller."}
+          : "Camisetas y gorras con tu logo, tu equipo o tu idea. Diseña la tuya aquí, mírala sobre la prenda y te la hacemos en el taller."}
       </p>
       <div className="mt-1 w-full @4xl:mt-2 @4xl:w-auto">
         {cta === "whatsapp" ? (
@@ -110,7 +110,7 @@ function Disponible() {
 function QuienesYVisitanos() {
   return (
     <Section id="quienes-somos" title="Quiénes somos">
-      <div className="reveal-up grid gap-8 @3xl:grid-cols-[minmax(0,1fr)_380px] @3xl:gap-14">
+      <div className="reveal-up grid gap-8 @3xl:grid-cols-[minmax(0,1fr)_380px] @3xl:items-center @3xl:gap-14">
         <div className="flex flex-col gap-6">
           <QuienesCopy className="text-[16px] @3xl:text-[18px]" />
           <Razones />
