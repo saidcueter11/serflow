@@ -27,7 +27,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - CI (GitHub Actions), `ci` y `e2e` son gate para mergear:
   - `.github/workflows/ci.yml`, job `ci`: `npm run check` + `npm test`. Corre en PR y en push a `master`.
   - `.github/workflows/e2e.yml`, job `e2e`: build + `npm run e2e`. Corre en PR. Reporte en el artifact `playwright-report`.
-  - `.github/workflows/supabase-migrations.yml`, job `migrations`: en PRs que tocan `supabase/` corre `supabase db push --dry-run` contra prod (lista las migraciones que se aplicarían; no corre en PRs de forks) y en push a `master` corre `supabase db push`. Usa los secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` y `SUPABASE_PROJECT_REF`.
+  - `.github/workflows/supabase-migrations.yml`: job `dry-run` en PRs que tocan `supabase/` (lista las migraciones que se aplicarían en prod, con un rol de solo lectura; no corre en PRs de forks) y job `apply` en push a `master` (`supabase db push`, environment `production`).
 - Netlify también publica un deploy preview por PR (`deploy-preview-<N>--serflowctg.netlify.app`); úsalo para capturas y QA visual.
 - E2E: Playwright, specs en `e2e/`, proyectos `desktop` (Desktop Chrome) y `mobile` (Pixel 7). Sin auth (sitio público). Sin mocks: leen la Supabase real a través del build. Rojo antes / verde después: correr el spec nuevo local contra `master` (rojo) y contra la rama (verde), y pegar ambos resultados en el PR.
 - No usar `waitForTimeout`; esperar con `expect(...)` sobre elementos o URL. CI reintenta 2 veces; un test que pasa en reintento se reporta como flaky en el PR.
@@ -46,7 +46,9 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 ### Secretos
 - Nunca imprimir ni commitear `SUPABASE_SERVICE_ROLE_KEY` (solo existe para el seed; no está en CI ni Netlify como variable del sitio).
 - `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY` son públicas por diseño (van en el bundle); viven en Netlify y como secrets del repo para `e2e.yml`. `.env` está en `.gitignore`.
-- `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` y `SUPABASE_PROJECT_REF` son secrets del repo solo para `supabase-migrations.yml`. El token y la contraseña dan escritura total sobre prod: nunca se imprimen, ni se usan en otro workflow, ni con `pull_request_target`.
+- `supabase-migrations.yml` usa dos secrets, nunca se imprimen ni se usan en otro workflow ni con `pull_request_target`:
+  - `SUPABASE_DB_URL` (rol `postgres`, escritura total sobre prod): solo en el environment `production`, limitado a `master`; nunca como secret del repo.
+  - `SUPABASE_DB_URL_RO` (rol `migrations_ro`, solo lee el historial de migraciones): secret del repo para el dry-run de los PRs.
 
 ### Zonas sensibles (disparan revisión de Seguridad)
 - `supabase/**` (en especial `supabase/migrations/**`), `scripts/**`, `src/lib/supabase.ts`, `.github/workflows/**`, `netlify.toml`, `astro.config.mjs`, `package.json` (dependencias nuevas), y cualquier `set:html` o construcción de URLs con texto del usuario (`src/components/ContactForm.astro`, `src/components/ProductPreview.astro`).

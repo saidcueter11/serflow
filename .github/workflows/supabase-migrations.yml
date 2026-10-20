@@ -1,6 +1,6 @@
 name: supabase-migrations
 
-# PR: `supabase db push --dry-run` lista lo que se aplicaría en prod.
+# PR: `supabase db push --dry-run` lista lo que se aplicaría en prod, con un rol de solo lectura.
 # Push a master: `supabase db push` aplica en prod solo las migraciones nuevas.
 on:
   pull_request:
@@ -22,21 +22,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  migrations:
-    # PRs de forks no reciben los secrets: el job no corre ahí.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+  dry-run:
+    # PRs de forks no reciben secrets: el job no corre ahí.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
     steps:
       - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1.7.3
         with:
           version: 2.116.0
-      - run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
-      - if: github.event_name == 'pull_request'
-        run: supabase db push --dry-run
-      - if: github.event_name == 'push'
-        run: supabase db push --yes
+      # Rol migrations_ro: solo puede leer supabase_migrations.schema_migrations.
+      - run: supabase db push --dry-run --db-url "$SUPABASE_DB_URL_RO"
+        env:
+          SUPABASE_DB_URL_RO: ${{ secrets.SUPABASE_DB_URL_RO }}
+
+  apply:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    # SUPABASE_DB_URL vive en este environment, limitado a master: una rama no puede leerlo.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1.7.3
+        with:
+          version: 2.116.0
+      - run: supabase db push --yes --db-url "$SUPABASE_DB_URL"
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
