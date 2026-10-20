@@ -4,7 +4,7 @@ import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry
 import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
 import { PageFrame, PageTitle, Row } from "../Chrome";
 // Fotos de ejemplo del catálogo de hoy (gorras sobre fondo gris, 3:4) y una de Unsplash que ya usa la portada.
-import amigos from "../../../../src/assets/images/stock/amigos-gorras.jpg";
+import estante from "../../../../src/assets/images/stock/gorras-estante.jpg";
 import mtq from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida2.webp";
 
 const FOTOS = import.meta.glob<string>("../../../../src/assets/images/beisbol/*.webp", { eager: true, import: "default" });
@@ -30,8 +30,8 @@ export function BoardMasonry() {
           <Masonry tiles={tiles.slice(0, 8)} />
         </div>
       </Row>
-      <Row name="Desktop" description="3 columnas desde @3xl y 4 desde @6xl. Con el mouse sale el chip de la categoría y la foto hace zoom.">
-        <div className="w-[1180px] rounded-tile bg-primary p-6">
+      <Row name="Desktop" description="3 columnas desde @3xl (aquí) y 4 desde @6xl. Con el mouse sale el chip de la categoría y la foto hace zoom.">
+        <div className="w-[840px] rounded-tile bg-primary p-6">
           <Masonry tiles={tiles} />
         </div>
       </Row>
@@ -53,7 +53,7 @@ export function BoardPhotoCarousel() {
         </div>
       </Row>
       <Row name="Desktop, 3 fotos" description="Miniaturas que llevan a cada foto (#id), sin JS.">
-        <div className="w-[1100px] bg-primary">
+        <div className="w-[840px] bg-primary">
           <PhotoCarousel photos={fotos} label="Fotos de Beisbol N.º 26" idPrefix="demo-d" />
         </div>
       </Row>
@@ -63,7 +63,7 @@ export function BoardPhotoCarousel() {
 
 export function BoardCategoryBanner() {
   const slides = [
-    { label: "Todo", count: 92, image: { src: amigos } },
+    { label: "Todo", count: 92, image: { src: estante } },
     { label: "Mi Tierra Querida", count: 26, image: { src: mtq } },
     { label: "Dotación", count: 0 },
   ];
@@ -79,7 +79,7 @@ export function BoardCategoryBanner() {
         </div>
       </Row>
       <Row name="Desktop" description="Mi Tierra Querida. Sin portada (Dotación) queda la trama.">
-        <div className="flex w-[1180px] flex-col gap-4 bg-primary p-6">
+        <div className="flex w-[840px] flex-col gap-4 bg-primary p-6">
           <CategoryBanner slides={slides} current={1} />
           <CategoryBanner slides={slides} current={2} />
         </div>

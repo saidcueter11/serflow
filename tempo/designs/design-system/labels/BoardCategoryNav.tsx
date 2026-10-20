@@ -14,7 +14,7 @@ const CATS = [
 
 export function BoardCategoryNav() {
   return (
-    <PageFrame family="etiquetas" width={1100}>
+    <PageFrame family="etiquetas" width={1300}>
       <PageTitle
         title="CategoryNav"
         description="Pestañas de categoría del catálogo (PRI-130): links con el conteo de fotos, la actual en dorado con aria-current. Medidas del Chip (44 px, 14 px semibold), pero son navegación, no un radio."
@@ -27,7 +27,7 @@ export function BoardCategoryNav() {
       </Row>
 
       <Row name="Desktop" description="Desde @3xl se parten en varias filas, sin scroll.">
-        <div className="w-[900px] rounded-tile bg-primary p-6">
+        <div className="w-[820px] rounded-tile bg-primary p-6">
           <CategoryNav categories={CATS} current="/products" />
         </div>
       </Row>

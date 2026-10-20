@@ -49,13 +49,13 @@ export default function LabelsCanvas() {
         id="CategoryNav"
         name="CategoryNav"
         component={BoardCategoryNav}
-        layout={{ x: 0, y: 2700, width: 1100, height: 900, intrinsicSizing: "root-element" }}
+        layout={{ x: 0, y: 2700, width: 1300, height: 900, intrinsicSizing: "root-element" }}
       />
       <Storyboard
         id="NewBadge"
         name="NewBadge"
         component={BoardNewBadge}
-        layout={{ x: 1150, y: 2700, width: 900, height: 700, intrinsicSizing: "root-element" }}
+        layout={{ x: 1350, y: 2700, width: 900, height: 700, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );

@@ -5,8 +5,9 @@ import { CatalogPage, TODO_HREF } from '../../components/catalog/CatalogPage'
 import { CategoryBanner } from '../../components/ui/CategoryBanner'
 import { loadCatalog } from '../../lib/catalog-view'
 import { pageHref, pages } from '../../lib/catalog'
-// Portada de "Todo" en el banner: foto de Unsplash que ya usa la portada (PRI-129), hasta que lleguen las reales (PRI-150).
-import todoCover from '../../assets/images/stock/amigos-gorras.jpg'
+// Portada de "Todo" en el banner: foto de Unsplash (gorras en un estante, horizontal: aguanta el recorte ancho del
+// banner) hasta que lleguen las reales (PRI-150).
+import todoCover from '../../assets/images/stock/gorras-estante.jpg'
 
 // PRI-130: /products ("Todo") y /products/<categoría>, en bloques de 60 (/pagina/2...). El visor es [category]/[id].
 export async function getStaticPaths() {
