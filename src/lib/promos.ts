@@ -19,7 +19,7 @@ export type PromoView = {
 /**
  * Promos que se publican: activas (ya filtradas en la consulta) y no vencidas en `now`, por sort_order.
  * El build filtra aunque RLS ya lo haga, por si la policy no se ha actualizado.
- * Tolera filas sin ends_at/sort_order (antes de correr supabase/03_promos_varias.sql).
+ * Tolera filas sin ends_at/sort_order (antes de correr supabase/migrations/20261010013709_promos_varias.sql).
  */
 export function livePromos(rows: Promo[], now: Date): Promo[] {
   return rows
