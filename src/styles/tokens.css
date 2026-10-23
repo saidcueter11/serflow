@@ -43,6 +43,9 @@
   --motion-fast: 120ms;
   --motion-med: 200ms;
   --motion-slow: 280ms;
+  /* Ciclos continuos del personalizador: girador y brillo de carga */
+  --motion-spin: 900ms;
+  --motion-shimmer: 1.4s;
   --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -111,4 +114,17 @@
   /* first-of-type y no first-child: el <style> del carrusel va antes de las fotos */
   figure.anim-slide:not(:first-of-type) { opacity: 0; }
   .thread-needle { display: none; }
+}
+
+/* Personalizador (PRI-122): hoja que sube, fundido de la foto, girador y brillo de carga. */
+@keyframes pz-spin { to { transform: rotate(360deg) } }
+@keyframes pz-shimmer { from { transform: translateX(-100%) } to { transform: translateX(100%) } }
+@keyframes pz-sheet { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pz-fade { from { opacity: 0 } to { opacity: 1 } }
+.pz-spin { animation: pz-spin var(--motion-spin) linear infinite; }
+.pz-shimmer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .22) 50%, transparent 80%); animation: pz-shimmer var(--motion-shimmer) var(--ease-out) infinite; }
+.pz-sheet { animation: pz-sheet var(--motion-slow) var(--ease-out) both; }
+.pz-fade { animation: pz-fade var(--motion-med) var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) {
+  .pz-spin, .pz-shimmer::after, .pz-sheet, .pz-fade { animation: none !important; }
 }

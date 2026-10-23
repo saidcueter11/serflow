@@ -13,6 +13,8 @@ interface Props {
   fullWidth?: boolean
   /** Abre en otra pestaña (los links de WhatsApp lo son). */
   external?: boolean
+  /** Solo dentro de una isla de React (el personalizador); en páginas estáticas no hay JS que lo ejecute. */
+  onClick?: () => void
 }
 
 const BASE =
@@ -33,7 +35,7 @@ const VARIANT: Record<Variant, string> = {
  * The canvas for this component is at tempo/designs/design-system/buttons/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
  */
-export function Button({ variant, children, href, icon, fullWidth = false, external = false }: Props) {
+export function Button({ variant, children, href, icon, fullWidth = false, external = false, onClick }: Props) {
   const className = `${BASE} ${VARIANT[variant]} ${fullWidth ? 'w-full' : ''}`
   const shownIcon = icon === undefined && variant === 'whatsapp' ? <WhatsAppIcon className="size-5" /> : icon
 
@@ -44,6 +46,7 @@ export function Button({ variant, children, href, icon, fullWidth = false, exter
         className={className}
         target={external ? '_blank' : undefined}
         rel={external ? 'noopener noreferrer' : undefined}
+        onClick={onClick}
       >
         {shownIcon}
         {children}
@@ -52,7 +55,7 @@ export function Button({ variant, children, href, icon, fullWidth = false, exter
   }
 
   return (
-    <button type="button" className={className}>
+    <button type="button" className={className} onClick={onClick}>
       {shownIcon}
       {children}
     </button>

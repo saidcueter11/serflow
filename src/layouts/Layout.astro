@@ -13,6 +13,10 @@ interface Props {
   hideFooter?: boolean
   /** Mensaje prellenado del botón flotante de WhatsApp (p. ej. el de la promo que se está viendo). */
   whatsappText?: string
+  /** Página escondida de los buscadores (p. ej. /personaliza hasta PRI-125). */
+  noindex?: boolean
+  /** Sin botón flotante de WhatsApp: la página trae su propio envío (el personalizador). */
+  hideWhatsAppFab?: boolean
 }
 
 const {
@@ -20,6 +24,8 @@ const {
   description = 'Prendas personalizadas en Cartagena. Calidad que enamora, precios que te hacen volver. Contáctanos por WhatsApp.',
   hideFooter,
   whatsappText,
+  noindex,
+  hideWhatsAppFab,
 } = Astro.props
 
 const canonicalUrl = Astro.url.toString()
@@ -41,6 +47,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
     />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
 
     <meta property="og:type" content="website" />
@@ -86,7 +93,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
         <slot />
       </div>
       {!hideFooter && <Footer logoSrc={logo.src} />}
-      <WhatsAppFab text={whatsappText} />
+      {!hideWhatsAppFab && <WhatsAppFab text={whatsappText} />}
     </div>
     <script is:inline>
       (function () {

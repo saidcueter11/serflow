@@ -1,0 +1,19 @@
+---
+import { getImage } from 'astro:assets'
+import Layout from '../layouts/Layout.astro'
+import { PersonalizaPage } from '../components/personaliza/PersonalizaPage'
+import { coloresMuestra } from '../lib/personaliza/muestra'
+
+// Escondida hasta PRI-125 (fotos del taller): noindex, fuera del sitemap y sin links desde la portada ni el header.
+// Las fotos se publican optimizadas en el mismo dominio: el motor de la vista previa necesita leer sus píxeles.
+const colores = await coloresMuestra(async (src) => (await getImage({ src, width: 1080, format: 'webp', quality: 82 })).src)
+---
+
+<Layout
+  title="Diseña tu prenda: Serflow"
+  description="Sube tu diseño, míralo sobre la camiseta o la gorra y mándanos el pedido por WhatsApp."
+  noindex
+  hideWhatsAppFab
+>
+  <PersonalizaPage client:load colores={colores} />
+</Layout>
