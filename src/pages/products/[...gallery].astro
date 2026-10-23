@@ -40,7 +40,7 @@ const { index, slides, chips, view, page, tiles, next } = Astro.props
 const todo = view.href === TODO_HREF
 const title = `${todo ? 'Catálogo' : view.label}${page > 1 ? `, página ${page}` : ''} — Serflow`
 const description = todo
-  ? 'Así quedan los trabajos de Serflow en Cartagena: gorras y camisetas personalizadas. Toca la que te guste y pídela por WhatsApp.'
+  ? 'Gorras y camisetas personalizadas de Serflow en Cartagena. Toca la que te guste y pídela por WhatsApp.'
   : `Explora la colección de ${view.label} en Serflow. Prendas personalizadas con atención por WhatsApp en Cartagena.`
 const banner = slides[index].image
 ---

@@ -120,7 +120,7 @@ defineAsset(Masonry, {
 defineAsset(PhotoCarousel, {
   libraries: ["Design System"],
   usageInstructions:
-    "Fotos de una prenda en el visor del catálogo (/products/<categoría>/<slug>): carrusel scroll-snap sin JS, foto entera sobre la trama, 4:5 en el celular y 16:9 desde @3xl con miniaturas-link. La primera es el LCP (fetchPriority high): precárgala en la página. Una por página. No para el muro de fotos (Masonry) ni para el hero de la portada (HeroCarousel).",
+    "Fotos de una prenda en el visor del catálogo (/products/<categoría>/<slug>): carrusel scroll-snap sin JS, foto en marco 4:5 que la llena (object-cover, sin trama ni franjas): ancho completo en el celular y columna izquierda desde @3xl; las miniaturas-link son PhotoThumbs (mismo archivo), en la columna derecha del visor junto a la categoría y "Pedir por WhatsApp". La primera es el LCP (fetchPriority high): precárgala en la página. Una por página. No para el muro de fotos (Masonry) ni para el hero de la portada (HeroCarousel).",
   variants: {
     "Dos fotos": {
       props: {

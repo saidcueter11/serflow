@@ -7,7 +7,8 @@ export const TODO_HREF = '/products'
 
 /**
  * Galería del catálogo (PRI-130, dirección 2): bienvenida, categorías con conteo y el muro de fotos. El banner de
- * categorías va arriba, fuera de este componente, porque se conserva entre páginas (ver [...gallery].astro).
+ * categorías va arriba, fuera de este componente, porque se conserva entre páginas (ver [...gallery].astro). Sin
+ * eslogan: el nombre que muestra el banner es el h1 (sr-only; "Catálogo" en Todo).
  * Categoría sin fotos: EmptyState con salida a lo más nuevo (WhatsApp ya está en el flotante).
  */
 export function CatalogPage({
@@ -29,8 +30,8 @@ export function CatalogPage({
   return (
     <div className="@container font-body text-ink">
       <div className="px-4 pt-6 @3xl:px-12 @3xl:pt-10">
-        <h1 className="stitch-title font-display text-[38px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[64px]">Así quedan los trabajos</h1>
-        <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted @3xl:text-[18px]">
+        <h1 className="sr-only">{current === TODO_HREF ? 'Catálogo' : label}</h1>
+        <p className="max-w-[52ch] text-[15px] leading-relaxed text-muted @3xl:text-[18px]">
           Gorras y camisetas que salieron del taller. Toca la que te guste y te hacemos una igual, o a tu manera.
         </p>
         <div className="mt-5">

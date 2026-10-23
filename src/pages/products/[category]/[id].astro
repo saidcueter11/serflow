@@ -55,7 +55,7 @@ const schema = {
     <meta property="og:image:alt" content={item.tile.img.alt} />
     <meta property="og:locale" content="es_CO" />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
-    <link rel="preload" as="image" imagesrcset={item.photos[0].srcSet} imagesizes="(min-width: 1280px) 1200px, 100vw" fetchpriority="high" />
+    <link rel="preload" as="image" imagesrcset={item.photos[0].srcSet} imagesizes="(min-width: 768px) 448px, 100vw" fetchpriority="high" />
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </Fragment>
   <ViewerPage item={item} category={category} mas={mas} back={back} />

@@ -27,9 +27,12 @@ async function openCategory(page: Page) {
   throw new Error('No category with 2+ photos')
 }
 
-test('masonry: welcome, chips with counts and photo columns of mixed heights without text', async ({ page, isMobile }) => {
+test('masonry: chips with counts and photo columns of mixed heights without text', async ({ page, isMobile }) => {
   await page.goto('/products')
-  await expect(page.getByRole('heading', { level: 1, name: 'Así quedan los trabajos' })).toBeVisible()
+  // Sin eslogan: el h1 es el nombre de la vista ("Catálogo" en Todo), uno solo.
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Catálogo')
+  await expect(page.getByText('Así quedan los trabajos')).toHaveCount(0)
+  await expect(page.locator('meta[name="description"]')).not.toHaveAttribute('content', /Así quedan/)
   await expect(chips(page).first()).toHaveText(/^Todo\s*\d+$/)
   await expect(chips(page).first()).toHaveAttribute('aria-current', 'page')
 
@@ -47,11 +50,11 @@ test('masonry: welcome, chips with counts and photo columns of mixed heights wit
   await expect(first.locator('img')).toHaveAttribute('loading', 'lazy')
 })
 
-test('banner arriba: the category banner sits above the welcome and slides to the chosen category', async ({ page }) => {
+test('banner arriba: the category banner sits above the chips and slides to the chosen category', async ({ page }) => {
   await page.goto('/products')
   const frame = page.locator('[data-banner-track]').locator('..')
-  const h1 = page.getByRole('heading', { level: 1 })
-  expect((await frame.boundingBox())!.y).toBeLessThan((await h1.boundingBox())!.y)
+  const nav = page.getByRole('navigation', { name: 'Categorías' })
+  expect((await frame.boundingBox())!.y).toBeLessThan((await nav.boundingBox())!.y)
   await expect(page.locator('[data-banner-slide]:not([aria-hidden])')).toContainText('Todo')
 
   const { label } = await openCategory(page)
@@ -59,11 +62,12 @@ test('banner arriba: the category banner sits above the welcome and slides to th
   await expect(current).toContainText(label)
   // La lámina de la categoría queda dentro del marco del banner (se deslizó hasta ella).
   await expect.poll(async () => Math.abs((await current.boundingBox())!.x - (await frame.boundingBox())!.x)).toBeLessThan(2)
-  expect((await frame.boundingBox())!.y).toBeLessThan((await h1.boundingBox())!.y)
+  expect((await frame.boundingBox())!.y).toBeLessThan((await nav.boundingBox())!.y)
   await expect(chips(page).filter({ hasText: label })).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(label)
 })
 
-test('visor: big photo, Pedir por WhatsApp identifies the photo by category and link, no floating button', async ({ page }) => {
+test('visor: big photo without side bars, Pedir por WhatsApp identifies the photo by category and link, no floating button', async ({ page, isMobile }) => {
   const { label, href } = await openCategory(page)
   const tile = tiles(page).first()
   const photo = (await tile.getAttribute('href'))!
@@ -76,6 +80,17 @@ test('visor: big photo, Pedir por WhatsApp identifies the photo by category and 
   const text = await waText(page.getByRole('link', { name: 'Pedir por WhatsApp' }))
   expect(text).toMatch(new RegExp(`^¡Hola! Me gustó esta de ${label}( \\(N\\.º \\d+\\))?\\. ¿Me hacen una así\\?\\n${SITE}${photo}$`))
   await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' })).toHaveCount(0)
+
+  // Sin franjas: la foto llena un marco 4:5 sin trama ni relleno. En el celular ocupa el ancho; en desktop va a la
+  // izquierda y la categoría y el botón a la derecha.
+  const frame = page.getByRole('list', { name: /^Fotos de / }).locator('li').first()
+  await expect(frame.locator('img')).toHaveCSS('object-fit', 'cover')
+  await expect(frame).toHaveCSS('background-image', 'none')
+  const box = (await frame.boundingBox())!
+  expect(box.width / box.height).toBeCloseTo(0.8, 2)
+  const pedir = (await page.getByRole('link', { name: 'Pedir por WhatsApp' }).boundingBox())!
+  if (isMobile) expect(box.width).toBeCloseTo(page.viewportSize()!.width, 0)
+  else expect(pedir.x).toBeGreaterThan(box.x + box.width)
 
   // "Todas las fotos" vuelve a la galería, a esta misma foto.
   await page.getByRole('link', { name: 'Todas las fotos' }).click()
@@ -120,6 +135,7 @@ test.describe('categoría vacía', () => {
   test('shows the empty state with a way out, and the chip says 0', async ({ page }) => {
     await page.goto('/products/e2e-vacia')
     await expect(page.locator('[data-banner-slide]:not([aria-hidden])')).toContainText('Vacía de prueba')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Vacía de prueba')
     await expect(chips(page).filter({ hasText: 'Vacía de prueba' })).toHaveText(/Vacía de prueba\s*0/)
     await expect(page.getByText('Todavía no hay fotos de Vacía de prueba')).toBeVisible()
     await expect(tiles(page)).toHaveCount(0)

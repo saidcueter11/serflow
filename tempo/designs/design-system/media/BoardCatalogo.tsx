@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry";
-import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
+import { PhotoCarousel, PhotoThumbs } from "../../../../src/components/ui/PhotoCarousel";
 import { PageFrame, PageTitle, Row } from "../Chrome";
 // Fotos de ejemplo del catálogo de hoy (gorras sobre fondo gris, 3:4) y una de Unsplash que ya usa la portada.
 import estante from "../../../../src/assets/images/stock/gorras-estante.jpg";
@@ -45,16 +45,19 @@ export function BoardPhotoCarousel() {
     <PageFrame family="fotos y mascota" width={1300}>
       <PageTitle
         title="PhotoCarousel"
-        description="Las fotos de una prenda en el visor del catálogo: se deslizan con el dedo (scroll-snap, sin JS) y van enteras sobre la trama. 4:5 en el celular, 16:9 desde @3xl con miniaturas."
+        description="Las fotos de una prenda en el visor del catálogo: se deslizan con el dedo (scroll-snap, sin JS) y llenan un marco 4:5, sin trama ni franjas. En desktop la foto va a la izquierda y PhotoThumbs (miniaturas) a la derecha, con la categoría y el botón."
       />
       <Row name="Celular (390), 3 fotos" description="Debajo, 'Desliza · 3 fotos'.">
-        <div className="w-[390px] bg-primary">
+        <div className="@container w-[390px] bg-primary">
           <PhotoCarousel photos={fotos} label="Fotos de Beisbol N.º 26" idPrefix="demo-m" />
         </div>
       </Row>
-      <Row name="Desktop, 3 fotos" description="Miniaturas que llevan a cada foto (#id), sin JS.">
-        <div className="w-[840px] bg-primary">
-          <PhotoCarousel photos={fotos} label="Fotos de Beisbol N.º 26" idPrefix="demo-d" />
+      <Row name="Desktop, 3 fotos" description="Foto 4:5 a la izquierda; PhotoThumbs a la derecha, links a cada foto (#id), sin JS.">
+        <div className="@container w-[840px] bg-primary">
+          <div className="grid grid-cols-[28rem_minmax(0,1fr)] items-start gap-10">
+            <PhotoCarousel photos={fotos} label="Fotos de Beisbol N.º 26" idPrefix="demo-d" />
+            <PhotoThumbs photos={fotos} idPrefix="demo-d" />
+          </div>
         </div>
       </Row>
     </PageFrame>
