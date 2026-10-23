@@ -240,7 +240,7 @@ export function NotaA() {
       linea="Dentro de la marca (Noche caribe, dorado, Space Grotesk). El hero es la vista previa del personalizador estampándose sola: el rasero baja, aparece el diseño y la camiseta cambia de negra a blanca. Debajo, el resultado en fotos y el catálogo."
       inspiracion="Outfit (la prenda que reacciona), Custom Ink (Tu diseño aquí), Printful (tres pasos)."
       resuelve={[
-        "En el celular se ven el título, la vista previa y Diseñar mi prenda sin hacer scroll.",
+        "En el celular se ven el título, la vista previa, Diseñar mi prenda y qué pasa después (gratis, te respondemos por WhatsApp con el precio) sin hacer scroll. Los tres pasos se ven en escritorio.",
         "Muestra qué hace el personalizador en vez de explicarlo.",
         "Estados dibujados: sin promos (la barra no sale) y sin prendas listas para llevar (EmptyState con salida a WhatsApp).",
         "Reutiliza casi todo lo de producción: Header, PromoBar, Ticker, Section, ProductCard, ServiceCard, MapCard, Footer.",
@@ -428,8 +428,8 @@ export function Comparacion() {
             No toca tokens ni fuentes, reutiliza casi todo y es la más liviana, así que sale con el personalizador (PRI-125) sin esperar un cambio de marca.
           </p>
           <p className="text-[15px] leading-relaxed text-muted">
-            De B me llevaría el aviso &quot;Gratis. Te llega por WhatsApp y te respondemos con el precio.&quot; bajo el botón. De C, el dock para cuando el hero ya
-            salió de la pantalla.
+            Ya tomé de B el aviso &quot;Gratis. Te llega por WhatsApp y te respondemos con el precio.&quot; bajo el botón. De C me llevaría el dock para cuando el
+            hero ya salió de la pantalla.
           </p>
         </div>
         {[

@@ -83,11 +83,12 @@ function Hero() {
           <Button variant="whatsapp" icon={null} href={PERSONALIZA} fullWidth>
             Diseñar mi prenda →
           </Button>
+          <p className="-mt-1 text-center text-[13px] leading-snug text-muted @4xl:hidden">Gratis. Te llega por WhatsApp y te respondemos con el precio.</p>
           <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className="min-h-11 content-center whitespace-nowrap text-center text-[14px] font-semibold text-muted underline underline-offset-4 hover:text-ink">
             ¿Mejor nos cuentas tu idea? Escríbenos
           </a>
         </div>
-        <ol className="grid grid-cols-3 gap-2 border-t border-line pt-4 @4xl:max-w-[560px]">
+        <ol className="hidden grid-cols-3 gap-2 border-t border-line pt-4 @4xl:grid @4xl:max-w-[560px]">
           {PASOS.map((p, i) => (
             <li key={p} className="flex flex-col gap-1.5 text-[13px] leading-snug text-muted @4xl:text-[14px]">
               <span className="font-display text-[20px] font-medium leading-none text-accent">0{i + 1}</span>

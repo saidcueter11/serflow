@@ -115,7 +115,7 @@ function Portada() {
     <section className="relative h-[780px] @4xl:grid @4xl:grid-cols-2">
       <HeaderSobreFoto />
       <div className="relative h-full overflow-hidden">
-        <img src={TALLER.estante} alt="Gorras bordadas en un estante del taller" fetchPriority="high" className="pc-kb absolute inset-0 h-full w-full object-cover object-[50%_50%]" />
+        <img src={TALLER.estante} alt="Gorras bordadas en un estante" fetchPriority="high" className="pc-kb absolute inset-0 h-full w-full object-cover object-[50%_50%]" />
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgb(14_13_9/.8)_0%,transparent_20%,transparent_34%,rgb(14_13_9/.96)_72%)]" />
         <div className="absolute inset-x-4 bottom-[104px] @4xl:inset-x-10 @4xl:bottom-12">
           <Titular palabras={["Lo", "tuyo,", "hecho", "en", "Cartagena."]} className="text-[54px] leading-[.95] text-ink @4xl:text-[84px]" />
@@ -149,8 +149,8 @@ function Capitulos() {
             <span className="font-mono text-[12px] text-accent">{c.n}</span>
             <h2 className="font-serif-c text-[44px] italic leading-none text-ink">{c.t}</h2>
             <p className="mt-2 text-[15px] text-ink/80">{c.c}</p>
-            <a href={CATALOGO} className={`mt-3 inline-flex min-h-11 items-center text-[14px] font-semibold text-accent underline-offset-4 hover:underline ${FOCUS}`}>
-              Ver en el catálogo →
+            <a href={PERSONALIZA} className={`mt-3 inline-flex min-h-11 items-center text-[14px] font-semibold text-accent underline-offset-4 hover:underline ${FOCUS}`}>
+              Diseña la tuya →
             </a>
           </figcaption>
         </figure>
