@@ -26,6 +26,9 @@ import { HeroCarousel } from "../src/components/ui/HeroCarousel";
 import { Ticker } from "../src/components/ui/Ticker";
 import { PromoBar } from "../src/components/ui/PromoBar";
 import { Thread } from "../src/components/ui/Thread";
+import { VistaPrevia } from "../src/components/ui/VistaPrevia";
+import { HojaEnvio } from "../src/components/ui/HojaEnvio";
+import { Aviso, BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from "../src/components/ui/PersonalizaCampos";
 
 defineControls(Button, {
   children: { type: "text" },
@@ -34,6 +37,7 @@ defineControls(Button, {
   external: { type: "boolean" },
   fullWidth: { type: "boolean" },
   icon: false,
+  onClick: false,
 });
 
 defineControls(WhatsAppFab, {
@@ -167,4 +171,100 @@ defineControls(Thread, {
   width: { type: "number" },
   height: { type: "number" },
   viewport: { type: "number" },
+});
+
+// Personalizador (PRI-122). Callbacks, foto y diseño del motor no se editan a mano.
+defineControls(VistaPrevia, {
+  etiqueta: { type: "text" },
+  modo: { type: "select" },
+  tecnica: { type: "select" },
+  anchoCm: { type: "number" },
+  cargando: { type: "text" },
+  alto: { type: "number" },
+  pista: { type: "boolean" },
+  escritorio: { type: "boolean" },
+  limpia: { type: "boolean" },
+  seleccionado: { type: "boolean" },
+  lugar: { type: "object" },
+  archivo: { type: "object" },
+  foto: false,
+  diseno: false,
+  onLugar: false,
+  onArchivo: false,
+  onReintentar: false,
+  onSeguirSinVista: false,
+});
+
+defineControls(HojaEnvio, {
+  tipo: { type: "select" },
+  mensaje: { type: "text" },
+  vistaPrevia: { type: "text" },
+  diseno: { type: "text" },
+  archivo: { type: "object" },
+  guardada: { type: "boolean" },
+  compartir: { type: "boolean" },
+  sinSenal: { type: "boolean" },
+  escritorio: { type: "boolean" },
+  vuelta: { type: "boolean" },
+  onCerrar: false,
+  onGuardar: false,
+  onCompartir: false,
+  onAbrirChat: false,
+  onOtra: false,
+});
+
+defineControls(CampoDiseno, {
+  estado: { type: "select" },
+  nombre: { type: "text" },
+  detalle: { type: "text" },
+  miniatura: { type: "text" },
+  quitarFondo: { type: "boolean" },
+  escritorio: { type: "boolean" },
+  onArchivo: false,
+  onQuitar: false,
+  onAyuda: false,
+  onQuitarFondo: false,
+});
+
+defineControls(Colores, {
+  colores: { type: "object" },
+  elegido: { type: "text" },
+  cargando: { type: "text" },
+});
+
+defineControls(Tecnicas, {
+  opciones: { type: "multi-select" },
+  elegida: { type: "select" },
+});
+
+defineControls(BarraEnvio, {
+  resumen: { type: "text" },
+  fija: { type: "boolean" },
+  esperando: { type: "boolean" },
+  conVista: { type: "boolean" },
+  onEnviar: false,
+});
+
+defineControls(Paso, {
+  n: { type: "number" },
+  titulo: { type: "text" },
+  children: false,
+});
+
+defineControls(Grupo, {
+  legend: { type: "text" },
+  valor: { type: "text" },
+  nota: { type: "text" },
+  children: false,
+});
+
+defineControls(Nota, {
+  valor: { type: "text" },
+  onCambio: false,
+});
+
+defineControls(Aviso, {
+  titulo: { type: "text" },
+  children: { type: "text" },
+  icono: false,
 });
