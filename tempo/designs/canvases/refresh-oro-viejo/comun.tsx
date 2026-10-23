@@ -23,12 +23,12 @@ import kid1 from "../../../../src/assets/images/kids/kid1.webp";
 
 export const FOTOS = { gorraBordada2, estampadoProceso, estampadoRasero, gorrasEstante, mtq2, mtq5, moda1, kid1 };
 
-/** Hero de la portada nueva: prendas, nadie posando. Primero una foto horizontal (es el LCP y en desktop el hero es ancho). El estampado queda para la banda del personalizador. */
+/** Hero de la portada nueva: prendas, nadie posando. Primero el estampado en el taller (es el LCP, horizontal). */
 export const SLIDES_SIN_MODELOS: Slide[] = [
-  { src: gorrasEstante, caption: "Listas para llevar", alt: "Gorras personalizadas en un estante del taller" },
-  { src: gorraBordada2, caption: "Gorras bordadas", alt: "Gorra bordada con luz cálida del taller", position: "50% 40%" },
+  { src: estampadoProceso, caption: "Estampado en el taller", alt: "Manos pasando el rasero sobre una plancha de estampado", position: "50% 60%" },
+  { src: gorraBordada2, caption: "Gorras bordadas", alt: "Gorra bordada con luz cálida del taller", position: "30% 30%" },
   { src: mtq5, caption: "Tu diseño en DTF", alt: "Gorra con estampado DTF a todo color", position: "50% 45%" },
-  { src: moda1, caption: "Con el logo de tu negocio", alt: "Gorra negra con logo bordado", position: "50% 45%" },
+  { src: gorrasEstante, caption: "Listas para llevar", alt: "Gorras personalizadas en un estante del taller" },
 ];
 
 const BEISBOL = Object.values(

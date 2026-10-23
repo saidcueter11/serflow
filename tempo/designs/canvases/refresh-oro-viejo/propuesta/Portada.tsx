@@ -35,16 +35,19 @@ export function BandaPersonaliza() {
   return (
     <section aria-labelledby="personaliza-titulo" className="px-4 pt-8 @3xl:px-12 @3xl:pt-14">
       <article className="group grid overflow-hidden rounded-card border border-line bg-surface @3xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-        <div className="relative overflow-hidden">
+        {/* El proceso del personalizador: tu diseño puesto sobre la prenda (la vista previa de /personaliza). */}
+        <div className="relative overflow-hidden bg-surface-2">
           <img
-            src={FOTOS.estampadoProceso}
-            alt="Manos pasando el rasero sobre una plancha de estampado en el taller"
+            src={FOTOS.mtq2}
+            alt="Gorra con un diseño bordado y el recuadro donde va tu diseño"
             width={800}
-            height={533}
+            height={600}
             loading="lazy"
             decoding="async"
-            className="aspect-[4/3] h-full w-full object-cover @3xl:aspect-auto @3xl:min-h-[440px]"
+            className="aspect-[4/3] w-full object-cover @3xl:aspect-auto @3xl:h-[460px]"
           />
+          <span aria-hidden="true" className="absolute left-1/2 top-[30%] h-[30%] w-[40%] -translate-x-1/2 rounded-tile border-2 border-dashed border-accent" />
+          <span className="absolute bottom-3 left-3 rounded-full bg-primary/85 px-3 py-1 text-[12px] text-ink">Vista previa</span>
         </div>
         <div className="flex flex-col items-start justify-center gap-4 p-5 pb-6 @3xl:gap-5 @3xl:p-12">
           <Eyebrow>Personalizador</Eyebrow>

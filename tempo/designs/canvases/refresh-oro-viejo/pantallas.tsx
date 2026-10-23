@@ -36,7 +36,7 @@ function Promos({ width, refresh }: { width: number; refresh?: boolean }) {
 
 const NOTA_PORTADA = (
   <>
-    Mismo esqueleto de master con dos cambios: el personalizador sube justo después del hero (foto del taller, una frase y{" "}
+    Mismo esqueleto de master con dos cambios: el personalizador sube justo después del hero (la prenda con tu diseño encima, una frase y{" "}
     <b className="text-ink">Diseñar mi prenda</b>) y el mapa baja al final, plegado junto a Quiénes somos. El hero pasa a fotos
     de prendas y del taller, sin modelos. Pasa el mouse por los botones, las fotos y los links del menú; Repetir vuelve a
     mostrar la entrada del titular.
@@ -85,7 +85,7 @@ export function PromosDesktop() {
 const NOTA_PERSONALIZADOR = (
   <>
     /personaliza de PRI-122 (PR #36, sin mergear), capturada del deploy preview con la página funcionando. El después es la
-    misma página con refresh.css encima: hereda todo por tokens; solo su h1 pasa a 600 y entra al cargar. Para pasar el
+    misma página con refresh.css encima: hereda todo por tokens; solo su h1 y los títulos de los pasos pasan a 600, y el h1 entra al cargar. Para pasar el
     mouse, los cuatro frames HTML de la derecha tienen la página (sin JavaScript, así que la vista previa queda cargando).
   </>
 );

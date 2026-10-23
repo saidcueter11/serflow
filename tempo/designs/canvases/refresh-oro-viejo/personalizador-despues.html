@@ -137,6 +137,8 @@
   clip-path: inset(0 100% 0 0);
   transition: clip-path var(--motion-costura) var(--ease-premium);
 }
+/* PUENTE: en PromoAfiche el ghost va centrado (en el PR, items-center en su bloque de botones). */
+.sf-refresh article.rounded-card a.underline-offset-4 { align-self: center; }
 /* PUENTE: "Ver promo" de PromoCard es un span sin alto mínimo. */
 .sf-refresh a.group span.mt-auto.text-accent.font-semibold { --sf-costura-y: -4px; }
 @media (hover: hover) {
@@ -164,10 +166,17 @@
   .sf-refresh :is(.sf-brillo, :is(a, button).inline-flex.rounded-full.font-body)::after { transform: translateX(-120%) !important; }
 }
 
+/* ---------- PUENTE: HeroCarousel, velo más oscuro a media altura para que el texto se lea sobre fotos claras del taller
+   (en el PR: via-primary/55 -> via-primary/85 en el degradado). Con #C9A24A encima queda en 4.9:1 o más. ---------- */
+
+.sf-refresh .hero-carousel > .bg-gradient-to-t {
+  background-image: linear-gradient(to top, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 85%, transparent) 50%, transparent 100%);
+}
+
 /* ---------- PUENTE: letra (en el PR, clases en cada componente; ver la lista de cambios) ---------- */
 
 .sf-refresh .font-display.font-medium { font-weight: 600; }
-.sf-refresh :is(h1, h2, p).font-display.font-medium { letter-spacing: -0.022em; }
+.sf-refresh :is(h1, h2.stitch-title, [data-banner-slide] p).font-display.font-medium { letter-spacing: -0.022em; }
 .sf-refresh :is(a, button).inline-flex.rounded-full.font-body.font-bold { font-weight: 600; }
 
 /* ---------- Solo canvas (no va al PR) ---------- */

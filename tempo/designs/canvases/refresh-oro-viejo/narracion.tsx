@@ -258,7 +258,7 @@ export function Movimientos() {
           items={[
             ["Clase", <Code key="c">sf-toque</Code>],
             ["Tiempos", "120 ms, escala 0.96 a 0.98"],
-            ["Reducir movimiento", "Nada se mueve, nada queda escondido: el titular aparece completo, las fotos a todo color, la costura solo en la página actual."],
+            ["Reducir movimiento", "Nada se mueve, nada queda escondido: el titular aparece completo, las fotos a todo color, la costura aparece sin dibujarse."],
           ]}
         />
       </Row>
@@ -525,14 +525,15 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
   {
     grupo: "4 · Componentes (clases, sin props nuevas)",
     items: [
-      <>Button: BASE + sf-brillo y sin las clases de translate en active; whatsapp sin shadow-[0_5px_0…], con shadow-[inset_0_1px_0_rgb(255_255_255/.28)] y font-semibold; secondary + sf-brillo-suave y hover:border-secondary; ghost + sf-costura sin hover:underline.</>,
+      <>Button: whatsapp + sf-brillo, sin shadow-[0_5px_0…] ni active:translate-y-[3px], con shadow-[inset_0_1px_0_rgb(255_255_255/.28)] y font-semibold; secondary + sf-brillo sf-brillo-suave, sin active:translate-y-px y con hover:border-secondary; ghost + sf-costura sin hover:underline (el ghost no lleva sf-brillo: los dos usan ::after).</>,
       <>Header: + sf-costura en los links del nav de escritorio (el de aria-current queda cosido). El menú del celular no: sus links ocupan toda la fila para el toque. Footer (LINK): + sf-costura.</>,
       <>sf-foto (y sin group-hover:scale-105 ni duration-500 en la img): en la raíz de ProductCard, ServiceCard, PromoCard y PromoAfiche, y en el &lt;a&gt; de Tile en Masonry (no en la raíz de Masonry, que es todo el muro). ProductCard: + sf-foto-texto en el bloque de texto.</>,
       <>PromoAfiche: envolver la img en un div overflow-hidden (como PromoCard) para que el zoom no se salga, y items-center en el bloque de los dos botones para que Ver las fotos quede centrado con su costura.</>,
       <>CategoryNav (a) y Chip (span): + sf-toque y hover:border-secondary en los no elegidos. ProductCard, PromoCard y Tile: el hundido al tocar ya viene con sf-foto. WhatsAppFab: queda igual (ya tiene active:scale-95).</>,
-      <>font-medium → font-semibold y tracking-[-0.022em] en los títulos font-display: Section h2, CategoryBanner (p del nombre), PromosPage h1, PersonalizaPage h1 (PR #36), Ticker, los números de Razones en HomePage. PromoAfiche h2 y PromoCard h3 se quedan en font-bold.</>,
+      <>font-medium → font-semibold en todo lo font-display: Section h2, CategoryBanner (p del nombre), PromosPage h1, Ticker, los números de Razones en HomePage y, del PR #36, el h1 de PersonalizaPage, los h2 de los pasos de PersonalizaCampos y el h2 de HojaEnvio. tracking-[-0.022em] solo en los de 28 px o más (Section h2, CategoryBanner, PromosPage h1, PersonalizaPage h1). PromoAfiche h2 y PromoCard h3 se quedan en font-bold.</>,
       <>Section h2 + sf-entra-scroll. PromosPage h1, PersonalizaPage h1 y el nombre de CategoryBanner + sf-entra.</>,
-      <>Personalizador (PR #36): VistaPrevia, PersonalizaCampos y HojaEnvio heredan el resto por tokens; el botón de envío ya es Button.</>,
+      <>HeroCarousel: el degradado pasa de via-primary/55 a via-primary/85, para que la etiqueta dorada y el texto se lean sobre las fotos claras del taller (4.9:1 o más).</>,
+      <>Personalizador (PR #36): fuera de esos títulos, VistaPrevia, PersonalizaCampos y HojaEnvio heredan todo por tokens; el botón de envío ya es Button.</>,
     ],
   },
   {
@@ -540,8 +541,8 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     items: [
       <>Orden: hero → Ticker → banda del personalizador → Qué hacemos → Disponible ahora → Quiénes somos con Visítanos (MapCard cerrada, sin open) al lado. Thread se queda.</>,
       <>El hero deja de compartir fila con el mapa: ancho completo, h-[560px] / @4xl:h-[600px]. h1 con sf-lineas en dos líneas (Bienvenido / a Serflow), 44 / 72 px, 600.</>,
-      <>Banda del personalizador: tal cual BandaPersonaliza de propuesta/Portada.tsx (foto estampado-proceso, Eyebrow Personalizador, Tu idea, en tu prenda., una frase, Button Diseñar mi prenda a /personaliza). Reemplaza el bloque Diseña la tuya.</>,
-      <>Fotos del hero en index.astro: gorras-estante (primera, horizontal, es el LCP), gorra-bordada-2 y dos del catálogo. Salen camisetas-estampadas y amigos-gorras (modelos). Qué hacemos: DTF con una foto del catálogo en vez de camiseta-dtf (persona).</>,
+      <>Banda del personalizador: tal cual BandaPersonaliza de propuesta/Portada.tsx (la foto de hoy de Diseña la tuya con el recuadro punteado de la vista previa, Eyebrow Personalizador, Tu idea, en tu prenda., una frase, Button Diseñar mi prenda a /personaliza). Reemplaza el bloque Diseña la tuya.</>,
+      <>Fotos del hero en index.astro: estampado-proceso (primera, horizontal, es el LCP), gorra-bordada-2, una del catálogo (DTF) y gorras-estante. Salen camisetas-estampadas y amigos-gorras (modelos). Qué hacemos: DTF con una foto del catálogo en vez de camiseta-dtf (persona).</>,
     ],
   },
   {
