@@ -159,7 +159,7 @@ const ROWS: DebtRow[] = [
     ),
   },
   {
-    title: "ProductCard.astro no muestra nombre ni tallas",
+    title: "Resuelto en PRI-130: ProductCard.astro no muestra nombre ni tallas",
     body: (
       <>
         La card es solo la foto cuadrada y un chevron. El nombre existe únicamente en el <Code>aria-label</Code> del link,

@@ -121,7 +121,7 @@ const ROWS: DebtRow[] = [
     ),
   },
   {
-    title: "ProductPreview y ContactForm arman su propio link de WhatsApp en JS",
+    title: "Resuelto en PRI-130: ProductPreview y ContactForm arman su propio link de WhatsApp en JS",
     body: (
       <>
         Los dos repiten la lógica de <Code>whatsappUrl</Code> dentro de un <Code>{"<script>"}</Code> y abren con{" "}

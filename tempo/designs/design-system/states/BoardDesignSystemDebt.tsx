@@ -34,7 +34,7 @@ function GrayTileLookalike({ fabric }: { fabric?: boolean }) {
 
 const ROWS: DebtRow[] = [
   {
-    title: "Categoría vacía: una caja sin salida en ProductCardList",
+    title: "Resuelto en PRI-130: Categoría vacía: una caja sin salida en ProductCardList",
     body: (
       <>
         Cuando una categoría no tiene productos activos se pinta una caja con una sola frase. No hay acción: el cliente
@@ -129,7 +129,7 @@ const ROWS: DebtRow[] = [
     visual: null,
   },
   {
-    title: "Caja gris bg-zinc-800 cuando una categoría no tiene imagen",
+    title: "Resuelto en PRI-130: Caja gris bg-zinc-800 cuando una categoría no tiene imagen",
     body: (
       <>
         Color fuera de la paleta y un relleno que la regla de fotos prohíbe ("una sección sin su foto nunca muestra
