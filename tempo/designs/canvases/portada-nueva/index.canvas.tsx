@@ -17,18 +17,18 @@ export default function PortadaNuevaCanvas() {
       <Storyboard id="NotaA" name="Nota · A Taller en vivo (recomendada)" component={NotaA} layout={{ x: 0, y: 1640 }} />
       <Storyboard id="NotaB" name="Nota · B Orden de trabajo" component={NotaB} layout={{ x: 1000, y: 1640 }} />
       <Storyboard id="NotaC" name="Nota · C Vitrina" component={NotaC} layout={{ x: 2000, y: 1640 }} />
-      <Storyboard id="AMobile" name="A · Taller en vivo · celular" component={AMobile} layout={{ x: 0, y: 2400 }} />
-      <Storyboard id="DemoA" name="A · movimiento" component={DemoA} layout={{ x: 420, y: 2400 }} />
-      <Storyboard id="EstadosA" name="A · estados (sin promos, sin prendas)" component={EstadosA} layout={{ x: 420, y: 3500 }} />
-      <Storyboard id="BMobile" name="B · Orden de trabajo · celular" component={BMobile} layout={{ x: 1000, y: 2400 }} />
-      <Storyboard id="DemoB" name="B · movimiento" component={DemoB} layout={{ x: 1420, y: 2400 }} />
-      <Storyboard id="CMobile" name="C · Vitrina · celular" component={CMobile} layout={{ x: 2000, y: 2400 }} />
-      <Storyboard id="DemoC" name="C · movimiento" component={DemoC} layout={{ x: 2420, y: 2400 }} />
+      <Storyboard id="AMobile" name="A · Taller en vivo · celular" component={AMobile} layout={{ x: 0, y: 2760 }} />
+      <Storyboard id="DemoA" name="A · movimiento" component={DemoA} layout={{ x: 420, y: 2760 }} />
+      <Storyboard id="EstadosA" name="A · estados (sin promos, sin prendas)" component={EstadosA} layout={{ x: 420, y: 3880 }} />
+      <Storyboard id="BMobile" name="B · Orden de trabajo · celular" component={BMobile} layout={{ x: 1000, y: 2760 }} />
+      <Storyboard id="DemoB" name="B · movimiento" component={DemoB} layout={{ x: 1420, y: 2760 }} />
+      <Storyboard id="CMobile" name="C · Vitrina · celular" component={CMobile} layout={{ x: 2000, y: 2760 }} />
+      <Storyboard id="DemoC" name="C · movimiento" component={DemoC} layout={{ x: 2420, y: 2760 }} />
 
-      <Storyboard id="RotuloEscritorio" name="Rótulo · escritorio" component={RotuloEscritorio} layout={{ x: 0, y: 7500 }} />
-      <Storyboard id="ADesktop" name="A · Taller en vivo · escritorio" component={ADesktop} layout={{ x: 0, y: 7580 }} />
-      <Storyboard id="BDesktop" name="B · Orden de trabajo · escritorio" component={BDesktop} layout={{ x: 1400, y: 7580 }} />
-      <Storyboard id="CDesktop" name="C · Vitrina · escritorio" component={CDesktop} layout={{ x: 2800, y: 7580 }} />
+      <Storyboard id="RotuloEscritorio" name="Rótulo · escritorio" component={RotuloEscritorio} layout={{ x: 0, y: 7900 }} />
+      <Storyboard id="ADesktop" name="A · Taller en vivo · escritorio" component={ADesktop} layout={{ x: 0, y: 7980 }} />
+      <Storyboard id="BDesktop" name="B · Orden de trabajo · escritorio" component={BDesktop} layout={{ x: 1400, y: 7980 }} />
+      <Storyboard id="CDesktop" name="C · Vitrina · escritorio" component={CDesktop} layout={{ x: 2800, y: 7980 }} />
     </Canvas>
   );
 }
