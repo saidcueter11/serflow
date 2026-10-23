@@ -1,0 +1,91 @@
+/*
+ * Movimiento de las tres ideas de portada (PRI-286 / PRI-287). Solo CSS: transform, opacity y clip-path.
+ * Regla: el estado base de cada clase es el estado FINAL; la animación solo lleva hasta ahí. Así, con
+ * "reducir movimiento" (o sin soporte de view()), basta con quitar la animación y la página queda completa.
+ * .reducir es el interruptor de las demos del canvas; en el sitio solo existe la media query.
+ */
+
+:root {
+  /* Colores de prenda de la vista previa. En producción salen de los datos del personalizador, no son tokens de UI. */
+  --tela-negra: #0F0E0B;
+  --tela-blanca: #ECE9DF;
+}
+
+/* ---------- Idea A · Taller en vivo ---------- */
+@keyframes pa-sweep { 0%, 14% { top: 0%; opacity: 0 } 16% { opacity: 1 } 44% { top: 100%; opacity: 1 } 47%, 100% { top: 100%; opacity: 0 } }
+@keyframes pa-reveal { 0%, 15% { clip-path: inset(0 0 100% 0) } 45%, 100% { clip-path: inset(0) } }
+@keyframes pa-swap { 0%, 58% { opacity: 0 } 64%, 82% { opacity: 1 } 88%, 100% { opacity: 0 } }
+@keyframes pa-ring-negra { 0%, 58% { box-shadow: 0 0 0 2px var(--color-accent) } 64%, 82% { box-shadow: 0 0 0 0 transparent } 88%, 100% { box-shadow: 0 0 0 2px var(--color-accent) } }
+@keyframes pa-ring-blanca { 0%, 58% { box-shadow: 0 0 0 0 transparent } 64%, 82% { box-shadow: 0 0 0 2px var(--color-accent) } 88%, 100% { box-shadow: 0 0 0 0 transparent } }
+
+.pa-rasero { top: 100%; opacity: 0; animation: pa-sweep 7s cubic-bezier(.45, 0, .2, 1) .6s 3 both; }
+.pa-diseno { animation: pa-reveal 7s linear .6s 3 both; }
+.pa-blanca { opacity: 0; animation: pa-swap 7s ease-in-out .6s 3 both; }
+.pa-dot-negra { box-shadow: 0 0 0 2px var(--color-accent); animation: pa-ring-negra 7s .6s 3 both; }
+.pa-dot-blanca { animation: pa-ring-blanca 7s .6s 3 both; }
+
+/* ---------- Idea B · Orden de trabajo ---------- */
+.idea-b {
+  /* Tokens propuestos (no existen todavía en tokens.css) */
+  --paper: #F2EDE1;
+  --paper-2: #E8E1D1;
+  --ticket: #FFFDF7;
+  --tela-azul: #2F4A7A; /* colores de prenda: en producción salen de los datos del personalizador */
+  --tela-vino: #8A1F2B;
+  --ink-strong: #17160F; /* = --color-primary: el fondo de hoy pasa a ser la tinta */
+  --ink-soft: #57534A;
+  --tinta-roja: #C2341B; /* sellos; 5,1:1 sobre --paper */
+  --font-poster: 'Archivo', 'Arial Narrow', sans-serif;
+  background: var(--paper);
+  color: var(--ink-strong);
+}
+.font-poster { font-family: var(--font-poster); font-stretch: 62%; font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; }
+
+@keyframes pb-print { from { transform: translateY(-104%) } to { transform: none } }
+@keyframes pb-stamp { 0% { opacity: 0; transform: rotate(-9deg) scale(1.7) } 60% { opacity: 1; transform: rotate(-9deg) scale(.94) } 100% { opacity: 1; transform: rotate(-9deg) scale(1) } }
+@keyframes pb-marker { from { background-size: 0% 100% } to { background-size: 100% 100% } }
+@keyframes pb-tape { from { opacity: 0; transform: translateY(28px) rotate(var(--r, 0deg)) scale(.96) } to { opacity: 1; transform: rotate(var(--r, 0deg)) } }
+
+.pb-ticket { animation: pb-print .9s cubic-bezier(.2, .7, .2, 1) .3s both; }
+.pb-sello { transform: rotate(-9deg); animation: pb-stamp .45s cubic-bezier(.3, 1.4, .5, 1) 1.3s both; }
+.pb-marca { background: linear-gradient(var(--color-accent), var(--color-accent)) no-repeat 0 60% / 100% 100%; animation: pb-marker .6s var(--ease-out) .9s both; }
+.pb-foto { transform: rotate(var(--r, 0deg)); transition: transform var(--motion-slow) var(--ease-out); }
+.pb-foto:hover { transform: rotate(0deg) scale(1.02); }
+@supports (animation-timeline: view()) {
+  .pb-foto { animation: pb-tape linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+}
+
+/* ---------- Idea C · Vitrina ---------- */
+.idea-c {
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --noche: #0E0D09; /* propuesto: un paso más oscuro que --color-primary, para que la foto mande */
+  background: var(--noche);
+  color: var(--color-ink);
+}
+.font-serif-c { font-family: var(--font-serif); font-weight: 400; }
+
+@keyframes pc-rise { from { transform: translateY(105%) } to { transform: none } }
+@keyframes pc-dock { from { transform: translateY(130%) } to { transform: none } }
+@keyframes pc-kb { from { transform: scale(1.12) } to { transform: scale(1) } }
+@keyframes pc-land { 0% { opacity: 0; transform: translateY(-36px) scale(1.18) } 100% { opacity: 1; transform: none } }
+
+.pc-palabra { display: inline-block; animation: pc-rise .8s cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both; }
+.pc-dock { animation: pc-dock .5s var(--ease-out) 1s both; }
+.pc-kb { animation: pc-kb 6s cubic-bezier(.2, .7, .2, 1) both; }
+.pc-land { animation: pc-land .7s cubic-bezier(.3, 1.3, .5, 1) .5s both; }
+@supports (animation-timeline: view()) {
+  .pc-capitulo { animation: pc-kb linear both; animation-timeline: view(); animation-range: entry 0% cover 50%; }
+  .pc-land-scroll { animation: pc-land linear both; animation-timeline: view(); animation-range: entry 20% entry 80%; }
+}
+
+/* ---------- Reducir movimiento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .pa-rasero, .pa-diseno, .pa-blanca, .pa-dot-negra, .pa-dot-blanca,
+  .pb-ticket, .pb-sello, .pb-marca, .pb-foto,
+  .pc-palabra, .pc-dock, .pc-kb, .pc-land, .pc-capitulo, .pc-land-scroll { animation: none !important; transition: none !important; }
+}
+.reducir :is(.pa-rasero, .pa-diseno, .pa-blanca, .pa-dot-negra, .pa-dot-blanca,
+  .pb-ticket, .pb-sello, .pb-marca, .pb-foto,
+  .pc-palabra, .pc-dock, .pc-kb, .pc-land, .pc-capitulo, .pc-land-scroll,
+  .anim-enter > *, .anim-ticker, .anim-ring, .reveal-up, .reveal-wipe) { animation: none !important; transition: none !important; }
+.reducir .stitch-title::after { animation: none !important; }
