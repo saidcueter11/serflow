@@ -84,7 +84,7 @@ function Hero() {
             Diseñar mi prenda →
           </Button>
           <p className="-mt-1 text-center text-[13px] leading-snug text-muted @4xl:hidden">Gratis. Te llega por WhatsApp y te respondemos con el precio.</p>
-          <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className="min-h-11 content-center whitespace-nowrap text-center text-[14px] font-semibold text-muted underline underline-offset-4 hover:text-ink">
+          <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className="min-h-11 content-center pr-20 text-left text-[14px] font-semibold text-muted underline underline-offset-4 hover:text-ink @4xl:whitespace-nowrap @4xl:pr-0">
             ¿Mejor nos cuentas tu idea? Escríbenos
           </a>
         </div>

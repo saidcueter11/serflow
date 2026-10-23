@@ -115,7 +115,7 @@ function Portada() {
     <section className="relative h-[780px] @4xl:grid @4xl:grid-cols-2">
       <HeaderSobreFoto />
       <div className="relative h-full overflow-hidden">
-        <img src={TALLER.estante} alt="Gorras bordadas en un estante" fetchPriority="high" className="pc-kb absolute inset-0 h-full w-full object-cover object-[50%_50%]" />
+        <img src={TRABAJOS[3].src} alt="Dos amigos con gorras, riéndose" fetchPriority="high" className="pc-kb absolute inset-0 h-full w-full object-cover object-[50%_20%]" />
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgb(14_13_9/.8)_0%,transparent_20%,transparent_34%,rgb(14_13_9/.96)_72%)]" />
         <div className="absolute inset-x-4 bottom-[104px] @4xl:inset-x-10 @4xl:bottom-12">
           <Titular palabras={["Lo", "tuyo,", "hecho", "en", "Cartagena."]} className="text-[54px] leading-[.95] text-ink @4xl:text-[84px]" />
@@ -135,7 +135,7 @@ function Portada() {
 const CAPITULOS = [
   { n: "01", t: "Estampado", c: "Tinta que toma la textura de la tela.", src: TALLER.rasero, alt: "Rasero pasando tinta sobre una plancha de estampado", pos: "50% 50%" },
   { n: "02", t: "Bordado", c: "Hilo con relieve. El clásico de las gorras.", src: TRABAJOS[4].src, alt: TRABAJOS[4].alt, pos: "50% 40%" },
-  { n: "03", t: "Para tu grupo", c: "Uniformes, eventos, la familia entera.", src: TRABAJOS[3].src, alt: TRABAJOS[3].alt, pos: "50% 25%" },
+  { n: "03", t: "Para tu grupo", c: "Uniformes, eventos, la familia entera.", src: TRABAJOS[0].src, alt: "Dos personas con camisetas negras estampadas", pos: "50% 30%" },
 ];
 
 function Capitulos() {

@@ -396,7 +396,7 @@ const FILAS: [string, string, string, string][] = [
   ["Personalizador arriba del pliegue", "Vista previa grande + botón", "La orden completa + botón", "Miniatura en el dock + botón"],
   ["Resultado (fotos reales)", "Así puede quedar la tuya, debajo", "Ideas para la tuya, debajo", "La foto es la portada"],
   ["Catálogo", "Menú + Listo para llevar", "Menú + Lo que hay hoy", "Menú + En vitrina"],
-  ["WhatsApp", "Flotante + Cuéntanos tu idea", "Flotante + Cuéntanos la idea", "Dentro del dock + link en Ahora la tuya"],
+  ["WhatsApp", "Flotante + ¿Mejor nos cuentas tu idea?", "Flotante + ¿No tienes diseño?", "Dentro del dock + link en Ahora la tuya"],
   ["Mapa", "Cerrado, al final", "Cerrado, en el bloque oscuro final", "Cerrado, al final"],
   ["Design system", "Sin tokens nuevos; 1 componente", "Tema claro, 7 tokens, 1 fuente", "1 fuente, 1 token, dock"],
   ["Peso extra", "Nada (la prenda es SVG)", "1 fuente", "1 fuente + foto de hero más grande"],
