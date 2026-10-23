@@ -1,0 +1,228 @@
+/*
+ * Refresh "oro viejo" (PRI-286 + PRI-287). Canvas: tempo/designs/canvases/refresh-oro-viejo.
+ *
+ * Parte A va tal cual a src/styles/tokens.css (las variables de .sf-refresh van en @theme; las clases sf-* van
+ * sueltas, como anim-enter). Aquí está todo bajo .sf-refresh para mostrar antes y después lado a lado con los
+ * mismos componentes de producción.
+ *
+ * Parte B es solo del canvas: le pone las clases nuevas a los componentes de hoy sin tocar src/. En el PR, cada
+ * regla de B se vuelve una clase en el componente que dice el comentario, y B se borra.
+ */
+
+/* ============================== A · tokens y movimiento ============================== */
+
+.sf-refresh {
+  /* Oro viejo: único acento. 7.56:1 sobre el fondo y 7.56:1 con texto negro encima (AA y AAA). */
+  --color-accent: #c9a24a;
+  /* Tinte para fondos (chip elegido, foco suave). Texto dorado encima: 6.2:1 sobre el fondo, 5.7:1 sobre surface. */
+  --color-accent-soft: #c9a24a1f;
+  /* Oro profundo: bordes y cantos, nunca texto (3.75:1 sobre el fondo, sirve para bordes; texto claro encima 4.28:1, no pasa AA). */
+  --color-accent-deep: #8c6d2c;
+  /* Oro claro: borde al pasar, brillo, separadores. 10.7:1 sobre el fondo. */
+  --color-secondary: #e2c47e;
+
+  /* Negros cálidos, tinta y gris: los de hoy, siguen funcionando con el oro viejo. */
+
+  /* Una sola familia, sin esquinas cuadradas. Variable 400-700; latin la sirve Google en un solo woff2. */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Motion: los tres cortos de hoy se quedan para color y foco; estos cuatro son los movimientos nuevos. */
+  --motion-brillo: 900ms;
+  --motion-foto: 1100ms;
+  --motion-entrada: 900ms;
+  --motion-costura: 700ms;
+  --motion-escalon: 120ms;
+  /* Sale rápido y se posa despacio: la curva de todo lo nuevo. */
+  --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow-oro: 0 14px 30px -12px rgb(201 162 74 / 0.7);
+
+  -webkit-tap-highlight-color: transparent;
+  font-feature-settings: 'ss01' off;
+}
+
+@keyframes sf-subir { from { transform: translateY(105%) } to { transform: none } }
+@keyframes sf-entra { from { opacity: 0; transform: translateY(0.45em); clip-path: inset(0 0 100% 0) } to { opacity: 1; transform: none; clip-path: inset(-0.2em -0.2em -0.3em) } }
+@keyframes sf-ring-oro { from { box-shadow: 0 0 0 0 rgb(201 162 74 / 0.6) } to { box-shadow: 0 0 0 20px rgb(201 162 74 / 0) } }
+
+/* 1 · Botón con brillo: sube y le pasa un reflejo al pasar; se hunde al tocar. */
+.sf-refresh .sf-brillo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--motion-slow) var(--ease-premium), box-shadow var(--motion-slow) var(--ease-premium), border-color var(--motion-fast) ease-out;
+}
+.sf-refresh .sf-brillo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, var(--sf-reflejo, rgb(255 248 220 / 0.65)) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+@media (hover: hover) {
+  .sf-refresh .sf-brillo:hover { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+  .sf-refresh .sf-brillo:hover::after { transform: translateX(120%); transition: transform var(--motion-brillo) ease; }
+}
+.sf-refresh .sf-brillo:focus-visible { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+.sf-refresh .sf-brillo:focus-visible::after { transform: translateX(120%); transition: transform var(--motion-brillo) ease; }
+.sf-refresh .sf-brillo:active { transform: translateY(1px) scale(0.97); box-shadow: none; transition-duration: var(--motion-fast); }
+/* Secundario: mismo gesto, reflejo tenue y sin halo dorado. */
+.sf-refresh .sf-brillo-suave { --sf-reflejo: rgb(226 196 126 / 0.16); --sf-sombra: 0 10px 24px -14px rgb(0 0 0 / 0.8); }
+
+/* 2 · Foto que se acerca: gana color, zoom lento y el texto sube. En el celular la foto ya está a todo color. */
+.sf-refresh .sf-foto img { transition: transform var(--motion-foto) var(--ease-premium), filter calc(var(--motion-foto) * 0.55) var(--ease-premium); }
+.sf-refresh .sf-foto .sf-foto-texto { transition: transform 600ms var(--ease-premium); }
+@media (hover: hover) {
+  .sf-refresh .sf-foto img { filter: saturate(0.72) brightness(0.88); }
+  .sf-refresh .sf-foto:hover img, .sf-refresh .sf-foto:focus-visible img { transform: scale(1.06); filter: none; }
+  .sf-refresh .sf-foto:hover .sf-foto-texto, .sf-refresh .sf-foto:focus-visible .sf-foto-texto { transform: translateY(-4px); }
+}
+.sf-refresh .sf-foto:active img { transform: scale(1.03); filter: none; transition-duration: var(--motion-med); }
+
+/* 3 · Titular que entra: cada línea sube detrás de una máscara, una tras otra (h1 de cada página, al cargar). */
+.sf-refresh .sf-lineas > span { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.sf-refresh .sf-lineas > span > span { display: block; animation: sf-subir var(--motion-entrada) var(--ease-premium) both; }
+.sf-refresh .sf-lineas > span:nth-child(2) > span { animation-delay: var(--motion-escalon); }
+.sf-refresh .sf-lineas > span:nth-child(3) > span { animation-delay: calc(var(--motion-escalon) * 2); }
+/* Títulos de una línea (h2 de sección, nombre de la categoría): suben al entrar en pantalla. */
+.sf-refresh .sf-entra { animation: sf-entra var(--motion-entrada) var(--ease-premium) both; }
+@supports (animation-timeline: view()) {
+  .sf-refresh .sf-entra-scroll { animation: sf-entra linear both; animation-timeline: view(); animation-range: entry 5% entry 45%; }
+}
+
+/* 4 · Enlace que se cose: una costura dorada se dibuja debajo al pasar, al enfocar o al tocar; queda cosida en la página actual. */
+.sf-refresh .sf-costura { position: relative; text-decoration-line: none; }
+.sf-refresh .sf-costura::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--sf-costura-y, 8px);
+  height: 2px;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 8px, transparent 8px 13px);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--motion-costura) var(--ease-premium);
+}
+@media (hover: hover) { .sf-refresh .sf-costura:hover::after { clip-path: inset(0); } }
+.sf-refresh .sf-costura:focus-visible::after, .sf-refresh .sf-costura:active::after, .sf-refresh .sf-costura[aria-current]::after { clip-path: inset(0); }
+
+/* Feedback al tocar en todo lo demás que se toca (cards, chips, pestañas, flotante). */
+.sf-refresh .sf-toque { transition: transform var(--motion-fast) ease-out, border-color var(--motion-fast) ease-out, background-color var(--motion-fast) ease-out; }
+.sf-refresh .sf-toque:active { transform: scale(0.97); }
+
+/* El aro del WhatsAppFab, en oro viejo. */
+.sf-refresh .anim-ring { animation-name: sf-ring-oro; }
+
+/* Reducir movimiento: global.css ya apaga animaciones y transiciones; aquí lo que quedaría a medias. */
+@media (prefers-reduced-motion: reduce) {
+  .sf-refresh .sf-foto img { filter: none !important; transform: none !important; }
+  .sf-refresh .sf-brillo, .sf-refresh .sf-toque { transform: none !important; }
+  .sf-refresh .sf-brillo::after { display: none; }
+  .sf-refresh .sf-costura::after { clip-path: inset(0 100% 0 0); }
+  .sf-refresh .sf-costura:is(:hover, :focus-visible, [aria-current])::after { clip-path: inset(0); }
+}
+
+/* ============================== B · puente del canvas (se borra en el PR) ============================== */
+
+/* Tipografía. Section, CategoryBanner, PromosPage, PromoAfiche, Ticker: font-medium -> font-semibold y tracking-[-0.02em] en títulos font-display. */
+.sf-refresh .font-display.font-medium { font-weight: 600; }
+.sf-refresh :is(h1, h2, p).font-display.font-medium { letter-spacing: -0.022em; }
+/* Botones: font-bold -> font-semibold. */
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.font-bold { font-weight: 600; }
+
+/* Button.tsx · whatsapp: sale el canto 3D (shadow-[0_5px_0...] y active:translate-y-[3px]) y entra sf-brillo. */
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.bg-accent {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28);
+  position: relative; overflow: hidden; isolation: isolate;
+  transition: transform var(--motion-slow) var(--ease-premium), box-shadow var(--motion-slow) var(--ease-premium);
+}
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.bg-accent::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 248 220 / 0.65) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+@media (hover: hover) {
+  .sf-refresh :is(a, button).inline-flex.rounded-full.font-body.bg-accent:hover { transform: translateY(-3px); box-shadow: var(--shadow-oro); }
+  .sf-refresh :is(a, button).inline-flex.rounded-full.font-body.bg-accent:hover::after { transform: translateX(120%); transition: transform var(--motion-brillo) ease; }
+}
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.bg-accent:active { transform: translateY(1px) scale(0.97); box-shadow: none; transition-duration: var(--motion-fast); }
+
+/* Button.tsx · secondary: sf-brillo sf-brillo-suave y hover:border-secondary (en vez de hover:border-muted). */
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.border-line {
+  position: relative; overflow: hidden; isolation: isolate;
+  transition: transform var(--motion-slow) var(--ease-premium), box-shadow var(--motion-slow) var(--ease-premium), border-color var(--motion-fast) ease-out;
+}
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.border-line::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgb(226 196 126 / 0.16) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+@media (hover: hover) {
+  .sf-refresh :is(a, button).inline-flex.rounded-full.font-body.border-line:hover { transform: translateY(-3px); border-color: var(--color-secondary); box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.8); }
+  .sf-refresh :is(a, button).inline-flex.rounded-full.font-body.border-line:hover::after { transform: translateX(120%); transition: transform var(--motion-brillo) ease; }
+}
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.border-line:active { transform: translateY(1px) scale(0.97); }
+
+/* Button.tsx · ghost, Header (nav desktop), Footer (LINK), PromoCard ("Ver promo"): sf-costura en vez de hover:underline. */
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4,
+.sf-refresh header nav a,
+.sf-refresh footer a:not([aria-label]),
+.sf-refresh a.group span.mt-auto.text-accent.font-semibold { position: relative; text-decoration-line: none !important; }
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4::after,
+.sf-refresh header nav a::after,
+.sf-refresh footer a:not([aria-label])::after,
+.sf-refresh a.group span.mt-auto.text-accent.font-semibold::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 2px; pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 8px, transparent 8px 13px);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--motion-costura) var(--ease-premium);
+}
+.sf-refresh a.group span.mt-auto.text-accent.font-semibold::after { bottom: -4px; }
+@media (hover: hover) {
+  .sf-refresh :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4:hover::after,
+  .sf-refresh header nav a:hover::after,
+  .sf-refresh footer a:not([aria-label]):hover::after,
+  .sf-refresh a.group:hover span.mt-auto.text-accent.font-semibold::after { clip-path: inset(0); }
+}
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4:is(:focus-visible, :active)::after,
+.sf-refresh header nav a:is(:focus-visible, :active, [aria-current])::after,
+.sf-refresh footer a:not([aria-label]):is(:focus-visible, :active)::after { clip-path: inset(0); }
+
+/* ProductCard, Masonry, PromoCard, PromoAfiche, ServiceCard, la banda del personalizador: sf-foto en el link o la card. */
+.sf-refresh :is(a.group, article.group, article.rounded-card) img { transition: transform var(--motion-foto) var(--ease-premium), filter calc(var(--motion-foto) * 0.55) var(--ease-premium); }
+@media (hover: hover) {
+  .sf-refresh :is(a.group, article.group, article.rounded-card) img { filter: saturate(0.72) brightness(0.88); }
+  .sf-refresh :is(a.group, article.group, article.rounded-card):is(:hover, :focus-visible) img { transform: scale(1.06); filter: none; }
+  .sf-refresh :is(a.group, article.group):hover > div:last-child:not(:first-child) { transform: translateY(-4px); }
+}
+.sf-refresh :is(a.group, article.group) > div:last-child:not(:first-child) { transition: transform 600ms var(--ease-premium); }
+/* Cards que son link, pestañas de categoría, chips y el flotante: sf-toque. */
+.sf-refresh a.group:active { transform: scale(0.98); transition-duration: var(--motion-fast); }
+.sf-refresh nav[aria-label='Categorías'] a { transition: transform var(--motion-fast) ease-out, border-color var(--motion-fast) ease-out, background-color var(--motion-fast) ease-out; }
+.sf-refresh nav[aria-label='Categorías'] a:active,
+.sf-refresh label > input.peer + span:active { transform: scale(0.96); }
+@media (hover: hover) {
+  .sf-refresh nav[aria-label='Categorías'] a:not([aria-current]):hover { border-color: var(--color-secondary); }
+  .sf-refresh label > input.peer:not(:checked) + span:hover { border-color: var(--color-secondary); }
+}
+
+/* Títulos: Section (h2.stitch-title) sube al entrar; CategoryBanner y PromosPage (h1) suben al cargar. */
+@supports (animation-timeline: view()) {
+  .sf-refresh h2.stitch-title { animation: sf-entra linear both; animation-timeline: view(); animation-range: entry 5% entry 45%; }
+}
+.sf-refresh [data-banner-slide]:not([aria-hidden]) p.font-display,
+.sf-refresh main h1.font-display:not(.sf-lineas) { animation: sf-entra var(--motion-entrada) var(--ease-premium) both; }
+
+/* Solo para las demos del canvas: .sf-demo fuerza "al pasar" y .sf-demo-toque fuerza "al tocar", para verlos sin mouse. */
+.sf-refresh .sf-demo :is(a, button).inline-flex.rounded-full.font-body.bg-accent { transform: translateY(-3px); box-shadow: var(--shadow-oro); }
+.sf-refresh .sf-demo :is(a, button).inline-flex.rounded-full.font-body.border-line { transform: translateY(-3px); border-color: var(--color-secondary); }
+.sf-refresh .sf-demo :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)::after { transform: translateX(120%); transition: transform var(--motion-brillo) ease; }
+.sf-refresh .sf-demo-toque :is(a, button).inline-flex.rounded-full.font-body { transform: translateY(1px) scale(0.97) !important; box-shadow: none !important; transition-duration: var(--motion-fast) !important; }
+.sf-refresh .sf-demo :is(a.group, article.group) img { transform: scale(1.06); filter: none; }
+.sf-refresh .sf-demo :is(a.group, article.group) > div:last-child:not(:first-child) { transform: translateY(-4px); }
+.sf-refresh .sf-demo :is(.underline-offset-4, header nav a, footer a:not([aria-label]))::after { clip-path: inset(0); }
+.sf-refresh .sf-demo-toque :is(nav[aria-label='Categorías'] a, label > input.peer + span) { transform: scale(0.96); }
+.sf-refresh .sf-demo-toque a.group { transform: scale(0.98); }
