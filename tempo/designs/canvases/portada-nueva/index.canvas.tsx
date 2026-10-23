@@ -1,5 +1,5 @@
 import { Canvas, Storyboard } from "tempo-sdk/canvas";
-import { Comparacion, DemoA, DemoB, DemoC, Inspiracion, Intro, NotaA, NotaB, NotaC, RotuloCelular, RotuloEscritorio } from "./narracion";
+import { Comparacion, DemoA, EstadosA, DemoB, DemoC, Inspiracion, Intro, NotaA, NotaB, NotaC, RotuloCelular, RotuloEscritorio } from "./narracion";
 import { ADesktop, AMobile } from "./ideaA";
 import { BDesktop, BMobile } from "./ideaB";
 import { CDesktop, CMobile } from "./ideaC";
@@ -19,6 +19,7 @@ export default function PortadaNuevaCanvas() {
       <Storyboard id="NotaC" name="Nota · C Vitrina" component={NotaC} layout={{ x: 2000, y: 1640 }} />
       <Storyboard id="AMobile" name="A · Taller en vivo · celular" component={AMobile} layout={{ x: 0, y: 2400 }} />
       <Storyboard id="DemoA" name="A · movimiento" component={DemoA} layout={{ x: 420, y: 2400 }} />
+      <Storyboard id="EstadosA" name="A · estados (sin promos, sin prendas)" component={EstadosA} layout={{ x: 420, y: 3500 }} />
       <Storyboard id="BMobile" name="B · Orden de trabajo · celular" component={BMobile} layout={{ x: 1000, y: 2400 }} />
       <Storyboard id="DemoB" name="B · movimiento" component={DemoB} layout={{ x: 1420, y: 2400 }} />
       <Storyboard id="CMobile" name="C · Vitrina · celular" component={CMobile} layout={{ x: 2000, y: 2400 }} />

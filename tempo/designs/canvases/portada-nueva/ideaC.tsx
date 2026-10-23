@@ -9,8 +9,8 @@ import { NAV_NUEVA } from "./ideaA";
 /*
  * IDEA C · VITRINA (evolución: fotos a sangre, serif itálica Instrument Serif para titulares, noche más profunda).
  * Celular: capítulos de foto a pantalla completa y un dock fijo abajo con el personalizador (y WhatsApp dentro del dock:
- * el flotante se funde con él). Escritorio: pantalla partida, foto a la izquierda y el personalizador fijo a la derecha,
- * con WhatsApp como link debajo del botón (sin flotante: el panel ya está siempre a la vista).
+ * el flotante se funde con él). Escritorio: pantalla partida en la primera pantalla, foto a la izquierda y el personalizador
+ * a la derecha, con el flotante de WhatsApp y un link contextual bajo el botón.
  * Producción reutilizada: PromoBar, MapCard, Footer y el ícono de WhatsApp. Header transparente, dock y capítulos son propuestas.
  */
 
@@ -89,9 +89,9 @@ function Dock() {
 
 function PanelPersonalizador() {
   return (
-    <div className="flex h-full flex-col justify-center gap-6 bg-[var(--noche)] px-12 pt-20">
+    <div className="flex h-full flex-col justify-center gap-5 bg-[var(--noche)] px-12 pt-16">
       <span className="text-[12px] font-semibold uppercase tracking-[.16em] text-accent">El personalizador</span>
-      <Mini className="h-[380px] rounded-card border border-line" />
+      <Mini className="h-[320px] rounded-card border border-line" />
       <ol className="flex flex-col gap-2.5">
         {PASOS.map((p, i) => (
           <li key={p} className="flex items-center gap-3 text-[15px] text-ink/90">
@@ -100,10 +100,10 @@ function PanelPersonalizador() {
           </li>
         ))}
       </ol>
-      <a href={PERSONALIZA} className={`flex min-h-12 items-center justify-center rounded-full bg-accent text-[16px] font-bold text-primary ${FOCUS}`}>
+      <a href={PERSONALIZA} className={`flex min-h-12 items-center justify-center self-start rounded-full bg-accent px-10 text-[16px] font-bold text-primary ${FOCUS}`}>
         Diseñar mi prenda →
       </a>
-      <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className={`-mt-2 flex min-h-11 items-center justify-center gap-2 text-[14px] font-semibold text-muted hover:text-ink ${FOCUS}`}>
+      <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className={`-mt-2 flex min-h-11 items-center self-start gap-2 text-[14px] font-semibold text-muted hover:text-ink ${FOCUS}`}>
         <WhatsAppIcon className="size-4 text-accent" /> ¿Mejor nos cuentas tu idea? Escríbenos
       </a>
     </div>
@@ -115,8 +115,8 @@ function Portada() {
     <section className="relative h-[780px] @4xl:grid @4xl:grid-cols-2">
       <HeaderSobreFoto />
       <div className="relative h-full overflow-hidden">
-        <img src={TRABAJOS[0].src} alt={TRABAJOS[0].alt} fetchPriority="high" className="pc-kb absolute inset-0 h-full w-full object-cover object-[50%_30%]" />
-        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgb(14_13_9/.55)_0%,transparent_22%,transparent_32%,rgb(14_13_9/.96)_72%)]" />
+        <img src={TALLER.estante} alt="Gorras bordadas en un estante del taller" fetchPriority="high" className="pc-kb absolute inset-0 h-full w-full object-cover object-[50%_50%]" />
+        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgb(14_13_9/.8)_0%,transparent_20%,transparent_34%,rgb(14_13_9/.96)_72%)]" />
         <div className="absolute inset-x-4 bottom-[104px] @4xl:inset-x-10 @4xl:bottom-12">
           <Titular palabras={["Lo", "tuyo,", "hecho", "en", "Cartagena."]} className="text-[54px] leading-[.95] text-ink @4xl:text-[84px]" />
           <p className="mt-3 max-w-[34ch] text-[16px] leading-relaxed text-ink/80 @4xl:text-[18px]">
@@ -176,6 +176,9 @@ function AhoraTu() {
       <a href={PERSONALIZA} className={`mt-6 flex min-h-12 items-center justify-center rounded-full bg-accent text-[16px] font-bold text-primary ${FOCUS}`}>
         Diseñar mi prenda →
       </a>
+      <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className={`mt-2 flex min-h-11 items-center justify-center gap-2 text-[14px] font-semibold text-muted ${FOCUS}`}>
+        <WhatsAppIcon className="size-4 text-accent" /> ¿Mejor nos cuentas tu idea? Escríbenos
+      </a>
     </section>
   );
 }
@@ -234,7 +237,7 @@ export function CMobile() {
 
 export function CDesktop() {
   return (
-    <Hoja width={1280} fold={800} className="idea-c" fab={false}>
+    <Hoja width={1280} fold={800} className="idea-c">
       <PaginaC />
     </Hoja>
   );

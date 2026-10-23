@@ -8,6 +8,7 @@ import { Ticker } from "../../../../src/components/ui/Ticker";
 import { ProductCard } from "../../../../src/components/ui/ProductCard";
 import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { MapCard } from "../../../../src/components/ui/MapCard";
+import { EmptyState } from "../../../../src/components/ui/EmptyState";
 import { CATALOGO, Hoja, LOGO, PASOS, PERSONALIZA, PRENDA, Prenda, PRODUCTOS, PROMOS, TALLER, TRABAJOS, WA_IDEA } from "./comun";
 
 /*
@@ -50,7 +51,7 @@ export function TallerVivo({ className = "" }: { className?: string }) {
         </div>
       </Prenda>
       <span className="absolute left-3 top-3 rounded-full bg-primary/85 px-3 py-1 text-[12px] font-semibold text-ink">Vista previa en vivo</span>
-      <div aria-hidden="true" className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-tile bg-primary/85 p-2">
+      <div aria-hidden="true" className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-tile bg-primary/85 p-2 @4xl:right-auto @4xl:gap-6">
         <div className="flex gap-1">
           <span className="rounded-full bg-accent px-3 py-1.5 text-[13px] font-bold text-primary">Camiseta</span>
           <span className="rounded-full border border-line px-3 py-1.5 text-[13px] text-muted">Gorra</span>
@@ -73,7 +74,7 @@ function Hero() {
           Diseña tu prenda y mírala antes de que la hagamos
         </h1>
       </div>
-      <TallerVivo className="h-[350px] @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:h-[600px]" />
+      <TallerVivo className="h-[320px] @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:h-[540px]" />
       <div className="flex flex-col gap-5 @4xl:col-start-1 @4xl:row-start-2">
         <p className="hidden max-w-[52ch] text-[18px] leading-relaxed text-muted @4xl:block">
           Sube tu logo o una foto, ponlo en una camiseta o una gorra y mándanos el diseño listo. Lo estampamos o lo bordamos aquí, en Cartagena.
@@ -101,7 +102,7 @@ function Hero() {
 
 function AsiQuedan() {
   return (
-    <Section id="trabajos" title="Así quedan" description="Trabajos que salieron del taller. Con el personalizador ves el tuyo así, antes de pedirlo.">
+    <Section id="trabajos" title="Así puede quedar la tuya" description="Estampado, DTF y bordado en camisetas y gorras. Con el personalizador ves la tuya antes de pedirla.">
       <div className="-mx-4 grid snap-x auto-cols-[230px] grid-flow-col gap-3 overflow-x-auto px-4 pb-2 @3xl:mx-0 @3xl:auto-cols-auto @3xl:grid-flow-row @3xl:grid-cols-4 @3xl:grid-rows-[260px_260px] @3xl:gap-4 @3xl:overflow-visible @3xl:px-0">
         {TRABAJOS.map((t, i) => (
           <figure
@@ -117,26 +118,36 @@ function AsiQuedan() {
   );
 }
 
-export function PaginaA() {
+export function PaginaA({ promos = PROMOS, productos = PRODUCTOS }: { promos?: typeof PROMOS; productos?: typeof PRODUCTOS }) {
   return (
     <>
-      <PromoBar promos={PROMOS} />
+      <PromoBar promos={promos} />
       <Header logoSrc={LOGO} links={NAV_NUEVA} />
       <main>
         <Hero />
         <Ticker items={USOS} />
         <AsiQuedan />
         <Section id="disponible" title="Listo para llevar" description="Lo que ya está hecho en el taller esta semana.">
-          <div className="grid grid-cols-2 gap-3 @3xl:grid-cols-4 @3xl:gap-4">
-            {PRODUCTOS.map((p) => (
-              <ProductCard key={p.href} {...p} />
-            ))}
-          </div>
-          <div className="mt-5">
-            <Button variant="secondary" href={CATALOGO}>
-              Ver todo el catálogo →
-            </Button>
-          </div>
+          {productos.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 gap-3 @3xl:grid-cols-4 @3xl:gap-4">
+                {productos.map((p) => (
+                  <ProductCard key={p.href} {...p} />
+                ))}
+              </div>
+              <div className="mt-5">
+                <Button variant="secondary" href={CATALOGO}>
+                  Ver todo el catálogo →
+                </Button>
+              </div>
+            </>
+          ) : (
+            <EmptyState
+              title="Hoy no hay prendas listas para llevar"
+              description="Lo que sale del taller se va rápido. Diseña la tuya y la hacemos, o escríbenos y te contamos qué llega esta semana."
+              action={{ label: "Escríbenos por WhatsApp", href: WA_IDEA }}
+            />
+          )}
         </Section>
         <Section id="que-hacemos" title="Con qué lo hacemos" description="Te recomendamos la técnica según tu diseño y la prenda.">
           <div className="grid gap-3 @3xl:grid-cols-3 @3xl:gap-5">

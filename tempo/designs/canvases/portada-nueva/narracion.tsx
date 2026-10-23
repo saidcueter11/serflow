@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from "react";
 import { PaginaA } from "./ideaA";
+import { EmptyState } from "../../../../src/components/ui/EmptyState";
 import { PaginaB } from "./ideaB";
 import { PaginaC } from "./ideaC";
-import { Hoja } from "./comun";
+import { Hoja, WA_IDEA } from "./comun";
+import { Section } from "../../../../src/components/ui/Section";
 
 /* ---------------- Narración del canvas PRI-286 (no es producto) ---------------- */
 
@@ -67,7 +69,7 @@ export function Intro() {
         <Bullets
           items={[
             "El personalizador es lo primero que se ve, con la vista previa de la prenda y el botón Diseñar mi prenda (lleva a /personaliza, PRI-122).",
-            "El resultado se muestra con fotos reales: stock de src/assets/images/stock y fotos del catálogo que ya están en el repo. Nada sale de Supabase, así que no aparecen datos personales.",
+            "El resultado se muestra con fotos reales: stock de src/assets/images/stock y fotos del catálogo que ya están en el repo. Nada sale de Supabase, así que no aparecen datos personales. El copy no presenta el stock como trabajo del taller (Así puede quedar la tuya, Ideas para la tuya); se cambia por fotos del taller cuando el admin pueda subirlas (PRI-150).",
             "PromoBar de producción arriba, solo si hay promos activas (el canvas la muestra con dos). El catálogo nuevo (/products, PRI-130) entra al menú y tiene su sección.",
             "WhatsApp: el flotante (en C se funde con el dock) más uno contextual, ¿Mejor nos cuentas tu idea?, para quien no tiene diseño.",
             "Dirección y horario salen una sola vez: en la MapCard cerrada, al final. El iframe de Google ya no se descarga si nadie lo abre.",
@@ -240,10 +242,11 @@ export function NotaA() {
       resuelve={[
         "En el celular se ven el título, la vista previa y Diseñar mi prenda sin hacer scroll.",
         "Muestra qué hace el personalizador en vez de explicarlo.",
+        "Estados dibujados: sin promos (la barra no sale) y sin prendas listas para llevar (EmptyState con salida a WhatsApp).",
         "Reutiliza casi todo lo de producción: Header, PromoBar, Ticker, Section, ProductCard, ServiceCard, MapCard, Footer.",
       ]}
       sacrifica={[
-        "El carrusel de fotos del hero desaparece: las fotos de trabajos bajan a Así quedan.",
+        "El carrusel de fotos del hero desaparece: las fotos bajan a Así puede quedar la tuya.",
         "Es la menos sorprendente de las tres: se parece a la marca de hoy.",
       ]}
       movimiento={[
@@ -253,7 +256,8 @@ export function NotaA() {
         "Peso: 0 KB de JS. La prenda es un SVG de 1 KB y el cambio de color no pide otra foto.",
       ]}
       ds={[
-        "Nuevo componente TallerVivo (vista previa animada) en src/components/ui, sin lógica: foto, diseño y colores por props.",
+        "Nuevo componente TallerVivo (vista previa animada) en src/components/ui, sin lógica: prenda, diseño y colores por props. Los chips Camiseta/Gorra son dibujo: toda la tarjeta es un solo link a /personaliza.",
+        "WorkCard: variante mosaico (solo foto, técnica en una píldora sobre la foto) para Así puede quedar la tuya. Hoy WorkCard es foto 4:5 con el texto debajo.",
         "Button: variante primary (dorado sin ícono de WhatsApp). Hoy se usa whatsapp con icon={null}.",
         "NAV_LINKS del Header: Diseña la tuya, Catálogo, Promos, Visítanos (es dato, no cambia el componente).",
       ]}
@@ -298,12 +302,12 @@ export function NotaC() {
     <Nota
       letra="C"
       nombre="Vitrina"
-      linea="Evolución: fotos a sangre y titulares en serif itálica (Instrument Serif), con una noche más profunda. En el celular, capítulos de foto a pantalla completa y un dock fijo con el personalizador. En escritorio, pantalla partida: foto a la izquierda, personalizador fijo a la derecha."
+      linea="Evolución: fotos a sangre y titulares en serif itálica (Instrument Serif), con una noche más profunda. En el celular, capítulos de foto a pantalla completa y un dock fijo con el personalizador. En escritorio, la primera pantalla se parte en dos: foto a la izquierda, personalizador a la derecha."
       inspiracion="Brain Dead (lookbook que manda sobre el texto), Outfit (fotos que se acomodan con el scroll), Nike By You (un solo destino)."
       resuelve={[
         "La más emocional: el trabajo terminado ocupa la pantalla entera.",
-        "El personalizador nunca se va: dock fijo en el celular, panel fijo en escritorio.",
-        "El dock une Diseña la tuya y WhatsApp en un solo lugar: no hay dos botones flotando. En escritorio, WhatsApp va como link bajo el botón del panel.",
+        "En el celular el personalizador nunca se va (dock fijo); en escritorio ocupa media primera pantalla.",
+        "El dock une Diseña la tuya y WhatsApp en un solo lugar: no hay dos botones flotando. El link contextual va en Ahora la tuya; en escritorio, flotante más link bajo el botón.",
       ]}
       sacrifica={[
         "En el celular, la vista previa grande aparece recién abajo (Ahora la tuya); arriba solo está su miniatura en el dock.",
@@ -318,7 +322,7 @@ export function NotaC() {
       ds={[
         "Fuente nueva: Instrument Serif itálica para titulares (Space Grotesk sigue en botones y texto).",
         "Token --noche, un paso más oscuro que --color-primary.",
-        "Header transparente sobre foto, Dock del personalizador y WhatsAppFab dentro del dock (variante nueva).",
+        "Header transparente sobre foto (con degradado para que el logo se lea), Dock del personalizador y WhatsAppFab dentro del dock (variante nueva, solo celular).",
         "Componentes nuevos: Capitulo (foto a pantalla completa) y la fila de vitrina.",
       ]}
     />
@@ -356,8 +360,8 @@ function Demo({ letra, que, children }: { letra: string; que: string; children: 
           </button>
         </div>
       </div>
-      <p className="text-[13px] leading-relaxed text-muted">{que}</p>
-      <div key={vuelta} className={`h-[844px] w-[390px] self-center overflow-hidden rounded-tile border border-line ${reducir ? "reducir" : ""}`}>
+      <p className="text-[13px] leading-relaxed text-muted">{que} Haz scroll dentro del teléfono para ver lo que se mueve al bajar.</p>
+      <div key={vuelta} className={`h-[844px] w-[400px] self-center overflow-y-auto overflow-x-hidden rounded-tile border border-line ${reducir ? "reducir" : ""}`}>
         {children}
       </div>
     </div>
@@ -390,9 +394,9 @@ export const DemoC = () => (
 
 const FILAS: [string, string, string, string][] = [
   ["Personalizador arriba del pliegue", "Vista previa grande + botón", "La orden completa + botón", "Miniatura en el dock + botón"],
-  ["Resultado (fotos reales)", "Así quedan, debajo", "Hecho aquí, debajo", "La foto ES la portada"],
+  ["Resultado (fotos reales)", "Así puede quedar la tuya, debajo", "Ideas para la tuya, debajo", "La foto es la portada"],
   ["Catálogo", "Menú + Listo para llevar", "Menú + Lo que hay hoy", "Menú + En vitrina"],
-  ["WhatsApp", "Flotante + Cuéntanos tu idea", "Flotante + Cuéntanos la idea", "Dentro del dock"],
+  ["WhatsApp", "Flotante + Cuéntanos tu idea", "Flotante + Cuéntanos la idea", "Dentro del dock + link en Ahora la tuya"],
   ["Mapa", "Cerrado, al final", "Cerrado, en el bloque oscuro final", "Cerrado, al final"],
   ["Design system", "Sin tokens nuevos; 1 componente", "Tema claro, 7 tokens, 1 fuente", "1 fuente, 1 token, dock"],
   ["Peso extra", "Nada (la prenda es SVG)", "1 fuente", "1 fuente + foto de hero más grande"],
@@ -415,7 +419,7 @@ export function Comparacion() {
         <h2 className="mt-2 font-display text-[28px] font-bold leading-tight">Las tres, lado a lado, como las ve alguien que entra desde el celular</h2>
       </div>
       <div className="grid grid-cols-[1fr_312px_312px_312px] gap-6">
-        <div className="flex flex-col justify-end gap-3 rounded-tile border border-accent bg-primary p-5">
+        <div className="flex flex-col justify-start gap-3 self-start rounded-tile border border-accent bg-primary p-5">
           <Kicker>Recomiendo A · Taller en vivo</Kicker>
           <p className="text-[15px] leading-relaxed">
             Es la única que pone la vista previa grande arriba del pliegue y además la muestra funcionando: el cliente entiende el personalizador antes de leer nada.
@@ -459,6 +463,44 @@ export function Comparacion() {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/* ---------------- Estados de A ---------------- */
+
+export function EstadosA() {
+  return (
+    <div className="flex w-[440px] flex-col gap-5 rounded-card border border-line bg-surface p-5 font-body text-ink antialiased">
+      <div>
+        <Kicker>Idea A · estados</Kicker>
+        <p className="mt-2 text-[14px] leading-relaxed text-muted">
+          Arriba: sin promos activas la barra dorada no se pinta y la página arranca en el menú. Abajo: si no hay prendas listas para llevar, la sección
+          muestra el EmptyState de producción con salida a WhatsApp, y Diseñar mi prenda sigue arriba.
+        </p>
+      </div>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <span className="text-[13px] font-bold">Sin promos · primera pantalla</span>
+          <div className="h-[844px] w-[390px] overflow-hidden rounded-tile border border-line">
+            <Hoja width={390} fold={844} className="bg-primary text-ink">
+              <PaginaA promos={[]} />
+            </Hoja>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <span className="text-[13px] font-bold">Sin prendas listas para llevar</span>
+          <div className="w-[390px] overflow-hidden rounded-tile border border-line bg-primary">
+            <Section title="Listo para llevar" description="Lo que ya está hecho en el taller esta semana.">
+              <EmptyState
+                title="Hoy no hay prendas listas para llevar"
+                description="Lo que sale del taller se va rápido. Diseña la tuya y la hacemos, o escríbenos y te contamos qué llega esta semana."
+                action={{ label: "Escríbenos por WhatsApp", href: WA_IDEA }}
+              />
+            </Section>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

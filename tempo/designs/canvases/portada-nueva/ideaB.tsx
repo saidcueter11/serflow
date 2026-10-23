@@ -107,7 +107,7 @@ function Hero() {
         </a>
       </div>
       <Orden />
-      <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className={`-mt-2 min-h-11 content-center text-center text-[14px] font-bold underline decoration-2 underline-offset-4 @4xl:hidden ${FOCUS}`}>
+      <a href={WA_IDEA} target="_blank" rel="noopener noreferrer" className={`-mt-2 min-h-11 content-center pr-20 text-left text-[14px] font-bold underline decoration-2 underline-offset-4 @4xl:hidden ${FOCUS}`}>
         ¿No tienes diseño? Cuéntanos la idea
       </a>
     </section>
@@ -116,7 +116,7 @@ function Hero() {
 
 function Titulo({ kicker, children }: { kicker: string; children: string }) {
   return (
-    <div className="mb-6 flex items-end justify-between gap-4 border-b-2 border-[var(--ink-strong)] pb-2">
+    <div className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b-2 border-[var(--ink-strong)] pb-2">
       <h2 className="font-poster text-[40px] leading-none @4xl:text-[64px]">{children}</h2>
       <span className="shrink-0 whitespace-nowrap pb-1 font-mono text-[12px] text-[var(--ink-soft)]">{kicker}</span>
     </div>
@@ -128,7 +128,7 @@ const GIROS = ["-2deg", "1.5deg", "1deg", "-1.5deg", "2deg", "-1deg"];
 function HechoAqui() {
   return (
     <section className="px-4 py-10 @4xl:px-12 @4xl:py-16">
-      <Titulo kicker="06 trabajos">Hecho aquí</Titulo>
+      <Titulo kicker="Estampado · DTF · Bordado">Ideas para la tuya</Titulo>
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 @4xl:grid-cols-3 @4xl:gap-x-10 @4xl:gap-y-12">
         {TRABAJOS.map((t, i) => (
           <figure key={t.alt} className="pb-foto relative bg-[var(--ticket)] p-2 pb-3 shadow-[0_6px_14px_rgb(23_22_15/0.14)]" style={{ ["--r" as string]: GIROS[i] }}>
@@ -150,7 +150,7 @@ function LoQueHay() {
         {PRODUCTOS.map((p) => (
           <li key={p.href}>
             <a href={p.href} className={`flex min-h-[84px] items-center gap-4 border-b border-dotted border-[var(--ink-soft)] py-3 ${FOCUS}`}>
-              <img src={p.image.src} alt={p.image.alt} loading="lazy" className="size-16 border-2 border-[var(--ink-strong)] object-cover" />
+              <img src={p.image.src} alt={p.image.alt} loading="lazy" className="size-20 border-2 border-[var(--ink-strong)] object-cover @4xl:size-24" />
               <span className="flex-1">
                 <span className="block text-[16px] font-bold">{p.name}</span>
                 <span className="block text-[13px] text-[var(--ink-soft)]">{p.meta}</span>
