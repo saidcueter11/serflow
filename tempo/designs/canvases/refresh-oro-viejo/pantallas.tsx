@@ -84,9 +84,9 @@ export function PromosDesktop() {
 
 const NOTA_PERSONALIZADOR = (
   <>
-    /personaliza de PRI-122 (PR #36, sin mergear): captura del deploy preview, sin JavaScript, por eso la vista previa queda
-    cargando. El después es la misma página con refresh.css encima: el personalizador hereda todo por tokens y no necesita
-    cambios propios. Para pasar el mouse, los cuatro frames HTML de al lado tienen la página real.
+    /personaliza de PRI-122 (PR #36, sin mergear), capturada del deploy preview con la página funcionando. El después es la
+    misma página con refresh.css encima: hereda todo por tokens; solo su h1 pasa a 600 y entra al cargar. Para pasar el
+    mouse, los cuatro frames HTML de la derecha tienen la página (sin JavaScript, así que la vista previa queda cargando).
   </>
 );
 

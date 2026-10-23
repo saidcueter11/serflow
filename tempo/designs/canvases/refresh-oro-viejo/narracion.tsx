@@ -129,6 +129,10 @@ export function Intro() {
             <li>La estructura de cada página, los radios, la trama de tela, el hilo y la costura de los títulos.</li>
             <li>Cero JavaScript nuevo: todo es CSS. Con &quot;reducir movimiento&quot; nada se mueve y nada queda escondido.</li>
             <li>Un solo WhatsApp flotante por página; la acción principal sigue siendo dorada.</li>
+            <li>
+              Fuera de esta tanda (PRI-287): la 404 hereda el acabado por tokens sin cambios propios; las transiciones entre páginas y
+              los estados de carga se quedan como están hoy.
+            </li>
           </ul>
         </div>
       </div>
@@ -150,7 +154,7 @@ export function Movimientos() {
     <Tablero width={1500}>
       <PageTitle
         title="Los 4 movimientos"
-        description="Los cuatro que marcaste con Sí, aplicados a componentes reales. Mismo pulso en todos: sale rápido y se posa despacio (ease-premium). En el celular no hay mouse: ahí el gesto es el toque, y las fotos ya están a todo color."
+        description="Los cuatro que marcaste con Sí, aplicados a componentes reales con las mismas reglas de refresh.css que van al PR. Mismo pulso en todos: sale rápido y se posa despacio (ease-premium). En el celular no hay mouse: ahí el gesto es el toque, y las fotos ya están a todo color."
       />
       <Row
         name="1 · Botón con brillo"
@@ -279,8 +283,9 @@ const NEGROS = [
 ];
 
 const ESCALA: { nombre: string; spec: string; clase: string; texto: string }[] = [
-  { nombre: "Display", spec: "44 / 72 · 600 · -2.5 %", clase: "text-[72px] font-semibold leading-[1.02] tracking-[-0.025em]", texto: "Bienvenido a Serflow" },
+  { nombre: "Display", spec: "44 / 72 · 600 · -2.5 %", clase: "text-[72px] font-semibold leading-[1.02] tracking-[-0.025em]", texto: "Bienvenido" },
   { nombre: "Título de página", spec: "38 / 68 · 600 · -2.5 %", clase: "text-[52px] font-semibold leading-[1.05] tracking-[-0.025em]", texto: "Promos de hoy" },
+  { nombre: "Título de banda", spec: "30 / 46 · 600 · -2.2 %", clase: "text-[46px] font-semibold leading-[1.05] tracking-[-0.022em]", texto: "Tu idea, en tu prenda." },
   { nombre: "Título de sección", spec: "28 / 40 · 600 · -2.2 %", clase: "text-[40px] font-semibold leading-[1.05] tracking-[-0.022em]", texto: "Disponible ahora" },
   { nombre: "Título de card", spec: "15 a 22 · 700", clase: "text-[20px] font-bold leading-tight", texto: "Gorra Chicago" },
   { nombre: "Texto", spec: "15 / 17 · 400 · 1.6", clase: "text-[17px] leading-relaxed text-muted", texto: "Sube tu diseño, míralo sobre la camiseta o la gorra y te la hacemos aquí en el taller." },
@@ -396,8 +401,8 @@ function Par({ nombre, cambio, children }: { nombre: string; cambio: ReactNode; 
         <span className="text-[15px] font-semibold">{nombre}</span>
         <span className="text-[13px] leading-snug text-muted">{cambio}</span>
       </div>
-      <div className="flex min-w-0 flex-wrap items-center gap-4 rounded-card border border-line bg-primary p-5">{children}</div>
-      <div className="sf-refresh flex min-w-0 flex-wrap items-center gap-4 rounded-card border border-accent/40 bg-primary p-5">{children}</div>
+      <form className="flex min-w-0 flex-wrap items-center gap-4 rounded-card border border-line bg-primary p-5">{children}</form>
+      <form className="sf-refresh flex min-w-0 flex-wrap items-center gap-4 rounded-card border border-accent/40 bg-primary p-5">{children}</form>
     </div>
   );
 }
@@ -406,10 +411,12 @@ export function Componentes() {
   return (
     <div>
       <PageFrame family={FAMILIA} width={1500}>
-        <PageTitle
-          title="Componentes antes y después"
-          description="Los de src/components/ui, sin redibujar. Izquierda: como están hoy. Derecha: con el acabado nuevo. Pasa el mouse por la derecha."
-        />
+        <div className="sf-refresh">
+          <PageTitle
+            title="Componentes antes y después"
+            description="Los de src/components/ui, sin redibujar. Izquierda: como están hoy. Derecha: con el acabado nuevo. Pasa el mouse por la derecha."
+          />
+        </div>
         <div className="grid grid-cols-[200px_1fr_1fr] gap-6 pb-2 text-[12px] uppercase tracking-[.14em] text-muted">
           <span />
           <span>Antes</span>
@@ -496,16 +503,16 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     items: [
       <>--color-accent #FFD700 → #C9A24A · --color-accent-soft #FFD70020 → #C9A24A1F · --color-accent-deep #a8890a → #8C6D2C · --color-secondary #D2BD3C → #E2C47E</>,
       <>--font-display y --font-body → &apos;Plus Jakarta Sans&apos;, system-ui, sans-serif (body con -apple-system, &apos;Segoe UI&apos;, Roboto de respaldo). --font-titan apunta también a Plus Jakarta Sans.</>,
-      <>Nuevos: --motion-brillo 900ms, --motion-foto 1100ms, --motion-entrada 900ms, --motion-escalon 120ms, --motion-costura 700ms, --ease-premium cubic-bezier(.2,.8,.2,1), --shadow-oro.</>,
+      <>Nuevos: --motion-brillo 900ms, --motion-foto 1100ms, --motion-entrada 900ms, --motion-escalon 120ms, --motion-costura 700ms, --ease-premium cubic-bezier(.2,.8,.2,1), --shadow-oro (con color-mix sobre --color-accent).</>,
       <>Se quedan --motion-spin y --motion-shimmer de PRI-122 (PR #36) si ese PR entra antes.</>,
     ],
   },
   {
     grupo: "2 · src/styles/tokens.css (clases)",
     items: [
-      <>Copiar la parte A de tempo/designs/canvases/refresh-oro-viejo/refresh.css sin el prefijo .sf-refresh: sf-brillo, sf-brillo-suave, sf-foto, sf-foto-texto, sf-lineas, sf-entra, sf-entra-scroll, sf-costura, sf-toque y los keyframes sf-subir, sf-entra.</>,
-      <>sf-ring: el color del aro pasa a rgb(201 162 74). Agregar las clases nuevas a la lista de prefers-reduced-motion.</>,
-      <>html o body: -webkit-tap-highlight-color: transparent.</>,
+      <>Copiar tempo/designs/canvases/refresh-oro-viejo/refresh.css sin el prefijo .sf-refresh, sin lo que va después de cada comentario PUENTE dentro de los :is() y sin la sección Solo canvas: sf-brillo, sf-brillo-suave, sf-foto, sf-foto-texto, sf-lineas, sf-entra, sf-entra-scroll, sf-costura, sf-toque y los keyframes sf-subir y sf-entra.</>,
+      <>sf-ring: el color del aro pasa a color-mix(in srgb, var(--color-accent) 60%, transparent). Agregar las clases nuevas a la lista de prefers-reduced-motion.</>,
+      <>html: -webkit-tap-highlight-color: transparent.</>,
     ],
   },
   {
@@ -518,21 +525,23 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
   {
     grupo: "4 · Componentes (clases, sin props nuevas)",
     items: [
-      <>Button: BASE + sf-brillo; whatsapp sin shadow-[0_5px_0…] ni active:translate-y-[3px], con shadow-[inset_0_1px_0_rgb(255_255_255/.28)] y font-semibold; secondary + sf-brillo-suave y hover:border-secondary; ghost + sf-costura sin hover:underline.</>,
-      <>Header (links del nav) y Footer (LINK): + sf-costura. Header: el link con aria-current queda cosido.</>,
-      <>ProductCard, ServiceCard, PromoCard, PromoAfiche, Masonry: + sf-foto en la raíz; duration-500 y group-hover:scale-105 de la img salen (los pone sf-foto). ProductCard: + sf-foto-texto en el bloque de texto. ProductCard: a:active scale 0.98 (sf-toque).</>,
-      <>CategoryNav (a) y Chip (span): + sf-toque y hover:border-secondary en los no elegidos. WhatsAppFab: queda igual (ya tiene active:scale-95).</>,
-      <>Section h2, CategoryBanner (p del nombre), PromosPage h1, PromoAfiche h2, PromoCard h3, Ticker: font-medium → font-semibold y tracking-[-0.022em] en los títulos font-display. Section h2 + sf-entra-scroll; PromosPage h1 y el nombre de CategoryBanner + sf-entra.</>,
-      <>Personalizador (PR #36): VistaPrevia, PersonalizaCampos y HojaEnvio heredan todo por tokens; el botón de envío ya es Button.</>,
+      <>Button: BASE + sf-brillo y sin las clases de translate en active; whatsapp sin shadow-[0_5px_0…], con shadow-[inset_0_1px_0_rgb(255_255_255/.28)] y font-semibold; secondary + sf-brillo-suave y hover:border-secondary; ghost + sf-costura sin hover:underline.</>,
+      <>Header: + sf-costura en los links del nav de escritorio (el de aria-current queda cosido). El menú del celular no: sus links ocupan toda la fila para el toque. Footer (LINK): + sf-costura.</>,
+      <>sf-foto (y sin group-hover:scale-105 ni duration-500 en la img): en la raíz de ProductCard, ServiceCard, PromoCard y PromoAfiche, y en el &lt;a&gt; de Tile en Masonry (no en la raíz de Masonry, que es todo el muro). ProductCard: + sf-foto-texto en el bloque de texto.</>,
+      <>PromoAfiche: envolver la img en un div overflow-hidden (como PromoCard) para que el zoom no se salga, y items-center en el bloque de los dos botones para que Ver las fotos quede centrado con su costura.</>,
+      <>CategoryNav (a) y Chip (span): + sf-toque y hover:border-secondary en los no elegidos. ProductCard, PromoCard y Tile: el hundido al tocar ya viene con sf-foto. WhatsAppFab: queda igual (ya tiene active:scale-95).</>,
+      <>font-medium → font-semibold y tracking-[-0.022em] en los títulos font-display: Section h2, CategoryBanner (p del nombre), PromosPage h1, PersonalizaPage h1 (PR #36), Ticker, los números de Razones en HomePage. PromoAfiche h2 y PromoCard h3 se quedan en font-bold.</>,
+      <>Section h2 + sf-entra-scroll. PromosPage h1, PersonalizaPage h1 y el nombre de CategoryBanner + sf-entra.</>,
+      <>Personalizador (PR #36): VistaPrevia, PersonalizaCampos y HojaEnvio heredan el resto por tokens; el botón de envío ya es Button.</>,
     ],
   },
   {
     grupo: "5 · Portada (src/components/home/HomePage.tsx + index.astro)",
     items: [
-      <>Orden: hero → Ticker → banda del personalizador → Qué hacemos → Disponible ahora → Quiénes somos con Visítanos (MapCard cerrada, sin open) al lado.</>,
+      <>Orden: hero → Ticker → banda del personalizador → Qué hacemos → Disponible ahora → Quiénes somos con Visítanos (MapCard cerrada, sin open) al lado. Thread se queda.</>,
       <>El hero deja de compartir fila con el mapa: ancho completo, h-[560px] / @4xl:h-[600px]. h1 con sf-lineas en dos líneas (Bienvenido / a Serflow), 44 / 72 px, 600.</>,
       <>Banda del personalizador: tal cual BandaPersonaliza de propuesta/Portada.tsx (foto estampado-proceso, Eyebrow Personalizador, Tu idea, en tu prenda., una frase, Button Diseñar mi prenda a /personaliza). Reemplaza el bloque Diseña la tuya.</>,
-      <>Fotos del hero en index.astro: estampado-rasero, gorras-estante, gorra-bordada-2 y una del catálogo (DTF). Salen camisetas-estampadas y amigos-gorras (modelos). Qué hacemos: Estampado con una foto de prenda en vez de la persona.</>,
+      <>Fotos del hero en index.astro: gorras-estante (primera, horizontal, es el LCP), gorra-bordada-2 y dos del catálogo. Salen camisetas-estampadas y amigos-gorras (modelos). Qué hacemos: DTF con una foto del catálogo en vez de camiseta-dtf (persona).</>,
     ],
   },
   {
@@ -541,7 +550,14 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>foundations: BoardColor, BoardTypography y BoardMotion con los valores nuevos; la deuda &quot;Presupuesto de fuentes&quot; y &quot;Duraciones fijas&quot; se cierran en este PR.</>,
       <>buttons, cards, labels, app-shell: recapturar; usageInstructions de ProductCard: cambiar &quot;No le agregues scale en hover&quot; por &quot;el zoom lo pone sf-foto&quot;.</>,
       <>motion: agregar los 4 movimientos (puede copiar el tablero Movimientos de este canvas).</>,
-      <>MapCard: la portada ya no usa open; actualizar el usageInstructions (&quot;open = mapa visible de una, hoy sin uso en la portada&quot;).</>,
+      <>MapCard: la portada ya no usa open; actualizar el usageInstructions.</>,
+    ],
+  },
+  {
+    grupo: "7 · Fuera de este PR",
+    items: [
+      <>404: hereda el acabado por tokens, sin cambios propios. Transiciones entre páginas y estados de carga (PRI-287): se quedan como están; van en otra tanda si las quieres con el movimiento nuevo.</>,
+      <>Menú del celular: la página actual sigue marcada solo con color; si se quiere costura ahí, va en un span interno.</>,
     ],
   },
 ];

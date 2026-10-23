@@ -23,12 +23,12 @@ import kid1 from "../../../../src/assets/images/kids/kid1.webp";
 
 export const FOTOS = { gorraBordada2, estampadoProceso, estampadoRasero, gorrasEstante, mtq2, mtq5, moda1, kid1 };
 
-/** Hero de la portada nueva: prendas y taller, nadie posando. Primero una foto horizontal del taller (es el LCP y en desktop el hero es ancho). */
+/** Hero de la portada nueva: prendas, nadie posando. Primero una foto horizontal (es el LCP y en desktop el hero es ancho). El estampado queda para la banda del personalizador. */
 export const SLIDES_SIN_MODELOS: Slide[] = [
-  { src: estampadoRasero, caption: "Estampado en el taller", alt: "Manos con guantes pasando el rasero sobre la malla de estampado", position: "50% 55%" },
   { src: gorrasEstante, caption: "Listas para llevar", alt: "Gorras personalizadas en un estante del taller" },
   { src: gorraBordada2, caption: "Gorras bordadas", alt: "Gorra bordada con luz cálida del taller", position: "50% 40%" },
   { src: mtq5, caption: "Tu diseño en DTF", alt: "Gorra con estampado DTF a todo color", position: "50% 45%" },
+  { src: moda1, caption: "Con el logo de tu negocio", alt: "Gorra negra con logo bordado", position: "50% 45%" },
 ];
 
 const BEISBOL = Object.values(
@@ -107,7 +107,7 @@ export function Marco({
   children: ReactNode;
 }) {
   return (
-    <div className={`relative bg-primary font-body text-ink antialiased ${refresh ? "sf-refresh" : ""}`} style={{ width }}>
+    <div className={`relative bg-primary font-body text-ink antialiased ${refresh ? "sf-refresh" : ""} ${refresh && width === 390 ? "sf-tactil" : ""}`} style={{ width }}>
       {promos && <PromoBar promos={PROMOS_SAMPLE} />}
       <Header logoSrc={LOGO} current={current} />
       {children}
@@ -158,7 +158,7 @@ export function AntesDespues({
 }) {
   const [vuelta, setVuelta] = useState(0);
   return (
-    <div className="bg-[#232323] p-10 font-body text-ink" style={{ width: width * 2 + 160 }}>
+    <div className="bg-primary-light p-10 font-body text-ink" style={{ width: width * 2 + 160 }}>
       <div className="flex items-start justify-between gap-8 pb-8">
         <div className="max-w-[760px]">
           <h2 className="text-[28px] font-bold leading-tight">{titulo}</h2>
@@ -175,13 +175,13 @@ export function AntesDespues({
       <div className="flex items-start gap-20">
         <div>
           <Rotulo lado="antes" detalle={detalleAntes} />
-          <div key={`a${vuelta}`} className="overflow-hidden rounded-[6px] ring-1 ring-line">
+          <div key={`a${vuelta}`} className="overflow-hidden rounded-tile ring-1 ring-line">
             {antes}
           </div>
         </div>
         <div>
           <Rotulo lado="despues" detalle={detalleDespues} />
-          <div key={`d${vuelta}`} className="overflow-hidden sf-refresh rounded-[6px] ring-1 ring-accent/60">
+          <div key={`d${vuelta}`} className="sf-refresh overflow-hidden rounded-tile ring-1 ring-accent/60">
             {despues}
           </div>
         </div>

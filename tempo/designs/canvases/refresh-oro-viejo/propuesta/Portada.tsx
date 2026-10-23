@@ -6,6 +6,7 @@ import { ProductCard } from "../../../../../src/components/ui/ProductCard";
 import { Section } from "../../../../../src/components/ui/Section";
 import { ServiceCard } from "../../../../../src/components/ui/ServiceCard";
 import { Ticker } from "../../../../../src/components/ui/Ticker";
+import { Thread } from "../../../../../src/components/ui/Thread";
 import { PinIcon } from "../../../../../src/components/icons/PinIcon";
 import { WHATSAPP_URL } from "../../../../../src/lib/business";
 import { CATALOG_HREF, PRODUCTS, QuienesCopy, Razones } from "../../../design-system/app-shell/portada";
@@ -22,7 +23,7 @@ import { FOTOS, Marco, SLIDES_SIN_MODELOS } from "../comun";
 const USOS = ["Uniformes para tu equipo", "Gorras con el logo de tu negocio", "Camisetas para tu evento", "Camisetas de promoción", "Regalos con tu foto", "Dotación para tu empresa"];
 
 const SERVICES = [
-  { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas.", src: FOTOS.moda1 },
+  { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas.", src: FOTOS.estampadoRasero },
   { title: "DTF", description: "Colores vivos y con brillo. Fotos y degradados.", src: FOTOS.mtq5 },
   { title: "Bordado", description: "Hilo con relieve. El clásico de las gorras.", src: FOTOS.gorraBordada2 },
 ];
@@ -95,6 +96,8 @@ export function PortadaRefresh({ width }: { width: 390 | 1280 }) {
   return (
     <Marco width={width} refresh>
       <div className="@container relative overflow-clip font-body text-ink">
+        {/* El hilo se queda: en el sitio lo dibuja src/scripts/thread.ts con el scroll; en el canvas no se pinta. */}
+        <Thread />
         <main className="relative z-10">
           <div className="@4xl:px-12 @4xl:pt-6">
             <HeroCarousel slides={SLIDES_SIN_MODELOS} className="h-[560px] @4xl:h-[600px] @4xl:rounded-card @4xl:border @4xl:border-line">
