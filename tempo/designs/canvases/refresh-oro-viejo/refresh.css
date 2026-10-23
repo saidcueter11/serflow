@@ -165,10 +165,10 @@
 }
 
 /* ---------- PUENTE: HeroCarousel, velo más oscuro a media altura para que el texto se lea sobre fotos claras del taller
-   (en el PR: via-primary/55 -> via-primary/85 en el degradado). Con #C9A24A encima queda en 4.9:1 o más. ---------- */
+   (en el PR: via-primary/55 -> via-primary/85 via-65% en el degradado). La etiqueta dorada queda en 4.9:1 o más aun sobre blanco. ---------- */
 
 .sf-refresh .hero-carousel > .bg-gradient-to-t {
-  background-image: linear-gradient(to top, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 85%, transparent) 50%, transparent 100%);
+  background-image: linear-gradient(to top, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 85%, transparent) 65%, transparent 100%);
 }
 
 /* ---------- PUENTE: letra (en el PR, clases en cada componente; ver la lista de cambios) ---------- */

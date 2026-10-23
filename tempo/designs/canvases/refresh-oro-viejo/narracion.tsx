@@ -532,7 +532,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>CategoryNav (a) y Chip (span): + sf-toque y hover:border-secondary en los no elegidos. ProductCard, PromoCard y Tile: el hundido al tocar ya viene con sf-foto. WhatsAppFab: queda igual (ya tiene active:scale-95).</>,
       <>font-medium → font-semibold en todo lo font-display: Section h2, CategoryBanner (p del nombre), PromosPage h1, Ticker, los números de Razones en HomePage y, del PR #36, el h1 de PersonalizaPage, los h2 de los pasos de PersonalizaCampos y el h2 de HojaEnvio. tracking-[-0.022em] solo en los de 28 px o más (Section h2, CategoryBanner, PromosPage h1, PersonalizaPage h1). PromoAfiche h2 y PromoCard h3 se quedan en font-bold.</>,
       <>Section h2 + sf-entra-scroll. PromosPage h1, PersonalizaPage h1 y el nombre de CategoryBanner + sf-entra.</>,
-      <>HeroCarousel: el degradado pasa de via-primary/55 a via-primary/85, para que la etiqueta dorada y el texto se lean sobre las fotos claras del taller (4.9:1 o más).</>,
+      <>HeroCarousel: el degradado pasa de via-primary/55 a via-primary/85 via-65%, para que la etiqueta dorada y el texto se lean sobre las fotos claras del taller (4.9:1 o más).</>,
       <>Personalizador (PR #36): fuera de esos títulos, VistaPrevia, PersonalizaCampos y HojaEnvio heredan todo por tokens; el botón de envío ya es Button.</>,
     ],
   },
