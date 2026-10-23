@@ -15,8 +15,8 @@ interface Props {
   whatsappText?: string
   /** Página escondida de los buscadores (p. ej. /personaliza hasta PRI-125). */
   noindex?: boolean
-  /** Sin botón flotante de WhatsApp: la página trae su propio envío (el personalizador). */
-  hideWhatsAppFab?: boolean
+  /** Sin botón flotante: la página ya tiene su propio WhatsApp (visor del catálogo PRI-130, personalizador PRI-122). */
+  hideFab?: boolean
 }
 
 const {
@@ -25,7 +25,7 @@ const {
   hideFooter,
   whatsappText,
   noindex,
-  hideWhatsAppFab,
+  hideFab,
 } = Astro.props
 
 const canonicalUrl = Astro.url.toString()
@@ -93,7 +93,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
         <slot />
       </div>
       {!hideFooter && <Footer logoSrc={logo.src} />}
-      {!hideWhatsAppFab && <WhatsAppFab text={whatsappText} />}
+      {!hideFab && <WhatsAppFab text={whatsappText} />}
     </div>
     <script is:inline>
       (function () {

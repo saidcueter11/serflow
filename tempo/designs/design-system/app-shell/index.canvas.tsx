@@ -63,7 +63,7 @@ const LOGO_SAMPLE =
 defineAsset(Header, {
   libraries: ["Design System"],
   usageInstructions:
-    "La cabecera de todas las páginas, una vez, en Layout.astro (debajo de PromoBar si hay promos): logo y nav de anclas desde 896px; menú details/summary sin JS debajo. Sin botón de WhatsApp: esa entrada es el WhatsAppFab (PRI-129). logoSrc lo pasa quien llama (Astro: Logo.src). links por defecto = las 3 anclas del home (NAV_LINKS: Qué hacemos, Disponible ahora, Visítanos); current = href con aria-current. No la hagas sticky/fixed ni le pongas backdrop-blur, no agregues un drawer con JS ni botones de acción.",
+    "La cabecera de todas las páginas, una vez, en Layout.astro (debajo de PromoBar si hay promos): logo y nav de anclas desde 896px; menú details/summary sin JS debajo. Sin botón de WhatsApp: esa entrada es el WhatsAppFab (PRI-129). logoSrc lo pasa quien llama (Astro: Logo.src). links por defecto = NAV_LINKS: Catálogo (/products, PRI-130) y las 3 anclas del home (Qué hacemos, Disponible ahora, Visítanos); current = href con aria-current. No la hagas sticky/fixed ni le pongas backdrop-blur, no agregues un drawer con JS ni botones de acción.",
   variants: {
     Home: { props: { logoSrc: LOGO_SAMPLE } },
     "Con sección actual": { props: { logoSrc: LOGO_SAMPLE, current: "/#que-hacemos" } },

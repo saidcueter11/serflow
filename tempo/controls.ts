@@ -26,6 +26,11 @@ import { HeroCarousel } from "../src/components/ui/HeroCarousel";
 import { Ticker } from "../src/components/ui/Ticker";
 import { PromoBar } from "../src/components/ui/PromoBar";
 import { Thread } from "../src/components/ui/Thread";
+import { CategoryNav } from "../src/components/ui/CategoryNav";
+import { NewBadge } from "../src/components/ui/NewBadge";
+import { Masonry } from "../src/components/ui/Masonry";
+import { PhotoCarousel } from "../src/components/ui/PhotoCarousel";
+import { CategoryBanner } from "../src/components/ui/CategoryBanner";
 import { VistaPrevia } from "../src/components/ui/VistaPrevia";
 import { HojaEnvio } from "../src/components/ui/HojaEnvio";
 import { Aviso, BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from "../src/components/ui/PersonalizaCampos";
@@ -171,6 +176,33 @@ defineControls(Thread, {
   width: { type: "number" },
   height: { type: "number" },
   viewport: { type: "number" },
+});
+
+// PRI-130: catálogo como galería de fotos.
+defineControls(CategoryNav, {
+  categories: { type: "object" },
+  current: { type: "text" },
+});
+
+defineControls(NewBadge, {
+  className: false,
+});
+
+defineControls(Masonry, {
+  tiles: { type: "object" },
+  offset: { type: "range", min: 0, max: 7, step: 1 },
+  mobileMax: { type: "number" },
+});
+
+defineControls(PhotoCarousel, {
+  photos: { type: "object" },
+  label: { type: "text" },
+  idPrefix: false,
+});
+
+defineControls(CategoryBanner, {
+  slides: { type: "object" },
+  current: { type: "number" },
 });
 
 // Personalizador (PRI-122). Callbacks, foto y diseño del motor no se editan a mano.

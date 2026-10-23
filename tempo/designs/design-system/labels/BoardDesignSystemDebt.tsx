@@ -211,7 +211,7 @@ const ROWS: DebtRow[] = [
     ),
   },
   {
-    title: "Pills de categoría del catálogo: look de Chip a 36px",
+    title: "Resuelto en PRI-130: Pills de categoría del catálogo: look de Chip a 36px",
     body: (
       <>
         Son links de navegación (<Code>aria-current</Code>), así que no deben ser Chip (radio). Pero miden ~36px de

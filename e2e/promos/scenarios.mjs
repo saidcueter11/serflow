@@ -39,9 +39,21 @@ const equipos = (p) =>
 
 const ninos = (p) => row({ slug: 'e2e-gorras-ninos', title: 'Gorras para niños con su nombre', sort_order: 3, image_urls: [p[5]] })
 
+// Categoría activa sin productos (e2e/catalogo.spec.ts): la galería muestra el estado vacío.
+const vacia = {
+  id: '00000000-0000-4000-8000-000000000130',
+  slug: 'e2e-vacia',
+  label: 'Vacía de prueba',
+  image_url: null,
+  sort_order: 999,
+  is_active: true,
+  created_at: '2026-10-01T00:00:00Z',
+  updated_at: '2026-10-01T00:00:00Z',
+}
+
 export const SCENARIOS = [
-  // 0 vigentes: solo una vencida, que no debe salir.
-  { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)] },
+  // 0 vigentes: solo una vencida, que no debe salir. Y una categoría recién creada, sin fotos (PRI-130).
+  { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia] },
   { outDir: '.e2e-builds/promos-1', port: 4233, promos: (p, now) => [gorras(p, now)] },
   // Desordenadas a propósito: el sitio las ordena por sort_order.
   { outDir: '.e2e-builds/promos-3', port: 4234, promos: (p, now) => [ninos(p), vencida(now), equipos(p), gorras(p, now)] },
