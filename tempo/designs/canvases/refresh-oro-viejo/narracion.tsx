@@ -24,7 +24,7 @@ import { CHIPS, FOTOS, PROMOS } from "./comun";
 const FAMILIA = "refresh oro viejo · PRI-286 + PRI-287";
 
 /** Todo el tablero ya va con el acabado nuevo. */
-function Tablero({ width, children }: { width: number; children: ReactNode }) {
+export function Tablero({ width, children }: { width: number; children: ReactNode }) {
   return (
     <div className="sf-refresh">
       <PageFrame family={FAMILIA} width={width}>
@@ -34,7 +34,7 @@ function Tablero({ width, children }: { width: number; children: ReactNode }) {
   );
 }
 
-function Repetir({ onClick }: { onClick: () => void }) {
+export function Repetir({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
@@ -47,7 +47,7 @@ function Repetir({ onClick }: { onClick: () => void }) {
 }
 
 /** Reproduce un gesto: "al pasar" (sf-demo) y luego "al tocar" (sf-demo-toque). Repetir lo vuelve a correr. */
-function Gesto({ children, toque = true }: { children: ReactNode; toque?: boolean }) {
+export function Gesto({ children, toque = true }: { children: ReactNode; toque?: boolean }) {
   const [vuelta, setVuelta] = useState(0);
   const [fase, setFase] = useState<"" | "sf-demo" | "sf-demo sf-demo-toque">("");
   useEffect(() => {
@@ -71,7 +71,7 @@ function Gesto({ children, toque = true }: { children: ReactNode; toque?: boolea
 }
 
 /** Vuelve a montar lo que se mueve al cargar. */
-function AlCargar({ children }: { children: ReactNode }) {
+export function AlCargar({ children }: { children: ReactNode }) {
   const [vuelta, setVuelta] = useState(0);
   return (
     <div className="flex w-full flex-col items-start gap-4">
@@ -83,7 +83,7 @@ function AlCargar({ children }: { children: ReactNode }) {
   );
 }
 
-function Ficha({ items }: { items: [string, ReactNode][] }) {
+export function Ficha({ items }: { items: [string, ReactNode][] }) {
   return (
     <dl className="grid grid-cols-[110px_1fr] gap-x-4 gap-y-1.5 border-t border-line pt-4 text-[13px] leading-snug">
       {items.map(([k, v]) => (

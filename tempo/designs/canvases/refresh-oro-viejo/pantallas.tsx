@@ -85,8 +85,7 @@ export function PromosDesktop() {
 const NOTA_PERSONALIZADOR = (
   <>
     /personaliza de PRI-122 (PR #36, sin mergear), capturada del deploy preview con la página funcionando. El después es la
-    misma página con refresh.css encima: hereda todo por tokens; solo su h1 y los títulos de los pasos pasan a 600, y el h1 entra al cargar. Para pasar el
-    mouse, los cuatro frames HTML de la derecha tienen la página (sin JavaScript, así que la vista previa queda cargando).
+    misma página con refresh.css encima: hereda todo por tokens; solo su h1 y los títulos de los pasos pasan a 600, y el h1 entra al cargar.
   </>
 );
 
