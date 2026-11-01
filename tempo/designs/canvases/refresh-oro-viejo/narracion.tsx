@@ -538,7 +538,21 @@ export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
 ];
 
 /** Zonas vacías revisadas con la regla de la ronda 4 (cero huecos salvo márgenes laterales). */
-export const ZONAS: { frame: string; donde: string; antes: string; despues: string }[] = [];
+export const ZONAS: { frame: string; donde: string; antes: string; despues: string }[] = [
+  { frame: "Portada 1280", donde: "Cabecera de Qué hacemos y Disponible ahora", antes: "bajada suelta a la derecha del título", despues: "bajada bajo el título; 0" },
+  { frame: "Portada 1280", donde: "Quiénes somos", antes: "calle de ~140 px entre texto y mapa; el mapa terminaba más abajo", despues: "7 + 5 columnas, mismo borde arriba y abajo; 0" },
+  { frame: "Portada 1280", donde: "Banda del personalizador, Qué hacemos, Disponible ahora", antes: "0", despues: "0" },
+  { frame: "Catálogo 1280 y 390", donde: "Final del muro", antes: "0 con 12 fotos; 1 a 3 celdas en categorías reales", despues: "tarjeta de cierre en las celdas libres; 0 a 390, 768 y 1280" },
+  { frame: "Visor 1280", donde: "Panel derecho", antes: "2 huecos internos de ~530 x 165", despues: "rejilla de 5 columnas, aire de ~25-35 px; 0" },
+  { frame: "Promos 1280", donde: "Cabecera", antes: "bajada suelta a la derecha", despues: "bajada bajo el h1; 0" },
+  { frame: "Promos 1280", donde: "Primera promo a sangre, columna del texto", antes: "~690 x 140 arriba y abajo del texto centrado", despues: "afiche: texto sobre la foto, abajo a la izquierda; 0" },
+  { frame: "Detalle 1280", donde: "Afiche, Más fotos y Otras promos", antes: "0", despues: "0" },
+  { frame: "Personalizador 1280", donde: "Final de las dos columnas", antes: "escalón de ~120 px abajo y 48 arriba", despues: "mismo borde arriba (y=276) y abajo (y=1397); 0" },
+  { frame: "404 1280", donde: "A los lados del mensaje centrado", antes: "~300 x 400 a cada lado (quedó como excepción)", despues: "texto y botones en 7 columnas, foto del taller en 5, mismo alto; 0" },
+  { frame: "404 1280", donde: "Promos de hoy, tercera tarjeta (sin descripción)", antes: "~370 x 40 bajo Ver promo", despues: "se queda: es el largo natural del texto, bajo el umbral (las tres alinean su título)" },
+  { frame: "Todas las 390", donde: "Página completa", antes: "0", despues: "0 (solo cambian botones y chips: 48 px, texto 16)" },
+  { frame: "Todas", donde: "Márgenes laterales (16 / 48 px)", antes: "intencionales", despues: "intencionales" },
+];
 
 export function Cambios() {
   return (

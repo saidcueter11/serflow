@@ -140,6 +140,25 @@
 }
 
 
+/* Ronda 4: la primera promo (a sangre) dejaba el texto centrado junto a una foto de 560 px, con ~140 px vacíos arriba y
+   abajo de esa columna. Ahora es un afiche de verdad: la foto ocupa todo el ancho y el texto va encima, abajo a la
+   izquierda, sobre el mismo degradado del hero (contraste 4.9:1 o más). Vacío residual: 0. En el celular no cambia.
+   PUENTE: PromosPage (la primera promo lleva una clase de afiche a sangre; PromoAfiche no cambia de props). */
+@container (min-width: 42rem) {
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card > div { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card img { grid-area: 1 / 1; height: 560px; min-height: 0; aspect-ratio: auto; }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 {
+    grid-area: 1 / 1;
+    z-index: 1;
+    align-self: end;
+    justify-content: flex-end;
+    padding: 160px 48px 48px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--color-primary) 92%, transparent) 0%, color-mix(in srgb, var(--color-primary) 70%, transparent) 55%, transparent 100%);
+  }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 > :is(h2, p) { max-width: 22ch; }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 > p { max-width: 52ch; color: color-mix(in srgb, var(--color-ink) 85%, transparent); }
+}
+
 /* ---------- Personalizador (/personaliza, PR #36) en desktop ---------- */
 
 /* Izquierda: prenda, vista previa y el paso 3 con el resumen y Enviar. Derecha: pasos 1 y 2.
@@ -277,4 +296,31 @@
   .sf-r3 .sf-visitanos details { flex: 1; display: flex; flex-direction: column; }
   .sf-r3 .sf-visitanos summary { flex: 1; display: flex; flex-direction: column; }
   .sf-r3 .sf-visitanos summary > div { flex: 1; height: auto; min-height: 160px; }
+}
+
+/* ---------- 404 en desktop: compuesta en 12 columnas (ronda 4) ---------- */
+
+/* La ronda 3 la dejó centrada con ~300 x 400 vacíos a cada lado. Ahora el texto y los dos botones van alineados a la
+   izquierda en 7 columnas y una foto del taller ocupa las otras 5, del borde de arriba de la etiqueta al de abajo de los
+   botones. PUENTE: NotFoundPage (en el PR, un <img> de gorras-estante con alt="" en vez del ::after). */
+@container (min-width: 48rem) {
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\] {
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 48px;
+    row-gap: 32px;
+    align-items: start;
+    text-align: left;
+  }
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\] > div:first-child { grid-column: 1 / span 7; align-items: flex-start; }
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\] > div:nth-child(2) { grid-column: 1 / span 7; }
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\]::after {
+    content: "";
+    grid-column: 8 / -1;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+    border-radius: var(--radius-tile);
+    background: url("../../../../src/assets/images/stock/gorras-estante.jpg") 50% 40% / cover;
+  }
 }
