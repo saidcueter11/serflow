@@ -12,3 +12,7 @@ web-build
 *.log
 logs
 .DS_Store
+.nuxt
+.output
+.data
+.flutter-host
