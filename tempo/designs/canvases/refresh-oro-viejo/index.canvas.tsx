@@ -25,7 +25,7 @@ import {
 export default function RefreshOroViejoCanvas() {
   return (
     <Canvas name="refresh-oro-viejo">
-      <Storyboard id="Intro" name="Intro · refresh oro viejo · ronda 4" component={Intro} layout={{ x: 0, y: 0 }} />
+      <Storyboard id="Intro" name="Intro · refresh oro viejo · ronda 5" component={Intro} layout={{ x: 0, y: 0 }} />
       <Storyboard id="Movimientos" name="Los 4 movimientos (en vivo)" component={Movimientos} layout={{ x: 1100, y: 0 }} />
       <Storyboard id="Fundamentos" name="Fundamentos: color, letra, botones, aire, tiempos" component={Fundamentos} layout={{ x: 2700, y: 0 }} />
       <Storyboard id="Cambios" name="Lista de cambios para el PR" component={Cambios} layout={{ x: 4300, y: 0 }} />

@@ -109,12 +109,12 @@ export function Intro() {
   return (
     <Tablero width={1000}>
       <PageTitle
-        title="Refresh oro viejo · ronda 4"
+        title="Refresh oro viejo · ronda 5"
         description={
           <>
-            Tus 8 comentarios del 1 de noviembre sobre la ronda 3: textos flotando a la derecha de los títulos, espacios mal usados en
-            Quiénes somos, el visor y el personalizador, el cierre del muro y el dorado que se había ido de los botones. Esta ronda los
-            resuelve con tres reglas que valen para toda la app.
+            Tus 3 comentarios más recientes: la cabecera de Promos con aire a la derecha, la línea de número y fecha del visor junto con
+            la etiqueta Nuevo, y unas miniaturas que parecían otros productos (y qué pasa sin variantes). Se resuelven con reglas que
+            valen para toda la app y un estado nuevo del visor.
           </>
         }
       />
@@ -122,9 +122,10 @@ export function Intro() {
         <Lista
           titulo="Las reglas de esta ronda"
           items={[
-            <><b>La bajada va anclada:</b> debajo de su título, alineada a la izquierda y al ancho de su columna. Nunca suelta a la derecha.</>,
+            <><b>Cabecera en una fila:</b> en desktop, título | bajada cosida con un filete | acción de la sección, a todo el ancho. En el celular, apilada.</>,
             <><b>Acción principal en dorado:</b> relleno oro viejo; las secundarias con borde. Botones de 48 px en el celular y 52 en desktop, texto 16.</>,
             <><b>Cero huecos:</b> columnas que empiezan y terminan en el mismo borde. Solo quedan los márgenes laterales.</>,
+            <><b>Sin Nuevo ni N.º / fecha:</b> los productos no llevan etiqueta; las miniaturas del visor son otras vistas de la misma prenda.</>,
           ]}
         />
         <Lista
@@ -141,7 +142,7 @@ export function Intro() {
         <h2 className="text-[17px] font-semibold">Cómo leer el canvas</h2>
         <ol className="mt-3 flex list-decimal flex-col gap-1.5 pl-5 text-[15px] leading-relaxed text-muted marker:text-accent">
           <li>Arriba: esta intro, los 4 movimientos en vivo, los fundamentos y la lista de cambios para el PR (con cada comentario tuyo).</li>
-          <li>Debajo, una fila por pantalla: antes = producción hoy, después = el refresh. 390 a la izquierda y 1280 a la derecha.</li>
+          <li>Debajo, una fila por pantalla: antes = producción hoy, después = el refresh. 390 a la izquierda y 1280 a la derecha. Junto al visor, el estado sin variantes.</li>
           <li>El después son los componentes de producción con refresh.css + refresh-r2.css + refresh-r3.css encima; nada redibujado.</li>
         </ol>
       </div>
@@ -460,7 +461,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>HomePage h1: sf-lineas sf-t-display en dos líneas. Section h2: sf-t-h2. PromosPage H1, NotFoundPage h1, PersonalizaPage h1 y el nombre de CategoryBanner: sf-t-h1. PromoDetailPage h1: sf-t-h2. ViewerPage: el h1 deja de ser sr-only.</>,
       <>Títulos de tarjeta (ProductCard, PromoCard, ServiceCard, pasos de PersonalizaCampos y HojaEnvio): sf-t-h3, 500. PromoAfiche h2: clamp(26px, 3.4cqi, 48px).</>,
       <>Bajadas: sf-t-lead en Section (description), CatalogPage (intro), PromosPage, NotFoundPage, PersonalizaPage y el hero; mt-4.</>,
-      <>Regla de cabecera: la bajada va siempre debajo del título y su costura, alineada a la izquierda, max-w 46ch (el ancho de la columna del título). Ninguna cabecera la pone a la derecha del título.</>,
+      <>Regla de cabecera: en el celular la bajada va debajo del título y su costura (max-w 46ch). Desde @3xl, una sola fila a todo el ancho: título | bajada pegada a él tras un filete | acción de la sección (detalle en el grupo 6). Nunca una bajada suelta en otra columna ni un título solo con la fila vacía.</>,
       <>Section h2 + sf-entra-scroll. PromosPage h1, PersonalizaPage h1 y el nombre de CategoryBanner + sf-entra.</>,
     ],
   },
@@ -494,7 +495,8 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>Fotos del hero en index.astro: estampado-proceso (primera, es el LCP), gorra-bordada-2, una del catálogo (DTF) y gorras-estante; salen las de modelos. Qué hacemos: DTF con una foto del catálogo.</>,
       <>Banda del personalizador: grid de 12 columnas, texto col 1-5 (eyebrow, h2, frase arriba; lista de 3 pasos con filetes y Diseñar mi prenda abajo) y foto col 6-12, 480 px, rounded-tile. En el celular la foto va entre el titular y los pasos, 300 px.</>,
       <>ServiceCard: h3 --sf-h3 con mt 20; descripción 16 / 1.5 a 34ch. ProductCard: foto 4:5, nombre 18 / 1.25, detalle 14, pie pt 16.</>,
-      <>Quiénes somos: grid de 12 columnas, items-stretch. Texto (QuienesCopy en sf-t-lead) y Razones en 7 columnas; Visítanos en 5. Razones: lista con filete arriba y entre filas, cada fila flex-1 (reparte el alto), número 22 px en 32 px de ancho, título 17 / 600, detalle 15. MapCard: h-full y el mapa flex-1 (min 160 px), así termina en el mismo borde que la última razón.</>,
+      <>Cabecera de Section, PromosPage y PersonalizaPage desde @3xl: grid auto | 1fr | auto, align-items end, calle 40. Eyebrow arriba; título (con su costura) en col 1; bajada en col 2 con border-l line y pl 40, max 60ch, su última línea al pie del título; acción en col 3. Section gana la prop action (Disponible ahora: Ver todo el catálogo; Más de: Ver las N de; 404: Ver todas las promos → /promos). En el celular no cambia (acción al pie).</>,
+      <>Quiénes somos: grid de 12 columnas, items-stretch. El h2 (stitch-title) va dentro de la columna de 7, así Visítanos (5 columnas) empieza en el borde de arriba del título. Texto (QuienesCopy en sf-t-lead) y Razones en 7 columnas; Visítanos en 5. Razones: lista con filete arriba y entre filas, cada fila flex-1 (reparte el alto), número 22 px en 32 px de ancho, título 17 / 600, detalle 15. MapCard: h-full, grid-rows-[minmax(160px,1fr)_auto]; el mapa plegado h-full, así termina en el mismo borde que la última razón sin superficie vacía al pie.</>,
     ],
   },
   {
@@ -502,10 +504,12 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     items: [
       <>Masonry → rejilla: grid-cols-2 @[40rem]:grid-cols-3 @[64rem]:grid-cols-4 (medido sobre el ancho del muro: 3 columnas ya en un iPad vertical), gap 8 / 12, todas las fotos 4:5 (se va el RITMO de alturas). Páginas de 60 (PAGE_SIZE ya es 60, cierra fila con 2, 3 y 4).</>,
       <>Tarjeta de cierre (propuesta/CierreMuro.tsx): último &lt;li&gt; de CatalogPage con subgrid. Una celda de texto 4:5 (surface, borde line, ¿No ves la que buscas?, Te la hacemos con tu logo o tu diseño., Button principal Escríbenos con whatsappUrl) y, si faltan 2 o 3 celdas, la foto estampado-proceso con la etiqueta En el taller en las demás. Posición → celdas: 2 col: 2n → 1. 3 col: 3n+2 → 2, 3n → 1. 4 col: 4n+2 → 3, 4n+3 → 2, 4n → 1. Fila completa: oculta.</>,
-      <>Visor desktop: grid de 5 columnas con calle de 24 px. Foto 4:5 en 2 columnas; panel en 3, grid de 3 columnas con align-content: space-between: categoría + Nuevo, h1 (sf-t-h2), Pedir por WhatsApp (2 columnas) con su nota de 14 px, y PhotoThumbs en 3 columnas 4:5 (gap 24, la elegida con anillo de 2 px en tinta). Más de: 5 columnas con calle de 24 y 10 fotos (masDe recorta a múltiplo de 5 en desktop; 6 en el celular). Con 1 sola foto, la fila de miniaturas la ocupan las 3 primeras de Más de con su rótulo.</>,
+      <>Visor desktop: grid de 5 columnas con calle de 24 px. Foto 4:5 en 2 columnas; panel en 3, grid de 3 columnas con align-content: space-between: categoría, h1 (sf-t-h2), Pedir por WhatsApp (2 columnas) con su nota de 14 px, y PhotoThumbs en 3 columnas 4:5 (gap 24 / 12, la elegida con anillo de 2 px en tinta) con su rótulo visible Otras vistas (etiqueta oro viejo 12 px). Las fotos de un producto son vistas de la misma prenda (frente, detalle, costado); el alt dice cuál. Más de: 5 columnas con calle de 24 y 10 fotos (masDe recorta a múltiplo de 5 en desktop; 6 en el celular).</>,
+      <>Visor: sale el &lt;span&gt; N.º · hace de la fila de arriba (queda Todas las fotos) y sale NewBadge de ViewerPage y Masonry (el componente sale del design system).</>,
+      <>Visor con 1 sola foto (propuesta/PasosPedido.tsx): sin PhotoThumbs, el panel lleva Así la pides: etiqueta + lista de 3 pasos con filete arriba y entre filas (como Razones), cada fila flex-1 hasta el borde de abajo de la foto (panel grid-rows auto auto 1fr, gap 28). Paso 3 con ADDRESS y HOURS[0] de business.ts. En el celular, debajo del botón.</>,
       <>404 desktop: el bloque de arriba pasa de centrado (max-w 600) a grid de 12: etiqueta, h1, texto y los dos botones alineados a la izquierda en 7 columnas; una foto del taller (gorras-estante, alt vacío, rounded-tile, object-cover) en las otras 5, del borde de arriba al de abajo de los botones. El celular no cambia.</>,
       <>PersonalizaPage desde @4xl: dos columnas que se estiran a la misma fila (items-stretch). Izquierda = prenda, vista previa 4:5, paso 3 y Enviar, con justify-between (reparte lo que falta en sus separaciones); derecha = pasos 1 y 2 sin padding arriba, con gap 48 y el último paso flex-1. Empiezan y terminan en el mismo borde. El orden del DOM no cambia (grid-template-areas).</>,
-      <>Cabecera de CatalogPage, PromosPage y el personalizador: pt 28 / 48, pb 32 / 48.</>,
+      <>Cabecera de CatalogPage, PromosPage y el personalizador: pt 28 / 48, pb 32 / 48 (personalizador en desktop: pb 36).</>,
       <>PromoGrid: items-start. PromoAfiche: el bloque de botones sin mt-auto (mt 4) y desde @md en fila. PromoAfiche y PromoCard sin fecha: la línea de la vigencia se reserva (min-height de una StatusPill) cuando van en fila. PromoCard en la 404: sin mt-auto en Ver promo.</>,
     ],
   },
@@ -513,7 +517,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     grupo: "8 · Design system",
     items: [
       <>foundations: BoardColor, BoardTypography, BoardSpacing y BoardMotion con los valores de este tablero; la deuda &quot;Presupuesto de fuentes&quot; y &quot;Duraciones fijas&quot; se cierra. motion: agregar los 4 movimientos y las dos entradas.</>,
-      <>Recapturar buttons, cards, labels, media y app-shell. usageInstructions a corregir: ProductCard, PromoCard, ServiceCard, PromoAfiche (sin caja), Eyebrow (etiqueta dorada sin píldora), Section (título 64 / 40), Ticker (fuera de la portada), PromoBar (barra negra cálida) y MapCard (cerrada en la portada).</>,
+      <>Recapturar buttons, cards, labels, media y app-shell. usageInstructions a corregir: ProductCard, PromoCard, ServiceCard, PromoAfiche (sin caja), Eyebrow (etiqueta dorada sin píldora), Section (título 64 / 40, prop action), PhotoThumbs (rótulo Otras vistas), NewBadge (se retira), Ticker (fuera de la portada), PromoBar (barra negra cálida) y MapCard (cerrada en la portada).</>,
       <>Deuda que sigue: Diseñar mi prenda usa Button whatsapp (icon null) hacia /personaliza, y el usageInstructions de Button dice que whatsapp va siempre con whatsappUrl(). Decidir entre una variante primary o ampliar esa regla.</>,
     ],
   },
@@ -527,30 +531,21 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
 
 /** Los comentarios de Said del 2026-11-01 sobre la ronda 3 y qué se hizo; cada punto se completa al resolver su hilo. */
 export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
-  { donde: "Portada · 1280 · Qué hacemos", dijo: "Estas letras flotando aquí no me gustan", hecho: <>La bajada va debajo del título y su costura, a la izquierda y al ancho de su columna. Misma regla en todas las cabeceras de la app.</> },
-  { donde: "Portada · 1280 · Disponible ahora", dijo: "aquí también están flotando", hecho: <>Igual: bajada anclada bajo el título.</> },
-  { donde: "Promos · 1280 · cabecera", dijo: "Este texto flotando aquí no me gusta", hecho: <>Igual: la bajada bajo Promos de hoy, alineada a la izquierda.</> },
-  { donde: "Portada · 1280 · Quiénes somos", dijo: "Mejor uso de los espacios aquí", hecho: <>12 columnas: texto y razones en 7, Visítanos en 5, mismo borde arriba y abajo. Razones en lista con filetes que reparte el alto; el mapa crece hasta el borde.</> },
-  { donde: "Catálogo · tarjeta de cierre", dijo: "Me gusta tu idea pero asegurémonos de que sea responsiva y se adapte bien", hecho: <>Siempre una celda de texto del tamaño de una foto y, si faltan 2 o 3, una foto del taller en las demás. Frame nuevo con 390 (1 celda), 768 (1 y 2) y 1280 (1, 2 y 3). El muro pasa a 3 columnas desde 40rem.</> },
-  { donde: "Catálogo · chips", dijo: "¿por qué ya no estamos usando el accent color aquí? además estos botones podrían ser más grandes", hecho: <>Chip elegido y toda acción principal en oro viejo; secundarias con borde. Botones y chips de 48 / 52 px con texto 16, en todas las pantallas.</> },
-  { donde: "Visor · 1280", dijo: "mejoró pero aún veo un muy mal manejo de los espacios", hecho: <>Rejilla de 5 columnas compartida con Más de: foto 4:5 en 2, panel en 3 con las miniaturas de una columna cada una. Mismo borde arriba y abajo, aire uniforme de ~30 px. Huecos internos: 0.</> },
-  { donde: "Personalizador · 1280", dijo: "Este espacio no me gusta, tiene que estar mejor alineado", hecho: <>Las dos columnas empiezan y terminan en el mismo borde (antes ~120 px de escalón abajo y 48 arriba). La izquierda reparte lo que falta en sus separaciones; la vista previa sigue 4:5.</> },
+  { donde: "Promos · 1280 · cabecera", dijo: "Mejor pero ahora hay espacio, no solo muevas las letras", hecho: <>La cabecera es una fila a todo el ancho: título | bajada cosida con un filete | acción. ~40 % menos alta. Misma regla en la portada, Más de, la 404 (con Ver todas las promos) y el personalizador; Quiénes somos sube el mapa hasta el título.</> },
+  { donde: "Visor · 1280 · arriba a la derecha", dijo: "Esto no es necesario. Ni tampoco el uso de \"nuevo\" en los productos", hecho: <>Fuera la línea N.º 4 · Hace 10 días y la etiqueta Nuevo en el muro, Más de y el visor. El panel sigue cerrando con la foto.</> },
+  { donde: "Visor · 1280 · miniaturas", dijo: "estas imágenes parecen productos distintos en lugar de variantes del producto. además, ¿qué pasa si no hay variantes?", hecho: <>Otras vistas de la misma gorra (frente, bordado, costado y visera) con su rótulo. Sin variantes: frames nuevos 1280 y 390 con Así la pides en lugar de las miniaturas; cierra exacto con la foto.</> },
 ];
 
-/** Zonas vacías revisadas con la regla de la ronda 4 (cero huecos salvo márgenes laterales). */
+/** Zonas vacías revisadas (cero huecos salvo márgenes laterales). */
 export const ZONAS: { frame: string; donde: string; antes: string; despues: string }[] = [
-  { frame: "Portada 1280", donde: "Cabecera de Qué hacemos y Disponible ahora", antes: "bajada suelta a la derecha del título", despues: "bajada bajo el título; 0" },
-  { frame: "Portada 1280", donde: "Quiénes somos", antes: "calle de ~140 px entre texto y mapa; el mapa terminaba más abajo", despues: "7 + 5 columnas, mismo borde arriba y abajo; 0" },
-  { frame: "Portada 1280", donde: "Banda del personalizador, Qué hacemos, Disponible ahora", antes: "0", despues: "0" },
-  { frame: "Catálogo 1280 y 390", donde: "Final del muro", antes: "0 con 12 fotos; 1 a 3 celdas en categorías reales", despues: "tarjeta de cierre en las celdas libres; 0 a 390, 768 y 1280" },
-  { frame: "Visor 1280", donde: "Panel derecho", antes: "2 huecos internos de ~530 x 165", despues: "rejilla de 5 columnas, aire de ~25-35 px; 0" },
-  { frame: "Promos 1280", donde: "Cabecera", antes: "bajada suelta a la derecha", despues: "bajada bajo el h1; 0" },
-  { frame: "Promos 1280", donde: "Primera promo a sangre, columna del texto", antes: "~690 x 140 arriba y abajo del texto centrado", despues: "afiche: texto sobre la foto, abajo a la izquierda; 0" },
-  { frame: "Detalle 1280", donde: "Afiche, Más fotos y Otras promos", antes: "0", despues: "0" },
-  { frame: "Personalizador 1280", donde: "Final de las dos columnas", antes: "escalón de ~120 px abajo y 48 arriba", despues: "mismo borde arriba (y=276) y abajo (y=1397); 0" },
-  { frame: "404 1280", donde: "A los lados del mensaje centrado", antes: "~300 x 400 a cada lado (quedó como excepción)", despues: "texto y botones en 7 columnas, foto del taller en 5, mismo alto; 0" },
-  { frame: "404 1280", donde: "Promos de hoy, tercera tarjeta (sin descripción)", antes: "~370 x 40 bajo Ver promo", despues: "se queda: es el largo natural del texto, bajo el umbral (las tres alinean su título)" },
-  { frame: "Todas las 390", donde: "Página completa", antes: "0", despues: "0 (solo cambian botones y chips: 48 px, texto 16)" },
+  { frame: "Promos 1280", donde: "Cabecera, a la derecha del título", antes: "~600 x 150 vacíos", despues: "bajada hasta el borde; ~0" },
+  { frame: "Portada 1280", donde: "Cabeceras de Qué hacemos y Disponible ahora", antes: "~700 x 120 vacíos a la derecha", despues: "bajada y Ver todo el catálogo en la fila; 0" },
+  { frame: "Portada 1280", donde: "Quiénes somos, sobre el mapa", antes: "~490 x 110 junto al título", despues: "el mapa empieza en el borde del título; 0" },
+  { frame: "Visor 1280", donde: "Cabecera de Más de", antes: "~800 x 90 a la derecha del título", despues: "Ver las 24 de Beisbol al final; 0" },
+  { frame: "Visor sin variantes 1280", donde: "Panel sin miniaturas", antes: "~650 x 290 bajo el botón", despues: "Así la pides hasta el borde de la foto; 0" },
+  { frame: "404 1280", donde: "Cabecera de Promos de hoy", antes: "~800 x 90 a la derecha", despues: "Ver todas las promos al final; 0" },
+  { frame: "Personalizador 1280", donde: "Cabecera", antes: "~520 x 130 a la derecha", despues: "bajada en la fila; ~90 px al final" },
+  { frame: "Todas las 390", donde: "Página completa", antes: "0", despues: "0" },
   { frame: "Todas", donde: "Márgenes laterales (16 / 48 px)", antes: "intencionales", despues: "intencionales" },
 ];
 
@@ -559,7 +554,7 @@ export function Cambios() {
     <Tablero width={1200}>
       <PageTitle
         title="Lista de cambios para el PR"
-        description="Todo lo que el Feature Builder tiene que pasar a producción, en un solo lugar (rondas 1 a 4 juntas). Cada punto nombra el componente; el detalle exacto está en los CSS del canvas."
+        description="Todo lo que el Feature Builder tiene que pasar a producción, en un solo lugar (todas las rondas juntas). Cada punto nombra el componente; el detalle exacto está en los CSS del canvas."
       />
       <div className="flex flex-col gap-8">
         {CAMBIOS.map((g) => (
@@ -574,7 +569,7 @@ export function Cambios() {
         ))}
         {RESUELTOS.length > 0 && (
           <section>
-            <h2 className="text-[17px] font-semibold">Tus comentarios de la ronda 3</h2>
+            <h2 className="text-[17px] font-semibold">Tus últimos comentarios</h2>
             <table className="mt-3 w-full text-left text-[14px] leading-relaxed">
               <thead className="text-muted">
                 <tr>
@@ -603,8 +598,8 @@ export function Cambios() {
                 <tr>
                   <th className="py-2 pr-4 font-semibold">Frame</th>
                   <th className="py-2 pr-4 font-semibold">Dónde</th>
-                  <th className="py-2 pr-4 font-semibold">Ronda 3</th>
-                  <th className="py-2 font-semibold">Ronda 4</th>
+                  <th className="py-2 pr-4 font-semibold">Antes</th>
+                  <th className="py-2 font-semibold">Ahora</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
