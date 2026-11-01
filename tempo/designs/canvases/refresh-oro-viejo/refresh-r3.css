@@ -1,0 +1,35 @@
+/*
+ * Ronda 3 (PRI-286, Said 2026-11-01: "hay un serio problema con el manejo de los espacios"). Va encima de refresh.css y
+ * refresh-r2.css: todo lo de .sf-r3 cuelga de un elemento que también tiene .sf-refresh y .sf-r2. La ronda 2 sigue abajo
+ * en el canvas sin .sf-r3, tal como Said la comentó.
+ *
+ * Regla de esta ronda: aire no es espacio muerto. A 1280 cada bloque se compone sobre 12 columnas (texto y foto lado a
+ * lado); una zona vacía de más de ~240 x 240 px que no sea un margen intencional es un defecto.
+ *
+ * Mismo esquema que las rondas anteriores: lo que viene después de cada PUENTE se vuelve clases en el componente al
+ * construir (ver el tablero "Lista de cambios · ronda 3").
+ */
+
+/* ---------- Aire entre secciones: la escala de antes + 12-14 %, no + 50 % ---------- */
+
+.sf-r3 {
+  /* Entre secciones: 64 / 112 (master) -> 96 / 176 (ronda 2) -> 72 / 128 (ronda 3). Cada sección pone la mitad. */
+  --sf-aire: 36px;
+  --sf-aire-desktop: 64px;
+}
+
+/* Título -> contenido de una sección: 40 en la ronda 2, 28 ahora. */
+.sf-r3 section > div.px-4 > div > div.mt-5 { margin-top: 28px; }
+
+/* PUENTE: cabecera de CatalogPage, PromosPage y el personalizador (40 / 72 arriba en la ronda 2). */
+.sf-r3 :is(main, main > div) > div.px-4.pt-6 { padding-top: 28px; }
+.sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child { padding-bottom: 32px; gap: 16px; }
+@container (min-width: 48rem) {
+  .sf-r3 :is(main, main > div) > div.px-4.pt-6 { padding-top: 48px; }
+  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child { padding-bottom: 48px; gap: 20px; }
+}
+.sf-r3 main > div > ul { row-gap: 40px; }
+@container (min-width: 48rem) {
+  .sf-r3 main > div > ul { row-gap: 56px; }
+}
+.sf-r3 main > div.flex.flex-col:has(> div.relative.grid) { gap: 40px; }

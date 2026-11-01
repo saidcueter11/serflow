@@ -2,6 +2,7 @@
 import { useState, type ReactNode } from "react";
 import "./refresh.css";
 import "./refresh-r2.css";
+import "./refresh-r3.css";
 import { Header } from "../../../../src/components/ui/Header";
 import { Footer } from "../../../../src/components/ui/Footer";
 import { PromoBar } from "../../../../src/components/ui/PromoBar";
@@ -96,6 +97,7 @@ export function Marco({
   width,
   refresh,
   r2,
+  r3,
   current,
   promos = false,
   fab = true,
@@ -105,13 +107,15 @@ export function Marco({
   refresh?: boolean;
   /** Ronda 2 ("más fuerte"): refresh-r2.css encima del acabado de la ronda 1. */
   r2?: boolean;
+  /** Ronda 3 (espacios): refresh-r3.css encima de la ronda 2. */
+  r3?: boolean;
   current?: string;
   promos?: boolean;
   fab?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className={`relative bg-primary font-body text-ink antialiased ${refresh ? "sf-refresh" : ""} ${refresh && width === 390 ? "sf-tactil" : ""} ${r2 ? "sf-refresh sf-r2" : ""}`} style={{ width }}>
+    <div className={`relative bg-primary font-body text-ink antialiased ${refresh ? "sf-refresh" : ""} ${refresh && width === 390 ? "sf-tactil" : ""} ${r2 || r3 ? "sf-refresh sf-r2" : ""} ${r3 ? "sf-r3" : ""}`} style={{ width }}>
       {promos && <PromoBar promos={PROMOS_SAMPLE} />}
       <Header logoSrc={LOGO} current={current} />
       {children}
@@ -152,6 +156,7 @@ export function AntesDespues({
   detalleAntes = "master hoy",
   detalleDespues = "oro viejo + Plus Jakarta Sans",
   r2 = false,
+  r3 = false,
 }: {
   titulo: string;
   nota: ReactNode;
@@ -161,6 +166,8 @@ export function AntesDespues({
   detalleAntes?: string;
   detalleDespues?: string;
   r2?: boolean;
+  /** Ronda 3: el antes es la ronda 2 y el después lleva .sf-r3. */
+  r3?: boolean;
 }) {
   const [vuelta, setVuelta] = useState(0);
   return (
@@ -186,8 +193,8 @@ export function AntesDespues({
           </div>
         </div>
         <div>
-          <Rotulo lado="despues" detalle={r2 ? "ronda 2 · más fuerte" : detalleDespues} />
-          <div key={`d${vuelta}`} className={`sf-refresh ${r2 ? "sf-r2" : ""} overflow-hidden rounded-tile ring-1 ring-accent/60`}>
+          <Rotulo lado="despues" detalle={r3 ? "ronda 3 · espacios" : r2 ? "ronda 2 · más fuerte" : detalleDespues} />
+          <div key={`d${vuelta}`} data-captura="despues" className={`sf-refresh ${r2 || r3 ? "sf-r2" : ""} ${r3 ? "sf-r3" : ""} overflow-hidden rounded-tile ring-1 ring-accent/60`}>
             {despues}
           </div>
         </div>
