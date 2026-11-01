@@ -7,10 +7,11 @@ import { ViewerPage } from "../../../../src/components/catalog/ViewerPage";
 import { PromosPage } from "../../../../src/components/promos/PromosPage";
 import { PromoDetailPage } from "../../../../src/components/promos/PromoDetailPage";
 import { NotFoundPage } from "../../../../src/components/promos/NotFoundPage";
-import type { MasonryTile } from "../../../../src/components/ui/Masonry";
+import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry";
 import type { CatalogItem } from "../../../../src/lib/catalog-view";
-import { AntesDespues, BANNER, CHIPS, FOTOS, Marco, PROMOS, TILES } from "./comun";
+import { AntesDespues, BANNER, CHIPS, FOTOS, Marco, NUEVO, PROMOS, TILES } from "./comun";
 import { Portada } from "./propuesta/Portada";
+import { ConCierre } from "./propuesta/CierreMuro";
 import pzAntes390 from "./capturas/personalizador-antes-390.jpg";
 import pzAntes1280 from "./capturas/personalizador-antes-1280.jpg";
 import pz390 from "./capturas/personalizador-390.jpg";
@@ -27,13 +28,15 @@ function Catalogo({ width, nuevo, tiles, next, basket }: R & { tiles: MasonryTil
     <Marco width={width} nuevo={nuevo} current="/products">
       <main className="@container">
         <CategoryBanner slides={basket ? [{ label: "Basket", count: 10, image: { src: FOTOS.gorrasEstante } }] : BANNER} current={0} />
-        <CatalogPage
-          chips={CHIPS}
-          current={basket ? "/products/basket" : "/products"}
-          label={basket ? "Basket" : "Todo"}
-          tiles={tiles}
-          next={next ? { href: "/products/2", count: next } : undefined}
-        />
+        <ConCierre>
+          <CatalogPage
+            chips={CHIPS}
+            current={basket ? "/products/basket" : "/products"}
+            label={basket ? "Basket" : "Todo"}
+            tiles={tiles}
+            next={next ? { href: "/products/2", count: next } : undefined}
+          />
+        </ConCierre>
       </main>
     </Marco>
   );
@@ -154,3 +157,50 @@ export const PersonalizadorMobile = () =>
 export const PersonalizadorDesktop = () =>
   fila("Personalizador · 1280", NOTA_PERSONALIZADOR, 1280, <Captura src={pzAntes1280} width={1280} />, <Captura src={pz1280} width={1280} />);
 
+/* ---------- La tarjeta de cierre en los tres anchos (Said: "que sea responsiva y se adapte bien") ---------- */
+
+/** Solo el muro, con el padding real de CatalogPage, para ver la última fila con 1, 2 y 3 celdas libres. */
+function Muro({ width, fotos }: { width: number; fotos: number }) {
+  const columnas = width < 700 ? 2 : width < 1100 ? 3 : 4;
+  const faltan = (columnas - (fotos % columnas)) % columnas;
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[14px] text-muted">
+        <b className="text-ink">{width} px</b> · {columnas} columnas · {fotos} fotos · {faltan === 1 ? "falta 1 celda" : `faltan ${faltan} celdas`}
+      </p>
+      <div className={`${NUEVO} @container overflow-hidden rounded-tile bg-primary font-body text-ink ring-1 ring-line`} style={{ width }}>
+        <div className="px-4 py-6 @3xl:px-12 @3xl:py-8">
+          <ConCierre>
+            <Masonry tiles={TILES_10.slice(0, fotos)} />
+          </ConCierre>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export const CierreResponsivo = () => (
+  <div className="bg-primary-light p-10 font-body text-ink" style={{ width: 390 + 768 + 1280 + 2 * 80 + 80 }}>
+    <div className="max-w-[900px] pb-8">
+      <h2 className="text-[28px] font-bold leading-tight">Tarjeta de cierre · 390, 768 y 1280</h2>
+      <p className="mt-2 text-[15px] leading-relaxed text-muted">
+        Siempre una celda de texto del tamaño de una foto (nunca más chica ni más ancha) con Escríbenos en oro viejo. Si faltan 2 o 3
+        celdas, una foto del taller ocupa las demás. Con la fila completa no aparece.
+      </p>
+    </div>
+    <div className="flex items-start gap-20">
+      <div className="flex flex-col gap-10">
+        <Muro width={390} fotos={3} />
+      </div>
+      <div className="flex flex-col gap-10">
+        <Muro width={768} fotos={5} />
+        <Muro width={768} fotos={4} />
+      </div>
+      <div className="flex flex-col gap-10">
+        <Muro width={1280} fotos={7} />
+        <Muro width={1280} fotos={6} />
+        <Muro width={1280} fotos={5} />
+      </div>
+    </div>
+  </div>
+);

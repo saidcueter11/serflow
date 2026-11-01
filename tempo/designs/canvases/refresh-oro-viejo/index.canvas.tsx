@@ -4,6 +4,7 @@ import {
   CatalogoCierre,
   CatalogoDesktop,
   CatalogoMobile,
+  CierreResponsivo,
   DetalleDesktop,
   DetalleMobile,
   NoExisteDesktop,
@@ -31,6 +32,7 @@ export default function RefreshOroViejoCanvas() {
       <Storyboard id="R3CatalogoMobile" name="R4 · Catálogo categoría · 390" component={CatalogoMobile} layout={{ x: 0, y: 9100 }} />
       <Storyboard id="R3CatalogoDesktop" name="R4 · Catálogo categoría · 1280" component={CatalogoDesktop} layout={{ x: 1040, y: 9100 }} />
       <Storyboard id="R3CatalogoCierre" name="R4 · Catálogo · categoría de 10 fotos · 1280" component={CatalogoCierre} layout={{ x: 3900, y: 9100 }} />
+      <Storyboard id="CierreResponsivo" name="R4 · Tarjeta de cierre · 390 / 768 / 1280" component={CierreResponsivo} layout={{ x: 6800, y: 9100 }} />
       <Storyboard id="R3VisorMobile" name="R4 · Catálogo visor · 390" component={VisorMobile} layout={{ x: 0, y: 12400 }} />
       <Storyboard id="R3VisorDesktop" name="R4 · Catálogo visor · 1280" component={VisorDesktop} layout={{ x: 1040, y: 12400 }} />
       <Storyboard id="R3PromosMobile" name="R4 · Promos lista · 390" component={PromosMobile} layout={{ x: 0, y: 15600 }} />
