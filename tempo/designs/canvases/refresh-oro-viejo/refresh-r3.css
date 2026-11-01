@@ -169,3 +169,29 @@
 @container (min-width: 23rem) {
   .sf-r3 section a.group.rounded-card div.flex-1 > h3.font-display:first-child { margin-top: 34px; }
 }
+
+/* ---------- Botones y chips: la acción principal en oro viejo, las secundarias con borde (ronda 4) ---------- */
+
+/* Said (ronda 3, chips del catálogo): "¿por qué ya no estamos usando el accent color aquí? además estos botones podrían
+   ser más grandes". Regla para toda la app:
+   - Acción principal de cada bloque (Pedir por WhatsApp, Diseñar mi prenda, Ver el catálogo del hero, Escríbenos de la
+     tarjeta de cierre y de la 404): relleno oro viejo. Chip de categoría elegido: igual.
+   - Secundarias (Ver todo el catálogo, Ver las N fotos, Ver 80 más, Ir al inicio, Cómo llegar, la categoría del visor,
+     los chips no elegidos): borde line, texto en tinta.
+   - Tamaño: alto mínimo 48 px en el celular y 52 en desktop, texto 16 px, toda la píldora es el área táctil.
+   PUENTE: Button (min-h-12 @3xl:min-h-[52px] text-[16px]; el ghost pasa a secondary en sus usos), CategoryNav y Chip. */
+.sf-r3 :is(a, button).inline-flex.rounded-full.font-body { min-height: 48px; padding-inline: 24px; font-size: 16px; }
+.sf-r3 :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4 { border: 1px solid var(--color-line); color: var(--color-ink); }
+.sf-r3 :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4::after { display: none; }
+.sf-r3 nav[aria-label='Categorías'] a { min-height: 48px; padding-inline: 20px; font-size: 16px; }
+.sf-r3 nav[aria-label='Categorías'] a > span { font-size: 13px; }
+.sf-r3 :is(nav[aria-label='Categorías'] a:not([aria-current]), label > input.peer:not(:checked) + span.rounded-full) { border-color: var(--color-line); color: var(--color-ink); }
+.sf-r3 :is(nav[aria-label='Categorías'] a[aria-current], label > input.peer:checked + span.rounded-full) { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-primary); }
+.sf-r3 nav[aria-label='Categorías'] a[aria-current] > span { color: color-mix(in srgb, var(--color-primary) 75%, transparent); }
+@media (hover: hover) {
+  .sf-r3 :is(nav[aria-label='Categorías'] a:not([aria-current]), label > input.peer:not(:checked) + span.rounded-full):hover { border-color: var(--color-muted); }
+}
+@container (min-width: 48rem) {
+  .sf-r3 :is(a, button).inline-flex.rounded-full.font-body { min-height: 52px; padding-inline: 28px; }
+  .sf-r3 nav[aria-label='Categorías'] a { min-height: 52px; }
+}

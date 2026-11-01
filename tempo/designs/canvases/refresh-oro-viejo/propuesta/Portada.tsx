@@ -122,8 +122,8 @@ function HeroTexto() {
       </h1>
       <p className="sf-t-lead max-w-[30ch] text-ink/85">Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.</p>
       <div className="w-full @4xl:w-auto">
-        {/* Un solo dorado por bloque y WhatsApp solo en el flotante: el hero lleva al catálogo. */}
-        <Button variant="secondary" href={CATALOG_HREF} fullWidth>
+        {/* La acción principal del hero va en oro viejo (regla de la ronda 4). PUENTE: variante primary de Button. */}
+        <Button variant="whatsapp" href={CATALOG_HREF} icon={null} fullWidth>
           Ver el catálogo
         </Button>
       </div>
