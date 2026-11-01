@@ -142,14 +142,19 @@
 
 /* ---------- Personalizador (/personaliza, PR #36) en desktop ---------- */
 
-/* Said: "estamos desaprovechando mucho este espacio" (columna izquierda vacía ~520 x 900 debajo de la vista previa).
-   Izquierda: prenda, vista previa 4:5 y el paso 3 con el resumen y Enviar (todo junto, sticky). Derecha: pasos 1 y 2.
-   Las dos columnas cierran a la misma altura. PUENTE: la captura mueve esos nodos a .pz-izq / .pz-der; en el PR,
-   PersonalizaPage arma las dos columnas así a partir de @4xl (en el celular no cambia el orden). */
+/* Izquierda: prenda, vista previa y el paso 3 con el resumen y Enviar. Derecha: pasos 1 y 2.
+   Ronda 4 (Said: "Este espacio no me gusta, tiene que estar mejor alineado"): la ronda 3 dejaba la izquierda ~120 px más
+   corta que la derecha y la derecha empezaba 48 px más abajo. Ahora las dos columnas se estiran a la misma fila: empiezan
+   en el mismo borde (sin el pt de la derecha) y terminan en el mismo borde: la izquierda reparte lo que le falta en sus
+   4 separaciones (24 -> ~41 px, casi el 48 de la derecha) y Enviar cierra a ras del final del paso 2. La vista previa
+   sigue 4:5. Si un día la izquierda es la más alta, el paso 2 se estira (flex 1). Vacío residual: 0.
+   PUENTE: la captura mueve esos nodos a .pz-izq / .pz-der; en el PR, PersonalizaPage arma las dos columnas así a partir
+   de @4xl con grid-template-areas (en el celular no cambia el orden). */
 @media (min-width: 1024px) {
-  .sf-r3 main:has(> .pz-izq) { grid-template-rows: auto 1fr; column-gap: 56px; align-items: start; }
-  .sf-r3 main > .pz-izq { grid-column: 1; grid-row: 2; display: flex; flex-direction: column; gap: 24px; position: sticky; top: 24px; }
-  .sf-r3 main > .pz-der { grid-column: 2; grid-row: 2; padding-top: 0; gap: 48px; }
+  .sf-r3 main:has(> .pz-izq) { grid-template-rows: auto 1fr; column-gap: 56px; align-items: stretch; }
+  .sf-r3 main > .pz-izq { grid-column: 1; grid-row: 2; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; position: static; padding-bottom: 32px; }
+  .sf-r3 main > div.pz-der.px-4.pt-6 { grid-column: 2; grid-row: 2; padding: 0 0 32px; gap: 48px; }
+  .sf-r3 main > .pz-der > section:last-child { flex: 1; }
   .sf-r3 .pz-izq > * { align-self: stretch; }
   .sf-r3 .pz-izq > fieldset { padding: 0; }
   .sf-r3 .pz-izq > div.sticky { position: static; margin: 0; padding: 0; box-shadow: none; }
