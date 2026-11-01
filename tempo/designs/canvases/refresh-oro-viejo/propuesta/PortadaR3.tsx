@@ -76,6 +76,36 @@ export function BandaPersonalizaR3() {
   );
 }
 
+/** Qué hacemos y Disponible ahora: el mismo JSX que la ronda 2; las tarjetas cambian por refresh-r3.css. */
+export function QueHacemos() {
+  return (
+    <Section id="que-hacemos" title="Qué hacemos" description="Camisetas y gorras, con la técnica que mejor le quede a tu diseño.">
+      <div className="grid gap-10 @3xl:grid-cols-3 @3xl:gap-8">
+        {SERVICES.map((s) => (
+          <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+export function Disponible() {
+  return (
+    <Section id="disponible" title="Disponible ahora" description="Lo que hay en el taller esta semana.">
+      <div className="-mx-4 grid snap-x auto-cols-[240px] grid-flow-col gap-4 overflow-x-auto px-4 pb-2 pt-1 @3xl:mx-0 @3xl:grid-flow-row @3xl:grid-cols-4 @3xl:gap-6 @3xl:overflow-visible @3xl:px-0">
+        {PRODUCTS.map((p) => (
+          <ProductCard key={p.name} name={p.name} meta={p.meta} href={CATALOG_HREF} image={{ src: p.src, alt: p.name }} />
+        ))}
+      </div>
+      <div className="mt-6">
+        <Button variant="ghost" href={CATALOG_HREF}>
+          Ver todo el catálogo →
+        </Button>
+      </div>
+    </Section>
+  );
+}
+
 function HeroTexto() {
   return (
     <div className="anim-enter absolute inset-x-0 bottom-0 flex flex-col items-start gap-5 p-4 pb-12 @4xl:gap-6 @4xl:p-12 @4xl:pb-20">
@@ -115,26 +145,9 @@ export function PortadaR3({ width }: { width: 390 | 1280 }) {
 
           {/* Sin Ticker (Said, 2026-11-01: "no tiene sentido el banner tan abajo"). */}
 
-          <Section id="que-hacemos" title="Qué hacemos" description="Camisetas y gorras, con la técnica que mejor le quede a tu diseño.">
-            <div className="grid gap-10 @3xl:grid-cols-3 @3xl:gap-8">
-              {SERVICES.map((s) => (
-                <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
-              ))}
-            </div>
-          </Section>
+          <QueHacemos />
 
-          <Section id="disponible" title="Disponible ahora" description="Lo que hay en el taller esta semana.">
-            <div className="-mx-4 grid snap-x auto-cols-[240px] grid-flow-col gap-4 overflow-x-auto px-4 pb-2 pt-1 @3xl:mx-0 @3xl:grid-flow-row @3xl:grid-cols-4 @3xl:gap-6 @3xl:overflow-visible @3xl:px-0">
-              {PRODUCTS.map((p) => (
-                <ProductCard key={p.name} name={p.name} meta={p.meta} href={CATALOG_HREF} image={{ src: p.src, alt: p.name }} />
-              ))}
-            </div>
-            <div className="mt-6">
-              <Button variant="ghost" href={CATALOG_HREF}>
-                Ver todo el catálogo →
-              </Button>
-            </div>
-          </Section>
+          <Disponible />
 
           {/* El mapa al final y plegado: calles en CSS, el de Google solo al tocar. #visitanos sigue siendo el ancla del menú. */}
           <Section id="quienes-somos" title="Quiénes somos">

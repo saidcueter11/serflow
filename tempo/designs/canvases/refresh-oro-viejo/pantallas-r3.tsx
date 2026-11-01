@@ -10,7 +10,7 @@ import type { MasonryTile } from "../../../../src/components/ui/Masonry";
 import type { CatalogItem } from "../../../../src/lib/catalog-view";
 import { AntesDespues, BANNER, CHIPS, Marco, PROMOS, TILES } from "./comun";
 import { PortadaR2 } from "./propuesta/PortadaR2";
-import { PortadaR3 } from "./propuesta/PortadaR3";
+import { Disponible, PortadaR3, QueHacemos } from "./propuesta/PortadaR3";
 import pzR2390 from "./capturas/r2/personalizador-390.jpg";
 import pzR21280 from "./capturas/r2/personalizador-1280.jpg";
 import pzR3390 from "./capturas/r3/personalizador-390.jpg";
@@ -123,3 +123,24 @@ export const R3PersonalizadorMobile = () =>
   fila("Personalizador · 390", NOTA_PERSONALIZADOR, 390, <Captura src={pzR2390} width={390} />, <Captura src={pzR3390} width={390} />);
 export const R3PersonalizadorDesktop = () =>
   fila("Personalizador · 1280", NOTA_PERSONALIZADOR, 1280, <Captura src={pzR21280} width={1280} />, <Captura src={pzR31280} width={1280} />);
+
+/** Las dos familias de tarjetas solas, a 1280: mismo JSX, la ronda 3 solo suma refresh-r3.css. */
+function Tarjetas({ r3 }: { r3?: boolean }) {
+  return (
+    <div className={`sf-refresh sf-r2 ${r3 ? "sf-r3" : ""} @container bg-primary font-body text-ink`} style={{ width: 1280 }}>
+      <QueHacemos />
+      <Disponible />
+    </div>
+  );
+}
+
+const NOTA_TARJETAS = (
+  <>
+    Las dos con foto 4:5 (Disponible ahora era 4:3 y se veía chata al lado de Qué hacemos). Pie con jerarquía: título 24 y bajada 16 a 34ch en
+    Qué hacemos, nombre 18 y detalle 14 en Disponible ahora. La bajada de la sección sube al lado del título (columnas 8-12) y deja de dejar media
+    cabecera vacía.
+  </>
+);
+export const R3Tarjetas = () => (
+  <AntesDespues r3 titulo="Tarjetas de la portada · 1280" nota={NOTA_TARJETAS} width={1280} detalleAntes="ronda 2 · la que comentaste" antes={<Tarjetas />} despues={<Tarjetas r3 />} />
+);

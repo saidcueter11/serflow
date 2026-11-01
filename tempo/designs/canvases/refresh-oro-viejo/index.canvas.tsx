@@ -39,6 +39,7 @@ import {
   R3PortadaMobile,
   R3PromosDesktop,
   R3PromosMobile,
+  R3Tarjetas,
   R3VisorDesktop,
   R3VisorMobile,
 } from "./pantallas-r3";
@@ -49,6 +50,7 @@ export default function RefreshOroViejoCanvas() {
       {/* Ronda 3 (espacios, 2026-11-01) */}
       <Storyboard id="IntroR3" name="R3 · Intro" component={IntroR3} layout={{ x: 0, y: 0 }} />
       <Storyboard id="CambiosR3" name="R3 · Lista de cambios para el PR" component={CambiosR3} layout={{ x: 1100, y: 0 }} />
+      <Storyboard id="R3Tarjetas" name="R3 · Tarjetas antes y después" component={R3Tarjetas} layout={{ x: 2400, y: 0 }} />
       <Storyboard id="R3PortadaMobile" name="R3 · Portada · 390" component={R3PortadaMobile} layout={{ x: 0, y: 3000 }} />
       <Storyboard id="R3PortadaDesktop" name="R3 · Portada · 1280" component={R3PortadaDesktop} layout={{ x: 1040, y: 3000 }} />
       <Storyboard id="R3CatalogoMobile" name="R3 · Catálogo categoría · 390" component={R3CatalogoMobile} layout={{ x: 0, y: 8500 }} />

@@ -36,6 +36,11 @@ export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
     dijo: "Esta seccion del personalizador me parece muy grande y que ademas no aprovecha bien los espacios",
     hecho: <>Bloque de 480 px (antes ~1060): texto en 5 columnas (titular arriba; frase, los 3 pasos y el botón abajo, al ras de la foto) y la foto en 7. En el celular: titular, foto, pasos y botón.</>,
   },
+  {
+    donde: "Portada · 1280 · Qué hacemos y Disponible ahora",
+    dijo: "Estan cards tambien tienen espacio para mejora / Siento que se pueden mejorar las cards",
+    hecho: <>Foto 4:5 en las dos familias (Disponible ahora era 4:3). Pie con jerarquía: 24 + 16 a 34ch en Qué hacemos, 18 + 14 en Disponible ahora. La bajada de la sección sube al lado del título. Antes y después en el tablero &quot;Tarjetas&quot;.</>,
+  },
 ];
 
 /** Zonas revisadas con la regla de vacíos (frame, dónde, tamaño antes -> después). */
@@ -43,6 +48,8 @@ export const ZONAS: { frame: string; donde: string; antes: string; despues: stri
   { frame: "Todas", donde: "Entre secciones", antes: "96 / 176 px", despues: "72 / 128 px" },
   { frame: "Portada 390", donde: "Ticker debajo del personalizador", antes: "banda de 48 px + 48 de aire", despues: "sin ticker" },
   { frame: "Portada 1280", donde: "Banda del personalizador: franja de texto + foto apilada", antes: "~1060 px de alto, derecha del titular vacía ~560 x 200", despues: "480 px, dos columnas llenas" },
+  { frame: "Portada 1280", donde: "Cabecera de Qué hacemos / Disponible ahora (derecha del título)", antes: "~600 x 150 vacío", despues: "bajada en columnas 8-12" },
+  { frame: "Portada 1280", donde: "Fila de Disponible ahora (fotos 4:3, pie chico)", antes: "fila de 200 px de foto, aire debajo ~1100 x 80", despues: "fotos 4:5 de 330 px" },
 ];
 
 export function IntroR3() {
@@ -103,6 +110,9 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     grupo: "Portada (HomePage.tsx, ver propuesta/PortadaR3.tsx)",
     items: [
       <>Sin Ticker: se borra de HomePage (el componente Ticker queda sin uso en la portada; no se borra del design system en este PR).</>,
+      <>Section: con description, a partir de @3xl la cabecera es grid 7fr / 5fr (título y bajada al pie del título, pb 22 px para quedar a la altura de la costura).</>,
+      <>ServiceCard: h3 a --sf-h3 (24) con mt 20; descripción 16 / 1.5 a 34ch. Foto 4:5 desde @3xl (4:3 en el celular).</>,
+      <>ProductCard: foto 4:5 (antes aspect-[4/3]); nombre 18 / 1.25 y detalle 14; pie con pt 16, sin padding lateral. &quot;Ver todo el catálogo&quot; a 20 px de las tarjetas.</>,
       <>Banda del personalizador: grid de 12 columnas, texto col 1-5 (eyebrow, h2, frase arriba; lista de 3 pasos con filetes y Diseñar mi prenda abajo, justify-end) y foto col 6-12, 480 px de alto, rounded-tile. En el celular la foto va entre el titular y los pasos, 300 px.</>,
     ],
   },

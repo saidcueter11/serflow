@@ -33,3 +33,38 @@
   .sf-r3 main > div > ul { row-gap: 56px; }
 }
 .sf-r3 main > div.flex.flex-col:has(> div.relative.grid) { gap: 40px; }
+
+/* ---------- Cabecera de sección en 12 columnas (portada, Más de, 404) ---------- */
+
+/* A 1280 el título va en 7 columnas y su bajada en las otras 5, al pie del título: sin media cabecera vacía.
+   PUENTE: Section con descripción. En el PR, Section pone estas clases cuando hay description. */
+@container (min-width: 48rem) {
+  .sf-r3 section.\@container > div.px-4 > div:has(> h2.stitch-title + p) {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: 48px;
+    align-items: end;
+  }
+  .sf-r3 section.\@container > div.px-4 > div:has(> h2.stitch-title + p) > div { grid-column: 1 / -1; }
+  .sf-r3 section.\@container > div.px-4 > div > h2.stitch-title + p { margin: 0; padding-bottom: 22px; max-width: 40ch; }
+}
+
+/* ---------- Tarjetas de la portada (Said: "se pueden mejorar las cards") ---------- */
+
+/* Las dos familias con la misma foto 4:5 en desktop (antes 4:5 en Qué hacemos y 4:3 en Disponible ahora). */
+@container (min-width: 48rem) {
+  .sf-r3 :is(article.group.rounded-card img, /* PUENTE: ProductCard */ #disponible a.group.rounded-card img) { aspect-ratio: 4 / 5; }
+}
+
+/* ServiceCard: el pie con jerarquía. Título 24 y bajada 16 a 34ch (antes 15 gris chico a lo ancho). */
+.sf-r3 article.group.rounded-card h3 { margin-top: 20px; font-size: var(--sf-h3); }
+.sf-r3 article.group.rounded-card p { margin-top: 8px; font-size: 16px; line-height: 1.5; max-width: 34ch; }
+
+/* ProductCard: nombre 18 en tinta y el detalle 14 debajo; foto y pie del mismo ancho, sin caja. */
+.sf-r3 #disponible a.group.rounded-card > div.p-3 { padding: 16px 0 0; gap: 4px; }
+.sf-r3 #disponible a.group.rounded-card h3 { font-size: 18px; line-height: 1.25; }
+.sf-r3 #disponible a.group.rounded-card p { font-size: 14px; }
+/* En el celular el carrusel también pasa a 4:5 (tarjetas de 240 x 300). */
+.sf-r3 #disponible a.group.rounded-card img { aspect-ratio: 4 / 5; }
+/* "Ver todo el catálogo" pegado a las tarjetas. */
+.sf-r3 #disponible div.mt-6 { margin-top: 20px; }
