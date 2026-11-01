@@ -29,11 +29,20 @@ function Lista({ titulo, items }: { titulo: string; items: ReactNode[] }) {
 }
 
 /** Lo que Said comentó el 2026-11-01 y qué se hizo; cada punto se completa al resolver su hilo. */
-export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [];
+export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
+  { donde: "Portada · 390", dijo: "No tiene sentido el banner tan abajo. lo podriamos quitar", hecho: <>Era el Ticker de usos (no la barra de promos). Se quita de la portada en 390 y 1280.</> },
+  {
+    donde: "Portada · 1280 · personalizador",
+    dijo: "Esta seccion del personalizador me parece muy grande y que ademas no aprovecha bien los espacios",
+    hecho: <>Bloque de 480 px (antes ~1060): texto en 5 columnas (titular arriba; frase, los 3 pasos y el botón abajo, al ras de la foto) y la foto en 7. En el celular: titular, foto, pasos y botón.</>,
+  },
+];
 
 /** Zonas revisadas con la regla de vacíos (frame, dónde, tamaño antes -> después). */
 export const ZONAS: { frame: string; donde: string; antes: string; despues: string }[] = [
   { frame: "Todas", donde: "Entre secciones", antes: "96 / 176 px", despues: "72 / 128 px" },
+  { frame: "Portada 390", donde: "Ticker debajo del personalizador", antes: "banda de 48 px + 48 de aire", despues: "sin ticker" },
+  { frame: "Portada 1280", donde: "Banda del personalizador: franja de texto + foto apilada", antes: "~1060 px de alto, derecha del titular vacía ~560 x 200", despues: "480 px, dos columnas llenas" },
 ];
 
 export function IntroR3() {
@@ -88,6 +97,13 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>--sf-aire 36 px y --sf-aire-desktop 64 px (la ronda 2 tenía 48 / 88): Section py 36 / 64.</>,
       <>Título de sección → contenido: 28 px. Cabecera de CatalogPage, PromosPage y personalizador: pt 28 / 48, pb 32 / 48.</>,
       <>Entre afiches de /promos: 40 / 56 px. Detalle de promo: afiche → Más fotos 40 px.</>,
+    ],
+  },
+  {
+    grupo: "Portada (HomePage.tsx, ver propuesta/PortadaR3.tsx)",
+    items: [
+      <>Sin Ticker: se borra de HomePage (el componente Ticker queda sin uso en la portada; no se borra del design system en este PR).</>,
+      <>Banda del personalizador: grid de 12 columnas, texto col 1-5 (eyebrow, h2, frase arriba; lista de 3 pasos con filetes y Diseñar mi prenda abajo, justify-end) y foto col 6-12, 480 px de alto, rounded-tile. En el celular la foto va entre el titular y los pasos, 300 px.</>,
     ],
   },
 ];
