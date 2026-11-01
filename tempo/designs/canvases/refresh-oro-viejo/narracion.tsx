@@ -495,7 +495,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>Fotos del hero en index.astro: estampado-proceso (primera, es el LCP), gorra-bordada-2, una del catálogo (DTF) y gorras-estante; salen las de modelos. Qué hacemos: DTF con una foto del catálogo.</>,
       <>Banda del personalizador: grid de 12 columnas, texto col 1-5 (eyebrow, h2, frase arriba; lista de 3 pasos con filetes y Diseñar mi prenda abajo) y foto col 6-12, 480 px, rounded-tile. En el celular la foto va entre el titular y los pasos, 300 px.</>,
       <>ServiceCard: h3 --sf-h3 con mt 20; descripción 16 / 1.5 a 34ch. ProductCard: foto 4:5, nombre 18 / 1.25, detalle 14, pie pt 16.</>,
-      <>Cabecera de Section, PromosPage y PersonalizaPage desde @3xl: grid auto | 1fr | auto, align-items end, calle 40. Eyebrow arriba; título (con su costura) en col 1; bajada en col 2 con border-l line y pl 40, max 60ch, su última línea al pie del título; acción en col 3. Section gana la prop action (Disponible ahora: Ver todo el catálogo; Más de: Ver las N de; 404: Ver todas las promos → /promos). En el celular no cambia (acción al pie).</>,
+      <>Cabecera de Section, PromosPage y PersonalizaPage desde @3xl: grid auto | 1fr | auto, align-items end, calle 40. Eyebrow arriba; título (con su costura) en col 1; bajada en col 2 con border-l line y pl 40, max 60ch, su última línea al pie del título; acción en col 3. Section gana la prop action (Disponible ahora: Ver todo el catálogo; Más de: Ver las N de; 404: Ver todas las promos → /promos). Las Section que hoy solo traen título ganan bajada: Más de = Otras de esta categoría. Te hacemos cualquiera igual o con tu logo.; Promos de hoy de la 404 = Lo que está a buen precio en el taller esta semana. En el celular no cambia (acción al pie).</>,
       <>Quiénes somos: grid de 12 columnas, items-stretch. El h2 (stitch-title) va dentro de la columna de 7, así Visítanos (5 columnas) empieza en el borde de arriba del título. Texto (QuienesCopy en sf-t-lead) y Razones en 7 columnas; Visítanos en 5. Razones: lista con filete arriba y entre filas, cada fila flex-1 (reparte el alto), número 22 px en 32 px de ancho, título 17 / 600, detalle 15. MapCard: h-full, grid-rows-[minmax(160px,1fr)_auto]; el mapa plegado h-full, así termina en el mismo borde que la última razón sin superficie vacía al pie.</>,
     ],
   },
@@ -504,7 +504,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     items: [
       <>Masonry → rejilla: grid-cols-2 @[40rem]:grid-cols-3 @[64rem]:grid-cols-4 (medido sobre el ancho del muro: 3 columnas ya en un iPad vertical), gap 8 / 12, todas las fotos 4:5 (se va el RITMO de alturas). Páginas de 60 (PAGE_SIZE ya es 60, cierra fila con 2, 3 y 4).</>,
       <>Tarjeta de cierre (propuesta/CierreMuro.tsx): último &lt;li&gt; de CatalogPage con subgrid. Una celda de texto 4:5 (surface, borde line, ¿No ves la que buscas?, Te la hacemos con tu logo o tu diseño., Button principal Escríbenos con whatsappUrl) y, si faltan 2 o 3 celdas, la foto estampado-proceso con la etiqueta En el taller en las demás. Posición → celdas: 2 col: 2n → 1. 3 col: 3n+2 → 2, 3n → 1. 4 col: 4n+2 → 3, 4n+3 → 2, 4n → 1. Fila completa: oculta.</>,
-      <>Visor desktop: grid de 5 columnas con calle de 24 px. Foto 4:5 en 2 columnas; panel en 3, grid de 3 columnas con align-content: space-between: categoría, h1 (sf-t-h2), Pedir por WhatsApp (2 columnas) con su nota de 14 px, y PhotoThumbs en 3 columnas 4:5 (gap 24 / 12, la elegida con anillo de 2 px en tinta) con su rótulo visible Otras vistas (etiqueta oro viejo 12 px). Las fotos de un producto son vistas de la misma prenda (frente, detalle, costado); el alt dice cuál. Más de: 5 columnas con calle de 24 y 10 fotos (masDe recorta a múltiplo de 5 en desktop; 6 en el celular).</>,
+      <>Visor desktop: grid de 5 columnas con calle de 24 px. Foto 4:5 en 2 columnas; panel en 3, grid de 3 columnas con align-content: space-between: categoría, h1 (sf-t-h2), Pedir por WhatsApp (2 columnas) con su nota de 14 px, y PhotoThumbs en 3 columnas 4:5 (gap 24 / 12, la elegida con anillo de 2 px en tinta) con su rótulo visible Otras vistas (etiqueta oro viejo 12 px; en el PR un elemento real antes del &lt;ul&gt;, no un ::before dentro de la lista). Fila del botón: Pedir por WhatsApp en 2 columnas y su nota de 14 px en la 3.ª, a su lado. Las fotos de un producto son vistas de la misma prenda (frente y detalles); el alt dice cuál. Más de: 5 columnas con calle de 24 y 10 fotos (masDe recorta a múltiplo de 5 en desktop; 6 en el celular).</>,
       <>Visor: sale el &lt;span&gt; N.º · hace de la fila de arriba (queda Todas las fotos) y sale NewBadge de ViewerPage y Masonry (el componente sale del design system).</>,
       <>Visor con 1 sola foto (propuesta/PasosPedido.tsx): sin PhotoThumbs, el panel lleva Así la pides: etiqueta + lista de 3 pasos con filete arriba y entre filas (como Razones), cada fila flex-1 hasta el borde de abajo de la foto (panel grid-rows auto auto 1fr, gap 28). Paso 3 con ADDRESS y HOURS[0] de business.ts. En el celular, debajo del botón.</>,
       <>404 desktop: el bloque de arriba pasa de centrado (max-w 600) a grid de 12: etiqueta, h1, texto y los dos botones alineados a la izquierda en 7 columnas; una foto del taller (gorras-estante, alt vacío, rounded-tile, object-cover) en las otras 5, del borde de arriba al de abajo de los botones. El celular no cambia.</>,
@@ -518,6 +518,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     items: [
       <>foundations: BoardColor, BoardTypography, BoardSpacing y BoardMotion con los valores de este tablero; la deuda &quot;Presupuesto de fuentes&quot; y &quot;Duraciones fijas&quot; se cierra. motion: agregar los 4 movimientos y las dos entradas.</>,
       <>Recapturar buttons, cards, labels, media y app-shell. usageInstructions a corregir: ProductCard, PromoCard, ServiceCard, PromoAfiche (sin caja), Eyebrow (etiqueta dorada sin píldora), Section (título 64 / 40, prop action), PhotoThumbs (rótulo Otras vistas), NewBadge (se retira), Ticker (fuera de la portada), PromoBar (barra negra cálida) y MapCard (cerrada en la portada).</>,
+      <>docs/SOFTWARE-FACTORY.md, sección Diseño: cambiar Space Grotesk / Noche caribe por Plus Jakarta Sans y el oro viejo, y la regla de cabeceras en una fila. Sin eso el refresh queda fuera del sistema al mergear.</>,
       <>Deuda que sigue: Diseñar mi prenda usa Button whatsapp (icon null) hacia /personaliza, y el usageInstructions de Button dice que whatsapp va siempre con whatsappUrl(). Decidir entre una variante primary o ampliar esa regla.</>,
     ],
   },
@@ -533,7 +534,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
 export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
   { donde: "Promos · 1280 · cabecera", dijo: "Mejor pero ahora hay espacio, no solo muevas las letras", hecho: <>La cabecera es una fila a todo el ancho: título | bajada cosida con un filete | acción. ~40 % menos alta. Misma regla en la portada, Más de, la 404 (con Ver todas las promos) y el personalizador; Quiénes somos sube el mapa hasta el título.</> },
   { donde: "Visor · 1280 · arriba a la derecha", dijo: "Esto no es necesario. Ni tampoco el uso de \"nuevo\" en los productos", hecho: <>Fuera la línea N.º 4 · Hace 10 días y la etiqueta Nuevo en el muro, Más de y el visor. El panel sigue cerrando con la foto.</> },
-  { donde: "Visor · 1280 · miniaturas", dijo: "estas imágenes parecen productos distintos en lugar de variantes del producto. además, ¿qué pasa si no hay variantes?", hecho: <>Otras vistas de la misma gorra (frente, bordado, costado y visera) con su rótulo. Sin variantes: frames nuevos 1280 y 390 con Así la pides en lugar de las miniaturas; cierra exacto con la foto.</> },
+  { donde: "Visor · 1280 · miniaturas", dijo: "estas imágenes parecen productos distintos en lugar de variantes del producto. además, ¿qué pasa si no hay variantes?", hecho: <>Otras vistas de la misma gorra (frente, bordado, el parche y la visera) con su rótulo. Sin variantes: frames nuevos 1280 y 390 con Así la pides en lugar de las miniaturas; cierra exacto con la foto.</> },
 ];
 
 /** Zonas vacías revisadas (cero huecos salvo márgenes laterales). */
@@ -541,11 +542,13 @@ export const ZONAS: { frame: string; donde: string; antes: string; despues: stri
   { frame: "Promos 1280", donde: "Cabecera, a la derecha del título", antes: "~600 x 150 vacíos", despues: "bajada hasta el borde; ~0" },
   { frame: "Portada 1280", donde: "Cabeceras de Qué hacemos y Disponible ahora", antes: "~700 x 120 vacíos a la derecha", despues: "bajada y Ver todo el catálogo en la fila; 0" },
   { frame: "Portada 1280", donde: "Quiénes somos, sobre el mapa", antes: "~490 x 110 junto al título", despues: "el mapa empieza en el borde del título; 0" },
-  { frame: "Visor 1280", donde: "Cabecera de Más de", antes: "~800 x 90 a la derecha del título", despues: "Ver las 24 de Beisbol al final; 0" },
+  { frame: "Visor 1280", donde: "Cabecera de Más de", antes: "~800 x 90 a la derecha del título", despues: "bajada + Ver las 24 de Beisbol; 0" },
+  { frame: "Visor 1280", donde: "Panel, columna 3 junto al botón", antes: "~220 x 100", despues: "la nota del botón a su lado; 0" },
   { frame: "Visor sin variantes 1280", donde: "Panel sin miniaturas", antes: "~650 x 290 bajo el botón", despues: "Así la pides hasta el borde de la foto; 0" },
-  { frame: "404 1280", donde: "Cabecera de Promos de hoy", antes: "~800 x 90 a la derecha", despues: "Ver todas las promos al final; 0" },
-  { frame: "Personalizador 1280", donde: "Cabecera", antes: "~520 x 130 a la derecha", despues: "bajada en la fila; ~90 px al final" },
+  { frame: "404 1280", donde: "Cabecera de Promos de hoy", antes: "~800 x 90 a la derecha", despues: "bajada + Ver todas las promos; 0" },
+  { frame: "Personalizador 1280", donde: "Cabecera", antes: "~520 x 130 a la derecha", despues: "bajada en la fila; ~65 px al final" },
   { frame: "Todas las 390", donde: "Página completa", antes: "0", despues: "0" },
+  { frame: "Catálogo 1280", donde: "Intro de la categoría (chips)", antes: "~30 % a la derecha", despues: "se queda: fuera de este alcance, va como idea aparte" },
   { frame: "Todas", donde: "Márgenes laterales (16 / 48 px)", antes: "intencionales", despues: "intencionales" },
 ];
 

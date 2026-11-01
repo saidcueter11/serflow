@@ -12,7 +12,7 @@ import { ADDRESS, HOURS } from "../../../../../src/lib/business";
 const PASOS = [
   { n: "01", title: "Escríbenos con esta foto", copy: "Dinos cuántas y si las quieres iguales o con tu logo." },
   { n: "02", title: "Te cotizamos por el chat", copy: "Precio y fecha de entrega en la misma conversación." },
-  { n: "03", title: "Recógela en el taller", copy: `${ADDRESS ?? "Cartagena"} · ${HOURS[0].short}, ${HOURS[0].time}` },
+  { n: "03", title: "Recógela en el taller", copy: `${ADDRESS ?? "Cartagena"} · ${HOURS[0].days}, ${HOURS[0].time}` },
 ];
 
 export function PasosPedido() {

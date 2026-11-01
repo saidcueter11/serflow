@@ -61,7 +61,7 @@ const ITEM: CatalogItem = {
   photos: [
     { src: BEISBOL[3], alt: "Beisbol N.º 4, de frente" },
     { src: b13Bordado, alt: "Beisbol N.º 4, el bordado de cerca" },
-    { src: b13Costado, alt: "Beisbol N.º 4, costado y visera" },
+    { src: b13Costado, alt: "Beisbol N.º 4, el parche y la visera" },
   ],
   og: null,
 };
@@ -82,7 +82,13 @@ function Visor({ width, nuevo, unaFoto }: R & { unaFoto?: boolean }) {
   );
   return (
     <Marco width={width} nuevo={nuevo} current="/products" fab={false}>
-      {unaFoto && nuevo ? <ConPasos>{pagina}</ConPasos> : pagina}
+      {nuevo ? (
+        <ConCabecera seccion="mas" bajada="Otras de esta categoría. Te hacemos cualquiera igual o con tu logo.">
+          {unaFoto ? <ConPasos>{pagina}</ConPasos> : pagina}
+        </ConCabecera>
+      ) : (
+        pagina
+      )}
     </Marco>
   );
 }
@@ -103,20 +109,31 @@ function PromoDetalle({ width, nuevo }: R) {
   );
 }
 
-/** PROPUESTA (ronda 5): "Ver todas las promos" como acción de la sección Promos de hoy de la 404 (en el PR, la prop
- *  action de Section). Aquí entra con un portal para no tocar src/; el CSS la sube al final de la cabecera en desktop. */
-function ConAccionPromos({ children }: { children: ReactNode }) {
+/** PROPUESTA (ronda 5): cabecera completa para las Section que hoy solo traen título. En el PR son las props description y
+ *  action de Section; aquí la bajada se inserta después del h2 y la acción con un portal, para no tocar src/. El CSS
+ *  (refresh-r3.css, "Cabeceras en una fila") arma la fila título | bajada | acción en desktop. */
+function ConCabecera({ seccion, bajada, accion, children }: { seccion: string; bajada: string; accion?: { label: string; href: string }; children: ReactNode }) {
   const caja = useRef<HTMLDivElement>(null);
   const [destino, setDestino] = useState<Element | null>(null);
-  useLayoutEffect(() => setDestino(caja.current?.querySelector("#promos-de-hoy div.mt-5") ?? null), []);
+  useLayoutEffect(() => {
+    const h2 = caja.current?.querySelector(`#${seccion} h2.stitch-title`);
+    if (!h2) return;
+    const p = document.createElement("p");
+    p.className = "mt-2 max-w-[60ch] text-[15px] leading-relaxed text-muted @3xl:text-[17px]";
+    p.textContent = bajada;
+    h2.after(p);
+    setDestino(caja.current?.querySelector(`#${seccion} div.mt-5`) ?? null);
+    return () => p.remove();
+  }, [seccion, bajada]);
   return (
     <div ref={caja}>
       {children}
-      {destino &&
+      {accion &&
+        destino &&
         createPortal(
           <div className="mt-6">
-            <Button variant="ghost" href="/promos">
-              Ver todas las promos →
+            <Button variant="ghost" href={accion.href}>
+              {accion.label}
             </Button>
           </div>,
           destino,
@@ -129,7 +146,13 @@ function NoExiste({ width, nuevo }: R) {
   const pagina = <NotFoundPage promos={PROMOS} />;
   return (
     <Marco width={width} nuevo={nuevo}>
-      {nuevo ? <ConAccionPromos>{pagina}</ConAccionPromos> : pagina}
+      {nuevo ? (
+        <ConCabecera seccion="promos-de-hoy" bajada="Lo que está a buen precio en el taller esta semana." accion={{ label: "Ver todas las promos →", href: "/promos" }}>
+          {pagina}
+        </ConCabecera>
+      ) : (
+        pagina
+      )}
     </Marco>
   );
 }
@@ -154,9 +177,9 @@ const NOTA_CIERRE = (
 );
 const NOTA_VISOR = (
   <>
-    Sin la línea N.º y hace, y sin Nuevo. Las miniaturas son Otras vistas de la misma gorra (de frente, el bordado, costado y visera;
+    Sin la línea N.º y hace, y sin Nuevo. Las miniaturas son Otras vistas de la misma gorra (de frente, el bordado, el parche y la visera;
     recortes de la foto de frente hasta que haya fotos de varios ángulos). Desktop: 5 columnas compartidas con Más de, foto 4:5 en 2 y panel
-    en 3, mismo borde arriba y abajo. Más de: 10 fotos con Ver las 24 de Beisbol al final de su cabecera.
+    en 3, mismo borde arriba y abajo. Más de: 10 fotos; cabecera con bajada y Ver las 24 de Beisbol.
   </>
 );
 const NOTA_VISOR_1 = (
@@ -174,7 +197,7 @@ const NOTA_PROMOS = (
 const NOTA_DETALLE = <>Afiche y Más fotos un poco más juntos (56 → 40 px).</>;
 const NOTA_404 = (
   <>
-    En desktop: texto y botones en 7 columnas, foto del taller en 5, mismo alto. Promos de hoy lleva Ver todas las promos al final de su
+    En desktop: texto y botones en 7 columnas, foto del taller en 5, mismo alto. Promos de hoy lleva bajada y Ver todas las promos en su
     cabecera (no queda un título solo con la fila vacía).
   </>
 );

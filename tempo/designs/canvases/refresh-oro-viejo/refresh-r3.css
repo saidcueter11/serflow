@@ -47,7 +47,7 @@
    En el celular no cambia: bajada debajo del título, acción al pie.
    Vacío residual a 1280 (de la última letra de la fila al borde): Promos ~0 (la bajada parte en tres líneas hasta el borde),
    Qué hacemos ~470 px -> 0 (llega al borde), Disponible ahora: bajada + acción al borde, Más de: título + acción al borde,
-   404 Promos de hoy: título + Ver todas las promos al borde, personalizador ~520 -> ~90 px.
+   404 Promos de hoy: título + Ver todas las promos al borde, personalizador ~520 -> ~65 px.
    PUENTE: Section (prop nueva `action`; el envoltorio pasa a grid desde @3xl), PromosPage y PersonalizaPage (su cabecera,
    misma rejilla), NotFoundPage (action="Ver todas las promos"), ViewerPage (el "Ver las N de" pasa a action). */
 @container (min-width: 48rem) {
@@ -173,7 +173,7 @@
 
 /* Said: "estas imágenes parecen productos distintos en lugar de variantes del producto. además, ¿qué pasa si no hay
    variantes?". El catálogo guarda fotos del MISMO producto (no colores: no hay un dato de color), así que las miniaturas
-   son otras vistas de esa prenda: de frente, el bordado de cerca, costado y visera; mismo fondo y misma luz. Llevan su
+   son otras vistas de esa prenda: de frente, el bordado de cerca, el parche y la visera; mismo fondo y misma luz. Llevan su
    rótulo "Otras vistas" (etiqueta en oro viejo, como las demás) para que nadie las lea como otros productos. En el canvas
    las dos de cerca son recortes de la foto de frente (aún no hay fotos de varios ángulos; se cambian cuando lleguen).
    Con una sola foto no hay miniaturas: en su lugar van los 3 pasos del pedido (propuesta/PasosPedido.tsx), una lista
@@ -193,6 +193,16 @@
     line-height: 1;
   }
   .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child { row-gap: 16px; }
+  /* El botón en 2 columnas y su nota en la 3.ª, a su lado: la fila del botón no deja una columna vacía. */
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: center;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col > :first-child { grid-column: 1 / span 2; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col > p { grid-column: 3; margin: 0; }
   .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child:has(> .sf-pasos-pedido) {
     grid-template-rows: auto auto minmax(0, 1fr);
     align-content: stretch;
