@@ -1,13 +1,12 @@
 /*
- * Ronda 3 (PRI-286, Said 2026-11-01: "hay un serio problema con el manejo de los espacios"). Va encima de refresh.css y
- * refresh-r2.css: todo lo de .sf-r3 cuelga de un elemento que también tiene .sf-refresh y .sf-r2. La ronda 2 sigue abajo
- * en el canvas sin .sf-r3, tal como Said la comentó.
+ * Rondas 3 y 4 (PRI-286). Va encima de refresh.css y refresh-r2.css: todo lo de .sf-r3 cuelga de un elemento que también
+ * tiene .sf-refresh y .sf-r2 (en el canvas, la clase NUEVO de comun.tsx).
  *
- * Regla de esta ronda: aire no es espacio muerto. A 1280 cada bloque se compone sobre 12 columnas (texto y foto lado a
- * lado); una zona vacía de más de ~240 x 240 px que no sea un margen intencional es un defecto.
+ * Ronda 3 (Said 2026-11-01: "hay un serio problema con el manejo de los espacios"): cada bloque se compone sobre el ancho.
+ * Ronda 4 (8 comentarios sobre la ronda 3): la bajada va anclada a su título, la acción principal en oro viejo y más
+ * grande, y cero huecos: columnas que empiezan y terminan en el mismo borde, salvo los márgenes laterales.
  *
- * Mismo esquema que las rondas anteriores: lo que viene después de cada PUENTE se vuelve clases en el componente al
- * construir (ver el tablero "Lista de cambios · ronda 3").
+ * Lo que viene después de cada PUENTE se vuelve clases en el componente al construir (tablero "Lista de cambios").
  */
 
 /* ---------- Aire entre secciones: la escala de antes + 12-14 %, no + 50 % ---------- */
@@ -34,20 +33,12 @@
 }
 .sf-r3 main > div.flex.flex-col:has(> div.relative.grid) { gap: 40px; }
 
-/* ---------- Cabecera de sección en 12 columnas (portada, Más de, 404) ---------- */
+/* ---------- Cabeceras: la bajada va anclada a su título (ronda 4) ---------- */
 
-/* A 1280 el título va en 7 columnas y su bajada en las otras 5, al pie del título: sin media cabecera vacía.
-   PUENTE: Section con descripción. En el PR, Section pone estas clases cuando hay description. */
-@container (min-width: 48rem) {
-  .sf-r3 section.\@container > div.px-4 > div:has(> h2.stitch-title + p) {
-    display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    column-gap: 48px;
-    align-items: end;
-  }
-  .sf-r3 section.\@container > div.px-4 > div:has(> h2.stitch-title + p) > div { grid-column: 1 / -1; }
-  .sf-r3 section.\@container > div.px-4 > div > h2.stitch-title + p { margin: 0; padding-bottom: 22px; max-width: 40ch; }
-}
+/* Said (ronda 3, portada y promos): "Estas letras flotando aquí no me gustan". En todas las cabeceras (Section, PromosPage,
+   NotFoundPage, CatalogPage y el personalizador) la bajada va debajo del título y de su costura, alineada a la izquierda y
+   al ancho de la columna del título (46ch, ~7 de 12 columnas a 1280). Nunca suelta a la derecha: es la regla de
+   refresh-r2.css sin la rejilla 7/5 que probó la ronda 3. No hace falta CSS nuevo. */
 
 /* ---------- Tarjetas de la portada (Said: "se pueden mejorar las cards") ---------- */
 
@@ -98,7 +89,7 @@
   .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
 }
 
-/* ---------- /promos: cabecera en 12 columnas y afiches sin hueco antes de los botones ---------- */
+/* ---------- /promos: afiches sin hueco antes de los botones ---------- */
 
 /* Said: "Aquí hay un espacio desaprovechado" (afiche sin descripción: el título arriba y los botones empujados al
    fondo para alinearse con el vecino). Ahora cada afiche termina donde termina su texto y los dos botones van en
@@ -111,14 +102,6 @@
   .sf-r3 article.\@container.rounded-card div.mt-auto.flex-col > a.w-full { width: auto; padding-inline: 28px; }
 }
 
-/* Cabecera: eyebrow y h1 en 7 columnas, la bajada en las otras 5 al pie del h1 (antes media cabecera vacía, ~600 x 250).
-   PUENTE: PromosPage. */
-@container (min-width: 48rem) {
-  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 48px; align-items: end; }
-  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child > span { grid-column: 1; }
-  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child > h1 { grid-column: 1; }
-  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child > p { grid-column: 2; grid-row: 2; margin: 0; padding-bottom: 10px; }
-}
 
 /* ---------- Personalizador (/personaliza, PR #36) en desktop ---------- */
 
@@ -135,9 +118,6 @@
   .sf-r3 .pz-izq > div.sticky { position: static; margin: 0; padding: 0; box-shadow: none; }
   .sf-r3 .pz-izq > div.sticky > div.\@container { height: auto !important; aspect-ratio: 4 / 5; }
   .sf-r3 .pz-izq > section { gap: 12px; }
-  /* Cabecera: h1 en 7 columnas y la bajada al pie, en las otras 5. */
-  .sf-r3 main:has(> .pz-izq) > div:first-child { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 48px; align-items: end; }
-  .sf-r3 main:has(> .pz-izq) > div:first-child > p { margin: 0; padding-bottom: 8px; }
 }
 
 /* ---------- Última fila del muro: siempre cerrada ---------- */
