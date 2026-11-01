@@ -33,12 +33,61 @@
 }
 .sf-r3 main > div.flex.flex-col:has(> div.relative.grid) { gap: 40px; }
 
-/* ---------- Cabeceras: la bajada va anclada a su título (ronda 4) ---------- */
+/* ---------- Cabeceras en una fila (ronda 5) ---------- */
 
-/* Said (ronda 3, portada y promos): "Estas letras flotando aquí no me gustan". En todas las cabeceras (Section, PromosPage,
-   NotFoundPage, CatalogPage y el personalizador) la bajada va debajo del título y de su costura, alineada a la izquierda y
-   al ancho de la columna del título (46ch, ~7 de 12 columnas a 1280). Nunca suelta a la derecha: es la regla de
-   refresh-r2.css sin la rejilla 7/5 que probó la ronda 3. No hace falta CSS nuevo. */
+/* Said (ronda 3): "Este texto flotando aquí no me gusta" (bajada suelta en la columna derecha de una rejilla 7/5). Ronda 4:
+   la bajada bajó debajo del título y dejó la mitad derecha de la cabecera vacía. Said (ronda 4): "Mejor pero ahora hay
+   espacio, no solo muevas las letras".
+   Ronda 5: en desktop la cabecera es UNA fila que ocupa todo el ancho de la sección:
+     [título con su costura] | bajada .................................. [acción de la sección]
+   La bajada va pegada al título (40 px, detrás de un filete vertical que la cose a él), con su última línea al pie del
+   título, y se estira hasta la acción o hasta el borde. La acción (Ver todo el catálogo, Ver las 24 de Beisbol, Ver todas
+   las promos) sube del pie de la sección al final de la fila. Sin bajada ni acción no queda una cabecera de solo título:
+   Quiénes somos sube el mapa hasta el título (propuesta/Portada.tsx). Mide ~40 % menos de alto que la de la ronda 4.
+   En el celular no cambia: bajada debajo del título, acción al pie.
+   Vacío residual a 1280 (de la última letra de la fila al borde): Promos ~0 (la bajada parte en tres líneas hasta el borde),
+   Qué hacemos ~470 px -> 0 (llega al borde), Disponible ahora: bajada + acción al borde, Más de: título + acción al borde,
+   404 Promos de hoy: título + Ver todas las promos al borde, personalizador ~520 -> ~90 px.
+   PUENTE: Section (prop nueva `action`; el envoltorio pasa a grid desde @3xl), PromosPage y PersonalizaPage (su cabecera,
+   misma rejilla), NotFoundPage (action="Ver todas las promos"), ViewerPage (el "Ver las N de" pasa a action). */
+@container (min-width: 48rem) {
+  .sf-r3 :is(
+      section > div.px-4 > div:has(> h2.stitch-title),
+      main > div.px-4.pb-12 > div:first-child:has(> h1.font-display + p),
+      main > div.px-4.pt-6:has(> h1.font-display + p)
+    ) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 40px;
+    row-gap: 0;
+    align-items: end;
+  }
+  /* Eyebrow arriba, sola. */
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mb-4,
+  .sf-r3 main > div.px-4.pb-12 > div:first-child:has(> h1.font-display + p) > span:first-child { grid-row: 1; grid-column: 1 / -1; justify-self: start; margin-bottom: 16px; }
+  .sf-r3 :is(section > div.px-4 > div > h2.stitch-title, main > div.px-4.pb-12 > div:first-child > h1.font-display, main > div.px-4.pt-6 > h1.font-display) { grid-row: 2; grid-column: 1; }
+  /* La bajada: pegada al título, cosida con el filete, su última línea al pie del título (la costura mide 22 px). */
+  .sf-r3 :is(section > div.px-4 > div > h2.stitch-title + p, main > div.px-4.pb-12 > div:first-child > h1.font-display + p, main > div.px-4.pt-6 > h1.font-display + p) {
+    grid-row: 2;
+    grid-column: 2;
+    max-width: 60ch;
+    margin: 0 0 6px;
+    padding-left: 40px;
+    border-left: 1px solid var(--color-line);
+  }
+  .sf-r3 section > div.px-4 > div > h2.stitch-title + p { margin-bottom: 28px; }
+  /* El contenido de la sección, debajo de la fila; la acción sube al final de la fila. */
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mt-5 { display: contents; }
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mt-5 > * { grid-row: 3; grid-column: 1 / -1; margin-top: 28px; }
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mt-5 > div:last-child:not(:first-child):has(> a.rounded-full) {
+    grid-row: 2;
+    grid-column: 3;
+    margin: 0 0 22px;
+  }
+  .sf-r3 #disponible div.mt-5 > div.mt-6 { margin: 0 0 22px; }
+  /* Personalizador: sin la bajada debajo, la cabecera se separa de las columnas con su propio aire. */
+  .sf-r3 main > div.px-4.pt-6:has(> h1.font-display + p) { padding-bottom: 36px; }
+}
 
 /* ---------- Tarjetas de la portada (Said: "se pueden mejorar las cards") ---------- */
 
@@ -292,10 +341,12 @@
 .sf-r3 .sf-razones h3 { font-size: 17px; font-weight: 600; }
 .sf-r3 .sf-razones p { font-size: 15px; }
 @container (min-width: 48rem) {
-  .sf-r3 .sf-visitanos > div { height: 100%; display: flex; flex-direction: column; }
-  .sf-r3 .sf-visitanos details { flex: 1; display: flex; flex-direction: column; }
-  .sf-r3 .sf-visitanos summary { flex: 1; display: flex; flex-direction: column; }
-  .sf-r3 .sf-visitanos summary > div { flex: 1; height: auto; min-height: 160px; }
+  /* Ronda 5: grid y no flex (un <details> no reparte alto con flex): el mapa toma todo lo que sobra y la tarjeta no deja
+     superficie vacía al pie. */
+  .sf-r3 .sf-visitanos > div { height: 100%; display: grid; grid-template-rows: minmax(160px, 1fr) auto; }
+  .sf-r3 .sf-visitanos details { height: 100%; }
+  .sf-r3 .sf-visitanos summary { display: block; height: 100%; }
+  .sf-r3 .sf-visitanos summary > div { height: 100%; min-height: 160px; }
 }
 
 /* ---------- 404 en desktop: compuesta en 12 columnas (ronda 4) ---------- */

@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
-import type { ReactElement } from "react";
+import { useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Button } from "../../../../src/components/ui/Button";
 import { BoardPortada } from "../../design-system/app-shell/BoardPortada";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { CatalogPage } from "../../../../src/components/catalog/CatalogPage";
@@ -87,10 +89,33 @@ function PromoDetalle({ width, nuevo }: R) {
   );
 }
 
+/** PROPUESTA (ronda 5): "Ver todas las promos" como acción de la sección Promos de hoy de la 404 (en el PR, la prop
+ *  action de Section). Aquí entra con un portal para no tocar src/; el CSS la sube al final de la cabecera en desktop. */
+function ConAccionPromos({ children }: { children: ReactNode }) {
+  const caja = useRef<HTMLDivElement>(null);
+  const [destino, setDestino] = useState<Element | null>(null);
+  useLayoutEffect(() => setDestino(caja.current?.querySelector("#promos-de-hoy div.mt-5") ?? null), []);
+  return (
+    <div ref={caja}>
+      {children}
+      {destino &&
+        createPortal(
+          <div className="mt-6">
+            <Button variant="ghost" href="/promos">
+              Ver todas las promos →
+            </Button>
+          </div>,
+          destino,
+        )}
+    </div>
+  );
+}
+
 function NoExiste({ width, nuevo }: R) {
+  const pagina = <NotFoundPage promos={PROMOS} />;
   return (
     <Marco width={width} nuevo={nuevo}>
-      <NotFoundPage promos={PROMOS} />
+      {nuevo ? <ConAccionPromos>{pagina}</ConAccionPromos> : pagina}
     </Marco>
   );
 }
@@ -101,9 +126,9 @@ function Captura({ src, width }: { src: string; width: number }) {
 
 const NOTA_PORTADA = (
   <>
-    Sin el ticker. El personalizador va en un bloque de dos columnas (texto y pasos | foto). Tarjetas 4:5. La bajada de cada sección va
-    debajo de su título, a su mismo ancho. Quiénes somos en 12 columnas con el mapa a la altura de las razones. Ver el catálogo y Diseñar mi
-    prenda en oro viejo; Ver todo el catálogo con borde.
+    Sin el ticker. El personalizador va en un bloque de dos columnas (texto y pasos | foto). Tarjetas 4:5. Cada cabecera es una fila a
+    todo el ancho: título | bajada cosida con un filete | acción (Ver todo el catálogo sube al final de la fila). Quiénes somos en 12
+    columnas con el mapa desde el título hasta las razones. Ver el catálogo y Diseñar mi prenda en oro viejo.
   </>
 );
 const NOTA_CATALOGO = <>Rejilla pareja 4:5; la página cierra la última fila (12 aquí; 60 en producción). Chip elegido en oro viejo, chips de 48 / 52 px.</>;
@@ -119,13 +144,23 @@ const NOTA_VISOR = (
     foto con el mismo borde arriba y abajo, aire uniforme de ~30 px, sin huecos. Más de: 10 fotos, 2 filas de 5.
   </>
 );
-const NOTA_PROMOS = <>La bajada va debajo de Promos de hoy. Cada afiche termina con su texto; Pedir por WhatsApp en oro y Ver las fotos con borde, en fila.</>;
+const NOTA_PROMOS = (
+  <>
+    La cabecera es una fila a todo el ancho: Promos de hoy y, pegada a él tras un filete, la bajada en tres líneas hasta el borde (~40 % menos
+    alto, sin hueco a la derecha). Cada afiche termina con su texto; Pedir por WhatsApp en oro y Ver las fotos con borde, en fila.
+  </>
+);
 const NOTA_DETALLE = <>Afiche y Más fotos un poco más juntos (56 → 40 px).</>;
-const NOTA_404 = <>En desktop ya no va centrada con dos márgenes vacíos: texto y botones en 7 columnas, foto del taller en 5, mismo alto.</>;
+const NOTA_404 = (
+  <>
+    En desktop: texto y botones en 7 columnas, foto del taller en 5, mismo alto. Promos de hoy lleva Ver todas las promos al final de su
+    cabecera (no queda un título solo con la fila vacía).
+  </>
+);
 const NOTA_PERSONALIZADOR = (
   <>
-    /personaliza del PR #36 (sin mergear) desde su deploy preview, con el refresh inyectado. En desktop las dos columnas empiezan y terminan en el
-    mismo borde; la vista previa sigue 4:5. Prenda, ubicación y cantidad elegidas en oro viejo.
+    /personaliza del PR #36 (sin mergear) desde su deploy preview, con el refresh inyectado. Cabecera en una fila: Diseña tu prenda | la
+    bajada. En desktop las dos columnas empiezan y terminan en el mismo borde; la vista previa sigue 4:5. Elegidos en oro viejo.
   </>
 );
 

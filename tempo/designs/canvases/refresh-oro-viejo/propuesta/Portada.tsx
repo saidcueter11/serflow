@@ -149,22 +149,28 @@ export function Portada({ width }: { width: 390 | 1280 }) {
 
           <Disponible />
 
-          {/* El mapa al final y plegado: calles en CSS, el de Google solo al tocar. #visitanos sigue siendo el ancla del menú. */}
-          {/* Quiénes somos en 12 columnas: texto y razones en 7, Visítanos en 5, mismo borde arriba y abajo. El mapa sigue
-              plegado (calles en CSS, el de Google solo al tocar). #visitanos sigue siendo el ancla del menú. */}
-          <Section id="quienes-somos" title="Quiénes somos">
-            <div className="grid gap-10 @3xl:grid-cols-12 @3xl:items-stretch @3xl:gap-x-12">
-              <div className="flex flex-col gap-8 @3xl:col-span-7">
-                <QuienesCopy className="sf-t-lead" />
-                <div className="sf-razones flex-1">
-                  <Razones />
+          {/* Quiénes somos en 12 columnas: título, texto y razones en 7; Visítanos en 5, desde el borde de arriba del título
+              hasta el de abajo de las razones (ronda 5: sin cabecera de solo título con la mitad derecha vacía). El mapa sigue
+              plegado (calles en CSS, el de Google solo al tocar). #visitanos sigue siendo el ancla del menú. Mismo padding
+              que Section. */}
+          <section id="quienes-somos" aria-labelledby="quienes-somos-titulo" className="@container scroll-mt-4 font-body text-ink">
+            <div className="px-4 py-8 @3xl:px-12 @3xl:py-14">
+              <div className="grid gap-10 @3xl:grid-cols-12 @3xl:items-stretch @3xl:gap-x-12">
+                <div className="flex flex-col gap-7 @3xl:col-span-7">
+                  <h2 id="quienes-somos-titulo" className="stitch-title font-display font-medium leading-[1.05] tracking-[-0.01em]">
+                    Quiénes somos
+                  </h2>
+                  <QuienesCopy className="sf-t-lead" />
+                  <div className="sf-razones flex-1">
+                    <Razones />
+                  </div>
+                </div>
+                <div id="visitanos" className="sf-visitanos scroll-mt-4 @3xl:col-span-5">
+                  <MapCard title="Visítanos" />
                 </div>
               </div>
-              <div id="visitanos" className="sf-visitanos scroll-mt-4 @3xl:col-span-5">
-                <MapCard title="Visítanos" />
-              </div>
             </div>
-          </Section>
+          </section>
         </main>
       </div>
     </Marco>

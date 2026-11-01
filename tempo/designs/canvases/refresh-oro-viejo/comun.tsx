@@ -183,7 +183,7 @@ export function AntesDespues({
           </div>
         </div>
         <div>
-          <Rotulo lado="despues" detalle="refresh oro viejo · ronda 4" />
+          <Rotulo lado="despues" detalle="refresh oro viejo · ronda 5" />
           <div key={`d${vuelta}`} data-captura="despues" className={`${NUEVO} overflow-hidden rounded-tile ring-1 ring-accent/60`}>
             {despues}
           </div>
