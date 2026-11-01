@@ -1,0 +1,174 @@
+/*
+ * Portada final (PRI-286). El sistema medido en heirest.com (frame "Sistema (de Heirest)") aplicado a la portada.
+ * Va encima del refresh de la rama (refresh-oro-viejo/refresh*.css: tokens, Plus Jakarta Sans, oro viejo, botones
+ * 48/52 y los 4 movimientos). En el PR: las variables van a tokens.css y las clases pf-* a HomePage.tsx.
+ * Container queries como el sitio (@3xl = 48rem), así el canvas y el sitio cortan igual.
+ */
+
+.pf {
+  container: pf / inline-size;
+  /* Rejilla: margen lateral, calle y columnas. */
+  --pf-m: 16px;
+  --pf-g: 8px;
+  /* Aire: uno solo entre todas las secciones; título -> contenido; título -> bajada. */
+  --pf-aire: 64px;
+  --pf-tc: 24px;
+  --pf-td: 12px;
+  /* Escala de letra. */
+  --pf-display: 40px;
+  --pf-h2: 34px;
+  --pf-h3: 18px;
+  --pf-lead: 18px;
+  --pf-body: 16px;
+  --pf-pie: 13px;
+}
+@container pf (min-width: 48rem) {
+  .pf-v {
+    --pf-m: 48px;
+    --pf-aire: 96px;
+    --pf-tc: 32px;
+    --pf-display: 64px;
+    --pf-h2: 48px;
+    --pf-h3: 22px;
+    --pf-lead: 22px;
+  }
+}
+
+/* ---------- Rejilla y aire ---------- */
+
+.pf-c { padding-inline: var(--pf-m); }
+.pf-sec { padding-top: var(--pf-aire); }
+.pf-sec:last-child { padding-bottom: var(--pf-aire); }
+.pf-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+@container pf (min-width: 48rem) {
+  .pf-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); }
+}
+
+/* ---------- Letra ---------- */
+
+.pf :is(.pf-display, .pf-h2) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.pf .pf-display { font-size: var(--pf-display); line-height: 1.05; }
+.pf .pf-h2 { font-size: var(--pf-h2); line-height: 1.1; }
+.pf .pf-lead { font-size: var(--pf-lead); line-height: 1.45; color: var(--color-muted); max-width: 40ch; }
+.pf .pf-pie { font-size: var(--pf-pie); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
+
+/* Cabecera de sección: título y bajada pegados a la izquierda; la acción, si hay, en la misma fila a la derecha. */
+.pf-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; align-items: center; margin-bottom: var(--pf-tc); }
+.pf-head > div:first-child { display: contents; }
+.pf-head h2 { grid-area: 1 / 1; }
+.pf-head p { grid-area: 2 / 1 / 3 / -1; margin-top: var(--pf-td); }
+/* La acción se centra en la fila del título sin estirarla (margen negativo): el título queda a la misma distancia de arriba que en las demás secciones. */
+.pf-head > :last-child:not(:first-child) { grid-area: 1 / 2; margin-block: -8px; }
+.pf-head > :last-child:not(:first-child) { display: none; }
+@container pf (min-width: 48rem) {
+  .pf-head > :last-child:not(:first-child) { display: block; flex-shrink: 0; }
+  .pf-head .pf-lead { max-width: none; }
+}
+
+/* ---------- Hero: foto a sangre, texto abajo a la izquierda en el margen ---------- */
+
+.pf-hero { height: 600px; }
+.pf-hero-texto { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 0 var(--pf-m) 32px; }
+/* Velo más liviano: la foto se ve y su borde de abajo marca dónde empieza el aire de la siguiente sección. */
+.pf .pf-hero > div.bg-gradient-to-t {
+  background: linear-gradient(to top, color-mix(in srgb, var(--color-primary) 90%, transparent), color-mix(in srgb, var(--color-primary) 82%, transparent) 58%, transparent 92%);
+}
+@container pf (min-width: 48rem) {
+  /* En desktop el texto ocupa la mitad izquierda: el velo se carga de ese lado y la derecha queda limpia. */
+  .pf .pf-hero > div.bg-gradient-to-t {
+    background:
+      linear-gradient(to right, color-mix(in srgb, var(--color-primary) 88%, transparent) 20%, transparent 62%),
+      linear-gradient(to top, color-mix(in srgb, var(--color-primary) 85%, transparent), color-mix(in srgb, var(--color-primary) 40%, transparent) 45%, transparent 75%);
+  }
+}
+.pf-hero-texto > .pf-lead { color: color-mix(in srgb, var(--color-ink) 85%, transparent); max-width: 34ch; }
+.pf-hero-texto > div { width: 100%; margin-top: 8px; }
+/* La etiqueta de la foto y la barra de avance en el margen de la rejilla, no a 16 px del borde. */
+/* La etiqueta de la foto quedaba sola arriba, lejos del texto: fuera. */
+.pf .pf-hero figcaption { display: none; }
+@container pf (min-width: 48rem) {
+  .pf-hero { height: 720px; }
+  .pf-hero-texto { padding-bottom: 56px; gap: 20px; }
+  .pf-hero-texto > div { width: auto; }
+}
+
+/* ---------- Diseña la tuya: texto en 5 columnas, foto en 6 desde la 7; mismo borde arriba y abajo ---------- */
+
+.pf-pz-texto { display: flex; flex-direction: column; align-items: flex-start; }
+.pf-pz-texto > p { margin-top: var(--pf-td); }
+.pf-pz-foto { align-self: stretch; position: relative; overflow: hidden; border-radius: var(--radius-tile); margin-top: var(--pf-tc); aspect-ratio: 4 / 3; }
+.pf-pz-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+.pf-pasos { display: flex; flex-direction: column; gap: 16px; margin-top: var(--pf-tc); font-size: var(--pf-body); line-height: 1.4; }
+.pf-pasos li { display: flex; gap: 16px; }
+.pf-pasos li > span { width: 16px; flex-shrink: 0; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.pf-pz-texto > div:last-child { width: 100%; margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-pz-texto { grid-column: 1 / span 5; grid-row: 1; }
+  .pf-pz-foto { grid-column: 7 / -1; grid-row: 1; margin-top: 0; aspect-ratio: auto; }
+  .pf-pz-texto > div:last-child { width: auto; }
+}
+
+/* ---------- Qué hacemos: 3 tarjetas de 4 columnas (foto 4:5); en el celular, filas foto + texto ---------- */
+
+.pf-servicios { display: grid; gap: 24px; }
+.sf-r3 .pf .pf-servicios article.group { display: grid; grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 16px; }
+.sf-r3 .pf .pf-servicios article.group > div { grid-row: 1 / span 2; }
+.sf-r3 .pf .pf-servicios article.group img { aspect-ratio: 4 / 5; height: auto; }
+.sf-r3 .pf .pf-servicios article.group h3 { margin-top: 0; font-size: var(--pf-h3); }
+.sf-r3 .pf .pf-servicios article.group p { margin-top: 6px; font-size: var(--pf-body); }
+@container pf (min-width: 48rem) {
+  .pf-servicios { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pf-g); }
+  .sf-r3 .pf .pf-servicios article.group { display: block; }
+  .sf-r3 .pf .pf-servicios article.group h3 { margin-top: 16px; }
+  .sf-r3 .pf .pf-servicios article.group p { margin-top: 8px; }
+}
+
+/* ---------- Disponible ahora: 2 x 2 en el celular, 4 de 3 columnas en desktop ---------- */
+
+.pf-prendas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px var(--pf-g); }
+.sf-r3 .pf #disponible .pf-prendas a.group.rounded-card h3 { font-size: 16px; font-weight: 500; }
+.sf-r3 .pf #disponible .pf-prendas a.group.rounded-card > div.p-3 { padding-top: 12px; }
+.pf-prendas + div { margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-prendas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sf-r3 .pf #disponible .pf-prendas a.group.rounded-card h3 { font-size: 20px; }
+  .sf-r3 .pf #disponible .pf-prendas a.group.rounded-card p { font-size: 15px; }
+  .pf-prendas + div { display: none; }
+}
+
+/* ---------- Quiénes somos (5 columnas) y Visítanos (6 desde la 7): mismo borde arriba y abajo ---------- */
+
+.pf-quienes { display: flex; flex-direction: column; }
+.pf-quienes > p { margin-top: var(--pf-td); }
+.pf-razones { display: flex; flex-direction: column; gap: 20px; margin-top: var(--pf-tc); }
+.pf-razones h3 { font-size: var(--pf-body); font-weight: 600; }
+.pf-razones p { margin-top: 4px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); }
+.pf-visita { padding-top: var(--pf-aire); }
+.pf-visita > h2 { margin-bottom: var(--pf-tc); }
+/* MapCard sin caja (refresh-r2): el texto queda en el borde de la rejilla, igual que la foto. */
+.pf .pf-visita > div > div:last-child { padding: 20px 0 0; }
+.pf .pf-visita > div { border: 0; background: none; border-radius: 0; }
+.pf .pf-visita summary > div { border-radius: var(--radius-tile); }
+@container pf (min-width: 48rem) {
+  .pf-quienes { grid-column: 1 / span 5; grid-row: 1; }
+  .pf-visita { grid-column: 7 / -1; grid-row: 1; padding-top: 0; }
+  .pf-visita > h2 { display: none; }
+  /* El mapa crece hasta que la tarjeta cierra en el borde de abajo de las razones. */
+  .pf .pf-visita summary > div { height: 189px; }
+}
+
+/* ---------- Bordes exactos en las columnas lado a lado ---------- */
+
+/* Todos los títulos arrancan en la altura de su mayúscula (el aire se mide igual en todas las secciones) y el último
+   texto de Quiénes somos termina en su línea base: así comparten borde, al píxel, con la foto y con el mapa. */
+.pf .pf-h2 { text-box: trim-start cap alphabetic; }
+@container pf (min-width: 48rem) {
+  .pf .pf-razones li:last-child p { text-box: trim-end cap alphabetic; }
+  /* Qué hacemos: foto cuadrada (389 x 389) y no 4:5; con 4:5 los servicios pesaban más que Disponible ahora. */
+  .sf-r3 .pf #que-hacemos .pf-servicios article.group img { aspect-ratio: 1 / 1; }
+}
