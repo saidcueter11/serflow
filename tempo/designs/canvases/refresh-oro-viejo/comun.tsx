@@ -91,31 +91,25 @@ export const PROMOS: PromoView[] = [
 
 /**
  * Marco de página igual al de Layout.astro: PromoBar (si hay), Header, contenido, Footer y el WhatsAppFab.
- * refresh = el mismo marco con el acabado nuevo (.sf-refresh).
+ * nuevo = el mismo marco con el refresh encima (refresh.css + refresh-r2.css + refresh-r3.css); sin nuevo = producción hoy.
  */
 export function Marco({
   width,
-  refresh,
-  r2,
-  r3,
+  nuevo,
   current,
   promos = false,
   fab = true,
   children,
 }: {
   width: number;
-  refresh?: boolean;
-  /** Ronda 2 ("más fuerte"): refresh-r2.css encima del acabado de la ronda 1. */
-  r2?: boolean;
-  /** Ronda 3 (espacios): refresh-r3.css encima de la ronda 2. */
-  r3?: boolean;
+  nuevo?: boolean;
   current?: string;
   promos?: boolean;
   fab?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className={`relative bg-primary font-body text-ink antialiased ${refresh ? "sf-refresh" : ""} ${refresh && width === 390 ? "sf-tactil" : ""} ${r2 || r3 ? "sf-refresh sf-r2" : ""} ${r3 ? "sf-r3" : ""}`} style={{ width }}>
+    <div className={`relative bg-primary font-body text-ink antialiased ${nuevo ? NUEVO : ""}`} style={{ width }}>
       {promos && <PromoBar promos={PROMOS_SAMPLE} />}
       <Header logoSrc={LOGO} current={current} />
       {children}
@@ -128,6 +122,9 @@ export function Marco({
     </div>
   );
 }
+
+/** Las tres capas del refresh. En el PR se vuelven tokens y clases de producción (tablero "Lista de cambios"). */
+export const NUEVO = "sf-refresh sf-r2 sf-r3";
 
 /** Rótulo de columna del antes / después. */
 function Rotulo({ lado, detalle }: { lado: "antes" | "despues"; detalle: string }) {
@@ -144,8 +141,8 @@ function Rotulo({ lado, detalle }: { lado: "antes" | "despues"; detalle: string 
 }
 
 /**
- * Antes y después lado a lado, con un "Repetir" que vuelve a montar las dos páginas para ver otra vez lo que se
- * mueve al cargar (titular que entra, entrada escalonada). Lo de pasar el mouse se prueba directo en el frame.
+ * Antes (producción hoy) y después (refresh) lado a lado, con un "Repetir" que vuelve a montar las dos páginas para ver
+ * otra vez lo que se mueve al cargar. Lo de pasar el mouse se prueba directo en el frame.
  */
 export function AntesDespues({
   titulo,
@@ -153,10 +150,7 @@ export function AntesDespues({
   width,
   antes,
   despues,
-  detalleAntes = "master hoy",
-  detalleDespues = "oro viejo + Plus Jakarta Sans",
-  r2 = false,
-  r3 = false,
+  detalleAntes = "producción hoy",
 }: {
   titulo: string;
   nota: ReactNode;
@@ -164,10 +158,6 @@ export function AntesDespues({
   antes: ReactNode;
   despues: ReactNode;
   detalleAntes?: string;
-  detalleDespues?: string;
-  r2?: boolean;
-  /** Ronda 3: el antes es la ronda 2 y el después lleva .sf-r3. */
-  r3?: boolean;
 }) {
   const [vuelta, setVuelta] = useState(0);
   return (
@@ -193,8 +183,8 @@ export function AntesDespues({
           </div>
         </div>
         <div>
-          <Rotulo lado="despues" detalle={r3 ? "ronda 3 · espacios" : r2 ? "ronda 2 · más fuerte" : detalleDespues} />
-          <div key={`d${vuelta}`} data-captura="despues" className={`sf-refresh ${r2 || r3 ? "sf-r2" : ""} ${r3 ? "sf-r3" : ""} overflow-hidden rounded-tile ring-1 ring-accent/60`}>
+          <Rotulo lado="despues" detalle="refresh oro viejo · ronda 4" />
+          <div key={`d${vuelta}`} data-captura="despues" className={`${NUEVO} overflow-hidden rounded-tile ring-1 ring-accent/60`}>
             {despues}
           </div>
         </div>

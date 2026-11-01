@@ -1,120 +1,156 @@
 /// <reference types="vite/client" />
+import type { ReactElement } from "react";
 import { BoardPortada } from "../../design-system/app-shell/BoardPortada";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { CatalogPage } from "../../../../src/components/catalog/CatalogPage";
+import { ViewerPage } from "../../../../src/components/catalog/ViewerPage";
 import { PromosPage } from "../../../../src/components/promos/PromosPage";
-import { AntesDespues, BANNER, CHIPS, Marco, PROMOS, TILES } from "./comun";
-import { PortadaRefresh } from "./propuesta/Portada";
+import { PromoDetailPage } from "../../../../src/components/promos/PromoDetailPage";
+import { NotFoundPage } from "../../../../src/components/promos/NotFoundPage";
+import type { MasonryTile } from "../../../../src/components/ui/Masonry";
+import type { CatalogItem } from "../../../../src/lib/catalog-view";
+import { AntesDespues, BANNER, CHIPS, FOTOS, Marco, PROMOS, TILES } from "./comun";
+import { Portada } from "./propuesta/Portada";
 import pzAntes390 from "./capturas/personalizador-antes-390.jpg";
-import pzDespues390 from "./capturas/personalizador-despues-390.jpg";
 import pzAntes1280 from "./capturas/personalizador-antes-1280.jpg";
-import pzDespues1280 from "./capturas/personalizador-despues-1280.jpg";
+import pz390 from "./capturas/personalizador-390.jpg";
+import pz1280 from "./capturas/personalizador-1280.jpg";
 
-/* Antes = el componente de producción tal como está en master. Después = el mismo componente con .sf-refresh
-   (tokens, fuente y movimientos nuevos); en la portada, además, el orden nuevo (propuesta/Portada.tsx). */
+/* Pantallas. Antes = producción hoy (master; el personalizador, el PR #36 tal cual). Después = los mismos componentes de
+   producción con refresh.css + refresh-r2.css + refresh-r3.css; en la portada, además, propuesta/Portada.tsx. */
 
-function Catalogo({ width, refresh }: { width: number; refresh?: boolean }) {
+type W = 390 | 1280;
+type R = { width: W; nuevo?: boolean };
+
+function Catalogo({ width, nuevo, tiles, next, basket }: R & { tiles: MasonryTile[]; next?: number; basket?: boolean }) {
   return (
-    <Marco width={width} refresh={refresh} current="/products">
+    <Marco width={width} nuevo={nuevo} current="/products">
       <main className="@container">
-        <div className="px-4 pt-4 @3xl:px-12 @3xl:pt-6">
-          <CategoryBanner slides={BANNER} current={0} />
-        </div>
-        <CatalogPage chips={CHIPS} current="/products" label="Todo" tiles={TILES} next={{ href: "/products/2", count: 78 }} />
+        <CategoryBanner slides={basket ? [{ label: "Basket", count: 10, image: { src: FOTOS.gorrasEstante } }] : BANNER} current={0} />
+        <CatalogPage
+          chips={CHIPS}
+          current={basket ? "/products/basket" : "/products"}
+          label={basket ? "Basket" : "Todo"}
+          tiles={tiles}
+          next={next ? { href: "/products/2", count: next } : undefined}
+        />
       </main>
     </Marco>
   );
 }
 
-function Promos({ width, refresh }: { width: number; refresh?: boolean }) {
+const BEISBOL = Object.values(
+  import.meta.glob<string>("../../../../src/assets/images/beisbol/*.webp", { eager: true, import: "default" }),
+).sort();
+
+const ITEM: CatalogItem = {
+  slug: "beisbol-4",
+  n: 4,
+  createdAt: "2026-10-20",
+  hace: "Hace 10 días",
+  tile: { href: "/products/beisbol/4", img: { src: BEISBOL[3], alt: "Beisbol, foto N.º 4", ratio: 3 / 4 }, label: "Beisbol", nuevo: true, photos: 3 },
+  photos: [3, 4, 5].map((i) => ({ src: BEISBOL[i % BEISBOL.length], alt: `Beisbol, foto N.º 4 (${i - 2} de 3)` })),
+  og: null,
+};
+
+const MAS: CatalogItem[] = BEISBOL.slice(5, 17).map((src, i) => ({
+  ...ITEM,
+  slug: `beisbol-${i + 5}`,
+  n: i + 5,
+  tile: { href: `/products/beisbol/${i + 5}`, img: { src, alt: `Beisbol, foto N.º ${i + 5}`, ratio: 3 / 4 }, label: "Beisbol" },
+}));
+
+function Visor({ width, nuevo }: R) {
   return (
-    <Marco width={width} refresh={refresh}>
+    <Marco width={width} nuevo={nuevo} current="/products" fab={false}>
+      <ViewerPage item={ITEM} category={{ label: "Beisbol", href: "/products/beisbol", count: 24 }} mas={MAS} back="/products#f-beisbol-4" />
+    </Marco>
+  );
+}
+
+function Promos({ width, nuevo }: R) {
+  return (
+    <Marco width={width} nuevo={nuevo} current="/promos">
       <PromosPage promos={PROMOS} />
     </Marco>
   );
 }
 
-const NOTA_PORTADA = (
-  <>
-    Mismo esqueleto de master con dos cambios: el personalizador sube justo después del hero (la prenda con tu diseño encima, una frase y{" "}
-    <b className="text-ink">Diseñar mi prenda</b>) y el mapa baja al final, plegado junto a Quiénes somos. El hero pasa a fotos
-    de prendas y del taller, sin modelos. Pasa el mouse por los botones, las fotos y los links del menú; Repetir vuelve a
-    mostrar la entrada del titular.
-  </>
-);
-
-export function PortadaMobile() {
-  return <AntesDespues titulo="Portada · 390" nota={NOTA_PORTADA} width={390} antes={<BoardPortada width={390} />} despues={<PortadaRefresh width={390} />} />;
+function PromoDetalle({ width, nuevo }: R) {
+  return (
+    <Marco width={width} nuevo={nuevo} current="/promos">
+      <PromoDetailPage promo={PROMOS[0]} otras={PROMOS.slice(1)} />
+    </Marco>
+  );
 }
 
-export function PortadaDesktop() {
-  return <AntesDespues titulo="Portada · 1280" nota={NOTA_PORTADA} width={1280} antes={<BoardPortada width={1280} />} despues={<PortadaRefresh width={1280} />} />;
+function NoExiste({ width, nuevo }: R) {
+  return (
+    <Marco width={width} nuevo={nuevo}>
+      <NotFoundPage promos={PROMOS} />
+    </Marco>
+  );
 }
-
-const NOTA_CATALOGO = (
-  <>
-    Rama de PRI-130 (ya en master con el PR #35). La estructura no cambia: banner, pestañas y muro. Cambia el acabado: las
-    fotos del muro están un poco apagadas con el mouse lejos y se acercan a todo color al pasar (en el celular siempre están
-    a todo color), las pestañas se hunden al tocarlas y el nombre de la categoría entra al cargar.
-  </>
-);
-
-export function CatalogoMobile() {
-  return <AntesDespues titulo="Catálogo · 390" nota={NOTA_CATALOGO} width={390} antes={<Catalogo width={390} />} despues={<Catalogo width={390} refresh />} />;
-}
-
-export function CatalogoDesktop() {
-  return <AntesDespues titulo="Catálogo · 1280" nota={NOTA_CATALOGO} width={1280} antes={<Catalogo width={1280} />} despues={<Catalogo width={1280} refresh />} />;
-}
-
-const NOTA_PROMOS = (
-  <>
-    /promos de PRI-131 (en master). Los afiches no cambian de forma: el titular Promos de hoy entra al cargar, la foto de cada
-    afiche se acerca al pasar, Pedir por WhatsApp brilla y Ver las fotos se cose.
-  </>
-);
-
-export function PromosMobile() {
-  return <AntesDespues titulo="Promos · 390" nota={NOTA_PROMOS} width={390} antes={<Promos width={390} />} despues={<Promos width={390} refresh />} />;
-}
-
-export function PromosDesktop() {
-  return <AntesDespues titulo="Promos · 1280" nota={NOTA_PROMOS} width={1280} antes={<Promos width={1280} />} despues={<Promos width={1280} refresh />} />;
-}
-
-const NOTA_PERSONALIZADOR = (
-  <>
-    /personaliza de PRI-122 (PR #36, sin mergear), capturada del deploy preview con la página funcionando. El después es la
-    misma página con refresh.css encima: hereda todo por tokens; solo su h1 y los títulos de los pasos pasan a 600, y el h1 entra al cargar.
-  </>
-);
 
 function Captura({ src, width }: { src: string; width: number }) {
   return <img src={src} alt="" width={width} className="block h-auto" style={{ width }} />;
 }
 
-export function PersonalizadorMobile() {
-  return (
-    <AntesDespues
-      titulo="Personalizador · 390"
-      nota={NOTA_PERSONALIZADOR}
-      width={390}
-      detalleAntes="PR #36"
-      antes={<Captura src={pzAntes390} width={390} />}
-      despues={<Captura src={pzDespues390} width={390} />}
-    />
-  );
-}
+const NOTA_PORTADA = (
+  <>
+    Sin el ticker. El personalizador va en un bloque de dos columnas (texto y pasos | foto). Tarjetas 4:5. La bajada de cada sección va
+    debajo de su título, a su mismo ancho. Quiénes somos en 12 columnas con el mapa a la altura de las razones. Ver el catálogo y Diseñar mi
+    prenda en oro viejo; Ver todo el catálogo con borde.
+  </>
+);
+const NOTA_CATALOGO = <>Rejilla pareja 4:5; la página cierra la última fila (12 aquí; 60 en producción). Chip elegido en oro viejo, chips de 48 / 52 px.</>;
+const NOTA_CIERRE = (
+  <>
+    Una categoría real de 10 fotos: a 4 columnas faltan 2 celdas. Las cierra la tarjeta &quot;¿No ves la que buscas?&quot;: una celda de texto con
+    Escríbenos en oro viejo y una foto del taller en la otra. Los otros casos, en el frame de al lado.
+  </>
+);
+const NOTA_VISOR = (
+  <>
+    En desktop, rejilla de 5 columnas compartida con Más de: foto 4:5 en 2 y panel en 3, con las miniaturas de una columna cada una. Panel y
+    foto con el mismo borde arriba y abajo, aire uniforme de ~30 px, sin huecos. Más de: 10 fotos, 2 filas de 5.
+  </>
+);
+const NOTA_PROMOS = <>La bajada va debajo de Promos de hoy. Cada afiche termina con su texto; Pedir por WhatsApp en oro y Ver las fotos con borde, en fila.</>;
+const NOTA_DETALLE = <>Afiche y Más fotos un poco más juntos (56 → 40 px).</>;
+const NOTA_404 = <>En desktop ya no va centrada con dos márgenes vacíos: texto y botones en 7 columnas, foto del taller en 5, mismo alto.</>;
+const NOTA_PERSONALIZADOR = (
+  <>
+    /personaliza del PR #36 (sin mergear) desde su deploy preview, con el refresh inyectado. En desktop las dos columnas empiezan y terminan en el
+    mismo borde; la vista previa sigue 4:5. Prenda, ubicación y cantidad elegidas en oro viejo.
+  </>
+);
 
-export function PersonalizadorDesktop() {
-  return (
-    <AntesDespues
-      titulo="Personalizador · 1280"
-      nota={NOTA_PERSONALIZADOR}
-      width={1280}
-      detalleAntes="PR #36"
-      antes={<Captura src={pzAntes1280} width={1280} />}
-      despues={<Captura src={pzDespues1280} width={1280} />}
-    />
-  );
-}
+const fila = (titulo: string, nota: ReactElement, width: W, Antes: ReactElement, Despues: ReactElement) => (
+  <AntesDespues titulo={titulo} nota={nota} width={width} antes={Antes} despues={Despues} />
+);
+
+const TILES_12 = TILES.slice(0, 12);
+const TILES_10 = TILES.slice(0, 10).map((t) => ({ ...t, label: "Basket", img: { ...t.img, alt: t.img.alt.replace(/^[^,]+/, "Basket") } }));
+
+export const PortadaMobile = () => fila("Portada · 390", NOTA_PORTADA, 390, <BoardPortada width={390} />, <Portada width={390} />);
+export const PortadaDesktop = () => fila("Portada · 1280", NOTA_PORTADA, 1280, <BoardPortada width={1280} />, <Portada width={1280} />);
+export const CatalogoMobile = () =>
+  fila("Catálogo · categoría · 390", NOTA_CATALOGO, 390, <Catalogo width={390} tiles={TILES} next={78} />, <Catalogo width={390} nuevo tiles={TILES_12} next={80} />);
+export const CatalogoDesktop = () =>
+  fila("Catálogo · categoría · 1280", NOTA_CATALOGO, 1280, <Catalogo width={1280} tiles={TILES} next={78} />, <Catalogo width={1280} nuevo tiles={TILES_12} next={80} />);
+export const CatalogoCierre = () =>
+  fila("Catálogo · categoría de 10 fotos · 1280", NOTA_CIERRE, 1280, <Catalogo width={1280} tiles={TILES_10} basket />, <Catalogo width={1280} nuevo tiles={TILES_10} basket />);
+export const VisorMobile = () => fila("Catálogo · visor · 390", NOTA_VISOR, 390, <Visor width={390} />, <Visor width={390} nuevo />);
+export const VisorDesktop = () => fila("Catálogo · visor · 1280", NOTA_VISOR, 1280, <Visor width={1280} />, <Visor width={1280} nuevo />);
+export const PromosMobile = () => fila("Promos · lista · 390", NOTA_PROMOS, 390, <Promos width={390} />, <Promos width={390} nuevo />);
+export const PromosDesktop = () => fila("Promos · lista · 1280", NOTA_PROMOS, 1280, <Promos width={1280} />, <Promos width={1280} nuevo />);
+export const DetalleMobile = () => fila("Promos · detalle · 390", NOTA_DETALLE, 390, <PromoDetalle width={390} />, <PromoDetalle width={390} nuevo />);
+export const DetalleDesktop = () => fila("Promos · detalle · 1280", NOTA_DETALLE, 1280, <PromoDetalle width={1280} />, <PromoDetalle width={1280} nuevo />);
+export const NoExisteMobile = () => fila("404 · 390", NOTA_404, 390, <NoExiste width={390} />, <NoExiste width={390} nuevo />);
+export const NoExisteDesktop = () => fila("404 · 1280", NOTA_404, 1280, <NoExiste width={1280} />, <NoExiste width={1280} nuevo />);
+export const PersonalizadorMobile = () =>
+  fila("Personalizador · 390", NOTA_PERSONALIZADOR, 390, <Captura src={pzAntes390} width={390} />, <Captura src={pz390} width={390} />);
+export const PersonalizadorDesktop = () =>
+  fila("Personalizador · 1280", NOTA_PERSONALIZADOR, 1280, <Captura src={pzAntes1280} width={1280} />, <Captura src={pz1280} width={1280} />);
+
