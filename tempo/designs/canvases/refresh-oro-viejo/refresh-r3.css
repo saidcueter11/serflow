@@ -68,3 +68,32 @@
 .sf-r3 #disponible a.group.rounded-card img { aspect-ratio: 4 / 5; }
 /* "Ver todo el catálogo" pegado a las tarjetas. */
 .sf-r3 #disponible div.mt-6 { margin-top: 20px; }
+
+/* ---------- Muro del catálogo y "Más de": rejilla pareja en vez de mosaico ---------- */
+
+/* Said: "No me gusta este espacio aquí" (fin del muro) y "mejor volvemos a un mosaico más ordenado" (Más de). Columnas
+   iguales (2 / 3 / 4, las mismas de hoy), todas las fotos 4:5 y páginas que cierran la última fila (12, 24 o 60: múltiplos
+   de 2, 3 y 4). PUENTE: Masonry. En el PR, Masonry pasa a grid y deja el RITMO de alturas. */
+.sf-r3 ul.columns-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; columns: auto; }
+@container (min-width: 48rem) {
+  .sf-r3 ul.columns-2 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+}
+@container (min-width: 72rem) {
+  .sf-r3 ul.columns-2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.sf-r3 ul.columns-2 > li { margin: 0; }
+.sf-r3 ul.columns-2 img { aspect-ratio: 4 / 5 !important; height: auto; }
+
+/* ---------- Visor en desktop: el panel derecho a la altura de la foto ---------- */
+
+/* Said: "Mucho espacio desaprovechado". La foto 4:5 en 1.15fr y el panel en 1fr, los dos del mismo alto: arriba el
+   título y la categoría, al medio Pedir por WhatsApp con su nota, abajo las miniaturas grandes (3 en fila, 4:5) al ras
+   del borde de la foto. PUENTE: ViewerPage y PhotoThumbs (en el PR: items-stretch, justify-between y size-14 -> 4:5). */
+@container (min-width: 48rem) {
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) { align-items: stretch; gap: 56px; padding-top: 8px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child { justify-content: space-between; padding-top: 0; gap: 32px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col { width: 100%; max-width: 360px; }
+  .sf-r3 ul[aria-label='Elegir foto'] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .sf-r3 ul[aria-label='Elegir foto'] a { width: auto; height: auto; aspect-ratio: 4 / 5; border-width: 0; }
+  .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
+}

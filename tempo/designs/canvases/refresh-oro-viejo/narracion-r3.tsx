@@ -41,6 +41,21 @@ export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
     dijo: "Estan cards tambien tienen espacio para mejora / Siento que se pueden mejorar las cards",
     hecho: <>Foto 4:5 en las dos familias (Disponible ahora era 4:3). Pie con jerarquía: 24 + 16 a 34ch en Qué hacemos, 18 + 14 en Disponible ahora. La bajada de la sección sube al lado del título. Antes y después en el tablero &quot;Tarjetas&quot;.</>,
   },
+  {
+    donde: "Catálogo · 1280",
+    dijo: "No me gusta este espacio aqui",
+    hecho: <>Era el final del muro: el mosaico deja columnas de distinto largo (hueco de ~290 x 600 abajo a la derecha). Ahora rejilla pareja 4:5 de 4 columnas y páginas que cierran la fila (12 en el frame; 60 en producción, múltiplo de 2, 3 y 4).</>,
+  },
+  {
+    donde: "Visor · 1280 · panel derecho",
+    dijo: "Mucho espacio desprovechado",
+    hecho: <>Foto 4:5 y panel del mismo alto: título y categoría arriba, Pedir por WhatsApp al medio, las 3 miniaturas grandes (4:5) abajo al ras de la foto. Antes el panel terminaba a 380 px y dejaba ~520 x 420 vacío.</>,
+  },
+  {
+    donde: "Visor · 1280 · Más de Beisbol",
+    dijo: "No me gusta que queden estos espacios aca abajo, creo que mejor volvemos a un mosaico mas ordenado",
+    hecho: <>Rejilla pareja: 4 columnas iguales, todas 4:5, 12 fotos = 3 filas completas (6 en el celular = 3 filas de 2).</>,
+  },
 ];
 
 /** Zonas revisadas con la regla de vacíos (frame, dónde, tamaño antes -> después). */
@@ -50,6 +65,10 @@ export const ZONAS: { frame: string; donde: string; antes: string; despues: stri
   { frame: "Portada 1280", donde: "Banda del personalizador: franja de texto + foto apilada", antes: "~1060 px de alto, derecha del titular vacía ~560 x 200", despues: "480 px, dos columnas llenas" },
   { frame: "Portada 1280", donde: "Cabecera de Qué hacemos / Disponible ahora (derecha del título)", antes: "~600 x 150 vacío", despues: "bajada en columnas 8-12" },
   { frame: "Portada 1280", donde: "Fila de Disponible ahora (fotos 4:3, pie chico)", antes: "fila de 200 px de foto, aire debajo ~1100 x 80", despues: "fotos 4:5 de 330 px" },
+  { frame: "Catálogo 1280", donde: "Final del muro, columna 4", antes: "~290 x 600 vacío", despues: "rejilla pareja, fila completa" },
+  { frame: "Catálogo 390", donde: "Final del muro", antes: "columnas de distinto largo (~180 x 160)", despues: "6 filas de 2, completas" },
+  { frame: "Visor 1280", donde: "Panel derecho bajo las miniaturas", antes: "~520 x 420 vacío", despues: "panel a la altura de la foto; huecos internos de ~520 x 165" },
+  { frame: "Visor 1280", donde: "Más de Beisbol, abajo", antes: "huecos de ~290 x 120 a ~290 x 300", despues: "3 filas completas" },
 ];
 
 export function IntroR3() {
@@ -114,6 +133,14 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>ServiceCard: h3 a --sf-h3 (24) con mt 20; descripción 16 / 1.5 a 34ch. Foto 4:5 desde @3xl (4:3 en el celular).</>,
       <>ProductCard: foto 4:5 (antes aspect-[4/3]); nombre 18 / 1.25 y detalle 14; pie con pt 16, sin padding lateral. &quot;Ver todo el catálogo&quot; a 20 px de las tarjetas.</>,
       <>Banda del personalizador: grid de 12 columnas, texto col 1-5 (eyebrow, h2, frase arriba; lista de 3 pasos con filetes y Diseñar mi prenda abajo, justify-end) y foto col 6-12, 480 px de alto, rounded-tile. En el celular la foto va entre el titular y los pasos, 300 px.</>,
+    ],
+  },
+  {
+    grupo: "Catálogo y visor",
+    items: [
+      <>Masonry → rejilla: grid de 2 / 3 / 4 columnas (las de hoy), gap 8 / 12, todas las fotos 4:5 (se va el RITMO de alturas; offset deja de servir). Las páginas del muro son de 60 (PAGE_SIZE ya es 60: cierra fila con 2, 3 y 4 columnas); Más de pasa 12 (6 en el celular).</>,
+      <>ViewerPage desktop: items-stretch; el panel derecho flex-col justify-between (título y categoría / botón y nota / miniaturas); botón de 360 px como máximo.</>,
+      <>PhotoThumbs desktop: grid de 3 columnas, cada miniatura 4:5 (antes size-14), la elegida con anillo de 2 px en tinta.</>,
     ],
   },
 ];
