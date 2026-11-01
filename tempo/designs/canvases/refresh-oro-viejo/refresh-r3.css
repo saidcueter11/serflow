@@ -97,3 +97,25 @@
   .sf-r3 ul[aria-label='Elegir foto'] a { width: auto; height: auto; aspect-ratio: 4 / 5; border-width: 0; }
   .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
 }
+
+/* ---------- /promos: cabecera en 12 columnas y afiches sin hueco antes de los botones ---------- */
+
+/* Said: "Aquí hay un espacio desaprovechado" (afiche sin descripción: el título arriba y los botones empujados al
+   fondo para alinearse con el vecino). Ahora cada afiche termina donde termina su texto y los dos botones van en
+   una fila (Pedir por WhatsApp + Ver las N fotos), así el pie mide lo mismo con o sin descripción.
+   PUENTE: PromoGrid (items-start) y PromoAfiche (sin mt-auto; botones en fila desde @md). */
+.sf-r3 main > div > ul { align-items: flex-start; }
+.sf-r3 article.\@container.rounded-card div.mt-auto.flex-col { margin-top: 4px; }
+@container (min-width: 28rem) {
+  .sf-r3 article.\@container.rounded-card div.mt-auto.flex-col { flex-direction: row; align-items: center; gap: 20px; max-width: none; }
+  .sf-r3 article.\@container.rounded-card div.mt-auto.flex-col > a.w-full { width: auto; padding-inline: 28px; }
+}
+
+/* Cabecera: eyebrow y h1 en 7 columnas, la bajada en las otras 5 al pie del h1 (antes media cabecera vacía, ~600 x 250).
+   PUENTE: PromosPage. */
+@container (min-width: 48rem) {
+  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 48px; align-items: end; }
+  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child > span { grid-column: 1; }
+  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child > h1 { grid-column: 1; }
+  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child > p { grid-column: 2; grid-row: 2; margin: 0; padding-bottom: 10px; }
+}

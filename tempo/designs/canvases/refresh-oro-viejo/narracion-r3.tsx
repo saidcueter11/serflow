@@ -56,6 +56,11 @@ export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
     dijo: "No me gusta que queden estos espacios aca abajo, creo que mejor volvemos a un mosaico mas ordenado",
     hecho: <>Rejilla pareja: 4 columnas iguales, todas 4:5, 12 fotos = 3 filas completas (6 en el celular = 3 filas de 2).</>,
   },
+  {
+    donde: "Promos · 1280",
+    dijo: "Aqui hay un espacio desaprovechado",
+    hecho: <>El afiche sin descripción estiraba su pie para alinear los botones con el vecino (~570 x 90 vacío). Ahora cada afiche termina con su texto y los dos botones van en fila. La bajada de la cabecera sube al lado del título.</>,
+  },
 ];
 
 /** Zonas revisadas con la regla de vacíos (frame, dónde, tamaño antes -> después). */
@@ -68,6 +73,8 @@ export const ZONAS: { frame: string; donde: string; antes: string; despues: stri
   { frame: "Catálogo 1280", donde: "Final del muro, columna 4", antes: "~290 x 600 vacío", despues: "rejilla pareja, fila completa" },
   { frame: "Catálogo 390", donde: "Final del muro", antes: "columnas de distinto largo (~180 x 160)", despues: "6 filas de 2, completas" },
   { frame: "Visor 1280", donde: "Panel derecho bajo las miniaturas", antes: "~520 x 420 vacío", despues: "panel a la altura de la foto; huecos internos de ~520 x 165" },
+  { frame: "Promos 1280", donde: "Afiche sin descripción, entre título y botones", antes: "~570 x 90 vacío", despues: "botones pegados al título, en fila" },
+  { frame: "Promos 1280", donde: "Cabecera, derecha del título", antes: "~600 x 250 vacío", despues: "bajada en columnas 8-12" },
   { frame: "Visor 1280", donde: "Más de Beisbol, abajo", antes: "huecos de ~290 x 120 a ~290 x 300", despues: "3 filas completas" },
 ];
 
@@ -140,6 +147,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
     items: [
       <>Masonry → rejilla: grid de 2 / 3 / 4 columnas (las de hoy), gap 8 / 12, todas las fotos 4:5 (se va el RITMO de alturas; offset deja de servir). Las páginas del muro son de 60 (PAGE_SIZE ya es 60: cierra fila con 2, 3 y 4 columnas); Más de pasa 12 (6 en el celular).</>,
       <>ViewerPage desktop: items-stretch; el panel derecho flex-col justify-between (título y categoría / botón y nota / miniaturas); botón de 360 px como máximo.</>,
+      <>PromosPage desktop: cabecera grid 7fr / 5fr (eyebrow y h1 a la izquierda, bajada a la derecha al pie del h1). PromoGrid: items-start. PromoAfiche: el bloque de botones sin mt-auto (mt 4) y desde @md en fila (Pedir por WhatsApp de ancho propio + Ver las N fotos).</>,
       <>PhotoThumbs desktop: grid de 3 columnas, cada miniatura 4:5 (antes size-14), la elegida con anillo de 2 px en tinta.</>,
     ],
   },
