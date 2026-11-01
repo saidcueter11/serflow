@@ -195,3 +195,21 @@
   .sf-r3 :is(a, button).inline-flex.rounded-full.font-body { min-height: 52px; padding-inline: 28px; }
   .sf-r3 nav[aria-label='Categorías'] a { min-height: 52px; }
 }
+
+/* ---------- Portada · Quiénes somos en 12 columnas (ronda 4) ---------- */
+
+/* Said (ronda 3): "Mejor uso de los espacios aquí". El texto iba en una columna angosta, con una calle de ~140 px hasta el
+   mapa y el mapa terminaba más abajo que las razones. Ahora: texto y razones en 7 columnas, Visítanos en 5, las dos con el
+   mismo borde de arriba y de abajo. Las razones son una lista con filetes que reparte su alto; el mapa crece hasta el
+   borde. PUENTE: HomePage (ver propuesta/Portada.tsx) y MapCard (h-full, el mapa flex-1). */
+.sf-r3 .sf-razones > ul { height: 100%; gap: 0; border-top: 1px solid var(--color-line); }
+.sf-r3 .sf-razones > ul > li { flex: 1; align-items: center; gap: 20px; padding-block: 16px; border-bottom: 1px solid var(--color-line); }
+.sf-r3 .sf-razones > ul > li > span { width: 32px; font-size: 22px; }
+.sf-r3 .sf-razones h3 { font-size: 17px; font-weight: 600; }
+.sf-r3 .sf-razones p { font-size: 15px; }
+@container (min-width: 48rem) {
+  .sf-r3 .sf-visitanos > div { height: 100%; display: flex; flex-direction: column; }
+  .sf-r3 .sf-visitanos details { flex: 1; display: flex; flex-direction: column; }
+  .sf-r3 .sf-visitanos summary { flex: 1; display: flex; flex-direction: column; }
+  .sf-r3 .sf-visitanos summary > div { flex: 1; height: auto; min-height: 160px; }
+}

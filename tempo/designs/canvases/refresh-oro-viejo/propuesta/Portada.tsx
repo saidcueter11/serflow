@@ -150,14 +150,17 @@ export function Portada({ width }: { width: 390 | 1280 }) {
           <Disponible />
 
           {/* El mapa al final y plegado: calles en CSS, el de Google solo al tocar. #visitanos sigue siendo el ancla del menú. */}
-          {/* El mapa al final y plegado: calles en CSS, el de Google solo al tocar. #visitanos sigue siendo el ancla del menú. */}
+          {/* Quiénes somos en 12 columnas: texto y razones en 7, Visítanos en 5, mismo borde arriba y abajo. El mapa sigue
+              plegado (calles en CSS, el de Google solo al tocar). #visitanos sigue siendo el ancla del menú. */}
           <Section id="quienes-somos" title="Quiénes somos">
-            <div className="grid gap-10 @3xl:grid-cols-[minmax(0,1fr)_400px] @3xl:items-start @3xl:gap-20">
-              <div className="flex flex-col gap-8">
+            <div className="grid gap-10 @3xl:grid-cols-12 @3xl:items-stretch @3xl:gap-x-12">
+              <div className="flex flex-col gap-8 @3xl:col-span-7">
                 <QuienesCopy className="sf-t-lead" />
-                <Razones />
+                <div className="sf-razones flex-1">
+                  <Razones />
+                </div>
               </div>
-              <div id="visitanos" className="scroll-mt-4">
+              <div id="visitanos" className="sf-visitanos scroll-mt-4 @3xl:col-span-5">
                 <MapCard title="Visítanos" />
               </div>
             </div>
