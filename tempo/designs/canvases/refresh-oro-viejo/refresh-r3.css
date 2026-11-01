@@ -132,8 +132,7 @@
    (4:5) miden una columna cada una, así que su borde inferior es el de la foto y sus lados caen sobre las columnas de
    Más de. Panel: la categoría, el título, Pedir por WhatsApp (2 columnas) con su nota y las miniaturas, con el
    mismo aire entre los tres bloques (~30 px). Vacío residual: 0.
-   Con 1 sola foto (no hay miniaturas) la fila de miniaturas la ocupan las 3 primeras de "Más de" con su rótulo y la
-   sección de abajo sigue desde la 4.ª (en el PR; aquí se muestra el caso de 3 fotos).
+   Con 1 sola foto, ver "Visor: otras vistas y producto de una sola foto" (ronda 5).
    PUENTE: ViewerPage y PhotoThumbs. */
 @container (min-width: 48rem) {
   .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) {
@@ -169,6 +168,42 @@
   .sf-r3 ul[aria-label='Elegir foto'] a { width: auto; height: auto; aspect-ratio: 4 / 5; border-width: 0; }
   .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
 }
+
+/* ---------- Visor: otras vistas y producto de una sola foto (ronda 5) ---------- */
+
+/* Said: "estas imágenes parecen productos distintos en lugar de variantes del producto. además, ¿qué pasa si no hay
+   variantes?". El catálogo guarda fotos del MISMO producto (no colores: no hay un dato de color), así que las miniaturas
+   son otras vistas de esa prenda: de frente, el bordado de cerca, costado y visera; mismo fondo y misma luz. Llevan su
+   rótulo "Otras vistas" (etiqueta en oro viejo, como las demás) para que nadie las lea como otros productos. En el canvas
+   las dos de cerca son recortes de la foto de frente (aún no hay fotos de varios ángulos; se cambian cuando lleguen).
+   Con una sola foto no hay miniaturas: en su lugar van los 3 pasos del pedido (propuesta/PasosPedido.tsx), una lista
+   con filetes como la de Quiénes somos que reparte su alto hasta el borde de abajo de la foto. El panel cierra igual
+   arriba y abajo; vacío residual 0. En el celular los pasos van debajo del botón.
+   PUENTE: PhotoThumbs (rótulo visible "Otras vistas"; alt de cada vista) y ViewerPage (PasosPedido si photos.length === 1). */
+@container (min-width: 48rem) {
+  .sf-r3 ul[aria-label='Elegir foto'] { row-gap: 12px; }
+  .sf-r3 ul[aria-label='Elegir foto']::before {
+    content: "Otras vistas";
+    grid-column: 1 / -1;
+    color: var(--color-accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child { row-gap: 16px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child:has(> .sf-pasos-pedido) {
+    grid-template-rows: auto auto minmax(0, 1fr);
+    align-content: stretch;
+    row-gap: 28px;
+  }
+  .sf-r3 .sf-pasos-pedido { grid-column: 1 / -1; min-height: 0; }
+}
+.sf-r3 .sf-pasos-pedido { display: flex; flex-direction: column; gap: 12px; }
+.sf-r3 .sf-pasos-pedido > ol { flex: 1; display: flex; flex-direction: column; border-top: 1px solid var(--color-line); }
+.sf-r3 .sf-pasos-pedido li { flex: 1; align-items: center; gap: 20px; padding-block: 16px; border-bottom: 1px solid var(--color-line); }
+.sf-r3 .sf-pasos-pedido li > span { width: 32px; flex-shrink: 0; font-size: 22px; }
 /* Ronda 5 (Said: "Esto no es necesario. Ni tampoco el uso de 'nuevo' en los productos"): fuera la línea "N.º 4 · Hace 10
    días" de arriba del visor (la fila queda con Todas las fotos) y la etiqueta Nuevo en todas las pantallas (muro del
    catálogo, Más de y el panel del visor). El panel no cambia de alto: sigue cerrando arriba y abajo con la foto.

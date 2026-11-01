@@ -18,6 +18,9 @@ import pzAntes390 from "./capturas/personalizador-antes-390.jpg";
 import pzAntes1280 from "./capturas/personalizador-antes-1280.jpg";
 import pz390 from "./capturas/personalizador-390.jpg";
 import pz1280 from "./capturas/personalizador-1280.jpg";
+import b13Bordado from "./capturas/beisbol13-bordado.jpg";
+import b13Costado from "./capturas/beisbol13-costado.jpg";
+import { ConPasos } from "./propuesta/PasosPedido";
 
 /* Pantallas. Antes = producción hoy (master; el personalizador, el PR #36 tal cual). Después = los mismos componentes de
    producción con refresh.css + refresh-r2.css + refresh-r3.css; en la portada, además, propuesta/Portada.tsx. */
@@ -54,9 +57,17 @@ const ITEM: CatalogItem = {
   createdAt: "2026-10-20",
   hace: "Hace 10 días",
   tile: { href: "/products/beisbol/4", img: { src: BEISBOL[3], alt: "Beisbol, foto N.º 4", ratio: 3 / 4 }, label: "Beisbol", nuevo: true, photos: 3 },
-  photos: [3, 4, 5].map((i) => ({ src: BEISBOL[i % BEISBOL.length], alt: `Beisbol, foto N.º 4 (${i - 2} de 3)` })),
+  // Otras vistas de la MISMA gorra (ronda 5). Las dos de cerca son recortes de la foto de frente hasta que lleguen fotos de varios ángulos.
+  photos: [
+    { src: BEISBOL[3], alt: "Beisbol N.º 4, de frente" },
+    { src: b13Bordado, alt: "Beisbol N.º 4, el bordado de cerca" },
+    { src: b13Costado, alt: "Beisbol N.º 4, costado y visera" },
+  ],
   og: null,
 };
+
+/** El mismo producto con una sola foto: sin otras vistas. */
+const ITEM_1: CatalogItem = { ...ITEM, tile: { ...ITEM.tile, photos: 1 }, photos: ITEM.photos.slice(0, 1) };
 
 const MAS: CatalogItem[] = BEISBOL.slice(5, 17).map((src, i) => ({
   ...ITEM,
@@ -65,10 +76,13 @@ const MAS: CatalogItem[] = BEISBOL.slice(5, 17).map((src, i) => ({
   tile: { href: `/products/beisbol/${i + 5}`, img: { src, alt: `Beisbol, foto N.º ${i + 5}`, ratio: 3 / 4 }, label: "Beisbol" },
 }));
 
-function Visor({ width, nuevo }: R) {
+function Visor({ width, nuevo, unaFoto }: R & { unaFoto?: boolean }) {
+  const pagina = (
+    <ViewerPage item={unaFoto ? ITEM_1 : ITEM} category={{ label: "Beisbol", href: "/products/beisbol", count: 24 }} mas={MAS} back="/products#f-beisbol-4" />
+  );
   return (
     <Marco width={width} nuevo={nuevo} current="/products" fab={false}>
-      <ViewerPage item={ITEM} category={{ label: "Beisbol", href: "/products/beisbol", count: 24 }} mas={MAS} back="/products#f-beisbol-4" />
+      {unaFoto && nuevo ? <ConPasos>{pagina}</ConPasos> : pagina}
     </Marco>
   );
 }
@@ -140,8 +154,15 @@ const NOTA_CIERRE = (
 );
 const NOTA_VISOR = (
   <>
-    Sin la línea N.º y hace, y sin Nuevo en ningún producto. En desktop, rejilla de 5 columnas compartida con Más de: foto 4:5 en 2 y panel
-    en 3. Panel y foto con el mismo borde arriba y abajo. Más de: 10 fotos, 2 filas de 5, con Ver las 24 de Beisbol al final de su cabecera.
+    Sin la línea N.º y hace, y sin Nuevo. Las miniaturas son Otras vistas de la misma gorra (de frente, el bordado, costado y visera;
+    recortes de la foto de frente hasta que haya fotos de varios ángulos). Desktop: 5 columnas compartidas con Más de, foto 4:5 en 2 y panel
+    en 3, mismo borde arriba y abajo. Más de: 10 fotos con Ver las 24 de Beisbol al final de su cabecera.
+  </>
+);
+const NOTA_VISOR_1 = (
+  <>
+    El mismo producto con una sola foto. Sin miniaturas, el panel no queda corto: donde iban, Así la pides (3 pasos con filetes, como Quiénes
+    somos) reparte su alto hasta el borde de abajo de la foto. Dirección y horario salen de business.ts. En el celular, debajo del botón.
   </>
 );
 const NOTA_PROMOS = (
@@ -181,6 +202,10 @@ export const CatalogoCierre = () =>
   fila("Catálogo · categoría de 10 fotos · 1280", NOTA_CIERRE, 1280, <Catalogo width={1280} tiles={TILES_10} basket />, <Catalogo width={1280} nuevo tiles={TILES_10} basket />);
 export const VisorMobile = () => fila("Catálogo · visor · 390", NOTA_VISOR, 390, <Visor width={390} />, <Visor width={390} nuevo />);
 export const VisorDesktop = () => fila("Catálogo · visor · 1280", NOTA_VISOR, 1280, <Visor width={1280} />, <Visor width={1280} nuevo />);
+export const VisorUnaFotoMobile = () =>
+  fila("Catálogo · visor · sin variantes · 390", NOTA_VISOR_1, 390, <Visor width={390} unaFoto />, <Visor width={390} nuevo unaFoto />);
+export const VisorUnaFotoDesktop = () =>
+  fila("Catálogo · visor · sin variantes · 1280", NOTA_VISOR_1, 1280, <Visor width={1280} unaFoto />, <Visor width={1280} nuevo unaFoto />);
 export const PromosMobile = () => fila("Promos · lista · 390", NOTA_PROMOS, 390, <Promos width={390} />, <Promos width={390} nuevo />);
 export const PromosDesktop = () => fila("Promos · lista · 1280", NOTA_PROMOS, 1280, <Promos width={1280} />, <Promos width={1280} nuevo />);
 export const DetalleMobile = () => fila("Promos · detalle · 390", NOTA_DETALLE, 390, <PromoDetalle width={390} />, <PromoDetalle width={390} nuevo />);

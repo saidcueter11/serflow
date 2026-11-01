@@ -17,9 +17,11 @@ import {
   PromosMobile,
   VisorDesktop,
   VisorMobile,
+  VisorUnaFotoDesktop,
+  VisorUnaFotoMobile,
 } from "./pantallas";
 
-/* Los id R3* se quedan: los hilos de Said de la ronda 3 están pegados a esos frames. */
+/* Los id R3* se quedan: los hilos de Said están pegados a esos frames (los nombres visibles dicen R5). */
 export default function RefreshOroViejoCanvas() {
   return (
     <Canvas name="refresh-oro-viejo">
@@ -35,6 +37,8 @@ export default function RefreshOroViejoCanvas() {
       <Storyboard id="CierreResponsivo" name="R5 · Tarjeta de cierre · 390 / 768 / 1280" component={CierreResponsivo} layout={{ x: 6800, y: 9100 }} />
       <Storyboard id="R3VisorMobile" name="R5 · Catálogo visor · 390" component={VisorMobile} layout={{ x: 0, y: 12400 }} />
       <Storyboard id="R3VisorDesktop" name="R5 · Catálogo visor · 1280" component={VisorDesktop} layout={{ x: 1040, y: 12400 }} />
+      <Storyboard id="R5VisorUnaFotoDesktop" name="R5 · Visor · sin variantes · 1280" component={VisorUnaFotoDesktop} layout={{ x: 3900, y: 12400 }} />
+      <Storyboard id="R5VisorUnaFotoMobile" name="R5 · Visor · sin variantes · 390" component={VisorUnaFotoMobile} layout={{ x: 6800, y: 12400 }} />
       <Storyboard id="R3PromosMobile" name="R5 · Promos lista · 390" component={PromosMobile} layout={{ x: 0, y: 15600 }} />
       <Storyboard id="R3PromosDesktop" name="R5 · Promos lista · 1280" component={PromosDesktop} layout={{ x: 1040, y: 15600 }} />
       <Storyboard id="R3DetalleMobile" name="R5 · Promo detalle · 390" component={DetalleMobile} layout={{ x: 0, y: 18500 }} />
