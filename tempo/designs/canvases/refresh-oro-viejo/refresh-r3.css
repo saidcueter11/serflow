@@ -221,6 +221,9 @@
 .sf-r3 main > div.justify-between:first-child > span:last-child,
 .sf-r3 span.pointer-events-none.rounded-full.bg-accent.uppercase { display: none; }
 
+/* Más de queda un escalón debajo del título del producto (h1 del visor), no por encima. PUENTE: Section size="sm" en ViewerPage. */
+.sf-r3 #mas h2.stitch-title { font-size: clamp(30px, 3.4cqi, 44px); }
+
 /* Más de: 5 columnas con la misma calle en desktop; 10 fotos = 2 filas completas (PUENTE: masDe recorta a múltiplo de 5). */
 @container (min-width: 64rem) {
   .sf-r3 #mas ul.columns-2 { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
