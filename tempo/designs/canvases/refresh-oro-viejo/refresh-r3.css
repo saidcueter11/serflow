@@ -90,7 +90,7 @@
    título y la categoría, al medio Pedir por WhatsApp con su nota, abajo las miniaturas grandes (3 en fila, 4:5) al ras
    del borde de la foto. PUENTE: ViewerPage y PhotoThumbs (en el PR: items-stretch, justify-between y size-14 -> 4:5). */
 @container (min-width: 48rem) {
-  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) { align-items: stretch; gap: 56px; padding-top: 8px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) { align-items: stretch; gap: 48px; padding-top: 8px; }
   .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child { justify-content: space-between; padding-top: 0; gap: 32px; }
   .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col { width: 100%; max-width: 360px; }
   .sf-r3 ul[aria-label='Elegir foto'] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -138,4 +138,52 @@
   /* Cabecera: h1 en 7 columnas y la bajada al pie, en las otras 5. */
   .sf-r3 main:has(> .pz-izq) > div:first-child { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 48px; align-items: end; }
   .sf-r3 main:has(> .pz-izq) > div:first-child > p { margin: 0; padding-bottom: 8px; }
+}
+
+/* ---------- Última fila del muro: siempre cerrada ---------- */
+
+/* Con datos reales la última página casi nunca es múltiplo de las columnas (Basket 10, Moda 11, Niños 10). La fila
+   la cierra una tarjeta "Te la hacemos" que ocupa las celdas que faltan (1 a 3 a 4 columnas, 1 a 2 a 3, 1 a 2).
+   PUENTE: aquí es un ::after para probar el cálculo sin tocar src/; en el PR es un <li> con link a WhatsApp
+   (whatsappUrl) y el mismo span. "Más de" no la lleva: recorta a múltiplo de 4 (12, 8 o 4). */
+.sf-r3 div.pt-5 > div.\@container > ul.columns-2::after {
+  content: "¿No ves la que buscas?\ATe la hacemos con tu logo o tu diseño. Escríbenos por WhatsApp →";
+  white-space: pre-line;
+  display: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100%;
+  padding: 24px;
+  border: 1px dashed var(--color-line);
+  border-radius: var(--radius-tile);
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+.sf-r3 div.pt-5 > div.\@container > ul.columns-2::first-line { color: var(--color-ink); font-family: var(--font-display); font-size: 22px; }
+.sf-r3 div.pt-5 > div.\@container > ul.columns-2:has(> li:nth-child(2n+1):last-child)::after { display: flex; grid-column: span 1; }
+@container (min-width: 48rem) {
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2::after { display: none; }
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2:has(> li:nth-child(3n+1):last-child)::after { display: flex; grid-column: span 2; }
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2:has(> li:nth-child(3n+2):last-child)::after { display: flex; grid-column: span 1; }
+}
+@container (min-width: 72rem) {
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2::after { display: none; }
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2:has(> li:nth-child(4n+1):last-child)::after { display: flex; grid-column: span 3; }
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2:has(> li:nth-child(4n+2):last-child)::after { display: flex; grid-column: span 2; }
+  .sf-r3 div.pt-5 > div.\@container > ul.columns-2:has(> li:nth-child(4n+3):last-child)::after { display: flex; grid-column: span 1; }
+}
+
+/* ---------- Promos sin vigencia y la grilla de la 404 ---------- */
+
+/* Afiche sin fecha: el título baja a la altura del de su vecino (la línea de la vigencia), en desktop. PUENTE: PromoAfiche. */
+@container (min-width: 28rem) {
+  .sf-r3 article.\@container.rounded-card div.flex-1.p-5 > h2.font-display:first-child { margin-top: 38px; }
+}
+/* 404: "Ver promo" pegado a su texto, no empujado al fondo (mismo arreglo que /promos). PUENTE: PromoCard y PromoGrid. */
+.sf-r3 section ul.flex.flex-wrap { align-items: flex-start; }
+.sf-r3 a.group.rounded-card span.mt-auto { margin-top: 4px; }
+/* PromoCard sin fecha (404): mismo ajuste del título que el afiche, cuando van varias en fila (tarjeta de 368 px o más). */
+@container (min-width: 23rem) {
+  .sf-r3 section a.group.rounded-card div.flex-1 > h3.font-display:first-child { margin-top: 34px; }
 }

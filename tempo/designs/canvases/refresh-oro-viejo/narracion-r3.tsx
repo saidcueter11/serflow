@@ -82,6 +82,11 @@ export const ZONAS: { frame: string; donde: string; antes: string; despues: stri
   { frame: "Promos 1280", donde: "Cabecera, derecha del título", antes: "~600 x 250 vacío", despues: "bajada en columnas 8-12" },
   { frame: "Personalizador 1280", donde: "Columna izquierda bajo la vista previa", antes: "~560 x 900 vacío", despues: "vista previa 4:5 + paso 3 y Enviar; desfase final ~560 x 130" },
   { frame: "Personalizador 1280", donde: "Cabecera, derecha del h1", antes: "~560 x 120 vacío", despues: "bajada al lado del h1" },
+  { frame: "Catálogo 1280 · 10 fotos", donde: "Última fila de una categoría real (Basket, Moda, Niños)", antes: "1 a 3 celdas vacías (hasta ~870 x 362)", despues: "tarjeta \"¿No ves la que buscas?\" ocupa las celdas que faltan" },
+  { frame: "Portada 390 / 1280", donde: "Hero → personalizador → Qué hacemos", antes: "aire doble en la banda (128 / 192 px)", despues: "64 / 128 px como el resto" },
+  { frame: "404 1280", donde: "Tarjetas de Promos de hoy", antes: "\"Ver promo\" empujado al fondo, títulos a distinta altura", despues: "pegado al texto, títulos alineados" },
+  { frame: "404 1280", donde: "A los lados del mensaje centrado", antes: "~300 x 400 c/u", despues: "se queda: composición centrada intencional (decídelo tú)" },
+  { frame: "Portada 390, catálogo 390, visor 390, promos 390, detalle 390 y 1280, personalizador 390", donde: "Página completa", antes: "-", despues: "sin zonas > 240 x 240" },
   { frame: "Visor 1280", donde: "Más de Beisbol, abajo", antes: "huecos de ~290 x 120 a ~290 x 300", despues: "3 filas completas" },
 ];
 
@@ -155,7 +160,10 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>Masonry → rejilla: grid de 2 / 3 / 4 columnas (las de hoy), gap 8 / 12, todas las fotos 4:5 (se va el RITMO de alturas; offset deja de servir). Las páginas del muro son de 60 (PAGE_SIZE ya es 60: cierra fila con 2, 3 y 4 columnas); Más de pasa 12 (6 en el celular).</>,
       <>ViewerPage desktop: items-stretch; el panel derecho flex-col justify-between (título y categoría / botón y nota / miniaturas); botón de 360 px como máximo.</>,
       <>PromosPage desktop: cabecera grid 7fr / 5fr (eyebrow y h1 a la izquierda, bajada a la derecha al pie del h1). PromoGrid: items-start. PromoAfiche: el bloque de botones sin mt-auto (mt 4) y desde @md en fila (Pedir por WhatsApp de ancho propio + Ver las N fotos).</>,
-      <>PersonalizaPage (PR #36) desde @4xl: dos columnas; izquierda (sticky top 24) = selector de prenda, vista previa con aspect-[4/5] en vez del alto fijo, paso 3 y la tarjeta de Enviar (sin sticky bottom en desktop); derecha = pasos 1 y 2 con gap 48. Cabecera grid 7fr / 5fr. El celular no cambia de orden.</>,
+      <>PersonalizaPage (PR #36) desde @4xl: dos columnas; izquierda (sticky top 24) = selector de prenda, vista previa con aspect-[4/5] en vez del alto fijo, paso 3 y la tarjeta de Enviar (sin sticky bottom en desktop); derecha = pasos 1 y 2 con gap 48. Cabecera grid 7fr / 5fr. El orden del DOM no cambia (prenda, vista previa, pasos 1 y 2, paso 3 y Enviar): las columnas se arman con grid-template-areas, así Tab y el lector llegan a Enviar al final. El celular no cambia.</>,
+      <>Cierre de la última fila del muro (CatalogPage): si la página no es múltiplo de las columnas, un &lt;li&gt; final con borde punteado, &quot;¿No ves la que buscas?&quot; + &quot;Te la hacemos con tu logo o tu diseño. Escríbenos por WhatsApp →&quot; (link con whatsappUrl) y col-span = celdas que faltan (2 / 3 / 4 columnas). En el canvas va como ::after en refresh-r3.css.</>,
+      <>Más de (masDe): recortar a múltiplo de 4 (12, 8 o 4) en desktop; mobileMax 6 se queda.</>,
+      <>PromoAfiche y PromoCard sin fecha: el título baja 38 / 34 px (la línea de la vigencia) cuando van en fila, para alinear con el vecino. PromoCard en la 404: sin mt-auto en Ver promo; PromoGrid items-start.</>,
       <>PhotoThumbs desktop: grid de 3 columnas, cada miniatura 4:5 (antes size-14), la elegida con anillo de 2 px en tinta.</>,
     ],
   },

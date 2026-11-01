@@ -27,6 +27,7 @@ import {
 } from "./pantallas-r2";
 import { CambiosR3, IntroR3, Ronda2Separador } from "./narracion-r3";
 import {
+  R3CatalogoCierre,
   R3CatalogoDesktop,
   R3CatalogoMobile,
   R3DetalleDesktop,
@@ -55,6 +56,7 @@ export default function RefreshOroViejoCanvas() {
       <Storyboard id="R3PortadaDesktop" name="R3 · Portada · 1280" component={R3PortadaDesktop} layout={{ x: 1040, y: 3000 }} />
       <Storyboard id="R3CatalogoMobile" name="R3 · Catálogo categoría · 390" component={R3CatalogoMobile} layout={{ x: 0, y: 8500 }} />
       <Storyboard id="R3CatalogoDesktop" name="R3 · Catálogo categoría · 1280" component={R3CatalogoDesktop} layout={{ x: 1040, y: 8500 }} />
+      <Storyboard id="R3CatalogoCierre" name="R3 · Catálogo · categoría de 10 fotos · 1280" component={R3CatalogoCierre} layout={{ x: 3900, y: 8500 }} />
       <Storyboard id="R3VisorMobile" name="R3 · Catálogo visor · 390" component={R3VisorMobile} layout={{ x: 0, y: 11800 }} />
       <Storyboard id="R3VisorDesktop" name="R3 · Catálogo visor · 1280" component={R3VisorDesktop} layout={{ x: 1040, y: 11800 }} />
       <Storyboard id="R3PromosMobile" name="R3 · Promos lista · 390" component={R3PromosMobile} layout={{ x: 0, y: 15000 }} />

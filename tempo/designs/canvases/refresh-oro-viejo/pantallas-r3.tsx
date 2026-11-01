@@ -8,7 +8,7 @@ import { PromoDetailPage } from "../../../../src/components/promos/PromoDetailPa
 import { NotFoundPage } from "../../../../src/components/promos/NotFoundPage";
 import type { MasonryTile } from "../../../../src/components/ui/Masonry";
 import type { CatalogItem } from "../../../../src/lib/catalog-view";
-import { AntesDespues, BANNER, CHIPS, Marco, PROMOS, TILES } from "./comun";
+import { AntesDespues, BANNER, CHIPS, FOTOS, Marco, PROMOS, TILES } from "./comun";
 import { PortadaR2 } from "./propuesta/PortadaR2";
 import { Disponible, PortadaR3, QueHacemos } from "./propuesta/PortadaR3";
 import pzR2390 from "./capturas/r2/personalizador-390.jpg";
@@ -23,12 +23,18 @@ type W = 390 | 1280;
 type R = { width: W; r3?: boolean };
 
 /** El muro de la ronda 2 tenía 14 fotos; la 3 muestra páginas que cierran la última fila (múltiplo de 2, 3 y 4). */
-function Catalogo({ width, r3, tiles, next }: R & { tiles: MasonryTile[]; next: number }) {
+function Catalogo({ width, r3, tiles, next, basket }: R & { tiles: MasonryTile[]; next?: number; basket?: boolean }) {
   return (
     <Marco width={width} r2={!r3} r3={r3} current="/products">
       <main className="@container">
-        <CategoryBanner slides={BANNER} current={0} />
-        <CatalogPage chips={CHIPS} current="/products" label="Todo" tiles={tiles} next={{ href: "/products/2", count: next }} />
+        <CategoryBanner slides={basket ? [{ label: "Basket", count: 10, image: { src: FOTOS.gorrasEstante } }] : BANNER} current={0} />
+        <CatalogPage
+          chips={CHIPS}
+          current={basket ? "/products/basket" : "/products"}
+          label={basket ? "Basket" : "Todo"}
+          tiles={tiles}
+          next={next ? { href: "/products/2", count: next } : undefined}
+        />
       </main>
     </Marco>
   );
@@ -114,6 +120,7 @@ const fila = (titulo: string, nota: ReactElement, width: W, Antes: ReactElement,
 );
 
 const TILES_R3 = TILES.slice(0, 12);
+const TILES_10 = TILES.slice(0, 10).map((t) => ({ ...t, label: "Basket", img: { ...t.img, alt: t.img.alt.replace(/^[^,]+/, "Basket") } }));
 
 export const R3PortadaMobile = () => fila("Portada · 390", NOTA_PORTADA, 390, <PortadaR2 width={390} />, <PortadaR3 width={390} />);
 export const R3PortadaDesktop = () => fila("Portada · 1280", NOTA_PORTADA, 1280, <PortadaR2 width={1280} />, <PortadaR3 width={1280} />);
@@ -121,6 +128,14 @@ export const R3CatalogoMobile = () =>
   fila("Catálogo · categoría · 390", NOTA_CATALOGO, 390, <Catalogo width={390} tiles={TILES} next={78} />, <Catalogo width={390} r3 tiles={TILES_R3} next={80} />);
 export const R3CatalogoDesktop = () =>
   fila("Catálogo · categoría · 1280", NOTA_CATALOGO, 1280, <Catalogo width={1280} tiles={TILES} next={78} />, <Catalogo width={1280} r3 tiles={TILES_R3} next={80} />);
+const NOTA_CIERRE = (
+  <>
+    Estado real: una categoría de 10 fotos. A 4 columnas la última fila queda con 2; la cierra la tarjeta &quot;¿No ves la que buscas?&quot; que
+    ocupa las 2 celdas que faltan y lleva a WhatsApp. En el celular (2 columnas) 10 cierra sola.
+  </>
+);
+export const R3CatalogoCierre = () =>
+  fila("Catálogo · categoría de 10 fotos · 1280", NOTA_CIERRE, 1280, <Catalogo width={1280} tiles={TILES_10} basket />, <Catalogo width={1280} r3 tiles={TILES_10} basket />);
 export const R3VisorMobile = () => fila("Catálogo · visor · 390", NOTA_VISOR, 390, <Visor width={390} />, <Visor width={390} r3 />);
 export const R3VisorDesktop = () => fila("Catálogo · visor · 1280", NOTA_VISOR, 1280, <Visor width={1280} />, <Visor width={1280} r3 />);
 export const R3PromosMobile = () => fila("Promos · lista · 390", NOTA_PROMOS, 390, <Promos width={390} />, <Promos width={390} r3 />);
@@ -161,6 +176,7 @@ export const DESPUES_R3: Record<string, () => ReactElement> = {
   "portada-1280": () => <PortadaR3 width={1280} />,
   "catalogo-categoria-390": () => <Catalogo width={390} r3 tiles={TILES_R3} next={80} />,
   "catalogo-categoria-1280": () => <Catalogo width={1280} r3 tiles={TILES_R3} next={80} />,
+  "catalogo-cierre-1280": () => <Catalogo width={1280} r3 tiles={TILES_10} basket />,
   "catalogo-visor-390": () => <Visor width={390} r3 />,
   "catalogo-visor-1280": () => <Visor width={1280} r3 />,
   "promos-lista-390": () => <Promos width={390} r3 />,

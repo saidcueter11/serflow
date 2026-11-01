@@ -32,7 +32,7 @@ const PASOS = ["Sube tu logo, un dibujo o una foto.", "Elige la prenda, el color
  */
 export function BandaPersonalizaR3() {
   return (
-    <section aria-labelledby="personaliza-titulo" className="sf-seccion @container">
+    <section aria-labelledby="personaliza-titulo" className="@container">
       <div className="grid gap-6 px-4 @3xl:grid-cols-12 @3xl:grid-rows-[auto_1fr] @3xl:gap-x-12 @3xl:gap-y-0 @3xl:px-12">
         <div className="flex flex-col items-start gap-4 @3xl:col-span-5 @3xl:gap-5">
           <Eyebrow>Personalizador</Eyebrow>
