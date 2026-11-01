@@ -75,18 +75,55 @@
 .sf-r3 ul.columns-2 > li { margin: 0; }
 .sf-r3 ul.columns-2 img { aspect-ratio: 4 / 5 !important; height: auto; }
 
-/* ---------- Visor en desktop: el panel derecho a la altura de la foto ---------- */
+/* ---------- Visor en desktop: foto y panel en la rejilla de "Más de" (ronda 4) ---------- */
 
-/* Said: "Mucho espacio desaprovechado". La foto 4:5 en 1.15fr y el panel en 1fr, los dos del mismo alto: arriba el
-   título y la categoría, al medio Pedir por WhatsApp con su nota, abajo las miniaturas grandes (3 en fila, 4:5) al ras
-   del borde de la foto. PUENTE: ViewerPage y PhotoThumbs (en el PR: items-stretch, justify-between y size-14 -> 4:5). */
+/* Said (ronda 3): "mejoró pero aún veo un muy mal manejo de los espacios". La ronda 3 estiraba el panel con
+   justify-between y dejaba dos huecos de ~530 x 165. Ahora todo cae en una rejilla de 5 columnas con calles de 24 px,
+   la misma de "Más de": la foto 4:5 ocupa 2 columnas (459 x 574 a 1280) y el panel las otras 3. Las 3 miniaturas
+   (4:5) miden una columna cada una, así que su borde inferior es el de la foto y sus lados caen sobre las columnas de
+   Más de. Panel: categoría y Nuevo, el título, Pedir por WhatsApp (2 columnas) con su nota y las miniaturas, con el
+   mismo aire entre los tres bloques (~30 px). Vacío residual: 0.
+   Con 1 sola foto (no hay miniaturas) la fila de miniaturas la ocupan las 3 primeras de "Más de" con su rótulo y la
+   sección de abajo sigue desde la 4.ª (en el PR; aquí se muestra el caso de 3 fotos).
+   PUENTE: ViewerPage y PhotoThumbs. */
 @container (min-width: 48rem) {
-  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) { align-items: stretch; gap: 48px; padding-top: 8px; }
-  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child { justify-content: space-between; padding-top: 0; gap: 32px; }
-  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col { width: 100%; max-width: 360px; }
-  .sf-r3 ul[aria-label='Elegir foto'] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: stretch;
+    padding-top: 8px;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:first-child { grid-column: 1 / span 2; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child {
+    grid-column: 3 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 0;
+    align-content: space-between;
+    padding-top: 0;
+  }
+  /* Categoría y Nuevo arriba, el título debajo (el h1 deja de ser sr-only). */
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 20px;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child > h1 { grid-row: 2; grid-column: 1 / -1; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col { grid-column: 1 / span 2; width: auto; max-width: none; gap: 10px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col > p { font-size: 14px; line-height: 1.5; }
+  .sf-r3 ul[aria-label='Elegir foto'] { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .sf-r3 ul[aria-label='Elegir foto'] a { width: auto; height: auto; aspect-ratio: 4 / 5; border-width: 0; }
   .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
+}
+/* Más de: 5 columnas con la misma calle en desktop; 10 fotos = 2 filas completas (PUENTE: masDe recorta a múltiplo de 5). */
+@container (min-width: 64rem) {
+  .sf-r3 #mas ul.columns-2 { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  .sf-r3 #mas ul.columns-2 > li:nth-child(n + 11) { display: none; }
 }
 
 /* ---------- /promos: afiches sin hueco antes de los botones ---------- */
