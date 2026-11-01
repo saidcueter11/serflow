@@ -130,7 +130,7 @@
    justify-between y dejaba dos huecos de ~530 x 165. Ahora todo cae en una rejilla de 5 columnas con calles de 24 px,
    la misma de "Más de": la foto 4:5 ocupa 2 columnas (459 x 574 a 1280) y el panel las otras 3. Las 3 miniaturas
    (4:5) miden una columna cada una, así que su borde inferior es el de la foto y sus lados caen sobre las columnas de
-   Más de. Panel: categoría y Nuevo, el título, Pedir por WhatsApp (2 columnas) con su nota y las miniaturas, con el
+   Más de. Panel: la categoría, el título, Pedir por WhatsApp (2 columnas) con su nota y las miniaturas, con el
    mismo aire entre los tres bloques (~30 px). Vacío residual: 0.
    Con 1 sola foto (no hay miniaturas) la fila de miniaturas la ocupan las 3 primeras de "Más de" con su rótulo y la
    sección de abajo sigue desde la 4.ª (en el PR; aquí se muestra el caso de 3 fotos).
@@ -153,7 +153,7 @@
     align-content: space-between;
     padding-top: 0;
   }
-  /* Categoría y Nuevo arriba, el título debajo (el h1 deja de ser sr-only). */
+  /* Categoría arriba, el título debajo (el h1 deja de ser sr-only). Sin Nuevo desde la ronda 5. */
   .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child {
     grid-column: 1 / -1;
     display: grid;
@@ -169,6 +169,13 @@
   .sf-r3 ul[aria-label='Elegir foto'] a { width: auto; height: auto; aspect-ratio: 4 / 5; border-width: 0; }
   .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
 }
+/* Ronda 5 (Said: "Esto no es necesario. Ni tampoco el uso de 'nuevo' en los productos"): fuera la línea "N.º 4 · Hace 10
+   días" de arriba del visor (la fila queda con Todas las fotos) y la etiqueta Nuevo en todas las pantallas (muro del
+   catálogo, Más de y el panel del visor). El panel no cambia de alto: sigue cerrando arriba y abajo con la foto.
+   PUENTE: ViewerPage (sin el <span> de N.º y hace) y Masonry / ViewerPage (sin NewBadge; NewBadge sale del design system). */
+.sf-r3 main > div.justify-between:first-child > span:last-child,
+.sf-r3 span.pointer-events-none.rounded-full.bg-accent.uppercase { display: none; }
+
 /* Más de: 5 columnas con la misma calle en desktop; 10 fotos = 2 filas completas (PUENTE: masDe recorta a múltiplo de 5). */
 @container (min-width: 64rem) {
   .sf-r3 #mas ul.columns-2 { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }

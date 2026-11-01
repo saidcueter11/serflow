@@ -140,8 +140,8 @@ const NOTA_CIERRE = (
 );
 const NOTA_VISOR = (
   <>
-    En desktop, rejilla de 5 columnas compartida con Más de: foto 4:5 en 2 y panel en 3, con las miniaturas de una columna cada una. Panel y
-    foto con el mismo borde arriba y abajo, aire uniforme de ~30 px, sin huecos. Más de: 10 fotos, 2 filas de 5.
+    Sin la línea N.º y hace, y sin Nuevo en ningún producto. En desktop, rejilla de 5 columnas compartida con Más de: foto 4:5 en 2 y panel
+    en 3. Panel y foto con el mismo borde arriba y abajo. Más de: 10 fotos, 2 filas de 5, con Ver las 24 de Beisbol al final de su cabecera.
   </>
 );
 const NOTA_PROMOS = (
