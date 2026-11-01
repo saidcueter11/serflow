@@ -91,13 +91,23 @@ function Captura({ src, width }: { src: string; width: number }) {
   return <img src={src} alt="" width={width} className="block h-auto" style={{ width }} />;
 }
 
-const NOTA_PORTADA = <>Aire entre secciones de vuelta a 72 / 128 px (la ronda 2 tenía 96 / 176).</>;
-const NOTA_CATALOGO = <>Aire de la cabecera de vuelta a la escala de antes.</>;
-const NOTA_VISOR = <>Aire de vuelta a la escala de antes.</>;
-const NOTA_PROMOS = <>Aire de la cabecera y entre afiches de vuelta a la escala de antes.</>;
+const NOTA_PORTADA = (
+  <>
+    Sin el ticker. El personalizador pasa a un bloque de 480 px en dos columnas (texto y pasos | foto). Tarjetas 4:5 con pie más claro y la bajada
+    de cada sección al lado del título. Aire entre secciones 72 / 128 px (la ronda 2 tenía 96 / 176).
+  </>
+);
+const NOTA_CATALOGO = <>El muro pasa de mosaico a rejilla pareja 4:5 y la página cierra la última fila (12 aquí; 60 en producción). Cabecera con el aire de antes.</>;
+const NOTA_VISOR = <>El panel derecho mide lo mismo que la foto: título arriba, Pedir por WhatsApp al medio, miniaturas grandes abajo. Más de Beisbol en rejilla pareja: 3 filas completas.</>;
+const NOTA_PROMOS = <>La bajada sube al lado de &quot;Promos de hoy&quot;. Cada afiche termina con su texto y los dos botones van en fila: sin el hueco del afiche sin descripción.</>;
 const NOTA_DETALLE = <>Afiche y Más fotos un poco más juntos (56 → 40 px).</>;
 const NOTA_404 = <>Sin comentarios tuyos; revisado con la misma regla de vacíos.</>;
-const NOTA_PERSONALIZADOR = <>/personaliza del PR #36 (sin mergear) desde su deploy preview, con refresh.css + r2 + r3 inyectadas.</>;
+const NOTA_PERSONALIZADOR = (
+  <>
+    /personaliza del PR #36 (sin mergear) desde su deploy preview, con refresh.css + r2 + r3 inyectadas. En desktop, izquierda: prenda, vista previa
+    4:5 y el paso 3 con Enviar; derecha: pasos 1 y 2. Las dos columnas cierran juntas. En el celular solo cambia el aire.
+  </>
+);
 
 const fila = (titulo: string, nota: ReactElement, width: W, Antes: ReactElement, Despues: ReactElement) => (
   <AntesDespues r3 titulo={titulo} nota={nota} width={width} detalleAntes="ronda 2 · la que comentaste" antes={Antes} despues={Despues} />
@@ -144,3 +154,19 @@ const NOTA_TARJETAS = (
 export const R3Tarjetas = () => (
   <AntesDespues r3 titulo="Tarjetas de la portada · 1280" nota={NOTA_TARJETAS} width={1280} detalleAntes="ronda 2 · la que comentaste" antes={<Tarjetas />} despues={<Tarjetas r3 />} />
 );
+
+/** El después de cada pantalla, suelto: de aquí salen las JPG fijas de capturas/r3/ (el personalizador sale del deploy preview). */
+export const DESPUES_R3: Record<string, () => ReactElement> = {
+  "portada-390": () => <PortadaR3 width={390} />,
+  "portada-1280": () => <PortadaR3 width={1280} />,
+  "catalogo-categoria-390": () => <Catalogo width={390} r3 tiles={TILES_R3} next={80} />,
+  "catalogo-categoria-1280": () => <Catalogo width={1280} r3 tiles={TILES_R3} next={80} />,
+  "catalogo-visor-390": () => <Visor width={390} r3 />,
+  "catalogo-visor-1280": () => <Visor width={1280} r3 />,
+  "promos-lista-390": () => <Promos width={390} r3 />,
+  "promos-lista-1280": () => <Promos width={1280} r3 />,
+  "promos-detalle-390": () => <PromoDetalle width={390} r3 />,
+  "promos-detalle-1280": () => <PromoDetalle width={1280} r3 />,
+  "404-390": () => <NoExiste width={390} r3 />,
+  "404-1280": () => <NoExiste width={1280} r3 />,
+};

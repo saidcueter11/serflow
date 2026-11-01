@@ -61,6 +61,11 @@ export const RESUELTOS: { donde: string; dijo: string; hecho: ReactNode }[] = [
     dijo: "Aqui hay un espacio desaprovechado",
     hecho: <>El afiche sin descripción estiraba su pie para alinear los botones con el vecino (~570 x 90 vacío). Ahora cada afiche termina con su texto y los dos botones van en fila. La bajada de la cabecera sube al lado del título.</>,
   },
+  {
+    donde: "Personalizador · 1280",
+    dijo: "Me parece que estamos desaprovechando mucho este espacio aqui",
+    hecho: <>Debajo de la vista previa quedaban ~560 x 900 vacíos. Ahora la izquierda lleva prenda, vista previa 4:5 y el paso 3 con el resumen y Enviar (sticky); la derecha, los pasos 1 y 2. Las dos columnas cierran a ~130 px una de otra.</>,
+  },
 ];
 
 /** Zonas revisadas con la regla de vacíos (frame, dónde, tamaño antes -> después). */
@@ -75,6 +80,8 @@ export const ZONAS: { frame: string; donde: string; antes: string; despues: stri
   { frame: "Visor 1280", donde: "Panel derecho bajo las miniaturas", antes: "~520 x 420 vacío", despues: "panel a la altura de la foto; huecos internos de ~520 x 165" },
   { frame: "Promos 1280", donde: "Afiche sin descripción, entre título y botones", antes: "~570 x 90 vacío", despues: "botones pegados al título, en fila" },
   { frame: "Promos 1280", donde: "Cabecera, derecha del título", antes: "~600 x 250 vacío", despues: "bajada en columnas 8-12" },
+  { frame: "Personalizador 1280", donde: "Columna izquierda bajo la vista previa", antes: "~560 x 900 vacío", despues: "vista previa 4:5 + paso 3 y Enviar; desfase final ~560 x 130" },
+  { frame: "Personalizador 1280", donde: "Cabecera, derecha del h1", antes: "~560 x 120 vacío", despues: "bajada al lado del h1" },
   { frame: "Visor 1280", donde: "Más de Beisbol, abajo", antes: "huecos de ~290 x 120 a ~290 x 300", despues: "3 filas completas" },
 ];
 
@@ -148,6 +155,7 @@ const CAMBIOS: { grupo: string; items: ReactNode[] }[] = [
       <>Masonry → rejilla: grid de 2 / 3 / 4 columnas (las de hoy), gap 8 / 12, todas las fotos 4:5 (se va el RITMO de alturas; offset deja de servir). Las páginas del muro son de 60 (PAGE_SIZE ya es 60: cierra fila con 2, 3 y 4 columnas); Más de pasa 12 (6 en el celular).</>,
       <>ViewerPage desktop: items-stretch; el panel derecho flex-col justify-between (título y categoría / botón y nota / miniaturas); botón de 360 px como máximo.</>,
       <>PromosPage desktop: cabecera grid 7fr / 5fr (eyebrow y h1 a la izquierda, bajada a la derecha al pie del h1). PromoGrid: items-start. PromoAfiche: el bloque de botones sin mt-auto (mt 4) y desde @md en fila (Pedir por WhatsApp de ancho propio + Ver las N fotos).</>,
+      <>PersonalizaPage (PR #36) desde @4xl: dos columnas; izquierda (sticky top 24) = selector de prenda, vista previa con aspect-[4/5] en vez del alto fijo, paso 3 y la tarjeta de Enviar (sin sticky bottom en desktop); derecha = pasos 1 y 2 con gap 48. Cabecera grid 7fr / 5fr. El celular no cambia de orden.</>,
       <>PhotoThumbs desktop: grid de 3 columnas, cada miniatura 4:5 (antes size-14), la elegida con anillo de 2 px en tinta.</>,
     ],
   },
