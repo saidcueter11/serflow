@@ -135,7 +135,7 @@
 .pf-promo-tarjetas { display: grid; gap: 24px; }
 .sf-r3 .pf .pf-promo-tarjetas a > div { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 16px; align-items: start; }
 .sf-r3 .pf .pf-promo-tarjetas a img { aspect-ratio: 4 / 5; height: auto; }
-.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 0; gap: 0; justify-content: flex-start; }
+.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 0; gap: 0; justify-content: flex-start !important; }
 /* En el celular, sin la descripción: cortada a dos líneas quedaba a medio decir y más alta que la miniatura. */
 .sf-r3 .pf .pf-promo-tarjetas p { display: none; }
 .pf .pf-promo-tarjetas a > div > div:last-child > span:first-child { padding: 0; background: none; font-size: var(--pf-pie); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
@@ -150,4 +150,21 @@
   .sf-r3 .pf .pf-promo-tarjetas a img { aspect-ratio: 4 / 3; }
   .sf-r3 .pf .pf-promo-tarjetas p { display: block; max-width: 52ch; }
   .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 16px 0 0; }
+}
+
+/* ---------- 5. 404: cabecera de página con sus dos salidas; Promos de hoy en tarjetas, una fila llena ---------- */
+
+.pf-404-botones { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-404-botones { flex-direction: row; width: auto; }
+}
+/* Celular: el texto toma el alto de la miniatura y Ver promo queda en su borde de abajo, en todas las filas. */
+.sf-r3 .pf .pf-promo-tarjetas a > div { align-items: stretch; }
+.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { display: flex; flex-direction: column; }
+.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > h3:first-child { margin-top: 0; }
+.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > span:last-child { margin-top: auto; }
+@container pf (min-width: 48rem) {
+  /* Desktop: tarjetas en fila; la sin fecha deja el alto de la etiqueta para que su título quede en la línea de las vecinas. */
+  .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > h3:first-child { margin-top: calc(var(--pf-pie) * 1.5 + 8px); }
+  .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > span:last-child { margin-top: 8px; }
 }

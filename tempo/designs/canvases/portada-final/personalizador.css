@@ -1,0 +1,49 @@
+/*
+ * PRI-286 · /personaliza (PR #36, sin mergear) con el sistema de la portada. No se importa en el canvas: se inyecta
+ * en el deploy preview del PR, encima de refresh*.css y portada.css (body.pf, main.pf-v), y la captura va al frame.
+ * PUENTE: en el PR, PersonalizaPage arma las dos columnas con la rejilla de 12 (izquierda: prenda, vista previa, paso 3
+ * y Enviar; derecha: pasos 1 y 2) y toma las clases pf-* de la cabecera.
+ */
+
+/* Cabecera de página: la de Promos y la 404 (aire de una sección arriba, titular 64 / 40, bajada 12 debajo). La fila
+   título | filete | bajada de la ronda 5 (refresh-r3.css) no va: en la portada la bajada va debajo del título.
+   !important: el CSS del PR gana a las clases inyectadas en estas cajas. */
+.pf main.pf-v > div:first-child { display: block !important; padding: var(--pf-aire) var(--pf-m) 0 !important; }
+.pf main.pf-v > div:first-child::before, .pf main.pf-v > div:first-child::after, .pf main.pf-v > div:first-child > p::before { display: none !important; }
+.pf main.pf-v > div:first-child > p { padding: 0 !important; border: 0 !important; max-width: 40ch; }
+.pf main.pf-v > div:first-child > h1 { font-size: var(--pf-display); line-height: 1.05; font-weight: 500; letter-spacing: -0.02em; }
+.pf main.pf-v > div:first-child > p { margin-top: var(--pf-td) !important; font-size: var(--pf-lead); line-height: 1.45; color: var(--color-muted); }
+/* Cabecera -> contenido: 32 / 24, como en todas las secciones. */
+.pf main.pf-v > fieldset { padding: var(--pf-tc) var(--pf-m) 12px; }
+/* Pasos: el título de cada paso con la escala de tarjeta (22 / 18) y 48 / 40 entre pasos. */
+.pf main.pf-v section h2 { font-family: var(--font-display); font-size: var(--pf-h3); font-weight: 500; letter-spacing: -0.01em; }
+.pf main.pf-v > div.flex-col { gap: 40px; padding-inline: var(--pf-m); }
+
+@media (min-width: 1024px) {
+  .pf main.pf-v { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); grid-template-rows: auto 1fr; align-items: stretch; padding: 0 var(--pf-m) var(--pf-aire); }
+  .pf main.pf-v > div:first-child { grid-column: 1 / -1; padding: var(--pf-aire) 0 var(--pf-tc) !important; }
+  /* Izquierda en 6 columnas, derecha en 5 desde la 8 (el 6 | 5 del visor); mismo borde arriba y abajo. */
+  .pf main.pf-v > .pz-izq { grid-column: 1 / span 6; grid-row: 2; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; position: static; padding: 0; }
+  /* !important: el PR pone col-start-2 / row-span-2 en este div. */
+  .pf main.pf-v > .pz-der { grid-column: 8 / -1 !important; grid-row: 2 !important; padding: 0; gap: 48px; }
+  .pf main.pf-v > .pz-der > section:last-child { flex: 1; }
+  .pf .pz-izq > * { align-self: stretch; }
+  .pf .pz-izq > fieldset { padding: 0; }
+  .pf .pz-izq > div.sticky { position: static; margin: 0; padding: 0; box-shadow: none; }
+  .pf .pz-izq > div.sticky > div.\@container { height: auto !important; aspect-ratio: 4 / 5; border-radius: var(--radius-tile); }
+  .pf .pz-izq > section { gap: 12px; }
+}
+
+/* Ronda 2 de la auto-revisión. */
+/* El disco de subir de la vista previa con contorno oro (como el del paso 1): el único oro relleno es Enviar. */
+.pf main.pf-v span.flex.size-11.rounded-full.bg-accent { background: transparent; border: 1px solid var(--color-accent); color: var(--color-accent); }
+/* La nota de Enviar alineada a la izquierda, como el resumen de arriba. */
+.pf form p.text-center.text-\[12px\] { text-align: left; }
+/* En el celular la herramienta cierra con el aire de sección antes del Footer, como las demás pantallas. */
+@media (max-width: 1023.98px) {
+  .pf form { padding-bottom: var(--pf-aire); }
+}
+/* Desktop: la Nota cierra en el mismo borde que Enviar. */
+@media (min-width: 1024px) {
+  .pf .pz-der textarea { min-height: 129px; }
+}
