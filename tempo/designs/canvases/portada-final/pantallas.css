@@ -8,6 +8,22 @@
 
 .sf-r3 .pf ul.columns-2 { gap: var(--pf-g); }
 
+/* Cada foto dice que se abre: el chevrón en un círculo abajo a la derecha, siempre visible (el indicador de
+   ProductCard.astro, el muro de master antes de PRI-130: círculo de 28 oscuro y chevrón claro). Con el mouse o el foco
+   sigue el hover de Masonry de master: degradado abajo, chip con la categoría a la izquierda y la foto que se acerca;
+   el chevrón queda en la misma fila del chip (10 del borde). En el celular no hay hover: queda el chevrón.
+   PUENTE: Masonry. En el PR, un <span aria-hidden> con el svg del chevrón en Tile, junto al chip. */
+.pf ul.columns-2 a::before,
+.pf ul.columns-2 a::after { content: ""; position: absolute; right: 10px; bottom: 10px; width: 28px; height: 28px; pointer-events: none; }
+.pf ul.columns-2 a::before { border-radius: 9999px; background: color-mix(in srgb, var(--color-primary) 80%, transparent); }
+.pf ul.columns-2 a::after {
+  background: var(--color-ink);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+/* En el canvas, la 2.ª foto del muro de desktop se muestra en hover (el estado que ve el mouse). */
+.pf-cat-muro[data-hover] li:nth-child(2) a > span { opacity: 1; }
+.sf-refresh .pf-cat-muro[data-hover] li:nth-child(2) a img { transform: scale(1.06); filter: none; }
+
 /* ---------- 1. Catálogo: banner, bajada, pestañas y muro, todo en el margen de la rejilla ---------- */
 
 /* Banner a sangre pegado al Header (el alto del refresh: 520 / 340). El nombre es el h1 de la página con la escala

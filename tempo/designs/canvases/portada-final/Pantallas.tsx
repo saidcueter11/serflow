@@ -79,7 +79,7 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
           <div className="pf-c pf-cat-chips">
             <CategoryNav categories={CHIPS} current={`/products/${c.slug}`} />
           </div>
-          <div className="pf-c pf-cat-muro">
+          <div className="pf-c pf-cat-muro" data-hover={width === 1280 || undefined}>
             {/* Sin tarjeta de cierre (Said, 2026-11-02): la última fila queda con las fotos que haya. */}
             <Masonry tiles={c.tiles} />
           </div>
