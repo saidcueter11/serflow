@@ -24,46 +24,6 @@
   .pf .pf-cat-texto > p { max-width: 34ch; }
 }
 
-/* Tarjeta de cierre: ocupa las celdas que faltan en la última fila (si está llena, una fila entera). Un solo
-   componente: mismo título, bajada y botón, y en cada ancho de pantalla las mismas medidas en 1, 2 o más celdas; solo
-   cambia el ancho de la caja. El bloque va centrado en vertical con el aire repartido arriba y abajo. Las medidas de
-   letra siguen al muro (contenedor "muro": 2 columnas en celular, 3 desde 40rem, 4 desde 64rem, los cortes del muro);
-   el ícono del botón sigue a la caja (contenedor "cierre").
-   Al construir: li:last-child con grid-column: span (columnas - n % columnas, o todas), con :nth-child por cada ancho. */
-.pf-cat-muro ul.columns-2 { container: muro / inline-size; }
-.pf-cierre { display: flex; }
-.pf-cierre > div {
-  container: cierre / inline-size;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: var(--pf-td);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-tile);
-  background: var(--color-surface);
-}
-.pf .pf-cierre h2 { font-family: var(--font-display); font-weight: 500; font-size: var(--pf-h3); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
-.pf .pf-cierre p { margin-top: var(--pf-g); font-size: 14px; line-height: 1.4; color: var(--color-muted); max-width: 34ch; text-wrap: pretty; }
-/* El botón (el de la marca: 16 semibold) nunca se sale de la caja: 12 a los lados y, si no cabe en una línea, parte
-   en dos ("Escríbenos por / WhatsApp"). El ícono va cuando el interior de la caja mide 15.75rem (252) o más (cabe el botón entero en una
-   línea). PUENTE: Button no deja partir el texto; al construir, una prop o variante para esto (Design System Debt). */
-.sf-r3 .pf .pf-cierre a.inline-flex.rounded-full.font-body { max-width: 100%; margin-top: var(--pf-td); padding: var(--pf-g) var(--pf-td); line-height: 1.2; text-align: center; text-wrap: balance; }
-.pf .pf-cierre a svg { display: none; flex-shrink: 0; }
-@container cierre (min-width: 15.75rem) {
-  .pf .pf-cierre a svg { display: block; }
-}
-@container muro (min-width: 40rem) {
-  .pf-cierre > div { padding: 16px; }
-  .pf .pf-cierre p { margin-top: var(--pf-td); font-size: var(--pf-body); line-height: 1.5; }
-  .sf-r3 .pf .pf-cierre a.inline-flex.rounded-full.font-body { margin-top: var(--pf-tc); }
-}
-/* Desktop: el título con la escala de h2 (48) para que la caja de una celda se vea llena. */
-@container muro (min-width: 64rem) {
-  .pf .pf-cierre h2 { font-size: var(--pf-h2); line-height: 1.05; }
-}
-
 /* ---------- 2. Visor: Todas las fotos en su fila; en desktop la foto en una banda a todo el ancho y el panel en una fila debajo ---------- */
 
 .pf-visor-volver { display: inline-flex; min-height: 48px; align-items: center; gap: 6px; margin-left: -6px; font-size: 14px; font-weight: 600; color: var(--color-muted); }

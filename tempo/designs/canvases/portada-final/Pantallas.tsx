@@ -1,8 +1,6 @@
 /// <reference types="vite/client" />
 import "./portada.css";
 import "./pantallas.css";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
 import { Button } from "../../../../src/components/ui/Button";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { CategoryNav, type CategoryLink } from "../../../../src/components/ui/CategoryNav";
@@ -63,50 +61,6 @@ const CATEGORIAS = {
 
 /* ---------- 1. Catálogo, categoría ---------- */
 
-/**
- * PROPUESTA: la tarjeta que cierra la última fila del muro. Un solo componente con el mismo texto en todos los anchos
- * (título, bajada y botón); solo cambia cuántas celdas ocupa: las que faltan en la última fila. Al construir es el
- * último <li> de la lista de Masonry en CatalogPage y su ancho sale de :nth-child (ver pantallas.css); aquí se mide
- * con las columnas reales del muro y se agrega con un portal para no tocar src/.
- */
-function Cierre({ faltan }: { faltan: number }) {
-  return (
-    <li className="pf-cierre" style={{ gridColumn: `span ${faltan}` }}>
-      <div>
-        <h2>¿No ves la que buscas?</h2>
-        <p>Igual te lo hacemos por encargo, con tu logo o tu diseño.</p>
-        <Button variant="whatsapp" href={WHATSAPP_URL} external>
-          Escríbenos por WhatsApp
-        </Button>
-      </div>
-    </li>
-  );
-}
-
-function ConCierre({ fotos, children }: { fotos: number; children: ReactNode }) {
-  const caja = useRef<HTMLDivElement>(null);
-  const [muro, setMuro] = useState<HTMLElement | null>(null);
-  const [columnas, setColumnas] = useState(0);
-  useLayoutEffect(() => {
-    const ul = caja.current?.querySelector<HTMLElement>("ul.columns-2");
-    if (!ul) return;
-    setMuro(ul);
-    const medir = () => setColumnas(getComputedStyle(ul).gridTemplateColumns.split(" ").length);
-    medir();
-    const ro = new ResizeObserver(medir);
-    ro.observe(ul);
-    return () => ro.disconnect();
-  }, []);
-  // Si la última fila está llena, la tarjeta ocupa una fila entera: pedir por encargo está en todas las categorías.
-  const faltan = columnas ? (columnas - (fotos % columnas)) % columnas || columnas : 0;
-  return (
-    <div ref={caja}>
-      {children}
-      {faltan > 0 && muro && createPortal(<Cierre faltan={faltan} />, muro)}
-    </div>
-  );
-}
-
 export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIAS }) {
   const c = CATEGORIAS[cat];
   return (
@@ -126,9 +80,8 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
             <CategoryNav categories={CHIPS} current={`/products/${c.slug}`} />
           </div>
           <div className="pf-c pf-cat-muro">
-            <ConCierre fotos={c.tiles.length}>
-              <Masonry tiles={c.tiles} />
-            </ConCierre>
+            {/* Sin tarjeta de cierre (Said, 2026-11-02): la última fila queda con las fotos que haya. */}
+            <Masonry tiles={c.tiles} />
           </div>
         </main>
       </div>
