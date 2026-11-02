@@ -1,0 +1,272 @@
+/*
+ * Refresh "más fuerte", ronda 2 (PRI-286 + PRI-287, Said 2026-10-27). Va encima de refresh.css: todo lo de .sf-r2
+ * cuelga de un elemento que también tiene .sf-refresh (tokens, letra y los 4 movimientos de la ronda 1).
+ * La ronda 1 queda abajo en el canvas sin .sf-r2, tal como Said la vio.
+ *
+ * Mismo esquema que refresh.css: en el PR, las variables de .sf-r2 van a @theme, las clases sf-* van a tokens.css y
+ * lo que viene después de cada PUENTE se vuelve clases en el componente (ver el tablero "Lista de cambios").
+ *
+ * Tamaños con cqi (1 % del ancho del contenedor más cercano: Section, main, el banner): un solo valor sirve para 390
+ * y para 1280 sin breakpoints, y el clamp() fija los topes de la escala.
+ */
+
+.sf-r2 {
+  /* Escala: saltos de ~1.25 entre pasos. 1280 / 390 */
+  --sf-display: clamp(48px, 6.9cqi, 88px); /* 88 / 48: titular del hero */
+  --sf-h1: clamp(44px, 6.25cqi, 80px); /* 80 / 44: h1 de página, nombre de la categoría */
+  --sf-h2: clamp(40px, 5cqi, 64px); /* 64 / 40: títulos de sección */
+  --sf-h3: clamp(19px, 1.75cqi, 24px); /* 24 / 19: título de tarjeta y de paso */
+  --sf-lead: clamp(17px, 1.6cqi, 21px); /* 21 / 17: bajada debajo de un título */
+  --sf-titulo-tracking: -0.02em;
+  --sf-titulo-alto: 1.05;
+
+  /* Aire: entre secciones sube de 64 / 112 a 96 / 176 (cada sección pone la mitad arriba y la mitad abajo). */
+  --sf-aire: 48px;
+  --sf-aire-desktop: 88px;
+}
+
+/* ---------- 1 · Títulos grandes y livianos ---------- */
+
+.sf-r2 :is(.sf-t-display, .sf-t-h1, .sf-t-h2,
+  /* PUENTE: h1 de PromosPage, NotFoundPage y PersonalizaPage; nombre del CategoryBanner; Section h2; PromoAfiche h2; promo del detalle */
+  main h1.font-display, [data-banner-slide] p.font-display, h2.stitch-title, article.\@container h2.font-display) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: var(--sf-titulo-tracking);
+  line-height: var(--sf-titulo-alto);
+  text-wrap: balance;
+}
+.sf-r2 .sf-t-display { font-size: var(--sf-display); }
+.sf-r2 :is(.sf-t-h1, /* PUENTE */ main h1.font-display:not(.sf-t-display), [data-banner-slide] p.font-display) { font-size: var(--sf-h1); }
+.sf-r2 :is(.sf-t-h2, /* PUENTE: Section h2 y el título del detalle de una promo (títulos largos) */ h2.stitch-title, main .self-end > h1.font-display) { font-size: var(--sf-h2); }
+/* PUENTE: PromoAfiche, el título crece con su propio ancho (el primero va a lo ancho). */
+.sf-r2 article.\@container h2.font-display { font-size: clamp(26px, 3.4cqi, 48px); }
+.sf-r2 :is(.sf-t-h3, /* PUENTE: ProductCard, PromoCard, ServiceCard y los pasos del personalizador */ a.group :is(h2, h3).font-display, article.group h3.font-display, section > h2.font-display.text-\[20px\]) {
+  font-size: var(--sf-h3);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.sf-r2 :is(.sf-t-lead,
+  /* PUENTE: bajada de Section, CatalogPage, PromosPage, NotFoundPage, PersonalizaPage y el texto del hero */
+  h2.stitch-title + p, div.px-4 > p.max-w-\[52ch\], main h1.font-display + p) {
+  font-size: var(--sf-lead);
+  line-height: 1.5;
+  max-width: 46ch;
+}
+/* Los títulos se separan más de su bajada y de su contenido. */
+.sf-r2 :is(h2.stitch-title, main h1.font-display) + p { margin-top: 16px; }
+.sf-r2 section > div.px-4 > div > div.mt-5 { margin-top: 40px; }
+
+/* La costura de los títulos: más fina y corta, un hilo debajo del título y no una barra. */
+.sf-r2 .stitch-title::after {
+  width: 56px;
+  height: 2px;
+  margin-top: 20px;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 6px, transparent 6px 10px);
+}
+
+/* ---------- Más aire entre secciones ---------- */
+
+.sf-r2 :is(.sf-seccion, /* PUENTE: Section */ section.\@container > div.px-4) { padding-block: var(--sf-aire); }
+@container (min-width: 48rem) {
+  .sf-r2 :is(.sf-seccion, /* PUENTE */ section.\@container > div.px-4) { padding-block: var(--sf-aire-desktop); }
+}
+/* PUENTE: cabecera de CatalogPage y de PromosPage, y el personalizador. */
+.sf-r2 :is(main, main > div) > div.px-4.pt-6 { padding-top: 40px; }
+.sf-r2 main > div.px-4.pb-12.pt-6 > div:first-child { padding-bottom: 48px; gap: 20px; }
+@container (min-width: 48rem) {
+  .sf-r2 :is(main, main > div) > div.px-4.pt-6 { padding-top: 72px; }
+  .sf-r2 main > div.px-4.pb-12.pt-6 > div:first-child { padding-bottom: 72px; gap: 24px; }
+}
+
+/* ---------- 2 · El dorado solo en detalles: botón principal, costuras, etiquetas pequeñas y foco ---------- */
+
+/* Eyebrow: deja de ser una píldora con borde. Etiqueta dorada en mayúsculas, sin fondo. */
+.sf-r2 :is(.sf-etiqueta, /* PUENTE: Eyebrow */ span.border-line.bg-surface:has(> span.size-1\.5.bg-accent)) {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.sf-r2 span.border-line.bg-surface:has(> span.size-1\.5.bg-accent) > span.size-1\.5 { display: none; }
+
+/* StatusPill accent: sin fondo tintado, queda el punto y el texto dorado. */
+.sf-r2 span.bg-accent\/12.rounded-full.px-2\.5 { background: none; padding-inline: 0; }
+/* ContactList y QuickFacts: el ícono dorado sin el círculo relleno. */
+.sf-r2 span.size-10.bg-accent\/12 { background: none; box-shadow: inset 0 0 0 1px var(--color-line); }
+
+/* PromoBar: de barra dorada a negro cálido con la etiqueta en oro. */
+.sf-r2 .promo-bar { background: var(--color-primary-light); color: var(--color-ink); border-bottom: 1px solid var(--color-line); }
+.sf-r2 .promo-bar a { outline-color: var(--color-accent); }
+.sf-r2 .promo-bar a > span:first-child { background: none; padding: 0; color: var(--color-accent); letter-spacing: 0.16em; }
+.sf-r2 .promo-bar a > span:last-child { text-decoration-color: var(--color-accent); text-decoration-thickness: 1px; font-weight: 600; }
+
+/* CategoryNav: la pestaña actual en tinta, las demás sin borde ni fondo. Chip elegido: igual. */
+.sf-r2 nav[aria-label='Categorías'] a:not([aria-current]) { border-color: transparent; background: none; color: var(--color-muted); }
+.sf-r2 label > input.peer:not(:checked) + span.rounded-full { background: none; }
+.sf-r2 :is(nav[aria-label='Categorías'] a[aria-current], label > input.peer:checked + span.rounded-full) { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-primary); }
+@media (hover: hover) {
+  .sf-r2 :is(nav[aria-label='Categorías'] a:not([aria-current]), label > input.peer:not(:checked) + span.rounded-full):hover { color: var(--color-ink); border-color: var(--color-line); }
+}
+
+/* NewBadge y la etiqueta de promo del hero: texto dorado sobre negro, sin relleno dorado. */
+.sf-r2 :is(span.bg-accent.uppercase.tracking-\[\.08em\], .hero-carousel figcaption.bg-accent) {
+  background: color-mix(in srgb, var(--color-primary) 85%, transparent);
+  color: var(--color-accent);
+  box-shadow: none;
+}
+/* La barrita de avance del hero en tinta. */
+.sf-r2 .hero-carousel .anim-bar { background: var(--color-ink); }
+
+/* Ticker: de texto dorado grande a gris; el ✦ dorado queda como puntada. */
+.sf-r2 div.border-y:has(> .anim-ticker) { background: none; }
+.sf-r2 .anim-ticker li { color: var(--color-muted); font-weight: 500; }
+.sf-r2 .anim-ticker li > span { color: var(--color-accent); }
+
+/* Links ghost y "Ver promo": tinta; el oro aparece como costura al pasar (refresh.css). */
+.sf-r2 :is(:is(a, button).inline-flex.rounded-full.font-body.underline-offset-4, a.group span.mt-auto.text-accent) { color: var(--color-ink); }
+
+/* Números de Quiénes somos y pasos del personalizador: tinta / borde fino. */
+.sf-r2 span.font-display.text-\[22px\].text-accent { color: var(--color-muted); font-weight: 500; }
+.sf-r2 section > h2 > span.size-8.border-accent { border-color: var(--color-line); color: var(--color-ink); }
+
+/* Personalizador: el ícono de subir pasa de círculo dorado a borde; la técnica elegida, en tinta. */
+.sf-r2 label.border-dashed span.size-12.bg-accent { background: none; color: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent); }
+.sf-r2 label.border-dashed { background: none; }
+.sf-r2 label > input.peer + span.min-h-14 { background: none; }
+.sf-r2 label > input.peer:checked + span.min-h-14 { border-color: var(--color-ink); }
+
+/* ---------- 3 · Fotos a sangre, tarjetas sin caja ---------- */
+
+/* Tarjetas que son link (ProductCard, PromoCard): sin borde, sin fondo; la foto con radio chico y el pie de texto debajo. */
+.sf-r2 :is(.sf-tarjeta, /* PUENTE */ a.group.rounded-card) { border: 0; border-radius: 0; background: none; overflow: visible; }
+.sf-r2 a.group.rounded-card div.overflow-hidden { border-radius: var(--radius-tile); }
+.sf-r2 a.group.rounded-card > div.p-3 { padding: 14px 0 0; gap: 4px; }
+.sf-r2 a.group.rounded-card div.flex-1.p-4 { padding: 18px 0 0; }
+@container (min-width: 36rem) {
+  .sf-r2 a.group.rounded-card div.flex-1.p-4 { padding: 0 0 0 40px; }
+}
+
+/* ServiceCard: foto alta y el texto debajo, sin caja. */
+.sf-r2 article.group.rounded-card { border: 0; border-radius: 0; background: none; padding: 0; }
+.sf-r2 article.group.rounded-card img { height: auto; aspect-ratio: 4 / 3; }
+@container (min-width: 48rem) {
+  .sf-r2 article.group.rounded-card img { aspect-ratio: 4 / 5; }
+}
+.sf-r2 article.group.rounded-card h3 { margin-top: 18px; }
+.sf-r2 article.group.rounded-card p { font-size: 15px; margin-top: 6px; }
+
+/* PromoAfiche: foto + pie, sin caja. */
+.sf-r2 article.\@container.rounded-card { border: 0; border-radius: 0; background: none; overflow: visible; }
+.sf-r2 article.\@container.rounded-card img { border-radius: var(--radius-tile); }
+.sf-r2 article.\@container.rounded-card div.flex-1.p-5 { padding: 20px 0 0; }
+@container (min-width: 42rem) {
+  .sf-r2 article.\@container.rounded-card div.flex-1.p-5 { padding: 0 0 0 48px; }
+}
+
+/* Un solo dorado por afiche y del tamaño de su texto: el bloque de botones no pasa de 320 px (en el celular, a lo ancho). */
+@container (min-width: 28rem) {
+  .sf-r2 article.\@container.rounded-card div.mt-auto.flex-col { max-width: 320px; }
+}
+
+/* /promos: la primera promo va a lo ancho, foto a sangre (PUENTE: en el PR, PromosPage la saca de PromoGrid). */
+.sf-r2 main > div > ul > li:first-child { flex-basis: 100%; margin-inline: -16px; }
+.sf-r2 main > div > ul > li:first-child article.\@container.rounded-card img { border-radius: 0; }
+.sf-r2 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 { padding-inline: 16px; }
+.sf-r2 main > div > ul { row-gap: 56px; }
+@container (min-width: 48rem) {
+  .sf-r2 main > div > ul > li:first-child { margin-inline: -48px; }
+  .sf-r2 main > div > ul > li:first-child article img { min-height: 560px; }
+  .sf-r2 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 { padding: 0 48px 0 56px; }
+  .sf-r2 main > div > ul { row-gap: 72px; column-gap: 32px; }
+}
+
+/* CategoryBanner: banda a sangre, más alta, sin borde ni radio. */
+.sf-r2 :is(.sf-banda, /* PUENTE: CategoryBanner */ div:has(> [data-banner-track])) { height: 340px; border: 0; border-radius: 0; }
+@container (min-width: 48rem) {
+  .sf-r2 div:has(> [data-banner-track]) { height: 520px; }
+}
+.sf-r2 [data-banner-slide] > div.absolute.bottom-0 { padding: 0 16px 28px; }
+@container (min-width: 48rem) {
+  .sf-r2 [data-banner-slide] > div.absolute.bottom-0 { padding: 0 48px 56px; }
+}
+.sf-r2 [data-banner-slide] > div.absolute.bottom-0 > p + p { margin-top: 12px; font-size: 15px; }
+
+/* Detalle de promo: el afiche a sangre (PUENTE: sin @4xl:px-12, @4xl:pt-6, @4xl:rounded-card ni @4xl:border). */
+.sf-r2 main > div.flex.flex-col:has(> div.relative.grid) { padding-inline: 0; padding-top: 0; gap: 56px; }
+.sf-r2 main > div.flex.flex-col > div.relative.grid { border: 0; border-radius: 0; }
+@container (min-width: 56rem) {
+  .sf-r2 main > div.flex.flex-col > div.relative.grid { min-height: 680px; }
+  .sf-r2 main > div.flex.flex-col > div.relative.grid > div.self-end { padding: 48px 48px 24px; max-width: 680px; }
+  .sf-r2 main > div.flex.flex-col > div.relative.grid > div.row-start-2 { padding: 0 48px 64px; max-width: 680px; }
+  .sf-r2 main > div.flex.flex-col > div.flex.min-w-0 { padding-inline: 48px; }
+}
+.sf-r2 main > div.flex.flex-col > div.flex.min-w-0 img { border: 0; }
+
+/* Visor: la foto más grande y el título visible (hoy es sr-only). PUENTE: en el PR, el h1 sin sr-only y la columna 1.1fr. */
+.sf-r2 main > div:has(> div > ul[aria-label^='Fotos de']) h1.sr-only {
+  position: static; width: auto; height: auto; margin: 0 0 4px; overflow: visible; clip: auto; clip-path: none; white-space: normal;
+  flex-basis: 100%;
+  font-family: var(--font-display); font-weight: 500; letter-spacing: var(--sf-titulo-tracking); line-height: var(--sf-titulo-alto);
+  font-size: var(--sf-h2);
+}
+@container (min-width: 48rem) {
+  .sf-r2 main > div:has(> div > ul[aria-label^='Fotos de']) { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 64px; padding-top: 16px; }
+  .sf-r2 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child { padding-top: 24px; gap: 32px; }
+}
+.sf-r2 ul[aria-label='Elegir foto'] a { border-color: transparent; }
+/* PUENTE: en el PR, sin @3xl:hidden en la nota de Pedir por WhatsApp del visor. */
+.sf-r2 main > div:has(> div > ul[aria-label^='Fotos de']) p.text-\[13px\] { display: block; }
+
+/* MapCard, EmptyState, ErrorState, 404 y la vista previa y el envío del personalizador: sin borde de caja. */
+.sf-r2 :is(#visitanos > div, div.flex-col.items-center.rounded-card.border-line, div.\@container.rounded-card.border-line.bg-surface-2) { border-color: transparent; }
+.sf-r2 :is(div.flex-col.items-center.rounded-card.border-line) { background: none; }
+.sf-r2 ul.divide-y.rounded-card { border-inline: 0; border-radius: 0; background: none; }
+.sf-r2 div.rounded-card.border-line.bg-surface.p-4 { border-width: 1px 0 0; border-radius: 0; background: none; padding-inline: 0; }
+.sf-r2 div.sticky.bottom-0:has(> div.rounded-card.border-line) { box-shadow: none; }
+.sf-r2 div.flex.flex-col.gap-10.px-4 { gap: 64px; }
+
+/* ---------- 4 · Entradas: titulares al cargar, bloques al llegar a la vista ---------- */
+
+/* Al cargar, una sola vez: refresh.css ya tiene sf-lineas (titular en líneas) y sf-entra (una línea).
+   Ronda 2: también entra la bajada, 200 ms después del título. */
+@keyframes sf-sube { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+.sf-r2 :is(.sf-entra-despues, /* PUENTE: bajada debajo del h1 de página */ main h1.font-display + p) {
+  animation: sf-sube var(--motion-entrada) var(--ease-premium) 200ms both;
+}
+.sf-r2 .sf-lineas ~ :is(p, div) { animation: sf-sube var(--motion-entrada) var(--ease-premium) both; }
+.sf-r2 .sf-lineas ~ p { animation-delay: 340ms; }
+.sf-r2 .sf-lineas ~ div { animation-delay: 460ms; }
+.sf-r2 .anim-enter:has(> .sf-lineas) > * { animation-name: none; }
+.sf-r2 .anim-enter:has(> .sf-lineas) > :is(.sf-lineas ~ p, .sf-lineas ~ div) { animation-name: sf-sube; }
+
+/* Al llegar a la vista: cada bloque sube y aparece. Donde no hay scroll-timeline, se ve quieto y completo. */
+@supports (animation-timeline: view()) {
+  .sf-r2 :is(.sf-bloque, /* PUENTE: contenido de cada Section y la banda del personalizador */ section.\@container > div.px-4 > div > div.mt-5, .sf-banda-foto) {
+    animation: sf-sube linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
+
+/* Reducir movimiento: nada se mueve y nada queda escondido. */
+@media (prefers-reduced-motion: reduce) {
+  .sf-r2 :is(.sf-entra-despues, main h1.font-display + p, .sf-lineas ~ p, .sf-lineas ~ div, .sf-bloque, section.\@container > div.px-4 > div > div.mt-5, .sf-banda-foto) {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .sf-r2 .sf-lineas > span > span, .sf-r2 :is(.sf-entra, main h1.font-display, [data-banner-slide] p.font-display) { animation: none !important; }
+}
+
+/* ---------- Solo canvas (no va al PR) ---------- */
+
+/* Demo del bloque al scroll: la caja con scroll propio hace de ventana. */
+.sf-r2 .sf-demo-scroll { scroll-behavior: smooth; }

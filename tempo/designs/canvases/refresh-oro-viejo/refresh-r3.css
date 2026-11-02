@@ -1,0 +1,432 @@
+/*
+ * Rondas 3 y 4 (PRI-286). Va encima de refresh.css y refresh-r2.css: todo lo de .sf-r3 cuelga de un elemento que también
+ * tiene .sf-refresh y .sf-r2 (en el canvas, la clase NUEVO de comun.tsx).
+ *
+ * Ronda 3 (Said 2026-11-01: "hay un serio problema con el manejo de los espacios"): cada bloque se compone sobre el ancho.
+ * Ronda 4 (8 comentarios sobre la ronda 3): la bajada va anclada a su título, la acción principal en oro viejo y más
+ * grande, y cero huecos: columnas que empiezan y terminan en el mismo borde, salvo los márgenes laterales.
+ *
+ * Lo que viene después de cada PUENTE se vuelve clases en el componente al construir (tablero "Lista de cambios").
+ */
+
+/* ---------- Aire entre secciones: la escala de antes + 12-14 %, no + 50 % ---------- */
+
+.sf-r3 {
+  /* Entre secciones: 64 / 112 (master) -> 96 / 176 (ronda 2) -> 72 / 128 (ronda 3). Cada sección pone la mitad. */
+  --sf-aire: 36px;
+  --sf-aire-desktop: 64px;
+}
+
+/* Título -> contenido de una sección: 40 en la ronda 2, 28 ahora. */
+.sf-r3 section > div.px-4 > div > div.mt-5 { margin-top: 28px; }
+
+/* PUENTE: cabecera de CatalogPage, PromosPage y el personalizador (40 / 72 arriba en la ronda 2). */
+.sf-r3 :is(main, main > div) > div.px-4.pt-6 { padding-top: 28px; }
+.sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child { padding-bottom: 32px; gap: 16px; }
+@container (min-width: 48rem) {
+  .sf-r3 :is(main, main > div) > div.px-4.pt-6 { padding-top: 48px; }
+  .sf-r3 main > div.px-4.pb-12.pt-6 > div:first-child { padding-bottom: 48px; gap: 20px; }
+}
+.sf-r3 main > div > ul { row-gap: 40px; }
+@container (min-width: 48rem) {
+  .sf-r3 main > div > ul { row-gap: 56px; }
+}
+.sf-r3 main > div.flex.flex-col:has(> div.relative.grid) { gap: 40px; }
+
+/* ---------- Cabeceras en una fila (ronda 5) ---------- */
+
+/* Said (ronda 3): "Este texto flotando aquí no me gusta" (bajada suelta en la columna derecha de una rejilla 7/5). Ronda 4:
+   la bajada bajó debajo del título y dejó la mitad derecha de la cabecera vacía. Said (ronda 4): "Mejor pero ahora hay
+   espacio, no solo muevas las letras".
+   Ronda 5: en desktop la cabecera es UNA fila que ocupa todo el ancho de la sección:
+     [título con su costura] | bajada .................................. [acción de la sección]
+   La bajada va pegada al título (40 px, detrás de un filete vertical que la cose a él), con su última línea al pie del
+   título, y se estira hasta la acción o hasta el borde. La acción (Ver todo el catálogo, Ver las 24 de Beisbol, Ver todas
+   las promos) sube del pie de la sección al final de la fila. Sin bajada ni acción no queda una cabecera de solo título:
+   Quiénes somos sube el mapa hasta el título (propuesta/Portada.tsx). Mide ~40 % menos de alto que la de la ronda 4.
+   En el celular no cambia: bajada debajo del título, acción al pie.
+   Vacío residual a 1280 (de la última letra de la fila al borde): Promos ~0 (la bajada parte en tres líneas hasta el borde),
+   Qué hacemos ~470 px -> 0 (llega al borde), Disponible ahora: bajada + acción al borde, Más de: título + acción al borde,
+   404 Promos de hoy: título + Ver todas las promos al borde, personalizador ~520 -> ~65 px.
+   PUENTE: Section (prop nueva `action`; el envoltorio pasa a grid desde @3xl), PromosPage y PersonalizaPage (su cabecera,
+   misma rejilla), NotFoundPage (action="Ver todas las promos"), ViewerPage (el "Ver las N de" pasa a action). */
+@container (min-width: 48rem) {
+  .sf-r3 :is(
+      section > div.px-4 > div:has(> h2.stitch-title),
+      main > div.px-4.pb-12 > div:first-child:has(> h1.font-display + p),
+      main > div.px-4.pt-6:has(> h1.font-display + p)
+    ) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 40px;
+    row-gap: 0;
+    align-items: end;
+  }
+  /* Eyebrow arriba, sola. */
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mb-4,
+  .sf-r3 main > div.px-4.pb-12 > div:first-child:has(> h1.font-display + p) > span:first-child { grid-row: 1; grid-column: 1 / -1; justify-self: start; margin-bottom: 16px; }
+  .sf-r3 :is(section > div.px-4 > div > h2.stitch-title, main > div.px-4.pb-12 > div:first-child > h1.font-display, main > div.px-4.pt-6 > h1.font-display) { grid-row: 2; grid-column: 1; }
+  /* La bajada: pegada al título, cosida con el filete, su última línea al pie del título (la costura mide 22 px). */
+  .sf-r3 :is(section > div.px-4 > div > h2.stitch-title + p, main > div.px-4.pb-12 > div:first-child > h1.font-display + p, main > div.px-4.pt-6 > h1.font-display + p) {
+    grid-row: 2;
+    grid-column: 2;
+    max-width: 60ch;
+    margin: 0 0 6px;
+    padding-left: 40px;
+    border-left: 1px solid var(--color-line);
+  }
+  .sf-r3 section > div.px-4 > div > h2.stitch-title + p { margin-bottom: 28px; }
+  /* El contenido de la sección, debajo de la fila; la acción sube al final de la fila. */
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mt-5 { display: contents; }
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mt-5 > * { grid-row: 3; grid-column: 1 / -1; margin-top: 28px; }
+  .sf-r3 section > div.px-4 > div:has(> h2.stitch-title) > div.mt-5 > div:last-child:not(:first-child):has(> a.rounded-full) {
+    grid-row: 2;
+    grid-column: 3;
+    margin: 0 0 22px;
+  }
+  .sf-r3 #disponible div.mt-5 > div.mt-6 { margin: 0 0 22px; }
+  /* Personalizador: sin la bajada debajo, la cabecera se separa de las columnas con su propio aire. */
+  .sf-r3 main > div.px-4.pt-6:has(> h1.font-display + p) { padding-bottom: 36px; }
+}
+
+/* ---------- Tarjetas de la portada (Said: "se pueden mejorar las cards") ---------- */
+
+/* Las dos familias con la misma foto 4:5 en desktop (antes 4:5 en Qué hacemos y 4:3 en Disponible ahora). */
+@container (min-width: 48rem) {
+  .sf-r3 :is(article.group.rounded-card img, /* PUENTE: ProductCard */ #disponible a.group.rounded-card img) { aspect-ratio: 4 / 5; }
+}
+
+/* ServiceCard: el pie con jerarquía. Título 24 y bajada 16 a 34ch (antes 15 gris chico a lo ancho). */
+.sf-r3 article.group.rounded-card h3 { margin-top: 20px; font-size: var(--sf-h3); }
+.sf-r3 article.group.rounded-card p { margin-top: 8px; font-size: 16px; line-height: 1.5; max-width: 34ch; }
+
+/* ProductCard: nombre 18 en tinta y el detalle 14 debajo; foto y pie del mismo ancho, sin caja. */
+.sf-r3 #disponible a.group.rounded-card > div.p-3 { padding: 16px 0 0; gap: 4px; }
+.sf-r3 #disponible a.group.rounded-card h3 { font-size: 18px; line-height: 1.25; }
+.sf-r3 #disponible a.group.rounded-card p { font-size: 14px; }
+/* En el celular el carrusel también pasa a 4:5 (tarjetas de 240 x 300). */
+.sf-r3 #disponible a.group.rounded-card img { aspect-ratio: 4 / 5; }
+/* "Ver todo el catálogo" pegado a las tarjetas. */
+.sf-r3 #disponible div.mt-6 { margin-top: 20px; }
+
+/* ---------- Muro del catálogo y "Más de": rejilla pareja en vez de mosaico ---------- */
+
+/* Columnas iguales, todas las fotos 4:5 y páginas que cierran la última fila (12, 24 o 60: múltiplos de 2, 3 y 4).
+   Ronda 4: 2 columnas en el celular, 3 en tablet (desde 40rem de muro, un iPad vertical) y 4 en desktop (desde 64rem).
+   PUENTE: Masonry. En el PR, Masonry pasa a grid (grid-cols-2 @[40rem]:grid-cols-3 @[64rem]:grid-cols-4) y deja el RITMO. */
+.sf-r3 ul.columns-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; columns: auto; }
+@container (min-width: 40rem) {
+  .sf-r3 ul.columns-2 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+}
+@container (min-width: 64rem) {
+  .sf-r3 ul.columns-2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.sf-r3 ul.columns-2 > li { margin: 0; }
+.sf-r3 ul.columns-2 img { aspect-ratio: 4 / 5 !important; height: auto; }
+
+/* ---------- Visor en desktop: foto y panel en la rejilla de "Más de" (ronda 4) ---------- */
+
+/* Said (ronda 3): "mejoró pero aún veo un muy mal manejo de los espacios". La ronda 3 estiraba el panel con
+   justify-between y dejaba dos huecos de ~530 x 165. Ahora todo cae en una rejilla de 5 columnas con calles de 24 px,
+   la misma de "Más de": la foto 4:5 ocupa 2 columnas (459 x 574 a 1280) y el panel las otras 3. Las 3 miniaturas
+   (4:5) miden una columna cada una, así que su borde inferior es el de la foto y sus lados caen sobre las columnas de
+   Más de. Panel: la categoría, el título, Pedir por WhatsApp (2 columnas) con su nota y las miniaturas, con el
+   mismo aire entre los tres bloques (~30 px). Vacío residual: 0.
+   Con 1 sola foto, ver "Visor: otras vistas y producto de una sola foto" (ronda 5).
+   PUENTE: ViewerPage y PhotoThumbs. */
+@container (min-width: 48rem) {
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: stretch;
+    padding-top: 8px;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:first-child { grid-column: 1 / span 2; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child {
+    grid-column: 3 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 0;
+    align-content: space-between;
+    padding-top: 0;
+  }
+  /* Categoría arriba, el título debajo (el h1 deja de ser sr-only). Sin Nuevo desde la ronda 5. */
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 20px;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child > h1 { grid-row: 2; grid-column: 1 / -1; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col { grid-column: 1 / span 2; width: auto; max-width: none; gap: 10px; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col > p { font-size: 14px; line-height: 1.5; }
+  .sf-r3 ul[aria-label='Elegir foto'] { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .sf-r3 ul[aria-label='Elegir foto'] a { width: auto; height: auto; aspect-ratio: 4 / 5; border-width: 0; }
+  .sf-r3 ul[aria-label='Elegir foto'] li:first-child a { box-shadow: 0 0 0 2px var(--color-ink); }
+}
+
+/* ---------- Visor: otras vistas y producto de una sola foto (ronda 5) ---------- */
+
+/* Said: "estas imágenes parecen productos distintos en lugar de variantes del producto. además, ¿qué pasa si no hay
+   variantes?". El catálogo guarda fotos del MISMO producto (no colores: no hay un dato de color), así que las miniaturas
+   son otras vistas de esa prenda: de frente, el bordado de cerca, el parche y la visera; mismo fondo y misma luz. Llevan su
+   rótulo "Otras vistas" (etiqueta en oro viejo, como las demás) para que nadie las lea como otros productos. En el canvas
+   las dos de cerca son recortes de la foto de frente (aún no hay fotos de varios ángulos; se cambian cuando lleguen).
+   Con una sola foto no hay miniaturas: en su lugar van los 3 pasos del pedido (propuesta/PasosPedido.tsx), una lista
+   con filetes como la de Quiénes somos que reparte su alto hasta el borde de abajo de la foto. El panel cierra igual
+   arriba y abajo; vacío residual 0. En el celular los pasos van debajo del botón.
+   PUENTE: PhotoThumbs (rótulo visible "Otras vistas"; alt de cada vista) y ViewerPage (PasosPedido si photos.length === 1). */
+@container (min-width: 48rem) {
+  .sf-r3 ul[aria-label='Elegir foto'] { row-gap: 12px; }
+  .sf-r3 ul[aria-label='Elegir foto']::before {
+    content: "Otras vistas";
+    grid-column: 1 / -1;
+    color: var(--color-accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div:first-child { row-gap: 16px; }
+  /* El botón en 2 columnas y su nota en la 3.ª, a su lado: la fila del botón no deja una columna vacía. */
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: center;
+  }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col > :first-child { grid-column: 1 / span 2; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child > div.flex-col > p { grid-column: 3; margin: 0; }
+  .sf-r3 main > div:has(> div > ul[aria-label^='Fotos de']) > div:last-child:has(> .sf-pasos-pedido) {
+    grid-template-rows: auto auto minmax(0, 1fr);
+    align-content: stretch;
+    row-gap: 28px;
+  }
+  .sf-r3 .sf-pasos-pedido { grid-column: 1 / -1; min-height: 0; }
+}
+.sf-r3 .sf-pasos-pedido { display: flex; flex-direction: column; gap: 12px; }
+.sf-r3 .sf-pasos-pedido > ol { flex: 1; display: flex; flex-direction: column; border-top: 1px solid var(--color-line); }
+.sf-r3 .sf-pasos-pedido li { flex: 1; align-items: center; gap: 20px; padding-block: 16px; border-bottom: 1px solid var(--color-line); }
+.sf-r3 .sf-pasos-pedido li > span { width: 32px; flex-shrink: 0; font-size: 22px; }
+/* Ronda 5 (Said: "Esto no es necesario. Ni tampoco el uso de 'nuevo' en los productos"): fuera la línea "N.º 4 · Hace 10
+   días" de arriba del visor (la fila queda con Todas las fotos) y la etiqueta Nuevo en todas las pantallas (muro del
+   catálogo, Más de y el panel del visor). El panel no cambia de alto: sigue cerrando arriba y abajo con la foto.
+   PUENTE: ViewerPage (sin el <span> de N.º y hace) y Masonry / ViewerPage (sin NewBadge; NewBadge sale del design system). */
+.sf-r3 main > div.justify-between:first-child > span:last-child,
+.sf-r3 span.pointer-events-none.rounded-full.bg-accent.uppercase { display: none; }
+
+/* Más de queda un escalón debajo del título del producto (h1 del visor), no por encima. PUENTE: Section size="sm" en ViewerPage. */
+.sf-r3 #mas h2.stitch-title { font-size: clamp(30px, 3.4cqi, 44px); }
+
+/* Más de: 5 columnas con la misma calle en desktop; 10 fotos = 2 filas completas (PUENTE: masDe recorta a múltiplo de 5). */
+@container (min-width: 64rem) {
+  .sf-r3 #mas ul.columns-2 { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  .sf-r3 #mas ul.columns-2 > li:nth-child(n + 11) { display: none; }
+}
+
+/* ---------- /promos: afiches sin hueco antes de los botones ---------- */
+
+/* Said: "Aquí hay un espacio desaprovechado" (afiche sin descripción: el título arriba y los botones empujados al
+   fondo para alinearse con el vecino). Ahora cada afiche termina donde termina su texto y los dos botones van en
+   una fila (Pedir por WhatsApp + Ver las N fotos), así el pie mide lo mismo con o sin descripción.
+   PUENTE: PromoGrid (items-start) y PromoAfiche (sin mt-auto; botones en fila desde @md). */
+.sf-r3 main > div > ul { align-items: flex-start; }
+.sf-r3 article.\@container.rounded-card div.mt-auto.flex-col { margin-top: 4px; }
+@container (min-width: 28rem) {
+  .sf-r3 article.\@container.rounded-card div.mt-auto.flex-col { flex-direction: row; align-items: center; gap: 20px; max-width: none; }
+  .sf-r3 article.\@container.rounded-card div.mt-auto.flex-col > a.w-full { width: auto; padding-inline: 28px; }
+}
+
+
+/* Ronda 4: la primera promo (a sangre) dejaba el texto centrado junto a una foto de 560 px, con ~140 px vacíos arriba y
+   abajo de esa columna. Ahora es un afiche de verdad: la foto ocupa todo el ancho y el texto va encima, abajo a la
+   izquierda, sobre el mismo degradado del hero (contraste 4.9:1 o más). Vacío residual: 0. En el celular no cambia.
+   PUENTE: PromosPage (la primera promo lleva una clase de afiche a sangre; PromoAfiche no cambia de props). */
+@container (min-width: 42rem) {
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card > div { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card img { grid-area: 1 / 1; height: 560px; min-height: 0; aspect-ratio: auto; }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 {
+    grid-area: 1 / 1;
+    z-index: 1;
+    align-self: end;
+    justify-content: flex-end;
+    padding: 160px 48px 48px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--color-primary) 92%, transparent) 0%, color-mix(in srgb, var(--color-primary) 70%, transparent) 55%, transparent 100%);
+  }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 > :is(h2, p) { max-width: 22ch; }
+  .sf-r3 main > div > ul > li:first-child article.\@container.rounded-card div.flex-1.p-5 > p { max-width: 52ch; color: color-mix(in srgb, var(--color-ink) 85%, transparent); }
+}
+
+/* ---------- Personalizador (/personaliza, PR #36) en desktop ---------- */
+
+/* Izquierda: prenda, vista previa y el paso 3 con el resumen y Enviar. Derecha: pasos 1 y 2.
+   Ronda 4 (Said: "Este espacio no me gusta, tiene que estar mejor alineado"): la ronda 3 dejaba la izquierda ~120 px más
+   corta que la derecha y la derecha empezaba 48 px más abajo. Ahora las dos columnas se estiran a la misma fila: empiezan
+   en el mismo borde (sin el pt de la derecha) y terminan en el mismo borde: la izquierda reparte lo que le falta en sus
+   4 separaciones (24 -> ~41 px, casi el 48 de la derecha) y Enviar cierra a ras del final del paso 2. La vista previa
+   sigue 4:5. Si un día la izquierda es la más alta, el paso 2 se estira (flex 1). Vacío residual: 0.
+   PUENTE: la captura mueve esos nodos a .pz-izq / .pz-der; en el PR, PersonalizaPage arma las dos columnas así a partir
+   de @4xl con grid-template-areas (en el celular no cambia el orden). */
+@media (min-width: 1024px) {
+  .sf-r3 main:has(> .pz-izq) { grid-template-rows: auto 1fr; column-gap: 56px; align-items: stretch; }
+  .sf-r3 main > .pz-izq { grid-column: 1; grid-row: 2; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; position: static; padding-bottom: 32px; }
+  .sf-r3 main > div.pz-der.px-4.pt-6 { grid-column: 2; grid-row: 2; padding: 0 0 32px; gap: 48px; }
+  .sf-r3 main > .pz-der > section:last-child { flex: 1; }
+  .sf-r3 .pz-izq > * { align-self: stretch; }
+  .sf-r3 .pz-izq > fieldset { padding: 0; }
+  .sf-r3 .pz-izq > div.sticky { position: static; margin: 0; padding: 0; box-shadow: none; }
+  .sf-r3 .pz-izq > div.sticky > div.\@container { height: auto !important; aspect-ratio: 4 / 5; }
+  .sf-r3 .pz-izq > section { gap: 12px; }
+}
+
+/* ---------- Última fila del muro: siempre cerrada (ronda 4: responsiva) ---------- */
+
+/* Con datos reales la última página casi nunca es múltiplo de las columnas (Basket 10, Moda 11, Niños 10). La cierra
+   la tarjeta "¿No ves la que buscas?" (propuesta/CierreMuro.tsx): una celda de texto del mismo tamaño que una foto y,
+   si faltan 2 o 3 celdas, una foto del taller que ocupa las demás. Así nunca queda chica (siempre una celda entera),
+   estirada (el texto no pasa de una celda) ni cortada (cabe en la celda más chica, 175 x 219 a 390).
+   Celdas que faltan -> la tarjeta: 2 columnas: 1 -> texto. 3 columnas: 1 -> texto; 2 -> texto + foto. 4 columnas:
+   1 -> texto; 2 -> texto + foto; 3 -> texto + foto de 2 celdas. Fila completa -> no se muestra.
+   PUENTE: en el PR es el último <li> de CatalogPage (no de Más de) y estas reglas, con las mismas posiciones. */
+.sf-r3 li.sf-cierre { display: none; grid-template-columns: subgrid; }
+.sf-r3 li.sf-cierre:nth-child(2n) { display: grid; grid-column: span 1; }
+@container (min-width: 40rem) {
+  .sf-r3 li.sf-cierre:nth-child(n) { display: none; }
+  .sf-r3 li.sf-cierre:nth-child(3n + 2) { display: grid; grid-column: span 2; }
+  .sf-r3 li.sf-cierre:nth-child(3n) { display: grid; grid-column: span 1; }
+}
+@container (min-width: 64rem) {
+  .sf-r3 li.sf-cierre:nth-child(n) { display: none; }
+  .sf-r3 li.sf-cierre:nth-child(4n + 2) { display: grid; grid-column: span 3; }
+  .sf-r3 li.sf-cierre:nth-child(4n + 3) { display: grid; grid-column: span 2; }
+  .sf-r3 li.sf-cierre:nth-child(4n) { display: grid; grid-column: span 1; }
+}
+.sf-r3 .sf-cierre-texto {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  aspect-ratio: 4 / 5;
+  padding: 16px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-tile);
+  background: var(--color-surface);
+}
+.sf-r3 .sf-cierre-texto > div { display: flex; flex-direction: column; gap: 8px; }
+.sf-r3 .sf-cierre-texto h2 { font-family: var(--font-display); font-weight: 500; font-size: 18px; line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
+.sf-r3 .sf-cierre-texto p { font-size: 14px; line-height: 1.45; color: var(--color-muted); }
+.sf-r3 .sf-cierre-texto :is(a, button) { width: 100%; padding-inline: 12px; gap: 6px; }
+.sf-r3 .sf-cierre-texto svg { flex-shrink: 0; }
+@container (min-width: 15rem) {
+  .sf-r3 .sf-cierre-texto { padding: 24px; }
+  .sf-r3 .sf-cierre-texto > div { gap: 12px; }
+  .sf-r3 .sf-cierre-texto h2 { font-size: 26px; }
+  .sf-r3 .sf-cierre-texto p { font-size: 17px; }
+}
+.sf-r3 .sf-cierre-foto { display: none; grid-column: 2 / -1; position: relative; overflow: hidden; border-radius: var(--radius-tile); }
+.sf-r3 .sf-cierre-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sf-r3 .sf-cierre-foto span { position: absolute; left: 12px; bottom: 12px; border-radius: 999px; background: color-mix(in srgb, var(--color-primary) 85%, transparent); padding: 4px 12px; font-size: 12px; color: var(--color-ink); }
+/* La foto solo cuando la tarjeta ocupa 2 o 3 celdas. */
+.sf-r3 li.sf-cierre:nth-child(2n) .sf-cierre-foto { display: none; }
+@container (min-width: 40rem) {
+  .sf-r3 li.sf-cierre:nth-child(3n + 2) .sf-cierre-foto { display: block; }
+  .sf-r3 li.sf-cierre:nth-child(3n) .sf-cierre-foto { display: none; }
+}
+@container (min-width: 64rem) {
+  .sf-r3 li.sf-cierre:nth-child(n) .sf-cierre-foto { display: none; }
+  .sf-r3 li.sf-cierre:is(:nth-child(4n + 2), :nth-child(4n + 3)) .sf-cierre-foto { display: block; }
+}
+
+/* ---------- Promos sin vigencia y la grilla de la 404 ---------- */
+
+/* Afiche sin fecha: el título baja a la altura del de su vecino (la línea de la vigencia), en desktop. PUENTE: PromoAfiche. */
+@container (min-width: 28rem) {
+  .sf-r3 article.\@container.rounded-card div.flex-1.p-5 > h2.font-display:first-child { margin-top: 38px; }
+}
+/* 404: "Ver promo" pegado a su texto, no empujado al fondo (mismo arreglo que /promos). PUENTE: PromoCard y PromoGrid. */
+.sf-r3 section ul.flex.flex-wrap { align-items: flex-start; }
+.sf-r3 a.group.rounded-card span.mt-auto { margin-top: 4px; }
+/* PromoCard sin fecha (404): mismo ajuste del título que el afiche, cuando van varias en fila (tarjeta de 368 px o más). */
+@container (min-width: 23rem) {
+  .sf-r3 section a.group.rounded-card div.flex-1 > h3.font-display:first-child { margin-top: 34px; }
+}
+
+/* ---------- Botones y chips: la acción principal en oro viejo, las secundarias con borde (ronda 4) ---------- */
+
+/* Said (ronda 3, chips del catálogo): "¿por qué ya no estamos usando el accent color aquí? además estos botones podrían
+   ser más grandes". Regla para toda la app:
+   - Acción principal de cada bloque (Pedir por WhatsApp, Diseñar mi prenda, Ver el catálogo del hero, Escríbenos de la
+     tarjeta de cierre y de la 404): relleno oro viejo. Chip de categoría elegido: igual.
+   - Secundarias (Ver todo el catálogo, Ver las N fotos, Ver 80 más, Ir al inicio, Cómo llegar, la categoría del visor,
+     los chips no elegidos): borde line, texto en tinta.
+   - Tamaño: alto mínimo 48 px en el celular y 52 en desktop, texto 16 px, toda la píldora es el área táctil.
+   PUENTE: Button (min-h-12 @3xl:min-h-[52px] text-[16px]; el ghost pasa a secondary en sus usos), CategoryNav y Chip. */
+.sf-r3 :is(a, button).inline-flex.rounded-full.font-body { min-height: 48px; padding-inline: 24px; font-size: 16px; }
+.sf-r3 :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4 { border: 1px solid var(--color-line); color: var(--color-ink); }
+.sf-r3 :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4::after { display: none; }
+.sf-r3 nav[aria-label='Categorías'] a { min-height: 48px; padding-inline: 20px; font-size: 16px; }
+.sf-r3 nav[aria-label='Categorías'] a > span { font-size: 13px; }
+.sf-r3 :is(nav[aria-label='Categorías'] a:not([aria-current]), label > input.peer:not(:checked) + span.rounded-full) { border-color: var(--color-line); color: var(--color-ink); }
+.sf-r3 :is(nav[aria-label='Categorías'] a[aria-current], label > input.peer:checked + span.rounded-full) { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-primary); }
+.sf-r3 nav[aria-label='Categorías'] a[aria-current] > span { color: color-mix(in srgb, var(--color-primary) 75%, transparent); }
+@media (hover: hover) {
+  .sf-r3 :is(nav[aria-label='Categorías'] a:not([aria-current]), label > input.peer:not(:checked) + span.rounded-full):hover { border-color: var(--color-muted); }
+}
+@container (min-width: 48rem) {
+  .sf-r3 :is(a, button).inline-flex.rounded-full.font-body { min-height: 52px; padding-inline: 28px; }
+  .sf-r3 nav[aria-label='Categorías'] a { min-height: 52px; }
+}
+
+/* ---------- Portada · Quiénes somos en 12 columnas (ronda 4) ---------- */
+
+/* Said (ronda 3): "Mejor uso de los espacios aquí". El texto iba en una columna angosta, con una calle de ~140 px hasta el
+   mapa y el mapa terminaba más abajo que las razones. Ahora: texto y razones en 7 columnas, Visítanos en 5, las dos con el
+   mismo borde de arriba y de abajo. Las razones son una lista con filetes que reparte su alto; el mapa crece hasta el
+   borde. PUENTE: HomePage (ver propuesta/Portada.tsx) y MapCard (h-full, el mapa flex-1). */
+.sf-r3 .sf-razones > ul { height: 100%; gap: 0; border-top: 1px solid var(--color-line); }
+.sf-r3 .sf-razones > ul > li { flex: 1; align-items: center; gap: 20px; padding-block: 16px; border-bottom: 1px solid var(--color-line); }
+.sf-r3 .sf-razones > ul > li > span { width: 32px; font-size: 22px; }
+.sf-r3 .sf-razones h3 { font-size: 17px; font-weight: 600; }
+.sf-r3 .sf-razones p { font-size: 15px; }
+@container (min-width: 48rem) {
+  /* Ronda 5: grid y no flex (un <details> no reparte alto con flex): el mapa toma todo lo que sobra y la tarjeta no deja
+     superficie vacía al pie. */
+  .sf-r3 .sf-visitanos > div { height: 100%; display: grid; grid-template-rows: minmax(160px, 1fr) auto; }
+  .sf-r3 .sf-visitanos details { height: 100%; }
+  .sf-r3 .sf-visitanos summary { display: block; height: 100%; }
+  .sf-r3 .sf-visitanos summary > div { height: 100%; min-height: 160px; }
+}
+
+/* ---------- 404 en desktop: compuesta en 12 columnas (ronda 4) ---------- */
+
+/* La ronda 3 la dejó centrada con ~300 x 400 vacíos a cada lado. Ahora el texto y los dos botones van alineados a la
+   izquierda en 7 columnas y una foto del taller ocupa las otras 5, del borde de arriba de la etiqueta al de abajo de los
+   botones. PUENTE: NotFoundPage (en el PR, un <img> de gorras-estante con alt="" en vez del ::after). */
+@container (min-width: 48rem) {
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\] {
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 48px;
+    row-gap: 32px;
+    align-items: start;
+    text-align: left;
+  }
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\] > div:first-child { grid-column: 1 / span 7; align-items: flex-start; }
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\] > div:nth-child(2) { grid-column: 1 / span 7; }
+  .sf-r3 main > div.px-4 > div.mx-auto.max-w-\[600px\]::after {
+    content: "";
+    grid-column: 8 / -1;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+    border-radius: var(--radius-tile);
+    background: url("../../../../src/assets/images/stock/gorras-estante.jpg") 50% 40% / cover;
+  }
+}

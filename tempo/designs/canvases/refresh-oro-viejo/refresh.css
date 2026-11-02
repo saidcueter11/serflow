@@ -1,0 +1,198 @@
+/*
+ * Refresh "oro viejo" (PRI-286 + PRI-287). Canvas: tempo/designs/canvases/refresh-oro-viejo.
+ *
+ * Esto es lo que va a src/styles/tokens.css. En el canvas todo cuelga de .sf-refresh para poder mostrar antes y
+ * después lado a lado con los mismos componentes de producción, y cada regla de movimiento lleva, dentro de su
+ * :is(), la clase nueva (sf-brillo, sf-foto...) y después del comentario PUENTE los selectores que hoy encuentran
+ * esos elementos sin tocar src/. Así el canvas prueba exactamente estas reglas.
+ *
+ * En el PR: las variables de .sf-refresh van a @theme; las reglas quedan sin el prefijo .sf-refresh y sin lo que
+ * viene después de cada PUENTE (eso se vuelve una clase en el componente, ver el tablero "Lista de cambios").
+ * La sección "Solo canvas" del final no va.
+ */
+
+.sf-refresh {
+  /* Oro viejo: único acento. 7.56:1 sobre el fondo y 7.56:1 con texto negro encima (AA y AAA). */
+  --color-accent: #c9a24a;
+  /* Tinte para fondos (chip elegido, foco suave). Texto dorado encima: 6.2:1 sobre el fondo, 5.7:1 sobre surface. */
+  --color-accent-soft: #c9a24a1f;
+  /* Oro profundo: bordes y cantos, nunca texto (3.75:1 sobre el fondo, sirve para bordes; texto claro encima 4.28:1, no pasa AA). */
+  --color-accent-deep: #8c6d2c;
+  /* Oro claro: borde al pasar, brillo, separadores. 10.7:1 sobre el fondo. */
+  --color-secondary: #e2c47e;
+
+  /* Negros cálidos, tinta y gris: los de hoy, siguen funcionando con el oro viejo. */
+
+  /* Una sola familia, sin esquinas cuadradas. Variable 400-700; latin la sirve Google en un solo woff2. */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Motion: los tres cortos de hoy se quedan para color y foco; estos son los de los movimientos nuevos. */
+  --motion-brillo: 900ms;
+  --motion-foto: 1100ms;
+  --motion-entrada: 900ms;
+  --motion-costura: 700ms;
+  --motion-escalon: 120ms;
+  /* Sale rápido y se posa despacio: la curva de todo lo nuevo. */
+  --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow-oro: 0 14px 30px -12px color-mix(in srgb, var(--color-accent) 70%, transparent);
+
+  /* En html o body en el PR. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes sf-subir { from { transform: translateY(105%) } to { transform: none } }
+@keyframes sf-entra { from { opacity: 0; transform: translateY(0.45em); clip-path: inset(0 0 100% 0) } to { opacity: 1; transform: none; clip-path: inset(-0.2em -0.2em -0.3em) } }
+
+/* ---------- 1 · Botón con brillo: sube y le pasa un reflejo al pasar; se hunde al tocar ---------- */
+
+.sf-refresh :is(.sf-brillo, /* PUENTE: Button whatsapp y secondary */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  translate: none; /* PUENTE: saca active:translate-y-* de Button; en el PR se borran esas clases */
+  transition: transform var(--motion-slow) var(--ease-premium), box-shadow var(--motion-slow) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium);
+}
+.sf-refresh :is(.sf-brillo, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line))::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, var(--sf-reflejo, rgb(255 255 255 / 0.5)) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+/* El botón dorado: sin canto 3D, con un filo de luz arriba. */
+.sf-refresh :is(.sf-brillo:not(.sf-brillo-suave), /* PUENTE: Button whatsapp */ :is(a, button).inline-flex.rounded-full.font-body.bg-accent) {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28);
+}
+/* Secundario: mismo gesto, reflejo tenue y sin halo dorado. */
+.sf-refresh :is(.sf-brillo-suave, /* PUENTE: Button secondary */ :is(a, button).inline-flex.rounded-full.font-body.border-line) {
+  --sf-reflejo: color-mix(in srgb, var(--color-secondary) 16%, transparent);
+  --sf-sombra: 0 10px 24px -14px rgb(0 0 0 / 0.8);
+}
+@media (hover: hover) {
+  .sf-refresh :is(.sf-brillo, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)):hover { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+  .sf-refresh :is(.sf-brillo-suave, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body.border-line):hover { border-color: var(--color-secondary); }
+  .sf-refresh :is(.sf-brillo, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)):hover::after { transform: translateX(120%); transition: transform var(--motion-brillo) var(--ease-premium); }
+}
+.sf-refresh :is(.sf-brillo, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)):focus-visible { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+.sf-refresh :is(.sf-brillo, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)):focus-visible::after { transform: translateX(120%); transition: transform var(--motion-brillo) var(--ease-premium); }
+.sf-refresh :is(.sf-brillo, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)):active { transform: translateY(1px) scale(0.97); box-shadow: none; transition-duration: var(--motion-fast); }
+
+/* ---------- 2 · Foto que se acerca: gana color, zoom lento y el texto sube. En el celular la foto ya está a todo color ---------- */
+
+.sf-refresh :is(.sf-foto, /* PUENTE: ProductCard, Masonry, PromoCard (a.group), ServiceCard y la banda (article.group), PromoAfiche */ a.group, article.group, article.rounded-card) img {
+  scale: none; /* PUENTE: saca group-hover:scale-105; en el PR se borra esa clase y su duration-500 */
+  transition: transform var(--motion-foto) var(--ease-premium), filter calc(var(--motion-foto) * 0.55) var(--ease-premium);
+}
+.sf-refresh :is(.sf-foto-texto, /* PUENTE: bloque de texto de ProductCard y de la banda */ :is(a.group, article.group) > div:last-child:not(:first-child)) {
+  transition: transform 600ms var(--ease-premium);
+}
+@media (hover: hover) {
+  .sf-refresh :is(.sf-foto, /* PUENTE */ a.group, article.group, article.rounded-card) img { filter: saturate(0.85) brightness(0.95); }
+  .sf-refresh :is(.sf-foto, /* PUENTE */ a.group, article.group):is(:hover, :focus-visible, :focus-within) img { transform: scale(1.06); filter: none; }
+  /* PromoAfiche no tiene marco con overflow-hidden en la foto: solo gana color hasta que el PR le ponga el marco. */
+  .sf-refresh article.rounded-card:hover img { filter: none; }
+  .sf-refresh .sf-foto:hover .sf-foto-texto,
+  .sf-refresh :is(/* PUENTE */ a.group, article.group):hover > div:last-child:not(:first-child) { transform: translateY(-4px); }
+}
+.sf-refresh :is(.sf-foto, /* PUENTE */ a.group):active img { transform: scale(1.03); filter: none; transition-duration: var(--motion-med); }
+
+/* ---------- 3 · Titular que entra: cada línea sube detrás de una máscara, una tras otra ---------- */
+
+.sf-refresh .sf-lineas > span { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.sf-refresh .sf-lineas > span > span { display: block; animation: sf-subir var(--motion-entrada) var(--ease-premium) both; }
+.sf-refresh .sf-lineas > span:nth-child(2) > span { animation-delay: var(--motion-escalon); }
+.sf-refresh .sf-lineas > span:nth-child(3) > span { animation-delay: calc(var(--motion-escalon) * 2); }
+/* Dentro de anim-enter (hero) el h1 no hace además el fundido del grupo: sus líneas ya entran solas. */
+.sf-refresh .anim-enter > .sf-lineas { animation: none; }
+/* Títulos de una línea al cargar: h1 de página, nombre de la categoría. */
+.sf-refresh :is(.sf-entra, /* PUENTE: CategoryBanner (nombre), PromosPage y PersonalizaPage (h1) */ [data-banner-slide]:not([aria-hidden]) p.font-display, main h1.font-display:not(.sf-lineas)) {
+  animation: sf-entra var(--motion-entrada) var(--ease-premium) both;
+}
+/* Títulos de sección: suben al entrar en pantalla (donde no hay scroll-timeline se ven quietos y completos). */
+@supports (animation-timeline: view()) {
+  .sf-refresh :is(.sf-entra-scroll, /* PUENTE: Section */ h2.stitch-title) { animation: sf-entra linear both; animation-timeline: view(); animation-range: entry 5% entry 45%; }
+}
+
+/* ---------- 4 · Enlace que se cose: costura dorada que se dibuja debajo al pasar, al enfocar o al tocar ---------- */
+
+.sf-refresh :is(.sf-costura, /* PUENTE: Button ghost, nav de escritorio del Header, links del Footer, "Ver promo" de PromoCard */ :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4, header > div > nav a, footer a:not([aria-label]), a.group span.mt-auto.text-accent.font-semibold) {
+  position: relative;
+  width: fit-content;
+  text-decoration-line: none !important; /* PUENTE: saca hover:underline; en el PR se borra esa clase */
+}
+.sf-refresh :is(.sf-costura, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4, header > div > nav a, footer a:not([aria-label]), a.group span.mt-auto.text-accent.font-semibold)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--sf-costura-y, 8px);
+  height: 2px;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 8px, transparent 8px 13px);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--motion-costura) var(--ease-premium);
+}
+/* PUENTE: en PromoAfiche el ghost va centrado (en el PR, items-center en su bloque de botones). */
+.sf-refresh article.rounded-card a.underline-offset-4 { align-self: center; }
+/* PUENTE: "Ver promo" de PromoCard es un span sin alto mínimo. */
+.sf-refresh a.group span.mt-auto.text-accent.font-semibold { --sf-costura-y: -4px; }
+@media (hover: hover) {
+  .sf-refresh :is(.sf-costura, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4, header > div > nav a, footer a:not([aria-label])):hover::after,
+  .sf-refresh a.group:hover :is(.sf-costura, /* PUENTE */ span.mt-auto.text-accent.font-semibold)::after { clip-path: inset(0); }
+}
+.sf-refresh :is(.sf-costura, /* PUENTE */ :is(a, button).inline-flex.rounded-full.font-body.underline-offset-4, header > div > nav a, footer a:not([aria-label])):is(:focus-visible, :active, [aria-current])::after { clip-path: inset(0); }
+
+/* ---------- Al tocar: todo lo demás que se toca se hunde un poco (cards link, pestañas, chips) ---------- */
+
+.sf-refresh :is(.sf-toque, /* PUENTE: CategoryNav, Chip */ nav[aria-label='Categorías'] a, label > input.peer + span) {
+  transition: transform var(--motion-fast) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium), background-color var(--motion-fast) var(--ease-premium);
+}
+.sf-refresh :is(.sf-toque, /* PUENTE */ nav[aria-label='Categorías'] a, label > input.peer + span):active { transform: scale(0.96); }
+.sf-refresh :is(.sf-foto, /* PUENTE: cards que son link */ a.group):active { transform: scale(0.98); transition-duration: var(--motion-fast); }
+@media (hover: hover) {
+  .sf-refresh :is(/* PUENTE: hover:border-secondary en CategoryNav y Chip no elegidos */ nav[aria-label='Categorías'] a:not([aria-current]), label > input.peer:not(:checked) + span):hover { border-color: var(--color-secondary); }
+}
+
+/* ---------- Reducir movimiento: global.css ya apaga animaciones y transiciones; aquí lo que quedaría a medias ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-refresh :is(.sf-foto, a.group, article.group, article.rounded-card) img { filter: none !important; transform: none !important; }
+  .sf-refresh :is(.sf-brillo, .sf-toque, .sf-foto-texto, a.group, nav[aria-label='Categorías'] a, label > input.peer + span, :is(a, button).inline-flex.rounded-full.font-body) { transform: none !important; }
+  .sf-refresh :is(.sf-brillo, :is(a, button).inline-flex.rounded-full.font-body)::after { transform: translateX(-120%) !important; }
+}
+
+/* ---------- PUENTE: HeroCarousel, velo más oscuro a media altura para que el texto se lea sobre fotos claras del taller
+   (en el PR: via-primary/55 -> via-primary/85 via-65% en el degradado). La etiqueta dorada queda en 4.9:1 o más aun sobre blanco. ---------- */
+
+.sf-refresh .hero-carousel > .bg-gradient-to-t {
+  background-image: linear-gradient(to top, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 85%, transparent) 65%, transparent 100%);
+}
+
+/* ---------- PUENTE: letra (en el PR, clases en cada componente; ver la lista de cambios) ---------- */
+
+.sf-refresh .font-display.font-medium { font-weight: 600; }
+.sf-refresh :is(h1, h2.stitch-title, [data-banner-slide] p).font-display.font-medium { letter-spacing: -0.022em; }
+.sf-refresh :is(a, button).inline-flex.rounded-full.font-body.font-bold { font-weight: 600; }
+
+/* ---------- Solo canvas (no va al PR) ---------- */
+
+/* El aro del WhatsAppFab en oro viejo. En el PR basta cambiar el color de sf-ring a color-mix(var(--color-accent)). */
+@keyframes sf-ring-canvas { from { box-shadow: 0 0 0 0 rgb(201 162 74 / 0.6) } to { box-shadow: 0 0 0 20px rgb(201 162 74 / 0) } }
+.sf-refresh .anim-ring { animation-name: sf-ring-canvas; }
+
+/* Los frames de 390 se capturan con mouse: aquí se ven como en el celular (sin el apagado de reposo). */
+.sf-refresh.sf-tactil :is(.sf-foto, a.group, article.group, article.rounded-card) img { filter: none; }
+
+/* Demos: .sf-demo fuerza "al pasar" y .sf-demo-toque fuerza "al tocar", para verlos sin mouse. */
+.sf-refresh .sf-demo :is(.sf-brillo, :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line)) { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+.sf-refresh .sf-demo :is(.sf-brillo-suave, :is(a, button).inline-flex.rounded-full.font-body.border-line) { border-color: var(--color-secondary); }
+.sf-refresh .sf-demo :is(.sf-brillo, :is(a, button).inline-flex.rounded-full.font-body:is(.bg-accent, .border-line))::after { transform: translateX(120%); transition: transform var(--motion-brillo) var(--ease-premium); }
+.sf-refresh .sf-demo-toque :is(.sf-brillo, :is(a, button).inline-flex.rounded-full.font-body) { transform: translateY(1px) scale(0.97) !important; box-shadow: none !important; transition-duration: var(--motion-fast) !important; }
+.sf-refresh .sf-demo :is(.sf-foto, a.group, article.group) img { transform: scale(1.06); filter: none; }
+.sf-refresh .sf-demo :is(.sf-foto-texto, :is(a.group, article.group) > div:last-child:not(:first-child)) { transform: translateY(-4px); }
+.sf-refresh .sf-demo :is(.sf-costura, .underline-offset-4, header > div > nav a, footer a:not([aria-label]))::after { clip-path: inset(0); }
+.sf-refresh .sf-demo-toque :is(.sf-toque, nav[aria-label='Categorías'] a, label > input.peer + span) { transform: scale(0.96); }
+.sf-refresh .sf-demo-toque :is(.sf-foto, a.group) { transform: scale(0.98); }
