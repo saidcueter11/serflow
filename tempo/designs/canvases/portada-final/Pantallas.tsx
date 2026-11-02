@@ -255,7 +255,7 @@ export function Promos({ width }: { width: W }) {
   );
 }
 
-/** Tarjetas de promo (Otras promos y la 404): PromoCard de producción sin caja, una fila completa con cualquier cantidad. */
+/** Tarjetas de promo (Otras promos y la 404): PromoCard de producción horizontal y con caja, una fila completa con cualquier cantidad. */
 function PromoTarjetas({ promos }: { promos: PromoView[] }) {
   return (
     <ul className="pf-promo-tarjetas" style={{ "--n": promos.length } as React.CSSProperties}>
