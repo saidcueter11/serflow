@@ -8,7 +8,10 @@ import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { PinIcon } from "../../../../src/components/icons/PinIcon";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import { Marco } from "../refresh-oro-viejo/comun";
+import camisetas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
 import estampadoProceso from "../../../../src/assets/images/stock/estampado-proceso.jpg";
+import gorraBordada from "../../../../src/assets/images/stock/gorra-bordada.jpg";
+import amigosGorras from "../../../../src/assets/images/stock/amigos-gorras.jpg";
 import gorrasEstante from "../../../../src/assets/images/stock/gorras-estante.jpg";
 import estampadoRasero from "../../../../src/assets/images/stock/estampado-rasero.jpg";
 import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
@@ -24,9 +27,12 @@ import gorraDama from "./fotos/gorra-dama.jpg";
  * Sin barra de promos: hoy no hay promos activas (PromoBar no se pinta con 0). Sin Ticker, sin hilo, sin "Nuevo".
  */
 
-/** Hero sin modelos: una sola foto, la del taller (con una, HeroCarousel no pinta etiqueta que rote ni barras). */
+/** El carrusel del hero de master (src/pages/index.astro, HERO): las mismas 4 fotos, en el mismo orden, cada 6 s. */
 const SLIDES: Slide[] = [
-  { src: estampadoProceso, caption: "Estampado en el taller", alt: "Manos pasando el rasero sobre una plancha de estampado", position: "50% 60%" },
+  { src: camisetas, caption: "Camisetas con tu diseño", alt: "Dos personas con camisetas negras estampadas", position: "50% 35%" },
+  { src: estampadoProceso, caption: "Estampado en el taller", alt: "Manos pasando el rasero sobre una plancha de estampado", position: "50% 50%" },
+  { src: gorraBordada, caption: "Gorras bordadas", alt: "Gorra blanca con bordado rojo", position: "50% 40%" },
+  { src: amigosGorras, caption: "Para tu equipo o tu grupo", alt: "Dos amigos con gorras personalizadas riéndose", position: "50% 30%" },
 ];
 
 const SERVICES = [

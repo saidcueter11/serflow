@@ -88,12 +88,23 @@
 }
 .pf-hero-texto > .pf-lead { color: color-mix(in srgb, var(--color-ink) 85%, transparent); max-width: 34ch; }
 .pf-hero-texto > div { width: 100%; margin-top: 8px; }
-/* La etiqueta de la foto y la barra de avance en el margen de la rejilla, no a 16 px del borde. */
 /* La etiqueta de la foto quedaba sola arriba, lejos del texto: fuera. */
 .pf .pf-hero figcaption { display: none; }
+/* Indicadores del carrusel (una barra por foto, la de la foto que se ve se llena en sus 6 s) en el margen de la
+   rejilla. Celular: debajo del botón, a la izquierda, con el mismo 24 arriba y abajo. Desktop: a la derecha, en el
+   borde de abajo del botón. Con "reducir movimiento" la primera foto queda fija y las barras quietas (tokens.css). */
+.pf .pf-hero > div.absolute.bottom-4.right-4 { inset: auto auto 24px var(--pf-m); gap: 6px; }
+.pf .pf-hero:has(> div.absolute.bottom-4.right-4) .pf-hero-texto { padding-bottom: 52px; }
+/* Sin animación (reducir movimiento) queda la primera foto: su barra llena y las demás vacías, no las 4 llenas. La
+   animación, cuando corre, le gana a este transform. PUENTE: HeroCarousel (en el PR, en la clase anim-bar de tokens.css). */
+.pf .pf-hero .anim-bar { transform: scaleX(0); }
+.pf .pf-hero > div.absolute.bottom-4.right-4 > span:first-child .anim-bar { transform: none; }
 @container pf (min-width: 48rem) {
   .pf-hero { height: 720px; }
   .pf-hero-texto { padding-bottom: 56px; gap: 20px; }
+  .pf .pf-hero:has(> div.absolute.bottom-4.right-4) .pf-hero-texto { padding-bottom: 56px; }
+  .pf .pf-hero > div.absolute.bottom-4.right-4 { inset: auto var(--pf-m) 56px auto; }
+  .pf .pf-hero > div.absolute.bottom-4.right-4 > span { width: 40px; }
   .pf-hero-texto > div { width: auto; }
 }
 
