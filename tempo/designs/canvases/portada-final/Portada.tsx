@@ -52,7 +52,7 @@ const RAZONES = [
   { title: "Atención directa", copy: "Te asesoramos por WhatsApp, sin vueltas." },
 ];
 
-function Cabecera({ id, title, description, action }: { id: string; title: string; description?: string; action?: React.ReactNode }) {
+export function Cabecera({ id, title, description, action }: { id: string; title: string; description?: string; action?: React.ReactNode }) {
   return (
     <div className="pf-head">
       <div>

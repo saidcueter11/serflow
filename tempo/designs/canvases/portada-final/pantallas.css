@@ -1,0 +1,57 @@
+/*
+ * PRI-286 · el resto de las pantallas con el sistema de la portada. Va después de portada.css y usa sus variables
+ * (--pf-m, --pf-g, --pf-aire, --pf-tc, --pf-td y la escala de letra): nada de medidas nuevas salvo las anotadas en la
+ * tabla del Sistema. En el PR: las clases van a cada página (CatalogPage, ViewerPage, PromosPage...).
+ */
+
+/* ---------- Muro (catálogo y Más de): la calle de la rejilla, 8 en los dos anchos ---------- */
+
+.sf-r3 .pf ul.columns-2 { gap: var(--pf-g); }
+
+/* ---------- 1. Catálogo: banner, bajada, pestañas y muro, todo en el margen de la rejilla ---------- */
+
+/* Banner a sangre pegado al Header (el alto del refresh: 520 / 340). El nombre es el h1 de la página con la escala
+   del hero (64 / 40) y la bajada 12 debajo, abajo a la izquierda en el margen, como el texto del hero. */
+.pf-cat-banner { position: relative; }
+.pf .pf-cat-banner [data-banner-slide] > div.absolute.bottom-0 { display: none; }
+.pf-cat-texto { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 var(--pf-m) 32px; }
+.pf-cat-texto > p { margin-top: var(--pf-td); color: color-mix(in srgb, var(--color-ink) 85%, transparent); }
+/* La tira de pestañas tiene 4 px de aire propio arriba y abajo (CategoryNav py-1): se descuentan. */
+.pf-cat-chips { margin-top: calc(var(--pf-tc) - 4px); }
+.pf-cat-muro { margin-top: calc(var(--pf-tc) - 4px); padding-bottom: var(--pf-aire); }
+@container pf (min-width: 48rem) {
+  .pf-cat-texto { padding-bottom: 56px; }
+  .pf .pf-cat-texto > p { max-width: 34ch; }
+}
+
+/* Tarjeta de cierre: ocupa las celdas que faltan en la última fila; texto abajo a la izquierda, como el del hero.
+   Al construir: li:last-child con grid-column: span (columnas - n % columnas), con :nth-child por cada ancho. */
+.pf-cierre { display: flex; }
+.pf-cierre > div {
+  container-type: inline-size;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-tile);
+  background: var(--color-surface);
+}
+.pf .pf-cierre h2 { font-family: var(--font-display); font-weight: 500; font-size: var(--pf-h3); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.pf .pf-cierre p { display: none; margin-top: var(--pf-td); font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); max-width: 34ch; }
+.pf .pf-cierre a { margin-top: 16px; padding-inline: 16px; }
+.pf .pf-cierre a svg { flex-shrink: 0; }
+/* En una sola celda: solo título y botón, y el botón dice "Escríbenos" (el resto queda para el lector de pantalla). */
+@container (max-width: 19.99rem) {
+  .pf .pf-cierre a { width: 100%; }
+  .pf-cierre-largo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+/* Dos celdas o más: la bajada aparece y el título sube a la escala de h2 (48 / 34). */
+@container (min-width: 30rem) {
+  .pf-cierre > div { padding: 32px; }
+  .pf .pf-cierre h2 { font-size: var(--pf-h2); }
+  .pf .pf-cierre p { display: block; max-width: 44ch; }
+  .pf .pf-cierre a { margin-top: 24px; padding-inline: 24px; }
+}
