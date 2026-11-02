@@ -80,3 +80,74 @@
   .pf-visor-boton { width: auto; }
   .pf .pf-visor-nota { text-box: trim-end cap alphabetic; }
 }
+
+/* ---------- Título de página interior (promos, 404, personalizador): el aire de una sección arriba ---------- */
+
+.pf-pagina-titulo { display: flex; flex-direction: column; align-items: flex-start; padding-top: var(--pf-aire); }
+.pf-pagina-titulo > h1 { margin-top: 16px; }
+.pf-pagina-titulo > .pf-lead { margin-top: var(--pf-td); }
+@container pf (min-width: 48rem) {
+  .pf .pf-pagina-titulo > .pf-lead { max-width: 56ch; }
+}
+
+/* ---------- 3. Promos · lista: cada promo es una sección; texto en 5 columnas y foto en 6 desde la 7 ---------- */
+
+.pf-promo { padding-top: var(--pf-aire); }
+.pf-promo:last-child { padding-bottom: var(--pf-aire); }
+.pf-promo-texto { display: flex; flex-direction: column; }
+.pf-promo-texto .pf-pie + h2 { margin-top: 16px; }
+.pf-promo-texto .pf-lead { margin-top: var(--pf-td); text-wrap: pretty; }
+.pf-promo-botones { display: flex; flex-direction: column; gap: 8px; margin-top: var(--pf-tc); }
+/* En el celular la foto va primero (4:3), y el texto debajo a 24. */
+.pf-promo-foto { order: -1; position: relative; overflow: hidden; aspect-ratio: 4 / 3; margin-bottom: var(--pf-tc); border-radius: var(--radius-tile); background: var(--color-surface-2); }
+.pf-promo-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+@container pf (min-width: 48rem) {
+  /* Fotos parejas de 16:9 (588 x 331) en las tres promos; si el texto es más alto, la foto crece con él. Mismo borde
+     arriba y abajo: el texto arriba y los botones pegados al borde de abajo de la foto. */
+  .pf-promo-texto { grid-column: 1 / span 5; grid-row: 1; justify-content: space-between; }
+  .pf-promo-foto { order: 0; grid-column: 7 / -1; grid-row: 1; aspect-ratio: auto; min-height: 331px; margin: 0; }
+  .pf-promo-botones { flex-direction: row; }
+}
+
+/* ---------- 3. Promos · detalle: el hero de la portada, Más fotos y Otras promos ---------- */
+
+/* Volver a las promos: su fila arriba del hero, como Todas las fotos en el visor (misma clase). */
+@container pf (min-width: 48rem) {
+  .pf .pf-promo-hero .pf-hero-texto > h1 { max-width: 14ch; }
+}
+
+/* Más fotos: siempre una fila llena. Celular: 2 de 4:5 (una sola, 4:3 a lo ancho). Desktop: hasta 4 por fila;
+   1 -> 21:9, 2 -> 4:3, 3 o 4 -> 1:1 (las proporciones de MasFotos en master). */
+.pf-mas-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); }
+.pf-mas-fotos img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius-tile); background: var(--color-surface-2); }
+.pf-mas-fotos[data-n='1'] { grid-template-columns: minmax(0, 1fr); }
+.pf-mas-fotos[data-n='1'] img { aspect-ratio: 4 / 3; }
+@container pf (min-width: 48rem) {
+  .pf-mas-fotos { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+  .pf-mas-fotos img { aspect-ratio: 1 / 1; }
+  .pf-mas-fotos[data-n='2'] img { aspect-ratio: 4 / 3; }
+  .pf-mas-fotos[data-n='1'] img { aspect-ratio: 21 / 9; }
+}
+
+/* Tarjetas de promo (PromoCard sin caja). Celular: filas foto 4:5 de 112 + texto, como Qué hacemos en la portada.
+   Desktop: una fila llena (2 -> 6 columnas, 3 -> 4), foto 4:3 y pie debajo, como Disponible ahora.
+   La vigencia con la etiqueta del sistema (13 mayúsculas oro), sin píldora. PUENTE: PromoCard. */
+.pf-promo-tarjetas { display: grid; gap: 24px; }
+.sf-r3 .pf .pf-promo-tarjetas a > div { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 16px; align-items: start; }
+.sf-r3 .pf .pf-promo-tarjetas a img { aspect-ratio: 4 / 5; height: auto; }
+.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 0; gap: 0; justify-content: flex-start; }
+/* En el celular, sin la descripción: cortada a dos líneas quedaba a medio decir y más alta que la miniatura. */
+.sf-r3 .pf .pf-promo-tarjetas p { display: none; }
+.pf .pf-promo-tarjetas a > div > div:last-child > span:first-child { padding: 0; background: none; font-size: var(--pf-pie); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
+.pf .pf-promo-tarjetas a > div > div:last-child > span:first-child > span { display: none; }
+.sf-r3 .pf .pf-promo-tarjetas h3 { margin-top: 8px; font-size: var(--pf-h3); font-weight: 500; line-height: 1.25; }
+.pf-promo-tarjetas a > div > div:last-child > span:first-child + h3 { margin-top: 8px; }
+.sf-r3 .pf .pf-promo-tarjetas p { margin-top: 6px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); }
+.sf-r3 .pf .pf-promo-tarjetas a > div > div:last-child > span:last-child { margin-top: 8px; padding: 0; }
+@container pf (min-width: 48rem) {
+  .pf-promo-tarjetas { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--pf-g); }
+  .sf-r3 .pf .pf-promo-tarjetas a > div { display: flex; flex-direction: column; }
+  .sf-r3 .pf .pf-promo-tarjetas a img { aspect-ratio: 4 / 3; }
+  .sf-r3 .pf .pf-promo-tarjetas p { display: block; max-width: 52ch; }
+  .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 16px 0 0; }
+}

@@ -10,6 +10,10 @@ import {
   VisorMobile,
   VisorUnaFotoDesktop,
   VisorUnaFotoMobile,
+  PromosMobile,
+  PromosDesktop,
+  PromoDetalleMobile,
+  PromoDetalleDesktop,
 } from "./Pantallas";
 
 /* PRI-286 · portada final, en 390 y 1280, con el sistema medido en heirest.com; a la derecha, el resto de las pantallas. */
@@ -27,6 +31,10 @@ export default function PortadaFinalCanvas() {
       <Storyboard id="VisorDesktop" name="Visor · Beisbol #49 · 1280" component={VisorDesktop} layout={{ x: 5570, y: 0 }} />
       <Storyboard id="VisorUnaFotoMobile" name="Visor · una foto, categoría chica (Niños #91) · 390" component={VisorUnaFotoMobile} layout={{ x: 5080, y: 5000 }} />
       <Storyboard id="VisorUnaFotoDesktop" name="Visor · una foto, categoría chica (Niños #91) · 1280" component={VisorUnaFotoDesktop} layout={{ x: 5570, y: 5000 }} />
+      <Storyboard id="PromosMobile" name="Promos · lista · 390" component={PromosMobile} layout={{ x: 6950, y: 0 }} />
+      <Storyboard id="PromosDesktop" name="Promos · lista · 1280" component={PromosDesktop} layout={{ x: 7440, y: 0 }} />
+      <Storyboard id="PromoDetalleMobile" name="Promos · detalle · 390" component={PromoDetalleMobile} layout={{ x: 6950, y: 5000 }} />
+      <Storyboard id="PromoDetalleDesktop" name="Promos · detalle · 1280" component={PromoDetalleDesktop} layout={{ x: 7440, y: 5000 }} />
     </Canvas>
   );
 }

@@ -8,8 +8,17 @@ import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { CategoryNav, type CategoryLink } from "../../../../src/components/ui/CategoryNav";
 import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry";
 import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
-import { Cabecera } from "./Portada";
+import { HeroCarousel } from "../../../../src/components/ui/HeroCarousel";
+import { PromoCard } from "../../../../src/components/ui/PromoCard";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
+import { promoWhatsapp, validaHasta, type PromoView } from "../../../../src/lib/promos";
+import { Cabecera } from "./Portada";
+import gorraBordada2 from "../../../../src/assets/images/stock/gorra-bordada-2.jpg";
+import gorraBordada from "../../../../src/assets/images/stock/gorra-bordada.jpg";
+import gorrasEstante from "../../../../src/assets/images/stock/gorras-estante.jpg";
+import camisetasEstampadas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
+import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
+import kid1 from "../../../../src/assets/images/kids/kid1.webp";
 import { Marco } from "../refresh-oro-viejo/comun";
 
 /*
@@ -186,7 +195,172 @@ export const VisorDesktop = () => <Visor width={1280} producto="beisbol" />;
 export const VisorUnaFotoMobile = () => <Visor width={390} producto="ninos" />;
 export const VisorUnaFotoDesktop = () => <Visor width={1280} producto="ninos" />;
 
-export const CatalogoMobile =() => <Catalogo width={390} cat="beisbol" />;
+/* ---------- 3. Promos: lista y detalle ---------- */
+
+/*
+ * Hoy no hay promos vigentes en Supabase; estas son las de ejemplo del design system de master (BoardPromoCard.tsx):
+ * mismos títulos y descripciones, con la forma real de PromoView. Fechas corridas a noviembre para que sigan vigentes
+ * y fotos del taller en vez de los dibujos SVG.
+ */
+const PROMOS: PromoView[] = [
+  {
+    slug: "2x1-gorras-bordadas",
+    title: "2x1 en gorras bordadas",
+    description: "Llevas dos gorras con el mismo bordado y pagas una. Aplica para bordados de hasta 10 cm.",
+    endsAt: "2026-11-08T23:59:00-05:00",
+    cover: { src: gorraBordada, alt: "2x1 en gorras bordadas" },
+    photos: [
+      { src: gorraBordada2, alt: "2x1 en gorras bordadas, foto 2" },
+      { src: gorrasEstante, alt: "2x1 en gorras bordadas, foto 3" },
+    ],
+  },
+  {
+    slug: "camisetas-equipos",
+    title: "10% en camisetas para equipos de fútbol",
+    description: "Desde 10 camisetas con nombre y número. Estampado o DTF, en el color de tu equipo.",
+    endsAt: "2026-11-30T23:59:00-05:00",
+    cover: { src: camisetasEstampadas, alt: "10% en camisetas para equipos de fútbol" },
+    photos: [{ src: camisetaDtf, alt: "10% en camisetas para equipos de fútbol, foto 2" }],
+  },
+  {
+    slug: "gorras-ninos-nombre",
+    title: "Gorras para niños con su nombre bordado",
+    description: "El nombre va gratis en cualquier gorra infantil de la vitrina.",
+    endsAt: null,
+    cover: { src: kid1, alt: "Gorras para niños con su nombre bordado" },
+    photos: [],
+  },
+];
+
+/** Una promo de la lista: texto en 5 columnas y foto en 6 desde la 7, como Diseña la tuya de la portada. */
+function PromoFila({ promo, desktop }: { promo: PromoView; desktop: boolean }) {
+  const hasta = validaHasta(promo.endsAt);
+  const total = promo.photos.length + (promo.cover ? 1 : 0);
+  const id = `promo-${promo.slug}`;
+  return (
+    <section aria-labelledby={id} className="pf-promo pf-grid">
+      <div className="pf-promo-texto">
+        <div>
+          {hasta && <p className="pf-pie">{hasta}</p>}
+          <h2 id={id} className="pf-h2">
+            {promo.title}
+          </h2>
+          {promo.description && <p className="pf-lead">{promo.description}</p>}
+        </div>
+        <div className="pf-promo-botones">
+          <Button variant="whatsapp" href={promoWhatsapp(promo)} external fullWidth={!desktop}>
+            Pedir por WhatsApp<span className="sr-only">: {promo.title}</span>
+          </Button>
+          <Button variant="secondary" href={`/promos/${promo.slug}`} fullWidth={!desktop}>
+            {total > 1 ? `Ver las ${total} fotos →` : "Ver la promo →"}
+            <span className="sr-only"> de {promo.title}</span>
+          </Button>
+        </div>
+      </div>
+      {promo.cover && (
+        <div className="pf-promo-foto">
+          <img src={promo.cover.src} alt={promo.cover.alt} width={1200} height={800} loading="lazy" decoding="async" />
+        </div>
+      )}
+    </section>
+  );
+}
+
+export function Promos({ width }: { width: W }) {
+  const desktop = width === 1280;
+  const n = PROMOS.length;
+  return (
+    <Marco width={width} nuevo current="/promos">
+      <div className="pf font-body text-ink">
+        <main className="pf-v pf-c">
+          <div className="pf-pagina-titulo">
+            <p className="pf-pie">{n === 1 ? "1 promo activa" : `${n} promos activas`}</p>
+            <h1 className="pf-display">Promos de hoy</h1>
+            <p className="pf-lead">Precios especiales por poco tiempo. Pide la que te guste por WhatsApp: el mensaje ya lleva el nombre de la promo.</p>
+          </div>
+          {PROMOS.map((p) => (
+            <PromoFila key={p.slug} promo={p} desktop={desktop} />
+          ))}
+        </main>
+      </div>
+    </Marco>
+  );
+}
+
+/** Tarjetas de promo (Otras promos y la 404): PromoCard de producción sin caja, una fila completa con cualquier cantidad. */
+function PromoTarjetas({ promos }: { promos: PromoView[] }) {
+  return (
+    <ul className="pf-promo-tarjetas" style={{ "--n": promos.length } as React.CSSProperties}>
+      {promos.map((p) => (
+        <li key={p.slug}>
+          <PromoCard promo={p} headingLevel={3} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function PromoDetalle({ width }: { width: W }) {
+  const desktop = width === 1280;
+  const promo = PROMOS[0];
+  const otras = PROMOS.slice(1);
+  const hasta = validaHasta(promo.endsAt);
+  const fotos = promo.photos;
+  return (
+    <Marco width={width} nuevo current="/promos">
+      <div className="pf font-body text-ink">
+        <main className="pf-v">
+          {/* Volver en su fila (como Todas las fotos del visor) y el hero de la portada con la foto de la promo. */}
+          <div className="pf-c">
+            <a href="/promos" className="pf-visor-volver">
+              <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              Volver a las promos
+            </a>
+          </div>
+          <HeroCarousel slides={[{ src: promo.cover!.src, alt: promo.cover!.alt, caption: "" }]} className="pf-hero pf-promo-hero">
+            <div className="pf-hero-texto">
+              {hasta && <span className="pf-pie">{hasta}</span>}
+              <h1 className="pf-display">{promo.title}</h1>
+              {promo.description && <p className="pf-lead">{promo.description}</p>}
+              <div>
+                <Button variant="whatsapp" href={promoWhatsapp(promo)} external fullWidth={!desktop}>
+                  Pedir esta promo por WhatsApp
+                </Button>
+              </div>
+            </div>
+          </HeroCarousel>
+          {fotos.length > 0 && (
+            <section aria-labelledby="mas-fotos-titulo" className="pf-sec pf-c">
+              <Cabecera id="mas-fotos" title="Más fotos" />
+              <ul className="pf-mas-fotos" data-n={Math.min(fotos.length, 4)} style={{ "--n": Math.min(fotos.length, 4) } as React.CSSProperties}>
+                {fotos.map((f) => (
+                  <li key={f.src}>
+                    <img src={f.src} alt={f.alt} loading="lazy" decoding="async" />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {otras.length > 0 && (
+            <section aria-labelledby="otras-promos-titulo" className="pf-sec pf-c">
+              <Cabecera id="otras-promos" title="Otras promos" />
+              <PromoTarjetas promos={otras} />
+            </section>
+          )}
+        </main>
+      </div>
+    </Marco>
+  );
+}
+
+export const PromosMobile = () => <Promos width={390} />;
+export const PromosDesktop = () => <Promos width={1280} />;
+export const PromoDetalleMobile = () => <PromoDetalle width={390} />;
+export const PromoDetalleDesktop = () => <PromoDetalle width={1280} />;
+
+export const CatalogoMobile = () => <Catalogo width={390} cat="beisbol" />;
 export const CatalogoDesktop = () => <Catalogo width={1280} cat="beisbol" />;
 export const Catalogo10Mobile = () => <Catalogo width={390} cat="basketball" />;
 export const Catalogo10Desktop = () => <Catalogo width={1280} cat="basketball" />;
