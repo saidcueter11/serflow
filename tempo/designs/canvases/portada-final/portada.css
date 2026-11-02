@@ -94,6 +94,8 @@
    rejilla. Celular: debajo del botón, a la izquierda, con el mismo 24 arriba y abajo. Desktop: a la derecha, en el
    borde de abajo del botón. Con "reducir movimiento" la primera foto queda fija y las barras quietas (tokens.css). */
 .pf .pf-hero > div.absolute.bottom-4.right-4 { inset: auto auto 24px var(--pf-m); gap: 6px; }
+/* La barra vacía a 40 % de la tinta (master: 25 %): sobre el velo se ve que hay 4 fotos. */
+.pf .pf-hero > div.absolute.bottom-4.right-4 > span { background: color-mix(in srgb, var(--color-ink) 40%, transparent); }
 .pf .pf-hero:has(> div.absolute.bottom-4.right-4) .pf-hero-texto { padding-bottom: 52px; }
 /* Sin animación (reducir movimiento) queda la primera foto: su barra llena y las demás vacías, no las 4 llenas. La
    animación, cuando corre, le gana a este transform. PUENTE: HeroCarousel (en el PR, en la clase anim-bar de tokens.css). */
