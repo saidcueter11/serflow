@@ -10,7 +10,7 @@ import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry
 import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
 import { HeroCarousel } from "../../../../src/components/ui/HeroCarousel";
 import { PromoCard } from "../../../../src/components/ui/PromoCard";
-import { WHATSAPP_URL } from "../../../../src/lib/business";
+import { WHATSAPP_URL, whatsappUrl } from "../../../../src/lib/business";
 import { promoWhatsapp, validaHasta, type PromoView } from "../../../../src/lib/promos";
 import { Cabecera } from "./Portada";
 import gorraBordada2 from "../../../../src/assets/images/stock/gorra-bordada-2.jpg";
@@ -19,6 +19,8 @@ import gorrasEstante from "../../../../src/assets/images/stock/gorras-estante.jp
 import camisetasEstampadas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
 import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
 import kid1 from "../../../../src/assets/images/kids/kid1.webp";
+import pz390 from "./capturas/personalizador-390.jpg";
+import pz1280 from "./capturas/personalizador-1280.jpg";
 import { Marco } from "../refresh-oro-viejo/comun";
 
 /*
@@ -367,10 +369,69 @@ export function PromoDetalle({ width }: { width: W }) {
   );
 }
 
+/* ---------- 5. 404 ---------- */
+
+/** El texto y las dos salidas de master como cabecera de página; con promos vigentes, Promos de hoy en tarjetas. */
+export function NoExiste({ width }: { width: W }) {
+  const desktop = width === 1280;
+  return (
+    <Marco width={width} nuevo>
+      <div className="pf font-body text-ink">
+        <main className="pf-v pf-c">
+          <div className="pf-pagina-titulo">
+            <p className="pf-pie">Error 404</p>
+            <h1 className="pf-display">Esta página no existe</h1>
+            <p className="pf-lead">
+              Puede que el link esté viejo o mal copiado. Si venías por una promo, puede que ya haya terminado. Escríbenos y te mandamos lo que buscabas.
+            </p>
+            <div className="pf-404-botones">
+              <Button variant="whatsapp" href={whatsappUrl("¡Hola! Llegué a una página de Serflow que no existe. Estaba buscando...")} external fullWidth={!desktop}>
+                Escríbenos por WhatsApp
+              </Button>
+              <Button variant="secondary" href="/" fullWidth={!desktop}>
+                Ir al inicio
+              </Button>
+            </div>
+          </div>
+          <section aria-labelledby="promos-de-hoy-titulo" className="pf-sec">
+            <Cabecera id="promos-de-hoy" title="Promos de hoy" />
+            <PromoTarjetas promos={PROMOS} />
+          </section>
+        </main>
+      </div>
+    </Marco>
+  );
+}
+
+export const NoExisteMobile = () => <NoExiste width={390} />;
+export const NoExisteDesktop = () => <NoExiste width={1280} />;
+
 export const PromosMobile = () => <Promos width={390} />;
 export const PromosDesktop = () => <Promos width={1280} />;
 export const PromoDetalleMobile = () => <PromoDetalle width={390} />;
 export const PromoDetalleDesktop = () => <PromoDetalle width={1280} />;
+
+/* ---------- 4. Personalizador (/personaliza, PR #36) ---------- */
+
+/*
+ * PersonalizaPage vive en el PR #36 (sin mergear), no en esta rama: el frame es la captura de su deploy preview con
+ * refresh + portada.css + pantallas.css (sección 4) encima, hecha con capturar-personalizador.mjs. Todo el texto es el
+ * del PR. Desktop: título de página interior; vista previa en 6 columnas con Camiseta / Gorra arriba y el paso 3 con
+ * Enviar debajo; pasos 1 y 2 en 5 columnas desde la 8; las dos columnas cierran en el mismo borde.
+ */
+export function Personalizador({ width }: { width: W }) {
+  return (
+    <img
+      src={width === 1280 ? pz1280 : pz390}
+      alt={`Personalizador en ${width} px: Diseña tu prenda, vista previa, pasos y Enviar a Serflow por WhatsApp`}
+      width={width}
+      style={{ display: "block", width }}
+    />
+  );
+}
+
+export const PersonalizadorMobile = () => <Personalizador width={390} />;
+export const PersonalizadorDesktop = () => <Personalizador width={1280} />;
 
 export const CatalogoMobile = () => <Catalogo width={390} cat="beisbol" />;
 export const CatalogoDesktop = () => <Catalogo width={1280} cat="beisbol" />;

@@ -12,6 +12,10 @@ import {
   PromosDesktop,
   PromoDetalleMobile,
   PromoDetalleDesktop,
+  NoExisteMobile,
+  NoExisteDesktop,
+  PersonalizadorMobile,
+  PersonalizadorDesktop,
 } from "./Pantallas";
 
 /* PRI-286 · portada final, en 390 y 1280, con el sistema medido en heirest.com; a la derecha, el resto de las pantallas. */
@@ -31,6 +35,10 @@ export default function PortadaFinalCanvas() {
       <Storyboard id="PromosDesktop" name="Promos · lista · 1280" component={PromosDesktop} layout={{ x: 7440, y: 0 }} />
       <Storyboard id="PromoDetalleMobile" name="Promos · detalle · 390" component={PromoDetalleMobile} layout={{ x: 6950, y: 5000 }} />
       <Storyboard id="PromoDetalleDesktop" name="Promos · detalle · 1280" component={PromoDetalleDesktop} layout={{ x: 7440, y: 5000 }} />
+      <Storyboard id="PersonalizadorMobile" name="Personalizador (PR #36) · 390" component={PersonalizadorMobile} layout={{ x: 8820, y: 0 }} />
+      <Storyboard id="PersonalizadorDesktop" name="Personalizador (PR #36) · 1280" component={PersonalizadorDesktop} layout={{ x: 9310, y: 0 }} />
+      <Storyboard id="NoExisteMobile" name="404 · 390" component={NoExisteMobile} layout={{ x: 10690, y: 0 }} />
+      <Storyboard id="NoExisteDesktop" name="404 · 1280" component={NoExisteDesktop} layout={{ x: 11180, y: 0 }} />
     </Canvas>
   );
 }
