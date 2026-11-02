@@ -24,45 +24,55 @@
   .pf .pf-cat-texto > p { max-width: 34ch; }
 }
 
-/* Tarjeta de cierre: ocupa las celdas que faltan en la última fila; texto abajo a la izquierda, como el del hero.
-   Al construir: li:last-child con grid-column: span (columnas - n % columnas), con :nth-child por cada ancho. */
+/* Tarjeta de cierre: ocupa las celdas que faltan en la última fila (si está llena, una fila entera). Un solo
+   componente: mismo título, bajada y botón, y en cada ancho de pantalla las mismas medidas en 1, 2 o más celdas; solo
+   cambia el ancho de la caja. El bloque va centrado en vertical con el aire repartido arriba y abajo. Las medidas de
+   letra siguen al muro (contenedor "muro": 2 columnas en celular, 3 desde 40rem, 4 desde 64rem, los cortes del muro);
+   el ícono del botón sigue a la caja (contenedor "cierre").
+   Al construir: li:last-child con grid-column: span (columnas - n % columnas, o todas), con :nth-child por cada ancho. */
+.pf-cat-muro ul.columns-2 { container: muro / inline-size; }
 .pf-cierre { display: flex; }
 .pf-cierre > div {
-  container-type: inline-size;
+  container: cierre / inline-size;
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-start;
-  padding: 16px;
+  padding: var(--pf-td);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-tile);
   background: var(--color-surface);
 }
 .pf .pf-cierre h2 { font-family: var(--font-display); font-weight: 500; font-size: var(--pf-h3); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
-.pf .pf-cierre p { display: none; margin-top: var(--pf-td); font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); max-width: 34ch; }
-.pf .pf-cierre a { margin-top: 16px; padding-inline: 16px; }
-.pf .pf-cierre a svg { flex-shrink: 0; }
-/* En una sola celda: solo título y botón, y el botón dice "Escríbenos" (el resto queda para el lector de pantalla). */
-@container (max-width: 19.99rem) {
-  .pf .pf-cierre a { width: 100%; }
-  .pf-cierre-largo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pf .pf-cierre p { margin-top: var(--pf-g); font-size: 14px; line-height: 1.4; color: var(--color-muted); max-width: 34ch; text-wrap: pretty; }
+/* El botón (el de la marca: 16 semibold) nunca se sale de la caja: 12 a los lados y, si no cabe en una línea, parte
+   en dos ("Escríbenos por / WhatsApp"). El ícono va cuando el interior de la caja mide 15.75rem (252) o más (cabe el botón entero en una
+   línea). PUENTE: Button no deja partir el texto; al construir, una prop o variante para esto (Design System Debt). */
+.sf-r3 .pf .pf-cierre a.inline-flex.rounded-full.font-body { max-width: 100%; margin-top: var(--pf-td); padding: var(--pf-g) var(--pf-td); line-height: 1.2; text-align: center; text-wrap: balance; }
+.pf .pf-cierre a svg { display: none; flex-shrink: 0; }
+@container cierre (min-width: 15.75rem) {
+  .pf .pf-cierre a svg { display: block; }
 }
-/* Dos celdas o más: la bajada aparece y el título sube a la escala de h2 (48 / 34). */
-@container (min-width: 30rem) {
-  .pf-cierre > div { padding: 32px; }
-  .pf .pf-cierre h2 { font-size: var(--pf-h2); }
-  .pf .pf-cierre p { display: block; max-width: 44ch; }
-  .pf .pf-cierre a { margin-top: 24px; padding-inline: 24px; }
+@container muro (min-width: 40rem) {
+  .pf-cierre > div { padding: 16px; }
+  .pf .pf-cierre p { margin-top: var(--pf-td); font-size: var(--pf-body); line-height: 1.5; }
+  .sf-r3 .pf .pf-cierre a.inline-flex.rounded-full.font-body { margin-top: var(--pf-tc); }
+}
+/* Desktop: el título con la escala de h2 (48) para que la caja de una celda se vea llena. */
+@container muro (min-width: 64rem) {
+  .pf .pf-cierre h2 { font-size: var(--pf-h2); line-height: 1.05; }
 }
 
-/* ---------- 2. Visor: Todas las fotos en su fila; foto en 6 columnas y panel en 5 desde la 8, pegado al borde de abajo ---------- */
+/* ---------- 2. Visor: Todas las fotos en su fila; en desktop la foto en una banda a todo el ancho y el panel en una fila debajo ---------- */
 
 .pf-visor-volver { display: inline-flex; min-height: 48px; align-items: center; gap: 6px; margin-left: -6px; font-size: 14px; font-weight: 600; color: var(--color-muted); }
 .pf-visor-volver:hover { color: var(--color-ink); }
 .pf-visor-volver:focus-visible, .pf-visor-cat:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 /* En el celular la foto va a sangre (4:5) debajo de Todas las fotos; el panel, en el margen. */
 .pf-visor-panel { display: flex; flex-direction: column; align-items: flex-start; padding: var(--pf-tc) var(--pf-m) 0; }
+.pf-visor-nombre { display: flex; flex-direction: column; align-items: flex-start; }
+.pf-visor-pedir { width: 100%; }
 /* La categoría con la etiqueta del sistema (13 mayúsculas, oro), como link: el nombre ya la dice, no hace falta otro botón. */
 .pf-visor-cat { display: inline-flex; min-height: 44px; align-items: center; margin-top: -14px; }
 .pf-visor-cat:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -70,15 +80,33 @@
 .pf .pf-visor-nota { margin-top: 12px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); max-width: 40ch; text-wrap: balance; }
 .pf-mas-accion { margin-top: var(--pf-tc); }
 @container pf (min-width: 48rem) {
-  .pf-visor { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); padding: 0 var(--pf-m); }
-  .pf-visor-foto { grid-column: 1 / span 6; }
-  /* 1:1 en desktop (como Qué hacemos): la gorra sigue entera y Pedir por WhatsApp queda arriba del pliegue de 800. */
-  .pf .pf-visor-foto ul { border-radius: var(--radius-tile); }
+  .pf-visor { padding: 0 var(--pf-m); }
+  /* La foto en una banda de 16:7 a todo el ancho de la rejilla (1184 x 518): la foto va al centro en 1:1 (como Qué
+     hacemos, la gorra entera) y a los lados se estira su propia columna de borde (--foto), así el fondo de estudio
+     sigue de lado a lado. Con 518 de alto, Pedir por WhatsApp queda arriba del pliegue de 800. */
+  .pf-visor-foto { position: relative; overflow: hidden; aspect-ratio: 16 / 7; border-radius: var(--radius-tile); background: var(--color-surface-2); }
+  /* Los lados se difuminan y la foto se funde con ellos en el 22 % de cada borde: no se ve la costura. */
+  .pf-visor-foto::before, .pf-visor-foto::after {
+    content: "";
+    position: absolute;
+    inset-block: -32px;
+    width: calc(38% + 32px);
+    background: var(--foto) no-repeat;
+    background-size: 40000% calc((100% - 64px) * 1.3334);
+    filter: blur(24px);
+  }
+  .pf-visor-foto::before { left: -32px; background-position: left center; }
+  .pf-visor-foto::after { right: -32px; background-position: right center; }
+  .pf .pf-visor-foto ul { position: relative; z-index: 1; width: 43.75%; margin-inline: auto; border-radius: 0; mask-image: linear-gradient(to right, transparent, black 22%, black 78%, transparent); }
   .pf .pf-visor-foto li { aspect-ratio: 1 / 1; }
-  /* Una foto: el panel se compacta y se pega al borde de abajo de la foto, como el texto del hero sobre la suya. */
-  .pf-visor-panel { grid-column: 8 / -1; justify-content: flex-end; padding: 0; }
-  .pf-visor-boton { width: auto; }
+  /* El panel en una fila de la rejilla debajo de la foto: categoría y nombre en 7 columnas, el botón y su nota en 5
+     desde la 8. Las dos columnas tienen el mismo alto y cierran juntas abajo: no queda caja vacía. */
+  .pf-visor-panel { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); align-items: end; padding: var(--pf-tc) 0 0; }
+  .pf-visor-nombre { grid-column: 1 / span 7; }
+  .pf-visor-pedir { grid-column: 8 / -1; }
+  .pf-visor-boton { width: auto; margin-top: 0; }
   .pf .pf-visor-nota { text-box: trim-end cap alphabetic; }
+  .pf .pf-visor-nombre h1 { text-box: trim-end alphabetic; }
 }
 
 /* ---------- Título de página interior (promos, 404, personalizador): el aire de una sección arriba ---------- */
@@ -102,9 +130,9 @@
 .pf-promo-foto { order: -1; position: relative; overflow: hidden; aspect-ratio: 4 / 3; margin-bottom: var(--pf-tc); border-radius: var(--radius-tile); background: var(--color-surface-2); }
 .pf-promo-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 @container pf (min-width: 48rem) {
-  /* Fotos parejas de 16:9 (588 x 331) en las tres promos; si el texto es más alto, la foto crece con él. Mismo borde
-     arriba y abajo: el texto arriba y los botones pegados al borde de abajo de la foto. */
-  .pf-promo-texto { grid-column: 1 / span 5; grid-row: 1; justify-content: space-between; }
+  /* Fotos parejas de 16:9 (588 x 331) en las tres promos; si el texto es más alto, la foto crece con él. Los botones
+     van pegados a la bajada (32, el mismo aire en las tres) y el bloque de texto se centra en vertical con la foto. */
+  .pf-promo-texto { grid-column: 1 / span 5; grid-row: 1; justify-content: center; }
   .pf-promo-foto { order: 0; grid-column: 7 / -1; grid-row: 1; aspect-ratio: auto; min-height: 331px; margin: 0; }
   .pf-promo-botones { flex-direction: row; }
 }
@@ -138,16 +166,21 @@
 .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 0; gap: 0; justify-content: flex-start; }
 /* En el celular, sin la descripción: cortada a dos líneas quedaba a medio decir y más alta que la miniatura. */
 .sf-r3 .pf .pf-promo-tarjetas p { display: none; }
-.pf .pf-promo-tarjetas a > div > div:last-child > span:first-child { padding: 0; background: none; font-size: var(--pf-pie); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
+/* La vigencia en una línea de alto fijo (16) y 8 hasta el título. Si la promo no tiene fecha, el título baja esos
+   mismos 24: los títulos de todas las tarjetas quedan en la misma línea. Al construir: PromoCard reserva la línea de
+   vigencia vacía (min-height) en vez de este margen. */
+.pf .pf-promo-tarjetas a > div > div:last-child > span:first-child { display: block; padding: 0; background: none; font-size: var(--pf-pie); font-weight: 600; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
 .pf .pf-promo-tarjetas a > div > div:last-child > span:first-child > span { display: none; }
 .sf-r3 .pf .pf-promo-tarjetas h3 { margin-top: 8px; font-size: var(--pf-h3); font-weight: 500; line-height: 1.25; }
-.pf-promo-tarjetas a > div > div:last-child > span:first-child + h3 { margin-top: 8px; }
+.sf-r3 .pf .pf-promo-tarjetas a.group.rounded-card div.flex-1 > h3.font-display:first-child { margin-top: 24px; }
 .sf-r3 .pf .pf-promo-tarjetas p { margin-top: 6px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); }
-.sf-r3 .pf .pf-promo-tarjetas a > div > div:last-child > span:last-child { margin-top: 8px; padding: 0; }
+/* Ver promo al fondo de la tarjeta: en una fila todas cierran a la misma altura aunque la bajada sea más corta. */
+.sf-r3 .pf .pf-promo-tarjetas a > div > div:last-child > span:last-child { margin-top: auto; padding: 8px 0 0; }
 @container pf (min-width: 48rem) {
   .pf-promo-tarjetas { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--pf-g); }
   .sf-r3 .pf .pf-promo-tarjetas a > div { display: flex; flex-direction: column; }
   .sf-r3 .pf .pf-promo-tarjetas a img { aspect-ratio: 4 / 3; }
-  .sf-r3 .pf .pf-promo-tarjetas p { display: block; max-width: 52ch; }
+  /* 44ch: entre la bajada de una tarjeta y la de la siguiente queda aire, no solo la calle de 8. */
+  .sf-r3 .pf .pf-promo-tarjetas p { display: block; max-width: 44ch; }
   .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 16px 0 0; }
 }

@@ -62,9 +62,10 @@ const CATEGORIAS = {
 /* ---------- 1. Catálogo, categoría ---------- */
 
 /**
- * PROPUESTA: la tarjeta que cierra la última fila del muro. Solo texto y botón, sin foto; ocupa todas las celdas que
- * faltan. Al construir es el último <li> de la lista de Masonry en CatalogPage y su ancho sale de :nth-child (ver
- * pantallas.css); aquí se calcula con el ancho del frame y se agrega con un portal para no tocar src/.
+ * PROPUESTA: la tarjeta que cierra la última fila del muro. Un solo componente con el mismo texto en todos los anchos
+ * (título, bajada y botón); solo cambia cuántas celdas ocupa: las que faltan en la última fila. Al construir es el
+ * último <li> de la lista de Masonry en CatalogPage y su ancho sale de :nth-child (ver pantallas.css); aquí se mide
+ * con las columnas reales del muro y se agrega con un portal para no tocar src/.
  */
 function Cierre({ faltan }: { faltan: number }) {
   return (
@@ -73,19 +74,29 @@ function Cierre({ faltan }: { faltan: number }) {
         <h2>¿No ves la que buscas?</h2>
         <p>Igual te lo hacemos por encargo, con tu logo o tu diseño.</p>
         <Button variant="whatsapp" href={WHATSAPP_URL} external>
-          <span>
-            Escríbenos<span className="pf-cierre-largo"> por WhatsApp</span>
-          </span>
+          Escríbenos por WhatsApp
         </Button>
       </div>
     </li>
   );
 }
 
-function ConCierre({ faltan, children }: { faltan: number; children: ReactNode }) {
+function ConCierre({ fotos, children }: { fotos: number; children: ReactNode }) {
   const caja = useRef<HTMLDivElement>(null);
-  const [muro, setMuro] = useState<Element | null>(null);
-  useLayoutEffect(() => setMuro(caja.current?.querySelector("ul.columns-2") ?? null), []);
+  const [muro, setMuro] = useState<HTMLElement | null>(null);
+  const [columnas, setColumnas] = useState(0);
+  useLayoutEffect(() => {
+    const ul = caja.current?.querySelector<HTMLElement>("ul.columns-2");
+    if (!ul) return;
+    setMuro(ul);
+    const medir = () => setColumnas(getComputedStyle(ul).gridTemplateColumns.split(" ").length);
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(ul);
+    return () => ro.disconnect();
+  }, []);
+  // Si la última fila está llena, la tarjeta ocupa una fila entera: pedir por encargo está en todas las categorías.
+  const faltan = columnas ? (columnas - (fotos % columnas)) % columnas || columnas : 0;
   return (
     <div ref={caja}>
       {children}
@@ -96,8 +107,6 @@ function ConCierre({ faltan, children }: { faltan: number; children: ReactNode }
 
 export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIAS }) {
   const c = CATEGORIAS[cat];
-  const columnas = width === 1280 ? 4 : 2;
-  const faltan = (columnas - (c.tiles.length % columnas)) % columnas;
   return (
     <Marco width={width} nuevo current="/products">
       <div className="pf font-body text-ink">
@@ -115,7 +124,7 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
             <CategoryNav categories={CHIPS} current={`/products/${c.slug}`} />
           </div>
           <div className="pf-c pf-cat-muro">
-            <ConCierre faltan={faltan}>
+            <ConCierre fotos={c.tiles.length}>
               <Masonry tiles={c.tiles} />
             </ConCierre>
           </div>
@@ -129,12 +138,11 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
 
 /*
  * Hoy ningún producto activo tiene más de una foto (Supabase, 2026-11-02: 0 de 92), así que no hay "Otras vistas":
- * PhotoThumbs no se pinta con una foto. El panel lleva lo que hay en master: la categoría (como etiqueta-link, no como
- * segundo botón), el nombre, Pedir por WhatsApp y su nota. Sin N.º ni "hace", sin Nuevo.
+ * PhotoThumbs no se pinta con una foto y el visor es un solo frame. El panel lleva lo que hay en master: la categoría
+ * (como etiqueta-link, no como segundo botón), el nombre, Pedir por WhatsApp y su nota. Sin N.º ni "hace", sin Nuevo.
  */
 const PRODUCTOS = {
   beisbol: { nombre: "Beisbol #49", cat: CATEGORIAS.beisbol, count: 23 },
-  ninos: { nombre: "Niños #91", cat: { label: "Niños", slug: "kids", tiles: tiles("Niños", "kids", fotos(import.meta.glob<string>("../../../../src/assets/images/kids/*.webp", { eager: true, import: "default" })), 91) }, count: 10 },
 };
 
 export function Visor({ width, producto }: { width: W; producto: keyof typeof PRODUCTOS }) {
@@ -163,20 +171,26 @@ export function Visor({ width, producto }: { width: W; producto: keyof typeof PR
         <main className="pf-v">
           <div className="pf-c">{volver}</div>
           <div className="pf-visor">
-            <div className="pf-visor-foto">
+            {/* PROPUESTA (desktop): la foto en una banda a todo el ancho; los lados repiten el borde de la misma foto
+                (--foto), así el fondo de estudio sigue de lado a lado sin recortar la gorra. */}
+            <div className="pf-visor-foto" style={{ "--foto": `url("${foto.img.src}")` } as React.CSSProperties}>
               <PhotoCarousel photos={[{ src: foto.img.src, alt: foto.img.alt }]} label={`Fotos de ${p.nombre}`} />
             </div>
             <div className="pf-visor-panel">
-              <a href={href} className="pf-pie pf-visor-cat">
-                {p.cat.label}
-              </a>
-              <h1 className="pf-display">{p.nombre}</h1>
-              <div className="pf-visor-boton">
-                <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth={!desktop}>
-                  Pedir por WhatsApp
-                </Button>
+              <div className="pf-visor-nombre">
+                <a href={href} className="pf-pie pf-visor-cat">
+                  {p.cat.label}
+                </a>
+                <h1 className="pf-display">{p.nombre}</h1>
               </div>
-              <p className="pf-visor-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
+              <div className="pf-visor-pedir">
+                <div className="pf-visor-boton">
+                  <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth={!desktop}>
+                    Pedir por WhatsApp
+                  </Button>
+                </div>
+                <p className="pf-visor-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
+              </div>
             </div>
           </div>
           <section id="mas-de" aria-labelledby="mas-de-titulo" className="pf-sec pf-c">
@@ -192,8 +206,6 @@ export function Visor({ width, producto }: { width: W; producto: keyof typeof PR
 
 export const VisorMobile = () => <Visor width={390} producto="beisbol" />;
 export const VisorDesktop = () => <Visor width={1280} producto="beisbol" />;
-export const VisorUnaFotoMobile = () => <Visor width={390} producto="ninos" />;
-export const VisorUnaFotoDesktop = () => <Visor width={1280} producto="ninos" />;
 
 /* ---------- 3. Promos: lista y detalle ---------- */
 
