@@ -54,7 +54,7 @@ const tiles = (label: string, slug: string, srcs: string[], primero: number): Ma
     label,
   }));
 
-const CATEGORIAS = {
+export const CATEGORIAS = {
   beisbol: { label: "Beisbol", slug: "beisbol", cover: PORTADA("beisbol"), tiles: tiles("Beisbol", "beisbol", BEISBOL, 49) },
   basketball: { label: "Basketball", slug: "basketball", cover: PORTADA("basketball"), tiles: tiles("Basketball", "basketball", BASKET, 59) },
 };

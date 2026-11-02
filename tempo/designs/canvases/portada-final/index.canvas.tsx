@@ -17,6 +17,7 @@ import {
   PersonalizadorMobile,
   PersonalizadorDesktop,
 } from "./Pantallas";
+import { VisorAMobile, VisorADesktop, VisorBMobile, VisorBDesktop, VisorCMobile, VisorCDesktop } from "./Visores";
 
 /* PRI-286 · portada final, en 390 y 1280, con el sistema medido en heirest.com; a la derecha, el resto de las pantallas. */
 export default function PortadaFinalCanvas() {
@@ -39,6 +40,13 @@ export default function PortadaFinalCanvas() {
       <Storyboard id="PersonalizadorDesktop" name="Personalizador (PR #36) · 1280" component={PersonalizadorDesktop} layout={{ x: 9310, y: 0 }} />
       <Storyboard id="NoExisteMobile" name="404 · 390" component={NoExisteMobile} layout={{ x: 10690, y: 0 }} />
       <Storyboard id="NoExisteDesktop" name="404 · 1280" component={NoExisteDesktop} layout={{ x: 11180, y: 0 }} />
+      {/* PRI-286 · visor, 3 variantes para elegir (Said, 2026-11-02): Más de abajo y el panel lleno con decoración. */}
+      <Storyboard id="VisorAMobile" name="Visor · A · Costura y sello · 390" component={VisorAMobile} layout={{ x: 12700, y: 0 }} />
+      <Storyboard id="VisorADesktop" name="Visor · A · Costura y sello · 1280" component={VisorADesktop} layout={{ x: 13190, y: 0 }} />
+      <Storyboard id="VisorBMobile" name="Visor · B · Íconos de técnica · 390" component={VisorBMobile} layout={{ x: 14570, y: 0 }} />
+      <Storyboard id="VisorBDesktop" name="Visor · B · Íconos de técnica · 1280" component={VisorBDesktop} layout={{ x: 15060, y: 0 }} />
+      <Storyboard id="VisorCMobile" name="Visor · C · Textura de taller · 390" component={VisorCMobile} layout={{ x: 16440, y: 0 }} />
+      <Storyboard id="VisorCDesktop" name="Visor · C · Textura de taller · 1280" component={VisorCDesktop} layout={{ x: 16930, y: 0 }} />
     </Canvas>
   );
 }
