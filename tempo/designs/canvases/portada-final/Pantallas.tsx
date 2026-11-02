@@ -10,7 +10,7 @@ import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry
 import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
 import { HeroCarousel } from "../../../../src/components/ui/HeroCarousel";
 import { PromoCard } from "../../../../src/components/ui/PromoCard";
-import { WHATSAPP_URL } from "../../../../src/lib/business";
+import { WHATSAPP_URL, whatsappUrl } from "../../../../src/lib/business";
 import { promoWhatsapp, validaHasta, type PromoView } from "../../../../src/lib/promos";
 import { Cabecera } from "./Portada";
 import gorraBordada2 from "../../../../src/assets/images/stock/gorra-bordada-2.jpg";
@@ -19,9 +19,9 @@ import gorrasEstante from "../../../../src/assets/images/stock/gorras-estante.jp
 import camisetasEstampadas from "../../../../src/assets/images/stock/camisetas-estampadas.jpg";
 import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
 import kid1 from "../../../../src/assets/images/kids/kid1.webp";
-import { Marco } from "../refresh-oro-viejo/comun";
 import pz390 from "./capturas/personalizador-390.jpg";
 import pz1280 from "./capturas/personalizador-1280.jpg";
+import { Marco } from "../refresh-oro-viejo/comun";
 
 /*
  * PRI-286 · el resto de las pantallas con el sistema de la portada (frame "Sistema (de Heirest)" y portada.css).
@@ -356,6 +356,43 @@ export function PromoDetalle({ width }: { width: W }) {
     </Marco>
   );
 }
+
+/* ---------- 5. 404 ---------- */
+
+/** El texto y las dos salidas de master como cabecera de página; con promos vigentes, Promos de hoy en tarjetas. */
+export function NoExiste({ width }: { width: W }) {
+  const desktop = width === 1280;
+  return (
+    <Marco width={width} nuevo>
+      <div className="pf font-body text-ink">
+        <main className="pf-v pf-c">
+          <div className="pf-pagina-titulo">
+            <p className="pf-pie">Error 404</p>
+            <h1 className="pf-display">Esta página no existe</h1>
+            <p className="pf-lead">
+              Puede que el link esté viejo o mal copiado. Si venías por una promo, puede que ya haya terminado. Escríbenos y te mandamos lo que buscabas.
+            </p>
+            <div className="pf-404-botones">
+              <Button variant="whatsapp" href={whatsappUrl("¡Hola! Llegué a una página de Serflow que no existe. Estaba buscando...")} external fullWidth={!desktop}>
+                Escríbenos por WhatsApp
+              </Button>
+              <Button variant="secondary" href="/" fullWidth={!desktop}>
+                Ir al inicio
+              </Button>
+            </div>
+          </div>
+          <section aria-labelledby="promos-de-hoy-titulo" className="pf-sec">
+            <Cabecera id="promos-de-hoy" title="Promos de hoy" />
+            <PromoTarjetas promos={PROMOS} />
+          </section>
+        </main>
+      </div>
+    </Marco>
+  );
+}
+
+export const NoExisteMobile = () => <NoExiste width={390} />;
+export const NoExisteDesktop = () => <NoExiste width={1280} />;
 
 export const PromosMobile = () => <Promos width={390} />;
 export const PromosDesktop = () => <Promos width={1280} />;

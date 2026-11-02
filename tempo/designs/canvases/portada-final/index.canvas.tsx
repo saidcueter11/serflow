@@ -14,6 +14,8 @@ import {
   PromosDesktop,
   PromoDetalleMobile,
   PromoDetalleDesktop,
+  NoExisteMobile,
+  NoExisteDesktop,
   PersonalizadorMobile,
   PersonalizadorDesktop,
 } from "./Pantallas";
@@ -39,6 +41,8 @@ export default function PortadaFinalCanvas() {
       <Storyboard id="PromoDetalleDesktop" name="Promos · detalle · 1280" component={PromoDetalleDesktop} layout={{ x: 7440, y: 5000 }} />
       <Storyboard id="PersonalizadorMobile" name="Personalizador (PR #36) · 390" component={PersonalizadorMobile} layout={{ x: 8820, y: 0 }} />
       <Storyboard id="PersonalizadorDesktop" name="Personalizador (PR #36) · 1280" component={PersonalizadorDesktop} layout={{ x: 9310, y: 0 }} />
+      <Storyboard id="NoExisteMobile" name="404 · 390" component={NoExisteMobile} layout={{ x: 10690, y: 0 }} />
+      <Storyboard id="NoExisteDesktop" name="404 · 1280" component={NoExisteDesktop} layout={{ x: 11180, y: 0 }} />
     </Canvas>
   );
 }

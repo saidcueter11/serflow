@@ -20,6 +20,14 @@ const FILAS: Fila[] = [
   { medida: "Hero", heirest: "A sangre · 800 de alto / 844", serflow: "A sangre · 720 / 600", porque: "Viewport menos el Header: se ve que la página sigue." },
   { medida: "Fotos de tarjeta", heirest: "Verticales (0,71-0,87) · sin radio · pie 8-12 debajo, sin caja", serflow: "Prenda 4:5 (0,8) · servicio 1:1 en 1280, 4:5 en 390 · radio 12 · pie 12-16 debajo, sin caja", porque: "Radio 12 = radius-tile del refresh. Servicio cuadrado para que no pese más que Disponible ahora." },
   { medida: "Botones", heirest: "38 alto · 14 mayúsculas · radio 3 · borde", serflow: "52 / 48 alto · 16 · píldora · oro relleno o borde", porque: "Decisión de la ronda 4: target táctil de 48 y el oro solo en la acción principal." },
+  /* Patrones del resto de las pantallas: salen de las filas de arriba, sin medidas nuevas. */
+  { medida: "Título de página interior", heirest: "Sale de Aire, Titular y Bajada", serflow: "96 / 64 de aire arriba · pie · titular 64 / 40 · bajada 12 debajo", porque: "Promos, 404 y personalizador: la página arranca como una sección más." },
+  { medida: "Banner de categoría", heirest: "Sale de Hero", serflow: "A sangre · 520 / 340 · nombre (h1) y bajada abajo a la izquierda en el margen", porque: "El texto del hero sobre la foto de la categoría; sin \"N productos\" (ya está en la pestaña)." },
+  { medida: "Muro del catálogo y Más de", heirest: "Sale de Columnas y calle", serflow: "4 / 2 columnas (3 de 12) · calle 8 · fotos 4:5 · radio 12", porque: "La misma celda que Disponible ahora: cada foto cae en 3 columnas de la rejilla." },
+  { medida: "Tarjeta de cierre del muro", heirest: "No tiene (sale de Hero y Fotos de tarjeta)", serflow: "Ocupa las celdas que faltan · superficie con borde, radio 12 · texto abajo a la izquierda: 1 celda h3 + botón, 2 o más h2 + bajada + botón", porque: "Cierra la última fila sin fotos de relleno; el texto se ancla como el del hero." },
+  { medida: "Visor", heirest: "Sale de Columnas (6 | 5 desde la 8)", serflow: "Volver en su fila · foto en 6 (1:1; 4:5 a sangre en 390) · panel en 5, pegado al borde de abajo de la foto", porque: "Con una sola foto el panel se compacta; Pedir por WhatsApp queda arriba del pliegue de 800." },
+  { medida: "Promo en la lista", heirest: "Sale de Diseña la tuya (5 | 6 desde la 7)", serflow: "Texto en 5 · foto 16:9 en 6 · botones en el borde de abajo", porque: "Fotos parejas en la lista; si el texto es más alto, la foto crece con él." },
+  { medida: "Tarjetas de promo", heirest: "Sale de Fotos de tarjeta", serflow: "Una fila llena: 2 en 6 columnas, 3 en 4 · foto 4:3 · vigencia con la etiqueta · en 390, filas de 112 + texto", porque: "Otras promos y la 404, como Disponible ahora y Qué hacemos." },
 ];
 
 export function Sistema() {
