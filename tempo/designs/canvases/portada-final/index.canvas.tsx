@@ -1,7 +1,16 @@
 import { Canvas, Storyboard } from "tempo-sdk/canvas";
 import { PortadaDesktop, PortadaMobile } from "./Portada";
 import { Sistema } from "./Sistema";
-import { Catalogo10Desktop, Catalogo10Mobile, CatalogoDesktop, CatalogoMobile } from "./Pantallas";
+import {
+  Catalogo10Desktop,
+  Catalogo10Mobile,
+  CatalogoDesktop,
+  CatalogoMobile,
+  VisorDesktop,
+  VisorMobile,
+  VisorUnaFotoDesktop,
+  VisorUnaFotoMobile,
+} from "./Pantallas";
 
 /* PRI-286 · portada final, en 390 y 1280, con el sistema medido en heirest.com; a la derecha, el resto de las pantallas. */
 export default function PortadaFinalCanvas() {
@@ -14,6 +23,10 @@ export default function PortadaFinalCanvas() {
       <Storyboard id="CatalogoDesktop" name="Catálogo · Beisbol (23) · 1280" component={CatalogoDesktop} layout={{ x: 3700, y: 0 }} />
       <Storyboard id="Catalogo10Mobile" name="Catálogo · Basketball (10) · 390" component={Catalogo10Mobile} layout={{ x: 3210, y: 5000 }} />
       <Storyboard id="Catalogo10Desktop" name="Catálogo · Basketball (10) · 1280" component={Catalogo10Desktop} layout={{ x: 3700, y: 5000 }} />
+      <Storyboard id="VisorMobile" name="Visor · Beisbol #49 · 390" component={VisorMobile} layout={{ x: 5080, y: 0 }} />
+      <Storyboard id="VisorDesktop" name="Visor · Beisbol #49 · 1280" component={VisorDesktop} layout={{ x: 5570, y: 0 }} />
+      <Storyboard id="VisorUnaFotoMobile" name="Visor · una foto, categoría chica (Niños #91) · 390" component={VisorUnaFotoMobile} layout={{ x: 5080, y: 5000 }} />
+      <Storyboard id="VisorUnaFotoDesktop" name="Visor · una foto, categoría chica (Niños #91) · 1280" component={VisorUnaFotoDesktop} layout={{ x: 5570, y: 5000 }} />
     </Canvas>
   );
 }

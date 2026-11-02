@@ -55,3 +55,28 @@
   .pf .pf-cierre p { display: block; max-width: 44ch; }
   .pf .pf-cierre a { margin-top: 24px; padding-inline: 24px; }
 }
+
+/* ---------- 2. Visor: Todas las fotos en su fila; foto en 6 columnas y panel en 5 desde la 8, pegado al borde de abajo ---------- */
+
+.pf-visor-volver { display: inline-flex; min-height: 48px; align-items: center; gap: 6px; margin-left: -6px; font-size: 14px; font-weight: 600; color: var(--color-muted); }
+.pf-visor-volver:hover { color: var(--color-ink); }
+.pf-visor-volver:focus-visible, .pf-visor-cat:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+/* En el celular la foto va a sangre (4:5) debajo de Todas las fotos; el panel, en el margen. */
+.pf-visor-panel { display: flex; flex-direction: column; align-items: flex-start; padding: var(--pf-tc) var(--pf-m) 0; }
+/* La categoría con la etiqueta del sistema (13 mayúsculas, oro), como link: el nombre ya la dice, no hace falta otro botón. */
+.pf-visor-cat { display: inline-flex; min-height: 44px; align-items: center; margin-top: -14px; }
+.pf-visor-cat:hover { text-decoration: underline; text-underline-offset: 4px; }
+.pf-visor-boton { width: 100%; margin-top: var(--pf-tc); }
+.pf .pf-visor-nota { margin-top: 12px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); max-width: 40ch; text-wrap: balance; }
+.pf-mas-accion { margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-visor { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); padding: 0 var(--pf-m); }
+  .pf-visor-foto { grid-column: 1 / span 6; }
+  /* 1:1 en desktop (como Qué hacemos): la gorra sigue entera y Pedir por WhatsApp queda arriba del pliegue de 800. */
+  .pf .pf-visor-foto ul { border-radius: var(--radius-tile); }
+  .pf .pf-visor-foto li { aspect-ratio: 1 / 1; }
+  /* Una foto: el panel se compacta y se pega al borde de abajo de la foto, como el texto del hero sobre la suya. */
+  .pf-visor-panel { grid-column: 8 / -1; justify-content: flex-end; padding: 0; }
+  .pf-visor-boton { width: auto; }
+  .pf .pf-visor-nota { text-box: trim-end cap alphabetic; }
+}

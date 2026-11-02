@@ -7,6 +7,8 @@ import { Button } from "../../../../src/components/ui/Button";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { CategoryNav, type CategoryLink } from "../../../../src/components/ui/CategoryNav";
 import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry";
+import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
+import { Cabecera } from "./Portada";
 import { WHATSAPP_URL } from "../../../../src/lib/business";
 import { Marco } from "../refresh-oro-viejo/comun";
 
@@ -114,7 +116,77 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
   );
 }
 
-export const CatalogoMobile = () => <Catalogo width={390} cat="beisbol" />;
+/* ---------- 2. Visor de producto ---------- */
+
+/*
+ * Hoy ningún producto activo tiene más de una foto (Supabase, 2026-11-02: 0 de 92), así que no hay "Otras vistas":
+ * PhotoThumbs no se pinta con una foto. El panel lleva lo que hay en master: la categoría (como etiqueta-link, no como
+ * segundo botón), el nombre, Pedir por WhatsApp y su nota. Sin N.º ni "hace", sin Nuevo.
+ */
+const PRODUCTOS = {
+  beisbol: { nombre: "Beisbol #49", cat: CATEGORIAS.beisbol, count: 23 },
+  ninos: { nombre: "Niños #91", cat: { label: "Niños", slug: "kids", tiles: tiles("Niños", "kids", fotos(import.meta.glob<string>("../../../../src/assets/images/kids/*.webp", { eager: true, import: "default" })), 91) }, count: 10 },
+};
+
+export function Visor({ width, producto }: { width: W; producto: keyof typeof PRODUCTOS }) {
+  const desktop = width === 1280;
+  const p = PRODUCTOS[producto];
+  const [foto, ...resto] = p.cat.tiles;
+  // Más de: las que siguen en la categoría, en filas completas del muro (12 / 6 en master; con 9 quedan 8).
+  const mas = resto.slice(0, desktop ? Math.min(12, resto.length - (resto.length % 4)) : 6);
+  const href = `/products/${p.cat.slug}`;
+  const verTodas = (
+    <Button variant="secondary" href={href} fullWidth={!desktop}>
+      Ver las {p.count} de {p.cat.label} →
+    </Button>
+  );
+  const volver = (
+    <a href={`/products#f-${p.cat.slug}`} className="pf-visor-volver">
+      <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+      Todas las fotos
+    </a>
+  );
+  return (
+    <Marco width={width} nuevo current="/products" fab={false}>
+      <div className="pf font-body text-ink">
+        <main className="pf-v">
+          <div className="pf-c">{volver}</div>
+          <div className="pf-visor">
+            <div className="pf-visor-foto">
+              <PhotoCarousel photos={[{ src: foto.img.src, alt: foto.img.alt }]} label={`Fotos de ${p.nombre}`} />
+            </div>
+            <div className="pf-visor-panel">
+              <a href={href} className="pf-pie pf-visor-cat">
+                {p.cat.label}
+              </a>
+              <h1 className="pf-display">{p.nombre}</h1>
+              <div className="pf-visor-boton">
+                <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth={!desktop}>
+                  Pedir por WhatsApp
+                </Button>
+              </div>
+              <p className="pf-visor-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
+            </div>
+          </div>
+          <section id="mas-de" aria-labelledby="mas-de-titulo" className="pf-sec pf-c">
+            <Cabecera id="mas-de" title={`Más de ${p.cat.label}`} action={desktop ? verTodas : undefined} />
+            <Masonry tiles={mas} />
+            {!desktop && <div className="pf-mas-accion">{verTodas}</div>}
+          </section>
+        </main>
+      </div>
+    </Marco>
+  );
+}
+
+export const VisorMobile = () => <Visor width={390} producto="beisbol" />;
+export const VisorDesktop = () => <Visor width={1280} producto="beisbol" />;
+export const VisorUnaFotoMobile = () => <Visor width={390} producto="ninos" />;
+export const VisorUnaFotoDesktop = () => <Visor width={1280} producto="ninos" />;
+
+export const CatalogoMobile =() => <Catalogo width={390} cat="beisbol" />;
 export const CatalogoDesktop = () => <Catalogo width={1280} cat="beisbol" />;
 export const Catalogo10Mobile = () => <Catalogo width={390} cat="basketball" />;
 export const Catalogo10Desktop = () => <Catalogo width={1280} cat="basketball" />;
