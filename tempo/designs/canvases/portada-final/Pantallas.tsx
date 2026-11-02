@@ -104,8 +104,8 @@ export function Visor({ width, producto }: { width: W; producto: keyof typeof PR
   const desktop = width === 1280;
   const p = PRODUCTOS[producto];
   const [foto, ...resto] = p.cat.tiles;
-  // Más de: las que siguen en la categoría, en filas completas del muro (12 / 6 en master; con 9 quedan 8).
-  const mas = resto.slice(0, desktop ? Math.min(12, resto.length - (resto.length % 4)) : 6);
+  // Más de: 12 en desktop como master (6 junto a la foto y 6 en la fila de abajo), 6 en el celular.
+  const mas = resto.slice(0, desktop ? 12 : 6);
   const href = `/products/${p.cat.slug}`;
   const verTodas = (
     <Button variant="secondary" href={href} fullWidth={!desktop}>
@@ -125,10 +125,11 @@ export function Visor({ width, producto }: { width: W; producto: keyof typeof PR
       <div className="pf font-body text-ink">
         <main className="pf-v">
           <div className="pf-c">{volver}</div>
+          {/* PROPUESTA (desktop): una rejilla de 12. La foto 4:5 en 6 columnas; a su derecha, arriba el panel y abajo las
+              6 primeras de Más de (3 x 2), que cierran en el borde de abajo de la foto; las otras 6 en una fila debajo.
+              En el celular no cambia: foto a sangre, panel y Más de como sección. */}
           <div className="pf-visor">
-            {/* PROPUESTA (desktop): la foto en una banda a todo el ancho; los lados repiten el borde de la misma foto
-                (--foto), así el fondo de estudio sigue de lado a lado sin recortar la gorra. */}
-            <div className="pf-visor-foto" style={{ "--foto": `url("${foto.img.src}")` } as React.CSSProperties}>
+            <div className="pf-visor-foto">
               <PhotoCarousel photos={[{ src: foto.img.src, alt: foto.img.alt }]} label={`Fotos de ${p.nombre}`} />
             </div>
             <div className="pf-visor-panel">
@@ -147,12 +148,12 @@ export function Visor({ width, producto }: { width: W; producto: keyof typeof PR
                 <p className="pf-visor-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
               </div>
             </div>
+            <section id="mas-de" aria-labelledby="mas-de-titulo" className="pf-sec pf-c pf-visor-mas">
+              <Cabecera id="mas-de" title={`Más de ${p.cat.label}`} />
+              <Masonry tiles={mas} />
+              <div className="pf-mas-accion">{verTodas}</div>
+            </section>
           </div>
-          <section id="mas-de" aria-labelledby="mas-de-titulo" className="pf-sec pf-c">
-            <Cabecera id="mas-de" title={`Más de ${p.cat.label}`} action={desktop ? verTodas : undefined} />
-            <Masonry tiles={mas} />
-            {!desktop && <div className="pf-mas-accion">{verTodas}</div>}
-          </section>
         </main>
       </div>
     </Marco>
