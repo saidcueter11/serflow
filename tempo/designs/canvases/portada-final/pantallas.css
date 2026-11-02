@@ -151,3 +151,45 @@
   .sf-r3 .pf .pf-promo-tarjetas p { display: block; max-width: 52ch; }
   .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { padding: 16px 0 0; }
 }
+
+/* ---------- 4. Personalizador (/personaliza, PR #36): título de página interior, vista previa en 6 columnas y pasos en 5 desde la 8 ---------- */
+
+/* PUENTE: el frame es una captura del deploy preview del PR #36 con estas hojas encima (capturar-personalizador.mjs). La
+   captura agrega las clases pf-pz-* y pf / pf-v / pf-display / pf-lead a PersonalizaPage; en el PR van en su JSX. */
+/* .sf-r2 delante: le gana a la cabecera de refresh-r2 (40 / 72 arriba), que en el PR desaparece. */
+.sf-r2 .pf .pf-pz > .pf-pz-titulo { padding: var(--pf-aire) var(--pf-m) var(--pf-tc); }
+.pf .pf-pz-titulo > .pf-lead { margin-top: var(--pf-td); }
+/* El aire se mide hasta la mayúscula del título, como en las secciones de la portada. */
+.pf .pf-pz-titulo > h1 { text-box: trim-start cap alphabetic; }
+/* Textos de párrafo con el cuerpo del sistema (16): la ayuda del paso 1 y el texto del paso 3 venían a 14 / 15. */
+.pf .pf-pz-paso p.text-muted:is(.text-\[14px\], .text-\[15px\]) { font-size: var(--pf-body); line-height: 1.5; }
+/* Pasos con la escala de tarjeta (22 / 18) y el número como en Diseña la tuya de la portada: gris, sin círculo. */
+.pf .pf-pz-paso > h2 { gap: 16px; font-size: var(--pf-h3); line-height: 1.25; }
+.pf .pf-pz-paso > h2 > span:first-child { width: 16px; height: auto; justify-content: flex-start; border: 0; font-family: var(--font-body); font-size: var(--pf-body); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+/* Subir el diseño no se pinta de oro: el oro de la página es Enviar. Círculo en tinta con borde, como el número. */
+.pf .pf-pz label span.bg-accent.text-primary { border: 1px solid var(--color-line); background: var(--color-surface-2); color: var(--color-ink); }
+/* Zona para soltar el diseño en una fila (ícono | texto), no un cuadro de 160 con el centro vacío: el paso 1 baja ~70 y
+   en desktop deja que la vista previa y Enviar cierren a ras del paso 2. Sigue siendo toda la caja punteada la que recibe. */
+.pf .pf-pz-paso label.border-dashed { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 16px; row-gap: 2px; padding: 16px; text-align: left; }
+.pf .pf-pz-paso label.border-dashed > span:nth-of-type(1) { grid-row: 1 / 3; }
+.pf .pf-pz-paso label.border-dashed > span:nth-of-type(2):last-child { grid-row: 1 / 3; }
+/* La vista previa con el radio de las fotos (12) y sin caja, como las demás fotos del sistema. */
+.pf .pf-pz-vista > div { border: 0; border-radius: var(--radius-tile); }
+@container pf (min-width: 48rem) {
+  /* Filas: título | prenda + paso 1 | vista + paso 2 | paso 3 + paso 2 | Enviar + paso 2. La fila 3 es 1fr: la vista
+     previa crece hasta que Enviar cierra a ras del final del paso 2 (mismo borde abajo en las dos columnas). */
+  .pf .pf-pz { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto auto 1fr auto auto; column-gap: var(--pf-g); padding: 0 var(--pf-m) var(--pf-aire); }
+  .sf-r2 .pf .pf-pz > .pf-pz-titulo { grid-column: 1 / -1; grid-row: 1; padding-inline: 0; }
+  .pf .pf-pz-prenda { grid-column: 1 / span 6; grid-row: 2; align-self: start; padding: 0; }
+  /* La vista empieza 16 debajo de los chips de prenda (44 de alto) y llena el resto de su área; el motor recorta la
+     foto 4:5 al centro, como hoy con alto={500}. */
+  .pf .pf-pz-vista { grid-column: 1 / span 6; grid-row: 2 / 4; position: static; margin-top: 60px; padding: 0; align-self: stretch; }
+  .pf .pf-pz-vista > div { height: 100% !important; }
+  .pf .pf-pz-pasos { display: contents; }
+  .pf .pf-pz-paso:nth-child(1) { grid-column: 8 / -1; grid-row: 2; }
+  .pf .pf-pz-paso:nth-child(2) { grid-column: 8 / -1; grid-row: 3 / 6; margin-top: 40px; }
+  /* El paso 3 y Enviar van debajo de la vista previa: se manda lo que se ve. En el DOM siguen después del paso 2. */
+  .pf .pf-pz-paso:nth-child(3) { grid-column: 1 / span 6; grid-row: 4; margin-top: 40px; }
+  .pf .pf-pz-envio { grid-column: 1 / span 6; grid-row: 5; position: static; margin: 24px 0 0; padding: 0; box-shadow: none; }
+  .pf .pf-pz-envio > div { padding: 0; border: 0; background: none; }
+}

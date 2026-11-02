@@ -20,6 +20,8 @@ import camisetasEstampadas from "../../../../src/assets/images/stock/camisetas-e
 import camisetaDtf from "../../../../src/assets/images/stock/camiseta-dtf.jpg";
 import kid1 from "../../../../src/assets/images/kids/kid1.webp";
 import { Marco } from "../refresh-oro-viejo/comun";
+import pz390 from "./capturas/personalizador-390.jpg";
+import pz1280 from "./capturas/personalizador-1280.jpg";
 
 /*
  * PRI-286 · el resto de las pantallas con el sistema de la portada (frame "Sistema (de Heirest)" y portada.css).
@@ -359,6 +361,28 @@ export const PromosMobile = () => <Promos width={390} />;
 export const PromosDesktop = () => <Promos width={1280} />;
 export const PromoDetalleMobile = () => <PromoDetalle width={390} />;
 export const PromoDetalleDesktop = () => <PromoDetalle width={1280} />;
+
+/* ---------- 4. Personalizador (/personaliza, PR #36) ---------- */
+
+/*
+ * PersonalizaPage vive en el PR #36 (sin mergear), no en esta rama: el frame es la captura de su deploy preview con
+ * refresh + portada.css + pantallas.css (sección 4) encima, hecha con capturar-personalizador.mjs. Todo el texto es el
+ * del PR. Desktop: título de página interior; vista previa en 6 columnas con Camiseta / Gorra arriba y el paso 3 con
+ * Enviar debajo; pasos 1 y 2 en 5 columnas desde la 8; las dos columnas cierran en el mismo borde.
+ */
+export function Personalizador({ width }: { width: W }) {
+  return (
+    <img
+      src={width === 1280 ? pz1280 : pz390}
+      alt={`Personalizador en ${width} px: Diseña tu prenda, vista previa, pasos y Enviar a Serflow por WhatsApp`}
+      width={width}
+      style={{ display: "block", width }}
+    />
+  );
+}
+
+export const PersonalizadorMobile = () => <Personalizador width={390} />;
+export const PersonalizadorDesktop = () => <Personalizador width={1280} />;
 
 export const CatalogoMobile = () => <Catalogo width={390} cat="beisbol" />;
 export const CatalogoDesktop = () => <Catalogo width={1280} cat="beisbol" />;
