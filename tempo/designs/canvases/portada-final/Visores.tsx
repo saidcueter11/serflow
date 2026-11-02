@@ -1,30 +1,73 @@
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 import "./portada.css";
 import "./pantallas.css";
 import "./visores.css";
 import { Button } from "../../../../src/components/ui/Button";
 import { Masonry } from "../../../../src/components/ui/Masonry";
 import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
-import { ADDRESS, CITY, WHATSAPP_URL } from "../../../../src/lib/business";
+import { StatusPill } from "../../../../src/components/ui/StatusPill";
+import { CITY, WHATSAPP_URL } from "../../../../src/lib/business";
 import { LOGO } from "../../design-system/app-shell/portada";
 import { Marco } from "../refresh-oro-viejo/comun";
 import { Cabecera } from "./Portada";
 import { CATEGORIAS } from "./Pantallas";
 
 /*
- * PRI-286 · visor de producto, versión final (Said, 2026-11-02: eligió C, Textura de taller, y pidió llenar el hueco
- * entre el título y el sello con las técnicas de B; "Más de" abajo, en su rejilla).
+ * PRI-286 · visor de producto, versión final (Said, 2026-11-02: eligió C, Textura de taller; "Más de" abajo, en su
+ * rejilla). Ronda 2 (Said): fuera "Qué hacemos" y la dirección del taller (ya están en la portada); el centro del panel
+ * es solo DEL PRODUCTO.
  * Escritorio: foto 4:5 en 6 columnas y el panel en las otras 6, con el mismo borde de arriba y de abajo que la foto; el
- * panel reparte su alto entre nombre y sello, Qué hacemos, la costura y Pedir por WhatsApp, con el mismo aire entre ellos.
- * Celular: foto a sangre, nombre y sello, costura y Pedir arriba (el botón a la vista sin bajar), y Qué hacemos debajo.
- * Una sola foto (hoy 0 de 92 productos tienen más): el visor es este mismo frame, sin miniaturas.
- * Todo el texto sale de master: la categoría, el nombre, "Pedir por WhatsApp" y su nota, las técnicas de "Qué hacemos"
- * (HomePage.tsx) y la dirección y ciudad de business.ts. El logo es src/assets/LOGO SERFLOW.png (solo su monograma).
+ * panel reparte su alto entre nombre y sello, los datos (precio, Disponible, descripción), De cerca, la costura y Pedir,
+ * con el mismo aire entre ellos. De cerca toma el alto que sobra: sin descripción ni precio, crece hasta llenarlo.
+ * Celular: foto a sangre, nombre y sello, costura y Pedir arriba (el botón a la vista sin bajar, como en C final); los
+ * datos (precio y Disponible, descripción) y De cerca debajo.
+ * Datos (products de Supabase, 2026-11-02): de los 92 activos, ninguno tiene description, price ni stock > 0, y ninguno
+ * tiene más de una foto. El frame principal usa datos de EJEMPLO para mostrar el caso lleno; "sin datos" es el de hoy.
+ * Reglas para construir: cada dato solo si existe (description no vacía, price !== null, stock > 0); price en COP con
+ * Intl.NumberFormat("es-CO", COP, sin decimales); stock > 0 = StatusPill accent "Disponible" (accent = disponible en labels), nunca el número.
+ * De cerca: con image_urls[1], esa foto entera (cover); con una sola foto, la misma ampliada, centrada en el punto
+ * 50 % / 43 %, donde queda el logo bordado en las fotos del catálogo; el zoom sale del alto del marco (el logo ocupa
+ * ~65 % del alto) con un mínimo de 1,7 veces su ancho: el marco bajo no corta el logo y ninguno muestra el fondo.
+ * Todo el resto del texto sale de master: la categoría, el nombre, "Pedir por WhatsApp" y su nota, y la ciudad de
+ * business.ts en el sello. El logo es src/assets/LOGO SERFLOW.png (solo su monograma).
  */
 
 type W = 390 | 1280;
 
+type Datos = { description: string | null; price: number | null; stock: number };
+
+/** Ejemplo de un producto con los tres campos llenos (hoy ninguno los tiene en Supabase). */
+const EJEMPLO: Datos = {
+  description: "Gorra negra de los Mariners con el logo bordado en relieve. Visera curva y correa ajustable atrás, talla única.",
+  price: 45000,
+  stock: 3,
+};
+/** Como están hoy los 92 productos activos. */
+const VACIO: Datos = { description: null, price: null, stock: 0 };
+
 const p = { nombre: "Beisbol #49", cat: CATEGORIAS.beisbol, count: 23 };
+
+const cop = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
+
+/** Detalle del producto en un marco cosido: su segunda foto si la tiene; si no, la primera ampliada sobre el logo. */
+function DeCerca({ fotos }: { fotos: string[] }) {
+  const segunda = fotos[1];
+  return (
+    <figure className="vx-cerca" aria-hidden={segunda ? undefined : true}>
+      {segunda ? (
+        <img src={segunda} alt={`${p.nombre}, otra foto`} className="vx-cerca-otra" />
+      ) : (
+        <img src={fotos[0]} alt="" className="vx-cerca-zoom" />
+      )}
+      <svg className="vx-cerca-costura" aria-hidden="true">
+        <rect width="100%" height="100%" rx="4" />
+      </svg>
+      {!segunda && (
+        <figcaption className="pf-pie vx-cerca-pie">De cerca</figcaption>
+      )}
+    </figure>
+  );
+}
 
 /** El monograma S del logo real, como silueta del color que diga el CSS (mask del PNG, recortado a la S). */
 function Monograma({ className }: { className: string }) {
@@ -33,76 +76,6 @@ function Monograma({ className }: { className: string }) {
 
 /** Costura dorada horizontal que se cose una vez al cargar (la del "enlace que se cose"). */
 const Costura = () => <span aria-hidden="true" className="vx-costura" />;
-
-/* ---------- Íconos lineales de las técnicas (24, trazo 1.5, oro viejo) ---------- */
-
-const ICONOS: Record<string, ReactNode> = {
-  // Rasero sobre la malla y la tinta que deja.
-  Estampado: (
-    <>
-      <rect x="5" y="3.5" width="14" height="4.5" rx="1.5" />
-      <path d="M9.5 8 8.5 13h7l-1-5" />
-      <path d="M3 17h18" />
-      <path d="M6.5 20.5h11" />
-    </>
-  ),
-  // La lámina de transferencia con su diseño, despegándose por la esquina.
-  DTF: (
-    <>
-      <path d="M12 20H5.5A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5V12" />
-      <path d="M20 12l-5.5 2.5L12 20z" />
-      <circle cx="9.5" cy="9.5" r="2.5" />
-    </>
-  ),
-  // Aguja con su ojo y el hilo, y una puntada en cruz.
-  Bordado: (
-    <>
-      <path d="M4 20 16.4 7.2a2 2 0 0 1 2.8 2.8z" />
-      <path d="M17.3 8.3l.5-.5" />
-      <path d="M18.6 7.2c2.2-2 3.8 1.2 1.4 2.8-2.6 1.7-6 .3-8.4 3" />
-      <path d="M15 16.5l3.5 3.5M18.5 16.5 15 20" />
-    </>
-  ),
-};
-
-/** Las tres técnicas con su texto tal cual en "Qué hacemos" (src/components/home/HomePage.tsx). */
-const TECNICAS = [
-  { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas." },
-  { title: "DTF", description: "Colores vivos y con brillo. Fotos y degradados." },
-  { title: "Bordado", description: "Hilo con relieve. El clásico de las gorras." },
-];
-
-function Tecnicas() {
-  return (
-    <div className="vx-tec">
-      <p className="pf-pie vx-tec-titulo">Qué hacemos</p>
-      <ul className="vx-tec-lista">
-        {TECNICAS.map((t) => (
-          <li key={t.title}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              {ICONOS[t.title]}
-            </svg>
-            <div>
-              <p className="vx-tec-nombre">{t.title}</p>
-              <p>{t.description}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <p className="vx-taller">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M12 21s-6.5-6-6.5-11.5a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z" />
-          <circle cx="12" cy="9.5" r="2.3" />
-        </svg>
-        <span>
-          {ADDRESS}
-          <br />
-          <span className="text-muted">{CITY}</span>
-        </span>
-      </p>
-    </div>
-  );
-}
 
 /* ---------- Sello circular: aro, puntada y el monograma; alrededor, el nombre y la ciudad de business.ts ---------- */
 
@@ -125,8 +98,10 @@ function Sello() {
   );
 }
 
-export function VisorFinal({ width }: { width: W }) {
+export function VisorFinal({ width, datos = EJEMPLO }: { width: W; datos?: Datos }) {
   const desktop = width === 1280;
+  const { description, price, stock } = datos;
+  const precio = price !== null || stock > 0;
   const [foto, ...resto] = p.cat.tiles;
   const href = `/products/${p.cat.slug}`;
   return (
@@ -155,7 +130,18 @@ export function VisorFinal({ width }: { width: W }) {
                 </div>
                 <Sello />
               </div>
-              <Tecnicas />
+              {(precio || description) && (
+                <div className="vx-datos">
+                  {precio && (
+                    <p className="vx-precio">
+                      {price !== null && <span className="vx-valor">{cop.format(price)}</span>}
+                      {stock > 0 && <StatusPill tone="accent">Disponible</StatusPill>}
+                    </p>
+                  )}
+                  {description && <p className="vx-desc">{description}</p>}
+                </div>
+              )}
+              <DeCerca fotos={[foto.img.src]} />
               <Costura />
               <div className="vx-pedir">
                 <div className="vx-boton">
@@ -184,3 +170,5 @@ export function VisorFinal({ width }: { width: W }) {
 
 export const VisorFinalMobile = () => <VisorFinal width={390} />;
 export const VisorFinalDesktop = () => <VisorFinal width={1280} />;
+export const VisorFinalSinDatosMobile = () => <VisorFinal width={390} datos={VACIO} />;
+export const VisorFinalSinDatosDesktop = () => <VisorFinal width={1280} datos={VACIO} />;

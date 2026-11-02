@@ -1,15 +1,17 @@
 /*
  * PRI-286 · visor final, Textura de taller (Visores.tsx). Va después de portada.css y pantallas.css y usa sus variables.
  * En escritorio la foto 4:5 en 6 columnas y el panel en las otras 6 como caja (surface, borde line, radio tile) del mismo
- * alto que la foto; adentro, nombre y sello, Qué hacemos, la costura y Pedir, repartidos con el mismo aire. En el celular
+ * alto que la foto; adentro, nombre y sello, los datos, De cerca, la costura y Pedir, repartidos con el mismo aire. En el celular
  * la foto a sangre y el panel en el margen. Oro viejo solo como acento. Nada se mueve en bucle: la costura se cose una
  * vez al cargar y con reducir movimiento sale ya cosida.
  */
 
-/* Celular: nombre y sello, costura y Pedir (el botón a la vista sin bajar); Qué hacemos después, como cierre del panel. */
+/* Celular: nombre y sello, costura y Pedir (el botón a la vista sin bajar, donde estaba en C final); los datos (precio y
+   Disponible, descripción) y De cerca después, como cierre del panel. */
 .vx-panel { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; gap: var(--pf-tc); padding: var(--pf-tc) var(--pf-m) 32px; background: var(--color-surface); }
 .vx-arriba { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.vx-tec { order: 1; margin-top: 16px; }
+.vx-datos { order: 1; display: flex; flex-direction: column; gap: var(--pf-td); margin-top: 8px; }
+.vx-cerca { order: 2; }
 .vx-pedir { display: flex; flex-direction: column; }
 .pf .vx-nota { margin-top: 12px; }
 .vx-boton { flex: none; }
@@ -18,16 +20,16 @@
   .vx { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); padding-inline: var(--pf-m); }
   .vx-foto { grid-column: 1 / span 6; }
   .pf .vx-foto ul { border-radius: var(--radius-tile); }
-  /* El panel se estira al alto de la foto (735): mismo borde arriba y abajo. Entre los cuatro bloques, siempre el mismo
-     aire (32); lo que sobra lo toman las filas de Qué hacemos, por partes iguales, así no queda ningún hueco suelto.
-     Con un nombre de dos líneas (Mi Tierra Querida #12) las filas vuelven a su mínimo y el panel sigue cerrando con la foto. */
+  /* El panel se estira al alto de la foto (735): mismo borde arriba y abajo. Entre los bloques, siempre el mismo aire
+     (32); lo que sobra lo toma De cerca, así no queda ningún hueco suelto. Sin descripción ni precio, De cerca crece
+     hasta donde estaban; con un nombre de dos líneas (Mi Tierra Querida #12) se encoge hasta su mínimo (200). */
   .vx-panel {
     grid-column: 7 / -1; align-self: stretch;
     padding: var(--pf-m); border: 1px solid var(--color-line); border-radius: var(--radius-tile);
   }
   .vx-arriba { align-items: center; }
   .pf .vx-panel .pf-visor-cat { margin-top: -12px; }
-  .vx-tec { order: 0; margin-top: 0; flex: 1 0 auto; display: flex; flex-direction: column; }
+  .vx-datos, .vx-cerca { order: 0; margin-top: 0; }
   .vx-pedir { flex-direction: row; align-items: center; gap: 20px; }
   .pf .vx-nota { margin-top: 0; max-width: 30ch; text-wrap: pretty; }
 }
@@ -74,23 +76,25 @@
   .vx-sello-puntada { r: 34px; }
 }
 
-/* ---------- Qué hacemos: los 3 íconos de las técnicas con su texto y el taller con su pin ---------- */
+/* ---------- Datos del producto: precio en COP y Disponible en una fila; la descripción debajo ---------- */
 
-.pf .vx-tec-titulo { color: var(--color-muted); }
-.vx-tec-lista { margin-top: 12px; }
-.vx-tec-lista li { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 14px; padding-block: 14px; border-top: 1px solid var(--color-line); }
-.vx-tec-lista svg { width: 24px; height: 24px; color: var(--color-accent); margin-top: 1px; }
-.vx-tec-nombre { font-size: var(--pf-body); font-weight: 600; line-height: 1.3; }
-.vx-tec-lista li p:not(.vx-tec-nombre) { margin-top: 2px; font-size: 15px; line-height: 1.45; color: var(--color-muted); }
-.vx-taller { display: flex; gap: 14px; padding-top: 14px; border-top: 1px solid var(--color-line); font-size: 15px; line-height: 1.45; }
-.vx-taller svg { flex: none; width: 24px; height: 24px; color: var(--color-accent); margin-top: 1px; }
+.vx-precio { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.pf .vx-valor { font-family: var(--font-display); font-size: var(--pf-h3); font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.pf .vx-desc { font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); max-width: 52ch; text-wrap: pretty; }
+
+/* ---------- De cerca: la foto del producto en un marco con la costura dorada por dentro ---------- */
+
+.vx-cerca { position: relative; overflow: hidden; container-type: size; aspect-ratio: 4 / 3; border-radius: var(--radius-tile); background: var(--color-surface-2); }
+/* Una sola foto: la misma ampliada, con el punto 50 % / 43 % (el logo) en el centro del marco y al 43 % de su alto. El
+   ancho de la foto es 3,3 veces el alto del marco (el logo, ~15 % del alto de la foto, queda en ~65 % del marco) y nunca
+   menos de 1,7 veces su ancho, así el marco bajo y ancho de escritorio también se llena de tela y no del fondo de la foto. */
+.vx-cerca-zoom { position: absolute; left: 50%; top: 43%; width: max(170cqw, 330cqh); max-width: none; height: auto; translate: -50% -43%; }
+.vx-cerca-otra { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vx-cerca-costura { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); overflow: visible; pointer-events: none; }
+.vx-cerca-costura rect { fill: none; stroke: color-mix(in srgb, var(--color-accent) 85%, transparent); stroke-width: 1.5; stroke-dasharray: 5 4; rx: calc(var(--radius-tile) - 8px); }
+.pf .vx-cerca-pie { position: absolute; left: 16px; bottom: 16px; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-primary) 85%, transparent); }
 @container pf (min-width: 48rem) {
-  /* Las mismas filas del celular, con más aire: el ícono a la izquierda como el pin del taller. */
-  .vx-tec-lista { margin-top: 16px; flex: 3 0 auto; display: flex; flex-direction: column; }
-  .vx-tec-lista li { flex: 1 0 auto; align-content: center; grid-template-columns: 28px minmax(0, 1fr); column-gap: 20px; padding-block: 12px; }
-  .vx-tec-lista svg { width: 28px; height: 28px; }
-  .vx-taller { flex: 1 0 auto; align-items: center; gap: 20px; padding-block: 12px 0; }
-  .vx-taller svg { margin-inline: 2px; }
+  .vx-cerca { flex: 1 1 0; min-height: 200px; aspect-ratio: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
