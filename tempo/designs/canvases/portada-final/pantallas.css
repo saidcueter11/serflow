@@ -200,13 +200,13 @@
 @container pf (min-width: 48rem) {
   .pf-404-botones { flex-direction: row; width: auto; }
 }
-/* Celular: el texto toma el alto de la miniatura y Ver promo queda en su borde de abajo, en todas las filas. */
-.sf-r3 .pf .pf-promo-tarjetas a > div { align-items: stretch; }
+/* Celular: Ver promo pegado a su título (8), no empujado al borde de abajo de la miniatura: con la descripción oculta
+   quedaba a 70-95 de él, suelto. Como Qué hacemos en la portada. */
 .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child { display: flex; flex-direction: column; }
 .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > h3:first-child { margin-top: 0; }
-.sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > span:last-child { margin-top: auto; }
 @container pf (min-width: 48rem) {
   /* Desktop: tarjetas en fila; la sin fecha deja el alto de la etiqueta para que su título quede en la línea de las vecinas. */
   .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > h3:first-child { margin-top: calc(var(--pf-pie) * 1.5 + 8px); }
-  .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > span:last-child { margin-top: 8px; }
+  /* Ver promo al fondo de la tarjeta (mínimo 8 sobre la descripción): en la misma línea aunque las descripciones midan distinto. */
+  .sf-r3 .pf .pf-promo-tarjetas a > div > div.flex-1.p-4:last-child > span:last-child { margin-top: auto; padding-top: 8px; }
 }
