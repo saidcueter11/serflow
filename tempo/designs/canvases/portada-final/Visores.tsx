@@ -12,16 +12,17 @@ import { Cabecera } from "./Portada";
 import { CATEGORIAS } from "./Pantallas";
 
 /*
- * PRI-286 · visor de producto, 3 variantes (Said, 2026-11-02: "Más de" vuelve abajo, en su rejilla; el panel se llena
- * con decoración gráfica, nunca con texto o datos inventados).
- * Base común: foto 4:5 en 6 columnas y el panel en las otras 6, con el mismo borde de arriba y de abajo que la foto.
+ * PRI-286 · visor de producto, versión final (Said, 2026-11-02: eligió C, Textura de taller, y pidió llenar el hueco
+ * entre el título y el sello con las técnicas de B; "Más de" abajo, en su rejilla).
+ * Escritorio: foto 4:5 en 6 columnas y el panel en las otras 6, con el mismo borde de arriba y de abajo que la foto; el
+ * panel reparte su alto entre nombre y sello, Qué hacemos, la costura y Pedir por WhatsApp, con el mismo aire entre ellos.
+ * Celular: foto a sangre, nombre y sello, costura y Pedir arriba (el botón a la vista sin bajar), y Qué hacemos debajo.
  * Una sola foto (hoy 0 de 92 productos tienen más): el visor es este mismo frame, sin miniaturas.
  * Todo el texto sale de master: la categoría, el nombre, "Pedir por WhatsApp" y su nota, las técnicas de "Qué hacemos"
  * (HomePage.tsx) y la dirección y ciudad de business.ts. El logo es src/assets/LOGO SERFLOW.png (solo su monograma).
  */
 
 type W = 390 | 1280;
-type V = "A" | "B" | "C";
 
 const p = { nombre: "Beisbol #49", cat: CATEGORIAS.beisbol, count: 23 };
 
@@ -33,7 +34,7 @@ function Monograma({ className }: { className: string }) {
 /** Costura dorada horizontal que se cose una vez al cargar (la del "enlace que se cose"). */
 const Costura = () => <span aria-hidden="true" className="vx-costura" />;
 
-/* ---------- B · íconos lineales de las técnicas (24, trazo 1.5, oro viejo) ---------- */
+/* ---------- Íconos lineales de las técnicas (24, trazo 1.5, oro viejo) ---------- */
 
 const ICONOS: Record<string, ReactNode> = {
   // Rasero sobre la malla y la tinta que deja.
@@ -103,21 +104,7 @@ function Tecnicas() {
   );
 }
 
-/* ---------- A · marco de costura que se cose una vez al cargar (solo escritorio, donde el panel es una caja) ---------- */
-
-function MarcoCostura() {
-  const id = useId();
-  return (
-    <svg aria-hidden="true" className="vx-marco">
-      <mask id={`${id}-cose`}>
-        <rect className="vx-marco-r vx-marco-trazo" pathLength={1} fill="none" stroke="white" />
-      </mask>
-      <rect className="vx-marco-r" fill="none" mask={`url(#${id}-cose)`} />
-    </svg>
-  );
-}
-
-/* ---------- C · sello circular: aro, puntada y el monograma; alrededor, el nombre y la ciudad de business.ts ---------- */
+/* ---------- Sello circular: aro, puntada y el monograma; alrededor, el nombre y la ciudad de business.ts ---------- */
 
 function Sello() {
   const id = useId();
@@ -138,7 +125,7 @@ function Sello() {
   );
 }
 
-export function VisorVariante({ width, v }: { width: W; v: V }) {
+export function VisorFinal({ width }: { width: W }) {
   const desktop = width === 1280;
   const [foto, ...resto] = p.cat.tiles;
   const href = `/products/${p.cat.slug}`;
@@ -154,13 +141,11 @@ export function VisorVariante({ width, v }: { width: W; v: V }) {
               Todas las fotos
             </a>
           </div>
-          <div className={`vx vx-${v}`}>
+          <div className="vx">
             <div className="vx-foto">
               <PhotoCarousel photos={[{ src: foto.img.src, alt: foto.img.alt }]} label={`Fotos de ${p.nombre}`} />
             </div>
             <div className="vx-panel">
-              {v === "A" && (desktop ? <MarcoCostura /> : null)}
-              {v === "A" && <Monograma className="vx-agua" />}
               <div className="vx-arriba">
                 <div className="pf-visor-nombre">
                   <a href={href} className="pf-pie pf-visor-cat">
@@ -168,20 +153,17 @@ export function VisorVariante({ width, v }: { width: W; v: V }) {
                   </a>
                   <h1 className="pf-display">{p.nombre}</h1>
                 </div>
-                {v === "C" && !desktop && <Sello />}
+                <Sello />
               </div>
-              {v === "B" && <Tecnicas />}
+              <Tecnicas />
+              <Costura />
               <div className="vx-pedir">
-                {v === "C" && desktop && <Sello />}
-                {(v === "C" || (v === "A" && !desktop)) && <Costura />}
-                <div className="vx-pedir-fila">
-                  <div className="vx-boton">
-                    <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth={!desktop}>
-                      Pedir por WhatsApp
-                    </Button>
-                  </div>
-                  <p className="pf-visor-nota vx-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
+                <div className="vx-boton">
+                  <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth={!desktop}>
+                    Pedir por WhatsApp
+                  </Button>
                 </div>
+                <p className="pf-visor-nota vx-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
               </div>
             </div>
           </div>
@@ -200,9 +182,5 @@ export function VisorVariante({ width, v }: { width: W; v: V }) {
   );
 }
 
-export const VisorAMobile = () => <VisorVariante width={390} v="A" />;
-export const VisorADesktop = () => <VisorVariante width={1280} v="A" />;
-export const VisorBMobile = () => <VisorVariante width={390} v="B" />;
-export const VisorBDesktop = () => <VisorVariante width={1280} v="B" />;
-export const VisorCMobile = () => <VisorVariante width={390} v="C" />;
-export const VisorCDesktop = () => <VisorVariante width={1280} v="C" />;
+export const VisorFinalMobile = () => <VisorFinal width={390} />;
+export const VisorFinalDesktop = () => <VisorFinal width={1280} />;

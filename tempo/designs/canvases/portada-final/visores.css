@@ -1,15 +1,16 @@
 /*
- * PRI-286 · visor, variantes A/B/C (Visores.tsx). Va después de portada.css y pantallas.css y usa sus variables.
- * Base: en escritorio la foto 4:5 en 6 columnas y el panel en las otras 6 como caja (surface, borde line, radio tile)
- * del mismo alto que la foto; adentro, arriba categoría y nombre, abajo Pedir por WhatsApp, y la decoración reparte
- * el alto. En el celular la foto a sangre y el panel en el margen. Oro viejo solo como acento. Nada se mueve en bucle:
- * las costuras se cosen una vez al cargar y con reducir movimiento salen ya cosidas.
+ * PRI-286 · visor final, Textura de taller (Visores.tsx). Va después de portada.css y pantallas.css y usa sus variables.
+ * En escritorio la foto 4:5 en 6 columnas y el panel en las otras 6 como caja (surface, borde line, radio tile) del mismo
+ * alto que la foto; adentro, nombre y sello, Qué hacemos, la costura y Pedir, repartidos con el mismo aire. En el celular
+ * la foto a sangre y el panel en el margen. Oro viejo solo como acento. Nada se mueve en bucle: la costura se cose una
+ * vez al cargar y con reducir movimiento sale ya cosida.
  */
 
-.vx-panel { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; padding: var(--pf-tc) var(--pf-m) 0; }
+/* Celular: nombre y sello, costura y Pedir (el botón a la vista sin bajar); Qué hacemos después, como cierre del panel. */
+.vx-panel { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; gap: var(--pf-tc); padding: var(--pf-tc) var(--pf-m) 32px; background: var(--color-surface); }
 .vx-arriba { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.vx-pedir { margin-top: var(--pf-tc); }
-.vx-pedir-fila { display: flex; flex-direction: column; }
+.vx-tec { order: 1; margin-top: 16px; }
+.vx-pedir { display: flex; flex-direction: column; }
 .pf .vx-nota { margin-top: 12px; }
 .vx-boton { flex: none; }
 
@@ -17,25 +18,35 @@
   .vx { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); padding-inline: var(--pf-m); }
   .vx-foto { grid-column: 1 / span 6; }
   .pf .vx-foto ul { border-radius: var(--radius-tile); }
-  /* El panel se estira al alto de la foto (735): mismo borde arriba y abajo. */
+  /* El panel se estira al alto de la foto (735): mismo borde arriba y abajo. Entre los cuatro bloques, siempre el mismo
+     aire (32); lo que sobra lo toman las filas de Qué hacemos, por partes iguales, así no queda ningún hueco suelto.
+     Con un nombre de dos líneas (Mi Tierra Querida #12) las filas vuelven a su mínimo y el panel sigue cerrando con la foto. */
   .vx-panel {
-    grid-column: 7 / -1; align-self: stretch; justify-content: space-between; gap: var(--pf-tc);
-    padding: var(--pf-m); border: 1px solid var(--color-line); border-radius: var(--radius-tile); background: var(--color-surface);
+    grid-column: 7 / -1; align-self: stretch;
+    padding: var(--pf-m); border: 1px solid var(--color-line); border-radius: var(--radius-tile);
   }
+  .vx-arriba { align-items: center; }
   .pf .vx-panel .pf-visor-cat { margin-top: -12px; }
-  .vx-pedir { margin-top: 0; }
-  .vx-pedir-fila { flex-direction: row; align-items: center; gap: 20px; }
+  .vx-tec { order: 0; margin-top: 0; flex: 1 0 auto; display: flex; flex-direction: column; }
+  .vx-pedir { flex-direction: row; align-items: center; gap: 20px; }
   .pf .vx-nota { margin-top: 0; max-width: 30ch; text-wrap: pretty; }
 }
 
 /* Más de: abajo, en su rejilla (Said, 2026-11-02), con la misma calle del catálogo. */
 .vx-mas { padding-bottom: var(--pf-aire); }
 
+/* ---------- Sarga: el tejido del denim, puntadas en diagonal, oro al 7 % sobre surface; se desvanece hacia el nombre ---------- */
+
+.vx-panel::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M0 8L8 0' stroke='%23c9a24a' stroke-opacity='.07' stroke-width='1.25' stroke-dasharray='4 1.657'/%3E%3C/svg%3E");
+  mask-image: linear-gradient(to bottom, transparent 0, #000 25%);
+}
+
 /* ---------- Costura: el trazo del "enlace que se cose" (refresh.css §4), aquí como divisor que se cose una vez ---------- */
 
 .vx-costura {
-  display: block; height: 2px; margin-bottom: var(--pf-tc);
-  height: 1.5px; border-radius: 1px;
+  display: block; flex: none; height: 1.5px; border-radius: 1px;
   background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 55%, transparent) 0 5px, transparent 5px 9px);
   animation: vx-cose var(--motion-costura) var(--ease-premium) 300ms both;
 }
@@ -44,27 +55,27 @@
 /* El monograma S del logo como silueta: mask del PNG a todo el alto, recortado a su primer tercio (la S). */
 .vx-mono { display: block; aspect-ratio: 0.93; mask-size: auto 100%; mask-position: left center; mask-repeat: no-repeat; -webkit-mask-size: auto 100%; -webkit-mask-position: left center; -webkit-mask-repeat: no-repeat; background: var(--color-accent); }
 
-/* ---------- A · Costura y sello: marco cosido adentro del panel y la S de marca de agua ---------- */
+/* ---------- Sello circular junto al nombre: aro con SERFLOW · ciudad, puntada y la S ---------- */
 
-.vx-marco { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-/* La costura ES el borde del panel (sin borde sólido): puntadas largas, huecos cortos, sobre el canto de la caja. */
-.vx-marco-r { x: 1px; y: 1px; width: calc(100% - 2px); height: calc(100% - 2px); rx: 11px; stroke: var(--color-accent); stroke-opacity: 0.6; stroke-width: 1.25; stroke-linecap: round; stroke-dasharray: 6 4; }
-/* El trazo blanco de la máscara corre una vez por el perímetro y va descubriendo la costura. */
-.vx-marco-trazo { stroke: #fff; stroke-opacity: 1; stroke-width: 6; stroke-dasharray: 1; stroke-dashoffset: 1; animation: vx-trazo 1600ms var(--ease-premium) 200ms forwards; }
-@keyframes vx-trazo { to { stroke-dashoffset: 0; } }
-
-/* Marca de agua: la S grande, oro al 6 %, cortada por el borde derecho del panel. */
-/* En el celular, la S entera a la derecha del nombre, en el margen. */
-.vx-agua { position: absolute; z-index: -1; height: 96px; top: var(--pf-tc); right: var(--pf-m); opacity: 0.07; }
+.vx-sello { position: relative; flex: none; width: 84px; height: 84px; }
+.vx-sello svg { width: 100%; height: 100%; overflow: visible; }
+.vx-sello-aro { fill: none; stroke: var(--color-accent); stroke-opacity: 0.45; stroke-width: 1; }
+.vx-sello-puntada { fill: none; stroke: var(--color-accent); stroke-opacity: 0.7; stroke-width: 1.25; stroke-dasharray: 3 2.4; }
+.vx-sello-texto { fill: var(--color-accent); font-size: 9px; font-weight: 600; letter-spacing: 0.08em; }
+.vx-sello-mono { position: absolute; inset: 0; margin: auto; height: 36%; }
+/* En el celular el sello es chico: sin aro ni letras (no se leerían), la puntada y la S. */
+.vx-sello-texto, .vx-sello-aro { display: none; }
+.vx-sello-puntada { r: 56px; }
 @container pf (min-width: 48rem) {
-  /* La S en el centro del aire entre el nombre y Pedir, casi entera. */
-  .vx-agua { height: 50%; top: auto; bottom: 22%; right: auto; left: 50%; transform: translateX(-50%); opacity: 0.06; }
-  .vx-A .vx-panel { border-color: transparent; }
+  /* 104 deja al nombre 372 de ancho: Beisbol #49 cabe en una línea. */
+  .vx-sello { width: 104px; height: 104px; }
+  .vx-sello-texto { font-size: 10.5px; }
+  .vx-sello-texto, .vx-sello-aro { display: inline; }
+  .vx-sello-puntada { r: 34px; }
 }
 
-/* ---------- B · Técnicas: los 3 íconos de "Qué hacemos" con su texto y el taller con su pin ---------- */
+/* ---------- Qué hacemos: los 3 íconos de las técnicas con su texto y el taller con su pin ---------- */
 
-.vx-B .vx-tec { order: 3; margin-top: 40px; }
 .pf .vx-tec-titulo { color: var(--color-muted); }
 .vx-tec-lista { margin-top: 12px; }
 .vx-tec-lista li { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 14px; padding-block: 14px; border-top: 1px solid var(--color-line); }
@@ -74,43 +85,14 @@
 .vx-taller { display: flex; gap: 14px; padding-top: 14px; border-top: 1px solid var(--color-line); font-size: 15px; line-height: 1.45; }
 .vx-taller svg { flex: none; width: 24px; height: 24px; color: var(--color-accent); margin-top: 1px; }
 @container pf (min-width: 48rem) {
-  .vx-B .vx-tec { order: 0; margin-top: 0; }
   /* Las mismas filas del celular, con más aire: el ícono a la izquierda como el pin del taller. */
-  .vx-tec-lista { margin-top: 16px; }
-  .vx-tec-lista li { grid-template-columns: 28px minmax(0, 1fr); column-gap: 20px; padding-block: 18px; }
+  .vx-tec-lista { margin-top: 16px; flex: 3 0 auto; display: flex; flex-direction: column; }
+  .vx-tec-lista li { flex: 1 0 auto; align-content: center; grid-template-columns: 28px minmax(0, 1fr); column-gap: 20px; padding-block: 12px; }
   .vx-tec-lista svg { width: 28px; height: 28px; }
-  .vx-taller { column-gap: 20px; gap: 20px; padding-top: 18px; }
-  .vx-taller svg { width: 24px; height: 24px; margin-inline: 2px; }
-}
-
-/* ---------- C · Textura de taller: sarga cosida tono sobre tono, divisor de costura y sello con el monograma ---------- */
-
-/* Sarga (el tejido del denim): puntadas en diagonal, oro al 6 % sobre surface; se desvanece hacia el nombre. */
-.vx-C .vx-panel::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M0 8L8 0' stroke='%23c9a24a' stroke-opacity='.07' stroke-width='1.25' stroke-dasharray='4 1.657'/%3E%3C/svg%3E");
-  mask-image: linear-gradient(to bottom, transparent 0, #000 25%);
-}
-.vx-C .vx-panel { background: var(--color-surface); padding-bottom: 32px; }
-.vx-sello { position: relative; flex: none; width: 84px; height: 84px; }
-.vx-sello svg { width: 100%; height: 100%; overflow: visible; }
-.vx-sello-aro { fill: none; stroke: var(--color-accent); stroke-opacity: 0.45; stroke-width: 1; }
-.vx-sello-puntada { fill: none; stroke: var(--color-accent); stroke-opacity: 0.7; stroke-width: 1.25; stroke-dasharray: 3 2.4; }
-.vx-sello-texto { fill: var(--color-accent); font-size: 9px; font-weight: 600; letter-spacing: 0.08em; }
-.vx-sello-mono { position: absolute; inset: 0; margin: auto; height: 36%; }
-/* En el celular el sello es chico: el aro sin letras (no se leerían), la puntada y la S. */
-.vx-sello-texto, .vx-sello-aro { display: none; }
-.vx-sello-puntada { r: 56px; }
-@container pf (min-width: 48rem) {
-  .vx-C .vx-panel { padding-bottom: var(--pf-m); }
-  .vx-sello-texto { display: inline; }
-  .vx-sello-aro { display: inline; }
-  .vx-sello-puntada { r: 34px; }
-  /* En escritorio el sello descansa sobre la costura, a la derecha, como una etiqueta cosida. */
-  .vx-sello { display: block; width: 136px; height: 136px; margin: 0 0 24px; }
+  .vx-taller { flex: 1 0 auto; align-items: center; gap: 20px; padding-block: 12px 0; }
+  .vx-taller svg { margin-inline: 2px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .vx-costura { animation: none; clip-path: none; }
-  .vx-marco-trazo { animation: none; stroke-dashoffset: 0; }
 }

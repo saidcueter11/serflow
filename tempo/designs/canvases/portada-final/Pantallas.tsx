@@ -5,10 +5,9 @@ import { Button } from "../../../../src/components/ui/Button";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { CategoryNav, type CategoryLink } from "../../../../src/components/ui/CategoryNav";
 import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry";
-import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
 import { HeroCarousel } from "../../../../src/components/ui/HeroCarousel";
 import { PromoCard } from "../../../../src/components/ui/PromoCard";
-import { WHATSAPP_URL, whatsappUrl } from "../../../../src/lib/business";
+import { whatsappUrl } from "../../../../src/lib/business";
 import { promoWhatsapp, validaHasta, type PromoView } from "../../../../src/lib/promos";
 import { Cabecera } from "./Portada";
 import gorraBordada2 from "../../../../src/assets/images/stock/gorra-bordada-2.jpg";
@@ -89,79 +88,7 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
   );
 }
 
-/* ---------- 2. Visor de producto ---------- */
-
-/*
- * Hoy ningún producto activo tiene más de una foto (Supabase, 2026-11-02: 0 de 92), así que no hay "Otras vistas":
- * PhotoThumbs no se pinta con una foto y el visor es un solo frame. El panel lleva lo que hay en master: la categoría
- * (como etiqueta-link, no como segundo botón), el nombre, Pedir por WhatsApp y su nota. Sin N.º ni "hace", sin Nuevo.
- */
-const PRODUCTOS = {
-  beisbol: { nombre: "Beisbol #49", cat: CATEGORIAS.beisbol, count: 23 },
-};
-
-export function Visor({ width, producto }: { width: W; producto: keyof typeof PRODUCTOS }) {
-  const desktop = width === 1280;
-  const p = PRODUCTOS[producto];
-  const [foto, ...resto] = p.cat.tiles;
-  // Más de: 12 en desktop como master (6 junto a la foto y 6 en la fila de abajo), 6 en el celular.
-  const mas = resto.slice(0, desktop ? 12 : 6);
-  const href = `/products/${p.cat.slug}`;
-  const verTodas = (
-    <Button variant="secondary" href={href} fullWidth={!desktop}>
-      Ver las {p.count} de {p.cat.label} →
-    </Button>
-  );
-  const volver = (
-    <a href={`/products#f-${p.cat.slug}`} className="pf-visor-volver">
-      <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M15 18l-6-6 6-6" />
-      </svg>
-      Todas las fotos
-    </a>
-  );
-  return (
-    <Marco width={width} nuevo current="/products" fab={false}>
-      <div className="pf font-body text-ink">
-        <main className="pf-v">
-          <div className="pf-c">{volver}</div>
-          {/* PROPUESTA (desktop): una rejilla de 12. La foto 4:5 en 6 columnas; a su derecha, arriba el panel y abajo las
-              6 primeras de Más de (3 x 2), que cierran en el borde de abajo de la foto; las otras 6 en una fila debajo.
-              En el celular no cambia: foto a sangre, panel y Más de como sección. */}
-          <div className="pf-visor">
-            <div className="pf-visor-foto">
-              <PhotoCarousel photos={[{ src: foto.img.src, alt: foto.img.alt }]} label={`Fotos de ${p.nombre}`} />
-            </div>
-            <div className="pf-visor-panel">
-              <div className="pf-visor-nombre">
-                <a href={href} className="pf-pie pf-visor-cat">
-                  {p.cat.label}
-                </a>
-                <h1 className="pf-display">{p.nombre}</h1>
-              </div>
-              <div className="pf-visor-pedir">
-                <div className="pf-visor-boton">
-                  <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth={!desktop}>
-                    Pedir por WhatsApp
-                  </Button>
-                </div>
-                <p className="pf-visor-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
-              </div>
-            </div>
-            <section id="mas-de" aria-labelledby="mas-de-titulo" className="pf-sec pf-c pf-visor-mas">
-              <Cabecera id="mas-de" title={`Más de ${p.cat.label}`} />
-              <Masonry tiles={mas} />
-              <div className="pf-mas-accion">{verTodas}</div>
-            </section>
-          </div>
-        </main>
-      </div>
-    </Marco>
-  );
-}
-
-export const VisorMobile = () => <Visor width={390} producto="beisbol" />;
-export const VisorDesktop = () => <Visor width={1280} producto="beisbol" />;
+/* ---------- 2. Visor de producto: Visores.tsx (versión final) ---------- */
 
 /* ---------- 3. Promos: lista y detalle ---------- */
 
