@@ -5,6 +5,8 @@ import { HomePage, type HomeProduct } from '../components/home/HomePage'
 import { PromoBar } from '../components/ui/PromoBar'
 import type { Slide } from '../components/ui/HeroCarousel'
 import { getActivePromos, getCategories, getProducts } from '../lib/products'
+import { loadCatalog } from '../lib/catalog-view'
+import { PhotoModal } from '../components/ui/PhotoModal'
 import { ADDRESS, EMAIL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL } from '../lib/business'
 // Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
 // pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
@@ -16,25 +18,28 @@ import amigosGorras from '../assets/images/stock/amigos-gorras.jpg'
 import estampadoRasero from '../assets/images/stock/estampado-rasero.jpg'
 import camisetaDtf from '../assets/images/stock/camiseta-dtf.jpg'
 import gorraBordada2 from '../assets/images/stock/gorra-bordada-2.jpg'
-// Foto del catálogo para "Diseña la tuya"
-import capBordado from '../assets/images/miTierraQuerida/miTierraQuerida2.webp'
+// "Diseña la tuya": gorras personalizadas en el estante del taller (la de Mi Tierra Querida se repetía en Disponible ahora).
+import gorrasEstante from '../assets/images/stock/gorras-estante.jpg'
 
 const PRODUCT_COUNT = 4
 
-const [products, categories, promos] = await Promise.all([getProducts(), getCategories(), getActivePromos()])
+const [products, categories, promos, catalog] = await Promise.all([getProducts(), getCategories(), getActivePromos(), loadCatalog()])
 
+// Cada prenda abre su foto en el modal (PRI-286), con la misma URL propia y el mismo mensaje que en el catálogo.
 const homeProducts: HomeProduct[] = await Promise.all(
   products
     .filter((p) => p.image_urls.length > 0 && p.categories?.slug)
     .slice(0, PRODUCT_COUNT)
     .map(async (p) => {
-      const img = await getImage({ src: p.image_urls[0], width: 480, height: 360, format: 'webp', quality: 75 })
+      const item = catalog.groups.find((g) => g.slug === p.categories!.slug)?.items.find((it) => it.slug === p.slug)
+      const img = await getImage({ src: p.image_urls[0], width: 480, height: 600, format: 'webp', quality: 75 })
       return {
         name: p.name,
         // Sin precio en la portada (pedido del reviewer, PRI-129): el precio se conversa por WhatsApp.
         meta: p.categories?.label ?? '',
-        href: `/products/${p.categories!.slug}/${p.slug}`,
+        href: item?.tile.href ?? `/products/${p.categories!.slug}`,
         image: { src: img.src, alt: p.name },
+        modal: item?.tile.modal,
       }
     }),
 )
@@ -43,15 +48,15 @@ const [estampado, dtf, bordado, personalizador] = await Promise.all([
   getImage({ src: estampadoRasero, width: 640, format: 'webp', quality: 75 }),
   getImage({ src: camisetaDtf, width: 640, format: 'webp', quality: 75 }),
   getImage({ src: gorraBordada2, width: 640, format: 'webp', quality: 75 }),
-  getImage({ src: capBordado, width: 900, format: 'webp', quality: 75 }),
+  getImage({ src: gorrasEstante, width: 1200, format: 'webp', quality: 75 }),
 ])
 
 // Carrusel del hero: 4 fotos del resultado. Si hay promo activa, su banner entra primero y sale la última foto.
 const HERO = [
-  { src: camisetas, caption: 'Camisetas con tu diseño', alt: 'Dos personas con camisetas negras estampadas', position: '50% 35%' },
-  { src: estampadoProceso, caption: 'Estampado en el taller', alt: 'Manos pasando el rasero sobre una plancha de estampado', position: '50% 50%' },
-  { src: gorraBordada, caption: 'Gorras bordadas', alt: 'Gorra blanca con bordado rojo', position: '50% 40%' },
-  { src: amigosGorras, caption: 'Para tu equipo o tu grupo', alt: 'Dos amigos con gorras personalizadas riéndose', position: '50% 30%' },
+  { src: camisetas, alt: 'Dos personas con camisetas negras estampadas', position: '50% 35%' },
+  { src: estampadoProceso, alt: 'Manos pasando el rasero sobre una plancha de estampado', position: '50% 50%' },
+  { src: gorraBordada, alt: 'Gorra blanca con bordado rojo', position: '50% 40%' },
+  { src: amigosGorras, alt: 'Dos amigos con gorras personalizadas riéndose', position: '50% 30%' },
 ]
 const heroSlides: Slide[] = await Promise.all(
   HERO.map(async ({ src, ...rest }) => ({ ...rest, src: (await getImage({ src, width: 1400, format: 'webp', quality: 72 })).src })),
@@ -61,7 +66,7 @@ if (promoWithCover) {
   const cover = promoWithCover.banner_url || promoWithCover.image_urls[0]
   const img = await getImage({ src: cover, width: 1400, height: 900, format: 'webp', quality: 72 })
   heroSlides.splice(heroSlides.length - 1, 1)
-  heroSlides.unshift({ src: img.src, caption: 'Promo', alt: promoWithCover.title, promo: true })
+  heroSlides.unshift({ src: img.src, alt: promoWithCover.title })
 }
 const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}` }))
 
@@ -113,8 +118,9 @@ const localBusinessSchema = {
     images={{ estampado: estampado.src, dtf: dtf.src, bordado: bordado.src, personalizador: personalizador.src }}
     catalogHref={catalogHref}
   />
+  <PhotoModal />
 </Layout>
 
 <script>
-  import '../scripts/thread'
+  import '../scripts/photo-modal'
 </script>

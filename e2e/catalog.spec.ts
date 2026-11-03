@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 // Smoke of the public catalog against the real Supabase data baked into the build.
 // PRI-129: the home has no category grid anymore; it reaches the catalog through "Disponible ahora".
-test('home -> product -> WhatsApp CTA, and Ver todo opens a category', async ({ page }) => {
+test('home -> product opens its photo with the WhatsApp CTA, and Ver todo opens a category', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'Disponible ahora' })).toBeVisible()
   await expect(page.getByText('Mercado Bazurto, C.C. Bazurtico, local 31').first()).toBeVisible()
@@ -10,11 +10,12 @@ test('home -> product -> WhatsApp CTA, and Ver todo opens a category', async ({ 
   const verTodo = page.getByRole('link', { name: 'Ver todo →' })
   await expect(verTodo).toHaveAttribute('href', /^\/products\/[^/]+$/)
 
-  const productLink = page.locator('#disponible a[href^="/products/"]').filter({ has: page.locator('h3') }).first()
+  // PRI-286: la prenda se abre en el modal, encima de la portada.
+  const productLink = page.locator('#disponible a[href^="/catalogo/"]').filter({ has: page.locator('h3') }).first()
   const productHref = await productLink.getAttribute('href')
   await productLink.click()
   await expect(page).toHaveURL(new RegExp(`${productHref}/?$`))
-  await expect(page.getByRole('link', { name: 'Pedir por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\//)
+  await expect(page.getByRole('dialog').getByRole('link', { name: 'Pedir por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\//)
 })
 
 test('unknown route shows the 404 page', async ({ page }) => {
@@ -26,11 +27,12 @@ test('unknown route shows the 404 page', async ({ page }) => {
 })
 
 // PRI-120: touch has no hover, so links must be prefetched before the tap or navigation waits on the network.
-test('visible product links are prefetched before the tap', async ({ page }) => {
+// PRI-286: the products open in the modal (no navigation), so the link to check is the one to the catalog.
+test('the visible catalog link is prefetched before the tap', async ({ page }) => {
   await page.goto('/')
-  const productLink = page.locator('#disponible a[href^="/products/"]').filter({ has: page.locator('h3') }).first()
-  await productLink.scrollIntoViewIfNeeded()
-  const href = (await productLink.getAttribute('href'))!.replace(/\/$/, '')
+  const catalogLink = page.getByRole('link', { name: 'Ver todo →' })
+  await catalogLink.scrollIntoViewIfNeeded()
+  const href = (await catalogLink.getAttribute('href'))!.replace(/\/$/, '')
   await expect
     .poll(() =>
       page.evaluate(

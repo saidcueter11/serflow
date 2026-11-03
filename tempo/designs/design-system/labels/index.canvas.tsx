@@ -4,13 +4,12 @@ import { Chip } from "../../../../src/components/ui/Chip";
 import { Eyebrow } from "../../../../src/components/ui/Eyebrow";
 import { StatusPill } from "../../../../src/components/ui/StatusPill";
 import { CategoryNav } from "../../../../src/components/ui/CategoryNav";
-import { NewBadge } from "../../../../src/components/ui/NewBadge";
 import { BoardIntro } from "./BoardIntro";
 import { BoardChip } from "./BoardChip";
 import { BoardEyebrow } from "./BoardEyebrow";
 import { BoardStatusPill } from "./BoardStatusPill";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
-import { BoardCategoryNav, BoardNewBadge } from "./BoardCategoryNav";
+import { BoardCategoryNav } from "./BoardCategoryNav";
 
 export default function LabelsCanvas() {
   return (
@@ -50,12 +49,6 @@ export default function LabelsCanvas() {
         name="CategoryNav"
         component={BoardCategoryNav}
         layout={{ x: 0, y: 2700, width: 1300, height: 900, intrinsicSizing: "root-element" }}
-      />
-      <Storyboard
-        id="NewBadge"
-        name="NewBadge"
-        component={BoardNewBadge}
-        layout={{ x: 1350, y: 2700, width: 900, height: 700, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );
@@ -98,7 +91,7 @@ defineAsset(StatusPill, {
 defineAsset(CategoryNav, {
   libraries: ["Design System"],
   usageInstructions:
-    "Pestañas de categoría del catálogo (/products y /products/<categoría>): links con el conteo de fotos activas, \"Todo\" primero; current = href de la página con aria-current. Fila con scroll en el celular, varias filas desde @3xl. No es un Chip (eso es un radio para elegir talla o técnica) y no filtra en el cliente: cada pestaña cambia la URL. Una por página, debajo de la bienvenida del catálogo.",
+    "Pestañas de categoría del catálogo (/products y /products/<categoría>): links de 48 / 52 px con el conteo de fotos activas, \"Todo\" primero; la actual (current, aria-current) en oro viejo relleno y las demás con borde. Fila con scroll en el celular, varias filas desde @3xl. No es un Chip (eso es un radio para elegir talla o técnica) y no filtra en el cliente: cada pestaña cambia la URL. Una por página, debajo del banner del catálogo.",
   variants: {
     "Categoría actual": {
       props: {
@@ -111,14 +104,5 @@ defineAsset(CategoryNav, {
         ],
       },
     },
-  },
-});
-
-defineAsset(NewBadge, {
-  libraries: ["Design System"],
-  usageInstructions:
-    "\"Nuevo\" sobre una foto del catálogo subida hace menos de 21 días (isNuevo de src/lib/catalog.ts, en el build). Encima de la foto en Masonry (arriba a la izquierda) o junto a la categoría en el visor. Nunca inventado: solo con created_at real. No para promos (PromoBar) ni para estados (StatusPill).",
-  variants: {
-    Default: { props: {} },
   },
 });

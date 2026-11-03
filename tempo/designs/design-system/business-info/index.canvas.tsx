@@ -59,9 +59,9 @@ defineAsset(QuickFacts, {
 defineAsset(MapCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Ubicación del taller: mapa + dirección, ambos horarios y Cómo llegar; la única vez que salen en la página. open = mapa de Google visible de una (portada, #visitanos, title Visítanos; lo pidió el cliente); cerrada = calles en CSS y el mapa real solo al tocar (details + iframe lazy, cero JS) para páginas donde la ubicación es secundaria. tall agranda la cerrada. No metas un iframe de Google Maps suelto en la página ni una imagen de mapa; no la uses para contacto (usa ContactList).",
+    "Ubicación del taller, sin caja: mapa plegado (calles en CSS; el de Google solo al tocar, details + iframe lazy, cero JS), dirección, ambos horarios y Cómo llegar; la única vez que salen en la página. En la portada va al final, en #visitanos junto a Quiénes somos (PRI-286). tall agranda el mapa. No metas un iframe de Google Maps suelto en la página ni una imagen de mapa; no la uses para contacto (usa ContactList).",
   variants: {
-    "Abierta (portada)": { props: { open: true, title: "Visítanos" } },
+    "Portada": { props: { title: "Visítanos" } },
     Cerrada: { props: {} },
     "Cerrada alta": { props: { tall: true } },
   },

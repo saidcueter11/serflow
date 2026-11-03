@@ -82,7 +82,7 @@ defineAsset(Header, {
 defineAsset(Section, {
   libraries: ["Design System"],
   usageInstructions:
-    "Envoltorio de cada bloque del home: id (ancla del nav), eyebrow opcional, título h2 en font-display 28/40px con costura dorada que se cose al aparecer (stitch-title), descripción y contenido; padding px-4 py-8 móvil, px-12 py-14 desde 768px. tone panel = superficie con trama, máximo una por página. No para el hero (lleva h1 y layout propio), no le pases datos del negocio como props (van en el contenido: MapCard, ContactList) y no la anides.",
+    "Sección de página con la cabecera del sistema medido (PRI-286): id (ancla del nav), título h2 (sube al entrar en pantalla), bajada pegada a él y una acción secundaria opcional (action: label + href) que en desktop va en la fila del título y en el celular al pie, a lo ancho. Aire entre secciones y márgenes de la rejilla del sistema (.pf-sec, .pf-c): va dentro de una página .pf. No para el hero (lleva h1 y layout propio), no le pases datos del negocio como props (van en el contenido: MapCard, ContactList) y no la anides.",
   variants: {
     "Quiénes somos": {
       props: {
@@ -92,20 +92,13 @@ defineAsset(Section, {
           "Somos un taller en Cartagena que hace prendas personalizadas. La ropa no solo se usa, se vive: por eso cada pieza lleva algo tuyo.",
       },
     },
-    "Con eyebrow": {
+    "Con acción": {
       props: {
-        eyebrow: "Taller en Cartagena",
-        title: "Qué hacemos",
-        description: "Camisetas y gorras, con la técnica que mejor le quede a tu diseño.",
-        children: "Lista de ServiceCard aquí.",
-      },
-    },
-    Panel: {
-      props: {
-        title: "Diseña la tuya",
-        description: "Sube tu diseño y míralo sobre la prenda.",
-        tone: "panel",
-        children: "Contenido del panel aquí.",
+        id: "disponible",
+        title: "Disponible ahora",
+        description: "Lo que hay en el taller esta semana.",
+        action: { label: "Ver todo →", href: "/products/mi-tierra-querida" },
+        children: "Lista de ProductCard aquí.",
       },
     },
   },

@@ -50,60 +50,56 @@ export function BoardPromoCard() {
         title="PromoCard, PromoAfiche y PromoGrid"
         description={
           <>
-            Promos vigentes (PRI-131). Las tres reciben <Code>PromoView</Code> de <Code>src/lib/promos.ts</Code> (o una
-            lista de ellas): título, descripción, <Code>endsAt</Code>, portada y fotos. Sin <Code>endsAt</Code> no hay píldora
-            de vigencia; sin descripción no hay párrafo. Las imágenes son siluetas marcadas como foto de ejemplo.
+            Promos vigentes (PRI-131, sistema medido de PRI-286). Reciben <Code>PromoView</Code> de{" "}
+            <Code>src/lib/promos.ts</Code>: título, descripción, <Code>endsAt</Code>, portada y fotos. Sin <Code>endsAt</Code>{" "}
+            no hay vigencia; sin descripción no hay párrafo. Las imágenes son siluetas marcadas como foto de ejemplo.
           </>
         }
       />
 
       <Row
-        name="PromoCard"
-        description='Toda la card es un link al detalle. Va en "Otras promos" del detalle y en la 404 cuando hay promos (h3 dentro de una Section).'
+        name="PromoCard en PromoGrid"
+        description='Tarjeta horizontal con caja, toda un link al detalle. Va en "Otras promos" del detalle y en la 404 cuando hay promos (h3 dentro de una Section). Una fila llena en desktop.'
       >
-        <div className="grid grid-cols-3 gap-6">
-          <Labeled label="con fecha">
-            <PromoCard promo={GORRAS} />
+        <div className="flex flex-col gap-6">
+          <Labeled label="3 en fila (1280): foto de 112, sin descripción">
+            <div className="pf w-[1184px]">
+              <div className="pf-v">
+                <PromoGrid>{[GORRAS, EQUIPOS, NINOS].map((p) => <PromoCard key={p.slug} promo={p} headingLevel={3} />)}</PromoGrid>
+              </div>
+            </div>
           </Labeled>
-          <Labeled label="sin endsAt (sin píldora)">
-            <PromoCard promo={NINOS} />
+          <Labeled label="2 en fila (1280): foto de 200 y descripción">
+            <div className="pf w-[1184px]">
+              <div className="pf-v">
+                <PromoGrid>{[EQUIPOS, NINOS].map((p) => <PromoCard key={p.slug} promo={p} headingLevel={3} />)}</PromoGrid>
+              </div>
+            </div>
           </Labeled>
-          <Labeled label="sin descripción">
-            <PromoCard promo={{ ...EQUIPOS, description: null }} />
+          <Labeled label="celular (390)">
+            <div className="pf w-[358px]">
+              <PromoGrid>{[GORRAS, NINOS].map((p) => <PromoCard key={p.slug} promo={p} headingLevel={3} />)}</PromoGrid>
+            </div>
           </Labeled>
-        </div>
-      </Row>
-
-      <Row
-        name="PromoGrid"
-        description="Hasta 3 por fila; la última fila se reparte el ancho. 4 promos = 3 + 1 a lo ancho, y la card sola se pone horizontal. Nunca una columna vacía."
-      >
-        <div className="@container">
-          <PromoGrid>
-            {[GORRAS, EQUIPOS, NINOS, { ...EQUIPOS, slug: "estampado-dtf", title: "Estampado DTF desde 1 unidad" }].map((p) => (
-              <PromoCard key={p.slug} promo={p} />
-            ))}
-          </PromoGrid>
         </div>
       </Row>
 
       <Row
         name="PromoAfiche"
-        description='La card de /promos: botón de WhatsApp con el mensaje de esa promo y "Ver las N fotos" al detalle. Cada afiche es su propia sección, por eso lleva su propio WhatsApp. Desde 672 px se pone horizontal.'
+        description='Una promo de /promos: su propia sección, texto en 5 columnas y foto 16:9 en 6. Botón de WhatsApp con el mensaje de esa promo y "Ver las N fotos" al detalle.'
       >
-        <div className="grid grid-cols-3 items-stretch gap-5">
-          <div className="flex">
-            <PromoAfiche promo={NINOS} />
+        <div className="flex flex-col gap-6">
+          <div className="pf w-[1280px] bg-primary">
+            <main className="pf-v pf-c">
+              <PromoAfiche promo={GORRAS} />
+              <PromoAfiche promo={{ ...NINOS, description: null }} />
+            </main>
           </div>
-          <div className="flex">
-            <PromoAfiche promo={{ ...GORRAS, description: null }} />
+          <div className="pf w-[390px] bg-primary">
+            <main className="pf-v pf-c">
+              <PromoAfiche promo={EQUIPOS} />
+            </main>
           </div>
-          <div className="flex">
-            <PromoAfiche promo={EQUIPOS} />
-          </div>
-        </div>
-        <div className="@container mt-6">
-          <PromoGrid>{[GORRAS].map((p) => <PromoAfiche key={p.slug} promo={p} />)}</PromoGrid>
         </div>
       </Row>
     </PageFrame>

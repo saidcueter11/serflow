@@ -17,19 +17,21 @@ interface Props {
   onClick?: () => void
 }
 
-const BASE =
-  'inline-flex items-center justify-center gap-2 rounded-full font-body transition-[transform,box-shadow,border-color] duration-[var(--motion-fast)] ease-out'
+// whatsapp y secondary: alto 48 en el celular y 52 desde @3xl, texto 16: toda la píldora es el área táctil (PRI-286).
+const BASE = 'inline-flex items-center justify-center gap-2 rounded-full font-body font-semibold'
 
 const VARIANT: Record<Variant, string> = {
+  // La acción principal: oro viejo relleno con un filo de luz arriba, sin canto 3D.
   whatsapp:
-    'min-h-12 px-6 text-[15px] font-bold bg-accent text-primary shadow-[0_5px_0_var(--color-accent-deep)] active:translate-y-[3px] active:shadow-[0_2px_0_var(--color-accent-deep)]',
-  secondary:
-    'min-h-12 px-6 text-[15px] font-semibold border border-line text-ink hover:border-muted active:translate-y-px',
-  ghost: 'min-h-11 text-[14px] font-semibold text-accent underline-offset-4 hover:underline',
+    'sf-brillo min-h-12 px-6 text-[16px] @3xl:min-h-[52px] @3xl:px-7 bg-accent text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.28)]',
+  secondary: 'sf-brillo sf-brillo-suave min-h-12 px-6 text-[16px] @3xl:min-h-[52px] @3xl:px-7 border border-line text-ink',
+  // Enlace en tinta: la costura dorada se dibuja debajo al pasar, enfocar o tocar.
+  ghost: 'sf-costura min-h-11 text-[14px] text-ink',
 }
 
 /**
- * Botón del design system: whatsapp (la acción principal, una por sección), secondary y ghost.
+ * Botón del design system: whatsapp (la acción principal, una por sección, oro viejo), secondary (borde) y ghost (enlace).
+ * Movimientos de PRI-287 en tokens.css: sf-brillo (sube con un reflejo y se hunde al tocar) y sf-costura.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
  *
  * The canvas for this component is at tempo/designs/design-system/buttons/index.canvas.tsx.

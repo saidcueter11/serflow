@@ -1,13 +1,14 @@
 import type { CSSProperties, ReactNode } from 'react'
 
-export type Slide = { src: string; alt: string; caption: string; promo?: boolean; position?: string }
+export type Slide = { src: string; alt: string; position?: string }
 
 const SECONDS = 6
 
 /**
- * Carrusel del hero: fotos que muestran el resultado (no decoración), con fundido y zoom lento.
- * Cada foto lleva su etiqueta ("Gorras bordadas"); la de una promo va en dorado. children va encima
- * (el texto de bienvenida). Se pausa con el mouse o el foco y se queda quieto con "reducir movimiento".
+ * Carrusel del hero: fotos que muestran el resultado (no decoración), a sangre, con fundido y zoom lento (PRI-286).
+ * children va encima (el texto de bienvenida, con .pf-hero-texto). Las barras de avance (una por foto, la de la que se
+ * ve se llena en sus 6 s) van en el margen de la rejilla: debajo del botón en el celular, abajo a la derecha en desktop.
+ * Se pausa con el mouse o el foco; con "reducir movimiento" queda la primera foto y solo su barra llena (tokens.css).
  * CSS puro: las keyframes se generan para la cantidad de fotos. Markup estático, sin JS.
  * La primera foto carga eager (es el LCP); las demás lazy.
  *
@@ -22,10 +23,8 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
   const css =
     n > 1
       ? `@keyframes sf-slide-${n} { 0%, ${show.toFixed(2)}% { opacity: 1 } ${(show + fade).toFixed(2)}%, ${(100 - fade).toFixed(2)}% { opacity: 0 } 100% { opacity: 1 } }
-@keyframes sf-cap-${n} { 0%, ${(fade / 2).toFixed(2)}% { opacity: 0 } ${fade.toFixed(2)}%, ${(show - fade / 2).toFixed(2)}% { opacity: 1 } ${show.toFixed(2)}%, 100% { opacity: 0 } }
 @keyframes sf-bar-${n} { 0% { transform: scaleX(0) } ${show.toFixed(2)}% { transform: scaleX(1) } ${(show + 0.01).toFixed(2)}%, 100% { transform: scaleX(0) } }
 .anim-slide { animation: sf-slide-${n} ${cycle}s linear infinite both; animation-delay: var(--d); }
-.anim-slide figcaption { animation: sf-cap-${n} ${cycle}s linear infinite both; animation-delay: var(--d); }
 .anim-bar { transform-origin: left; animation: sf-bar-${n} ${cycle}s linear infinite both; animation-delay: var(--d); }
 .hero-carousel:hover :is(.anim-slide, .anim-slide *, .anim-bar), .hero-carousel:focus-within :is(.anim-slide, .anim-slide *, .anim-bar) { animation-play-state: paused; }`
       : ''
@@ -46,20 +45,15 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
             className="anim-zoom h-full w-full object-cover"
             style={{ objectPosition: s.position }}
           />
-          <figcaption
-            className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[13px] font-semibold ${s.promo ? 'bg-accent text-primary' : 'bg-primary/80 text-ink'}`}
-          >
-            {s.caption}
-          </figcaption>
         </figure>
       ))}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary via-primary/55 to-transparent" />
+      <div className="hero-velo pointer-events-none absolute inset-0" />
       {children}
       {n > 1 && (
-        <div className="absolute bottom-4 right-4 flex gap-1.5" aria-hidden="true">
+        <div className="hero-barras" aria-hidden="true">
           {slides.map((s, i) => (
-            <span key={s.src} className="h-1 w-7 overflow-hidden rounded-full bg-ink/25">
-              <span className="anim-bar block h-full bg-accent" style={delay(i)} />
+            <span key={s.src} className="h-1 overflow-hidden rounded-full">
+              <span className="anim-bar block h-full bg-ink" style={delay(i)} />
             </span>
           ))}
         </div>

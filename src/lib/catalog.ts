@@ -7,7 +7,14 @@ import { SITE } from './promos'
  * El sitio es estático: las fechas se calculan en el build, como la vigencia de las promos.
  */
 
-/** "Nuevo": subida hace menos de estos días. */
+/** "Todo" del catálogo. */
+export const TODO_HREF = '/products'
+
+/** URL propia de una foto (PRI-286): abre el catálogo de su categoría con el modal de esa foto. Las viejas
+ * /products/<categoría>/<slug> redirigen aquí con 301 (public/_redirects). */
+export const fotoHref = (categoria: string, slug: string) => `/catalogo/${categoria}/${slug}`
+
+/** Las nuevas van primero en "Todo": subidas hace menos de estos días. */
 export const NUEVO_DIAS = 21
 /** Fotos por página de la galería; desde la 61 siguen en /pagina/2. */
 export const PAGE_SIZE = 60
@@ -16,16 +23,6 @@ const DAY = 24 * 60 * 60 * 1000
 const dias = (createdAt: string, now: Date) => Math.max(0, Math.floor((now.getTime() - Date.parse(createdAt)) / DAY))
 
 export const isNuevo = (createdAt: string, now: Date) => dias(createdAt, now) < NUEVO_DIAS
-
-/** "Hoy", "Ayer", "Hace 4 días", "Hace un mes", "Hace 3 meses". */
-export function hace(createdAt: string, now: Date): string {
-  const d = dias(createdAt, now)
-  if (d === 0) return 'Hoy'
-  if (d === 1) return 'Ayer'
-  if (d < 30) return `Hace ${d} días`
-  if (d < 60) return 'Hace un mes'
-  return `Hace ${Math.floor(d / 30)} meses`
-}
 
 type Dated = { createdAt: string }
 
@@ -43,9 +40,6 @@ export function interleave<T extends Dated>(groups: T[][], now: Date): T[] {
   return [...nuevas, ...resto]
 }
 
-/** "Más de <categoría>": las k que siguen a la foto i en su categoría, dando la vuelta, sin repetirla. */
-export const masDe = <T>(list: T[], i: number, k: number): T[] => [...list.slice(i + 1), ...list.slice(0, i)].slice(0, k)
-
 /** Bloques de PAGE_SIZE. Una categoría sin fotos tiene una página vacía (la del EmptyState). */
 export function pages<T>(list: T[], size = PAGE_SIZE): T[][] {
   const out: T[][] = []
@@ -60,7 +54,7 @@ const numero = (n: number | null) => (n == null ? '' : ` N.º ${n}`)
 /** alt de la foto: "Beisbol, foto N.º 26". Sin número: "Foto de Moda". */
 export const fotoAlt = (label: string, n: number | null) => (n == null ? `Foto de ${label}` : `${label}, foto N.º ${n}`)
 
-/** h1 (solo lectores de pantalla) y title del visor: "Beisbol N.º 26". */
+/** Nombre de la foto en el modal y title de su página: "Beisbol N.º 26". */
 export const fotoTitulo = (label: string, n: number | null) => `${label}${numero(n)}`
 
 /** Mensaje de "Pedir por WhatsApp": categoría, número si lo hay y el link de la foto (WhatsApp muestra la vista previa). */

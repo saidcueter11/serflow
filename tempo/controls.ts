@@ -27,9 +27,7 @@ import { Ticker } from "../src/components/ui/Ticker";
 import { PromoBar } from "../src/components/ui/PromoBar";
 import { Thread } from "../src/components/ui/Thread";
 import { CategoryNav } from "../src/components/ui/CategoryNav";
-import { NewBadge } from "../src/components/ui/NewBadge";
 import { Masonry } from "../src/components/ui/Masonry";
-import { PhotoCarousel } from "../src/components/ui/PhotoCarousel";
 import { CategoryBanner } from "../src/components/ui/CategoryBanner";
 import { VistaPrevia } from "../src/components/ui/VistaPrevia";
 import { HojaEnvio } from "../src/components/ui/HojaEnvio";
@@ -80,6 +78,7 @@ defineControls(ProductCard, {
   confirmedLabel: { type: "text" },
   href: { type: "text" },
   image: { type: "object" },
+  modal: false,
 });
 
 defineControls(WorkCard, {
@@ -121,7 +120,6 @@ defineControls(QuickFacts, {
 
 defineControls(MapCard, {
   tall: { type: "boolean" },
-  open: { type: "boolean" },
   title: { type: "text" },
 });
 
@@ -147,10 +145,9 @@ defineControls(Header, {
 
 defineControls(Section, {
   id: { type: "text" },
-  eyebrow: { type: "text" },
   title: { type: "text" },
   description: { type: "text" },
-  tone: { type: "inline-radio" },
+  action: { type: "object" },
   children: false,
 });
 
@@ -184,20 +181,8 @@ defineControls(CategoryNav, {
   current: { type: "text" },
 });
 
-defineControls(NewBadge, {
-  className: false,
-});
-
 defineControls(Masonry, {
   tiles: { type: "object" },
-  offset: { type: "range", min: 0, max: 7, step: 1 },
-  mobileMax: { type: "number" },
-});
-
-defineControls(PhotoCarousel, {
-  photos: { type: "object" },
-  label: { type: "text" },
-  idPrefix: false,
 });
 
 defineControls(CategoryBanner, {

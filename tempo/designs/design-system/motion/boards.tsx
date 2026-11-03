@@ -36,18 +36,24 @@ export function BoardHeroCarousel() {
     <PageFrame family="movimiento" width={1300}>
       <PageTitle
         title="HeroCarousel"
-        description="Fotos que muestran el resultado, con fundido cada 6 s y zoom lento. Etiqueta por foto (dorada si es promo) y barras de progreso. Se pausa con el mouse."
+        description="Fotos que muestran el resultado, a sangre, con fundido cada 6 s, zoom lento y una barra de avance por foto en el margen de la rejilla. Se pausa con el mouse."
       />
       <Row name="Portada" description="4 fotos, texto de bienvenida encima (children).">
         <Demo label="900px">
-          <HeroCarousel slides={HOME_SLIDES} className="h-[420px] w-[900px] rounded-card border border-line">
-            <div className="absolute bottom-8 left-8 font-display text-[44px] font-medium">Bienvenido a Serflow</div>
-          </HeroCarousel>
+          <div className="pf w-[900px]">
+            <div className="pf-v">
+              <HeroCarousel slides={HOME_SLIDES} className="pf-hero">
+                <div className="pf-hero-texto">
+                  <h1 className="pf-display">Bienvenido a Serflow</h1>
+                </div>
+              </HeroCarousel>
+            </div>
+          </div>
         </Demo>
       </Row>
-      <Row name="Con promo" description="El banner de la promo entra primero, con etiqueta dorada, y sale la última foto.">
+      <Row name="Con promo" description="El banner de la promo entra primero y sale la última foto.">
         <Demo label="600px">
-          <HeroCarousel slides={[{ ...HOME_SLIDES[2], caption: "Promo", promo: true }, ...HOME_SLIDES.slice(0, 3)]} className="h-[320px] w-[600px] rounded-card" />
+          <HeroCarousel slides={[HOME_SLIDES[2], ...HOME_SLIDES.slice(0, 3)]} className="h-[320px] w-[600px] rounded-card" />
         </Demo>
       </Row>
     </PageFrame>

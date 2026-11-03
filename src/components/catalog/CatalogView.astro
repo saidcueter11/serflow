@@ -1,0 +1,44 @@
+---
+import { CATALOG_LEAD, CatalogPage } from './CatalogPage'
+import { CategoryBanner } from '../ui/CategoryBanner'
+import { PhotoModal } from '../ui/PhotoModal'
+import { TODO_HREF } from '../../lib/catalog'
+import type { CatalogPageProps } from '../../lib/catalog-view'
+
+// Una página del muro (PRI-130, PRI-286): banner a sangre con el nombre (h1) y la bajada, pestañas, muro y el modal de
+// foto. La usan /products/... y /catalogo/<categoría>/<slug> (abrir = id de la foto que se abre al cargar).
+type Props = CatalogPageProps & { abrir?: string }
+
+const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props
+---
+
+<div class="pf font-body text-ink">
+  <main class="pf-v" data-banner-index={index} data-base={base} data-abrir={abrir}>
+    <div class="pf-cat-banner">
+      <!-- Se conserva entre categorías para que la lámina se deslice a la nueva. -->
+      <div transition:persist="catalog-banner">
+        <CategoryBanner slides={slides} current={index} />
+      </div>
+      <div class="pf-cat-texto">
+        <h1 class="pf-display sf-entra">{view.href === TODO_HREF ? 'Catálogo' : view.label}</h1>
+        <p class="pf-lead">{CATALOG_LEAD}</p>
+      </div>
+    </div>
+    <CatalogPage chips={chips} current={view.href} label={view.label} tiles={tiles} next={next} />
+  </main>
+</div>
+<PhotoModal />
+
+<script>
+  import '../../scripts/photo-modal'
+  // El banner persiste entre páginas del catálogo (transition:persist): aquí se desliza a la categoría de la página nueva.
+  document.addEventListener('astro:page-load', () => {
+    const main = document.querySelector<HTMLElement>('main[data-banner-index]')
+    const track = document.querySelector<HTMLElement>('[data-banner-track]')
+    if (!main || !track) return
+    const slides = track.querySelectorAll<HTMLElement>('[data-banner-slide]')
+    const i = Number(main.dataset.bannerIndex)
+    track.style.transform = `translateX(-${(i / slides.length) * 100}%)`
+    slides.forEach((s, k) => (k === i ? s.removeAttribute('aria-hidden') : s.setAttribute('aria-hidden', 'true')))
+  })
+</script>

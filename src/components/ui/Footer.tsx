@@ -11,7 +11,7 @@ const SOCIAL_ICONS: Record<(typeof SOCIAL)[number]['name'], ReactNode> = {
 }
 
 const LINK =
-  'flex min-h-11 items-center gap-2 text-ink hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
+  'sf-costura flex min-h-11 items-center gap-2 text-ink hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /**
  * Pie del sitio: logo, qué es Serflow, link a "Cómo llegar y horario" (el mapa de la portada), correo

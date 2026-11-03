@@ -7,8 +7,8 @@ const waText = async (link: Locator) => new URL((await link.getAttribute('href')
 
 // "Sin huecos": en desktop la última foto de "Más fotos" llega al borde derecho de la rejilla.
 async function expectPhotosFillRow(page: Page) {
-  const photos = page.locator('main h2:has-text("Más fotos") + div img')
-  const grid = await page.locator('main h2:has-text("Más fotos") + div').boundingBox()
+  const photos = page.locator('#mas-fotos img')
+  const grid = await page.locator('#mas-fotos ul').boundingBox()
   const last = await photos.last().boundingBox()
   expect(Math.abs(last!.x + last!.width - (grid!.x + grid!.width))).toBeLessThan(2)
 }
@@ -25,17 +25,22 @@ test.describe('3 promos vigentes y 1 vencida', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Promos de hoy' })).toBeVisible()
   })
 
-  test('/promos: 3 posters by sort_order, each with its own prefilled WhatsApp; the expired one is gone', async ({ page }) => {
+  test('/promos: 3 promos by sort_order, each with its own prefilled WhatsApp; the expired one is gone', async ({ page, isMobile }) => {
     await page.goto('/promos')
     await expect(page.getByText('3 promos activas')).toBeVisible()
-    await expect(page.locator('main article h2')).toHaveText([
+    await expect(page.locator('main section h2')).toHaveText([
       '2x1 en gorras bordadas',
       '10% en camisetas para equipos',
       'Gorras para niños con su nombre',
     ])
     await expect(page.getByText('Promo vencida de prueba')).toHaveCount(0)
 
-    const first = page.locator('main article').first()
+    const first = page.locator('main section').first()
+    // PRI-286: texto en 5 columnas y la foto a la derecha en desktop; en el celular la foto va primero.
+    const foto = (await first.locator('img').boundingBox())!
+    const titulo = (await first.locator('h2').boundingBox())!
+    if (isMobile) expect(foto.y).toBeLessThan(titulo.y)
+    else expect(foto.x).toBeGreaterThan(titulo.x + titulo.width)
     expect(await waText(first.getByRole('link', { name: /Pedir por WhatsApp/ }))).toBe(
       '¡Hola! Me interesa la promo "2x1 en gorras bordadas". https://serflowctg.netlify.app/promos/e2e-2x1-gorras',
     )
@@ -46,24 +51,28 @@ test.describe('3 promos vigentes y 1 vencida', () => {
 
   test('detail: title, end date, WhatsApp, photos without gaps and the other promos', async ({ page, isMobile }) => {
     await page.goto('/promos/e2e-2x1-gorras')
-    await expect(page.getByText('Campaña', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1, name: '2x1 en gorras bordadas' })).toBeVisible()
     await expect(page.getByText(/^Válida hasta el /)).toBeVisible()
     expect(await waText(page.getByRole('link', { name: 'Pedir esta promo por WhatsApp' }))).toContain('"2x1 en gorras bordadas"')
     // El botón flotante también lleva el mensaje de esta promo.
     expect(await waText(page.getByRole('link', { name: 'Escríbenos por WhatsApp' }))).toContain('"2x1 en gorras bordadas"')
-    await expect(page.locator('main h2:has-text("Más fotos") + div img')).toHaveCount(4)
+    await expect(page.locator('#mas-fotos img')).toHaveCount(4)
     if (!isMobile) await expectPhotosFillRow(page)
 
     await expect(page.getByRole('heading', { level: 2, name: 'Otras promos' })).toBeVisible()
     await expect(page.locator('main h3')).toHaveText(['10% en camisetas para equipos', 'Gorras para niños con su nombre'])
-    await page.getByRole('link', { name: '← Volver a las promos' }).click()
+    // Otras promos: tarjetas con caja y "Ver promo" con forma de botón (PRI-286).
+    const tarjeta = page.locator('#otras-promos a').first()
+    await expect(tarjeta).toHaveAttribute('href', '/promos/e2e-camisetas-equipos')
+    await expect(tarjeta).toHaveCSS('border-top-style', 'solid')
+    await expect(tarjeta.getByText('Ver promo →')).toHaveCSS('border-top-style', 'solid')
+    await page.getByRole('link', { name: 'Volver a las promos' }).click()
     await expect(page).toHaveURL(/\/promos\/?$/)
   })
 
   test('detail with 2 extra photos fills the row too', async ({ page, isMobile }) => {
     await page.goto('/promos/e2e-camisetas-equipos')
-    await expect(page.locator('main h2:has-text("Más fotos") + div img')).toHaveCount(2)
+    await expect(page.locator('#mas-fotos img')).toHaveCount(2)
     if (!isMobile) await expectPhotosFillRow(page)
   })
 
@@ -95,11 +104,11 @@ test.describe('1 promo vigente', () => {
   test('/promos shows one poster and its detail goes back home', async ({ page }) => {
     await page.goto('/promos')
     await expect(page.getByText('1 promo activa')).toBeVisible()
-    await expect(page.locator('main article')).toHaveCount(1)
-    await page.locator('main article').getByRole('link', { name: /Ver las 5 fotos/ }).click()
+    await expect(page.locator('main section')).toHaveCount(1)
+    await page.locator('main section').getByRole('link', { name: /Ver las 5 fotos/ }).click()
     await expect(page.getByRole('heading', { level: 1, name: '2x1 en gorras bordadas' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Otras promos' })).toHaveCount(0)
-    await expect(page.getByRole('link', { name: '← Volver al inicio' })).toHaveAttribute('href', '/')
+    await expect(page.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/')
   })
 })
 
