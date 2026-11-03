@@ -49,11 +49,21 @@
 .mx-centro, .mx-pista, .mx-caja > .mx-franja { animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
 @keyframes mx-funde { from { opacity: 0 } to { opacity: 1 } }
 
-/* ---------- Escritorio: foto a todo el alto (24 de margen), franja al lado pegada al borde de abajo ---------- */
+/* ---------- Escritorio: foto centrada y, debajo, la franja de una fila del mismo ancho ---------- */
 
-.mx-centro { position: absolute; inset: 24px 0; display: flex; justify-content: center; align-items: stretch; gap: 40px; }
-.mx-centro .mx-foto { width: auto; height: auto; max-height: calc(100cqh - 48px); max-width: calc(100cqw - 2 * 96px - 300px - 40px); }
-.mx-lado { width: 300px; display: flex; flex-direction: column; justify-content: flex-end; }
+/* La foto toma el alto que dejan el aire (igual arriba y abajo), la franja y el espacio entre las dos; su ancho sale de su proporción. */
+.mx-centro { --mx-aire: 24px; --mx-franja: 76px; --mx-entre: 16px; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.mx-pieza { display: flex; flex-direction: column; gap: var(--mx-entre); }
+/* Tope de ancho para una foto apaisada: no pasa por debajo de las flechas (24 + 48 + 24 por lado). */
+.mx-centro .mx-foto { width: auto; height: auto; max-height: calc(100cqh - 2 * var(--mx-aire) - var(--mx-franja) - var(--mx-entre)); max-width: calc(100cqw - 2 * 96px); }
+/* width 0 + min-width 100 %: la franja no ensancha la pieza, toma el ancho de la foto. */
+.mx-lado { width: 0; min-width: 100%; height: var(--mx-franja); }
+.mx-lado .mx-franja { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.mx-lado .mx-nombre { min-width: 0; }
+/* Una fila siempre: un nombre largo se corta con … (el h2 completo sigue en el DOM). */
+.mx-lado .mx-titulo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-lado .mx-pedir { flex: none; align-items: flex-end; gap: 10px; }
+.mx-lado .mx-nota { font-size: 13px; line-height: 18px; white-space: nowrap; max-width: none; }
 
 /* ---------- Celular: pantalla completa; barra, pista de fotos y franja fija abajo ---------- */
 

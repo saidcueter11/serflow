@@ -11,8 +11,10 @@ import { Catalogo, CATEGORIAS } from "./Pantallas";
  * PRI-286 · el visor pasa a ser un modal encima del muro (Said, 2026-11-02). Serflow no es una tienda: el catálogo es un
  * portafolio del taller y se pide por WhatsApp. Patrón: el modal de foto de Unsplash y el pin de Pinterest, sin nada de
  * tienda (ni precio, ni carrito, ni "Más de" al lado).
- * Escritorio: la foto entera (contain) a todo el alto que deja el margen; la franja al lado, pegada al borde de abajo de
- * la foto (así la foto usa todo el alto); flechas a los lados y la X arriba a la derecha.
+ * Escritorio: la foto entera (contain) centrada y, debajo, una franja de una sola fila del mismo ancho: categoría y nombre a
+ * la izquierda, Pedir por WhatsApp con su nota a la derecha. La foto se achica lo justo para que las dos quepan en el alto
+ * con el mismo aire arriba y abajo; flechas a los lados, contador arriba a la izquierda y la X arriba a la derecha.
+ * La nota en escritorio es corta para caber en una línea debajo del botón; en el celular va completa.
  * Celular: pantalla completa; arriba el contador y la X, la foto en el medio con las orillas de la anterior y la
  * siguiente (la pista de que se desliza) y la franja con el botón fija abajo.
  * Todo el texto es real: categoría, fotoTitulo, "Pedir por WhatsApp" con pedirUrl y su nota de master. description: hoy
@@ -47,7 +49,7 @@ function Franja({ desktop }: { desktop: boolean }) {
         <Button variant="whatsapp" href={pedirUrl(cat.label, n, foto.href)} external fullWidth={!desktop}>
           Pedir por WhatsApp
         </Button>
-        <p className="mx-nota">Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo.</p>
+        <p className="mx-nota">{desktop ? "Te la hacemos igual o con tu logo." : "Se abre WhatsApp con el link de esta foto. Te la hacemos igual o con tu logo."}</p>
       </div>
     </div>
   );
@@ -80,9 +82,11 @@ export function Modal({ width }: { width: W }) {
                 <Chevron d="M15 18l-6-6 6-6" />
               </button>
               <div className="mx-centro">
-                <img src={foto.img.src} alt={foto.img.alt} className="mx-foto" />
-                <div className="mx-lado">
-                  <Franja desktop />
+                <div className="mx-pieza">
+                  <img src={foto.img.src} alt={foto.img.alt} className="mx-foto" />
+                  <div className="mx-lado">
+                    <Franja desktop />
+                  </div>
                 </div>
               </div>
               <button type="button" className="mx-flecha mx-sig" aria-label="Foto siguiente">
