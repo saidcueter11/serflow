@@ -157,4 +157,19 @@ test.describe('/personaliza', () => {
     expect(texto).toContain('*Diseño:* te mando el archivo en el siguiente mensaje')
     expect(texto).not.toContain('*Tamaño:*')
   })
+
+  test('escritorio angosto: la escena llena la vista previa, sin franja, y las dos columnas cierran a ras', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'el layout de dos columnas es de escritorio')
+    for (const ancho of [900, 1024, 1180]) {
+      await page.setViewportSize({ width: ancho, height: 900 })
+      await abrir(page)
+      const vista = (await page.locator('.pf-pz-vista > div').boundingBox())!
+      const escena = (await page.locator('.pf-pz-vista canvas').locator('..').boundingBox())!
+      expect(escena.y, `${ancho}: franja arriba`).toBeLessThanOrEqual(vista.y + 1)
+      expect(escena.y + escena.height, `${ancho}: franja abajo`).toBeGreaterThanOrEqual(vista.y + vista.height - 1)
+      const envio = (await page.locator('.pf-pz-envio').boundingBox())!
+      const paso2 = (await page.locator('.pf-pz-pasos > section').nth(1).boundingBox())!
+      expect(Math.abs(envio.y + envio.height - (paso2.y + paso2.height)), `${ancho}: columnas a ras`).toBeLessThanOrEqual(1)
+    }
+  })
 })
