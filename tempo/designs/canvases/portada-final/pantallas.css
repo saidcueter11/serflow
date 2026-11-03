@@ -40,17 +40,11 @@
   .pf .pf-cat-texto > p { max-width: 34ch; }
 }
 
-/* ---------- 2. Visor: Todas las fotos en su fila, la categoría y la nota (el resto en visores.css) ---------- */
+/* ---------- 2. Volver en su fila (detalle de promo). La foto abierta es el modal: modal.css ---------- */
 
 .pf-visor-volver { display: inline-flex; min-height: 48px; align-items: center; gap: 6px; margin-left: -6px; font-size: 14px; font-weight: 600; color: var(--color-muted); }
 .pf-visor-volver:hover { color: var(--color-ink); }
-.pf-visor-volver:focus-visible, .pf-visor-cat:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.pf-visor-nombre { display: flex; flex-direction: column; align-items: flex-start; }
-/* La categoría con la etiqueta del sistema (13 mayúsculas, oro), como link: el nombre ya la dice, no hace falta otro botón. */
-.pf-visor-cat { display: inline-flex; min-height: 44px; align-items: center; margin-top: -14px; }
-.pf-visor-cat:hover { text-decoration: underline; text-underline-offset: 4px; }
-.pf .pf-visor-nota { margin-top: 12px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); max-width: 40ch; text-wrap: balance; }
-.pf-mas-accion { margin-top: var(--pf-tc); }
+.pf-visor-volver:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
 /* ---------- Título de página interior (promos, 404, personalizador): el aire de una sección arriba ---------- */
 

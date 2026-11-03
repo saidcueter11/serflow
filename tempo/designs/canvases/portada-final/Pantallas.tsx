@@ -88,7 +88,7 @@ export function Catalogo({ width, cat }: { width: W; cat: keyof typeof CATEGORIA
   );
 }
 
-/* ---------- 2. Visor de producto: Visores.tsx (versión final) ---------- */
+/* ---------- 2. Foto abierta: modal encima del muro, Modal.tsx (no hay página de detalle) ---------- */
 
 /* ---------- 3. Promos: lista y detalle ---------- */
 

@@ -15,7 +15,7 @@ import {
   PersonalizadorMobile,
   PersonalizadorDesktop,
 } from "./Pantallas";
-import { VisorFinalDesktop, VisorFinalMobile, VisorFinalSinDatosDesktop, VisorFinalSinDatosMobile } from "./Visores";
+import { ModalDesktop, ModalMobile, ModalNotas } from "./Modal";
 
 /* PRI-286 · portada final, en 390 y 1280, con el sistema medido en heirest.com; a la derecha, el resto de las pantallas. */
 export default function PortadaFinalCanvas() {
@@ -28,12 +28,10 @@ export default function PortadaFinalCanvas() {
       <Storyboard id="CatalogoDesktop" name="Catálogo · Beisbol (23) · 1280" component={CatalogoDesktop} layout={{ x: 3700, y: 0 }} />
       <Storyboard id="Catalogo10Mobile" name="Catálogo · Basketball (10) · 390" component={Catalogo10Mobile} layout={{ x: 3210, y: 5000 }} />
       <Storyboard id="Catalogo10Desktop" name="Catálogo · Basketball (10) · 1280" component={Catalogo10Desktop} layout={{ x: 3700, y: 5000 }} />
-      {/* PRI-286 · visor final (Said, 2026-11-02): C, Textura de taller; el centro del panel es solo del producto (datos de ejemplo
-          arriba, como están hoy los 92 abajo: sin descripción ni precio, De cerca llena el panel). */}
-      <Storyboard id="VisorFinalMobile" name="Visor · C final · 390" component={VisorFinalMobile} layout={{ x: 5080, y: 0 }} />
-      <Storyboard id="VisorFinalDesktop" name="Visor · C final · 1280" component={VisorFinalDesktop} layout={{ x: 5570, y: 0 }} />
-      <Storyboard id="VisorFinalSinDatosMobile" name="Visor · C final · sin descripción ni precio · 390" component={VisorFinalSinDatosMobile} layout={{ x: 5080, y: 5000 }} />
-      <Storyboard id="VisorFinalSinDatosDesktop" name="Visor · C final · sin descripción ni precio · 1280" component={VisorFinalSinDatosDesktop} layout={{ x: 5570, y: 5000 }} />
+      {/* PRI-286 · el visor pasa a ser un modal encima del muro (Said, 2026-11-02); se elimina la página de detalle. */}
+      <Storyboard id="ModalMobile" name="Modal · 390" component={ModalMobile} layout={{ x: 5080, y: 0 }} />
+      <Storyboard id="ModalDesktop" name="Modal · 1280" component={ModalDesktop} layout={{ x: 5570, y: 0 }} />
+      <Storyboard id="ModalNotas" name="Modal · notas para construir" component={ModalNotas} layout={{ x: 5080, y: 1000 }} />
       <Storyboard id="PromosMobile" name="Promos · lista · 390" component={PromosMobile} layout={{ x: 6950, y: 0 }} />
       <Storyboard id="PromosDesktop" name="Promos · lista · 1280" component={PromosDesktop} layout={{ x: 7440, y: 0 }} />
       <Storyboard id="PromoDetalleMobile" name="Promos · detalle · 390" component={PromoDetalleMobile} layout={{ x: 6950, y: 5000 }} />

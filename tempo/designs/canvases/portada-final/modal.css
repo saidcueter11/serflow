@@ -1,0 +1,86 @@
+/*
+ * PRI-286 · modal de foto (Modal.tsx). Va después de portada.css y pantallas.css y usa sus variables y tokens.
+ * El modal es un contenedor de tamaño (cqw / cqh): en el sitio es fixed a todo el viewport; en el canvas, el frame.
+ * Oro solo en Pedir por WhatsApp; el resto en tinta, gris y línea.
+ */
+
+/* Canvas: el frame es la ventana; el catálogo queda debajo, a la altura del muro. */
+.mx-vista { position: relative; overflow: hidden; background: var(--color-primary); }
+.mx-fondo { position: absolute; left: 0; }
+
+/* ---------- Modal ---------- */
+
+.mx { position: absolute; inset: 0; container-type: size; }
+.mx-velo {
+  position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--color-primary) 88%, transparent);
+  backdrop-filter: blur(6px);
+  animation: mx-funde var(--motion-med) var(--ease-out) both;
+}
+.mx-caja { position: absolute; inset: 0; }
+
+.mx-x, .mx-flecha {
+  position: absolute; z-index: 1; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 9999px;
+  border: 1px solid var(--color-line); color: var(--color-ink);
+  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  transition: border-color var(--motion-fast) var(--ease-out), background-color var(--motion-fast) var(--ease-out);
+}
+.mx-x:hover, .mx-flecha:hover { border-color: var(--color-muted); background: var(--color-surface); }
+.mx-x:focus-visible, .mx-flecha:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.mx-x { top: 20px; right: 24px; }
+.mx-flecha { top: 50%; translate: 0 -50%; }
+.mx-ant { left: 24px; }
+.mx-sig { right: 24px; }
+
+.mx-barra { position: absolute; top: 20px; left: 24px; display: flex; align-items: center; height: 48px; }
+.mx-contador { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-muted); }
+
+.mx-foto { display: block; object-fit: contain; border-radius: var(--radius-tile); }
+
+/* Franja: categoría y nombre, y Pedir con su nota. */
+.mx-franja { display: flex; flex-direction: column; gap: 20px; }
+.mx-nombre { display: flex; flex-direction: column; gap: 4px; }
+.mx-cat { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+.mx-titulo { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; }
+.mx-pedir { display: flex; flex-direction: column; gap: 12px; }
+.mx-nota { font-size: 14px; line-height: 1.5; color: var(--color-muted); max-width: 32ch; text-wrap: pretty; }
+
+/* Entrada: la foto y la franja suben 16 con el movimiento aprobado (sf-sube), el velo en fundido. */
+.mx-centro, .mx-pista, .mx-caja > .mx-franja { animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
+@keyframes mx-funde { from { opacity: 0 } to { opacity: 1 } }
+
+/* ---------- Escritorio: foto a todo el alto (24 de margen), franja al lado pegada al borde de abajo ---------- */
+
+.mx-centro { position: absolute; inset: 24px 0; display: flex; justify-content: center; align-items: stretch; gap: 40px; }
+.mx-centro .mx-foto { width: auto; height: auto; max-height: calc(100cqh - 48px); max-width: calc(100cqw - 2 * 96px - 300px - 40px); }
+.mx-lado { width: 300px; display: flex; flex-direction: column; justify-content: flex-end; }
+
+/* ---------- Celular: pantalla completa; barra, pista de fotos y franja fija abajo ---------- */
+
+@container (max-width: 47.99rem) {
+  /* Pantalla completa: el velo es opaco, detrás no se ve nada. */
+  .mx-velo { background: var(--color-primary); backdrop-filter: none; }
+  .mx-caja { display: flex; flex-direction: column; }
+  .mx-x { top: 6px; right: 12px; width: 44px; height: 44px; }
+  .mx-barra { position: static; flex: none; height: 56px; padding-inline: 20px; }
+  /* La foto ocupa el ancho menos 20 por lado; de la anterior y la siguiente se ven 12, y son botones (la pista de que se desliza). */
+  .mx-pista { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .mx-pista .mx-foto { width: calc(100cqw - 40px); max-height: 100%; height: auto; }
+  .mx-vecina { position: absolute; top: 50%; translate: 0 -50%; width: calc(100cqw - 40px); opacity: 0.45; }
+  .mx-vecina img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-tile); }
+  /* La orilla se ve de 12 pero se toca en 24. */
+  .mx-vecina::after { content: ""; position: absolute; top: 0; bottom: 0; width: 24px; }
+  .mx-vecina-ant::after { right: -12px; }
+  .mx-vecina-sig::after { left: -12px; }
+  .mx-vecina:focus-visible { opacity: 1; outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  .mx-vecina-ant { right: calc(100cqw - 12px); }
+  .mx-vecina-sig { left: calc(100cqw - 12px); }
+  .mx-franja { flex: none; gap: 16px; padding: 16px 20px max(20px, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-line); background: var(--color-primary); }
+  .mx-titulo { font-size: 22px; }
+  .mx-pedir { gap: 8px; }
+  .mx-nota { font-size: 13px; max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mx-velo, .mx-centro, .mx-pista, .mx-franja { animation: none; }
+}
