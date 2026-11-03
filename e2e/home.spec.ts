@@ -25,11 +25,45 @@ test('header "Visítanos" goes to the map', async ({ page, isMobile }) => {
   await expect(page.locator('#visitanos')).toBeInViewport()
 })
 
-test('with reduced motion the hero keeps its first photo and hides the rest', async ({ page }) => {
+test('with reduced motion the hero keeps its first photo and only its bar is full', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   const slides = page.locator('.hero-carousel figure')
   await expect(slides.first()).toHaveCSS('opacity', '1')
   await expect(slides.first().locator('img')).toBeVisible()
   await expect(slides.nth(1)).toHaveCSS('opacity', '0')
+  // PRI-286: la barra de la foto que se ve, llena; las de las demás, vacías (no las 4 llenas).
+  const bars = page.locator('.hero-carousel .anim-bar')
+  await expect(bars).toHaveCount(4)
+  await expect(bars.first()).toHaveCSS('transform', 'none')
+  await expect(bars.nth(1)).toHaveCSS('transform', 'matrix(0, 0, 0, 1, 0, 0)')
+})
+
+// PRI-286: portada nueva. Hero a sangre en carrusel (las 4 fotos), Diseña la tuya arriba, sin ticker ni "Nuevo", y
+// Visítanos al final con el mapa plegado.
+test('hero carousel full-bleed with 4 photos, sections in the new order, folded map', async ({ page }) => {
+  await page.goto('/')
+  const hero = page.locator('.hero-carousel')
+  const box = (await hero.boundingBox())!
+  expect(box.x).toBe(0)
+  expect(box.width).toBeCloseTo(page.viewportSize()!.width, 0)
+  await expect(hero.locator('figure img')).toHaveCount(4)
+  await expect(hero.locator('.anim-bar')).toHaveCount(4)
+  await expect(hero.locator('figcaption')).toHaveCount(0)
+
+  const ys = []
+  for (const id of ['#personaliza-titulo', '#que-hacemos', '#disponible', '#quienes-somos', '#visitanos']) {
+    ys.push((await page.locator(id).boundingBox())!.y)
+  }
+  expect(ys).toEqual([...ys].sort((a, b) => a - b))
+  expect(ys[0]).toBeGreaterThan(box.y + box.height)
+
+  await expect(page.locator('.anim-ticker')).toHaveCount(0)
+  await expect(page.locator('main').getByText('Nuevo', { exact: true })).toHaveCount(0)
+  // El personalizador sigue escondido hasta PRI-125: el botón no lleva a ningún lado.
+  await expect(page.getByRole('button', { name: 'Diseñar mi prenda' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Diseñar mi prenda' })).toHaveCount(0)
+  // Mapa plegado: el de Google no se pinta hasta tocarlo.
+  await expect(page.locator('#visitanos details')).not.toHaveAttribute('open')
+  await expect(page.locator('#visitanos').getByTitle('Mapa de Serflow en Cartagena')).toBeHidden()
 })

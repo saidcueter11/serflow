@@ -10,14 +10,14 @@ export const NAV_LINKS: Link[] = [
 ]
 
 const LINK = {
-  desktop: 'flex min-h-11 items-center text-[15px] font-medium transition-colors duration-(--motion-fast) hover:text-ink',
+  desktop: 'sf-costura flex min-h-11 items-center text-[15px] font-medium transition-colors duration-(--motion-fast) hover:text-ink',
   mobile: 'flex min-h-12 items-center px-4 text-[16px] font-semibold',
 }
 const STATE = { current: 'text-ink', other: 'text-muted' }
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /**
- * Cabecera del sitio. Desktop (desde 896px de ancho): logo + nav. Sin botón de WhatsApp: esa entrada
+ * Cabecera del sitio. Desktop (desde 896px de ancho): logo + nav; cada link se cose al pasar (sf-costura, PRI-287). Sin botón de WhatsApp: esa entrada
  * es el WhatsAppFab, una sola por página (decisión de Said, PRI-129).
  * Móvil: logo + menú con <details>/<summary>, cero JS; el panel se abre encima del contenido.
  * No es sticky ni fixed: en móvil no le quita alto a la pantalla ni repinta con el scroll;

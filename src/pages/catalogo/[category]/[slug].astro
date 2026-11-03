@@ -1,0 +1,52 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+import CatalogView from '../../../components/catalog/CatalogView.astro'
+import { fotoTitulo } from '../../../lib/catalog'
+import { loadPages } from '../../../lib/catalog-view'
+
+// PRI-286: URL propia de cada foto. Es la página del muro de su categoría con el modal de esa foto abierto, con su
+// og:image para que la vista previa del link (el que manda "Pedir por WhatsApp") muestre la foto. Las URLs viejas
+// /products/<categoría>/<slug> redirigen aquí con 301 (public/_redirects).
+export async function getStaticPaths() {
+  return (await loadPages())
+    .filter((p) => p.slug)
+    .flatMap(({ slug, items, props }) =>
+      items.map((item) => ({ params: { category: slug, slug: item.slug }, props: { ...props, item } })),
+    )
+}
+
+const { item, ...props } = Astro.props
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://serflowctg.netlify.app'
+const url = `${siteUrl}${item.tile.href}`
+const ogImage = item.og ? new URL(item.og, `${siteUrl}/`).href : null
+const label = props.view.label
+const title = `${fotoTitulo(label, item.n)} — Serflow`
+const description = `Un trabajo de ${label} hecho en el taller de Serflow, Cartagena. ¿Te gusta? Te hacemos una igual o con tu logo: pídela por WhatsApp.`
+// Sin precio ni offers: el sitio no muestra precios (el precio se conversa por WhatsApp).
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: fotoTitulo(label, item.n),
+  image: item.tile.modal!.fotos.map((p) => new URL(p.src, `${siteUrl}/`).href),
+  description,
+  category: label,
+  brand: { '@type': 'Brand', name: 'Serflow' },
+  url,
+}
+---
+
+<Layout title={title} description={description}>
+  <Fragment slot="head">
+    <!-- Open Graph: WhatsApp muestra esta foto en la vista previa del link que lleva el mensaje. -->
+    <meta property="og:type" content="product" />
+    <meta property="og:url" content={url} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:secure_url" content={ogImage} />}
+    {ogImage && <meta property="og:image:type" content="image/jpeg" />}
+    <meta property="og:image:alt" content={item.tile.img.alt} />
+    <meta property="og:locale" content="es_CO" />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </Fragment>
+  <CatalogView {...props} abrir={item.tile.id} />
+</Layout>

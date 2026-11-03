@@ -1,10 +1,12 @@
+import { fotoAttrs, type FotoModal } from './PhotoModal';
+
 /**
- * Prenda de "Disponible ahora". Toda la card es un solo link.
+ * Prenda de "Disponible ahora". Toda la card es un solo link, sin caja: la foto 4:5 con radio y el pie de texto
+ * debajo (PRI-286). La foto se acerca al pasar y el texto sube (sf-foto / sf-foto-texto, tokens.css).
  * confirmedLabel va como texto dorado y no como StatusPill: en el grid de 2 columnas
  * a 375px la píldora parte "Confirmado hace 2 días" en dos líneas.
- * La card es fluida (w-full): el ancho lo pone la lista. En una fila con scroll
- * horizontal la lista fija la columna (auto-cols-[200px]); en un grid, la columna
- * del grid. Así hay un solo componente y ninguna prop de tamaño.
+ * La card es fluida (w-full): el ancho lo pone la lista. Con modal, tocarla abre la foto en el modal (PhotoModal)
+ * y recorre las de su lista (data-fotos); sin modal, el link navega.
  * Markup estático: Astro lo renderiza sin JS.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
@@ -17,6 +19,7 @@ export function ProductCard({
   image,
   href,
   confirmedLabel,
+  modal,
 }: {
   name: string;
   /** Color y tallas, p. ej. "Blanca · S a XL". */
@@ -25,27 +28,30 @@ export function ProductCard({
   href: string;
   /** Cuándo se confirmó que hay stock, p. ej. "Confirmado hace 2 días". Omitir si no se sabe. */
   confirmedLabel?: string;
+  /** Datos del modal de foto. */
+  modal?: FotoModal;
 }) {
   return (
     <a
       href={href}
-      className="group block w-full overflow-hidden rounded-card border border-line bg-surface text-ink no-underline transition-[transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="group sf-foto block w-full text-ink no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      {...fotoAttrs(modal)}
     >
-      <div className="overflow-hidden">
+      <div className="overflow-hidden rounded-tile">
         <img
           src={image.src}
           alt={image.alt}
           width={400}
-          height={300}
+          height={500}
           loading="lazy"
           decoding="async"
-          className="fabric reveal-wipe aspect-[4/3] h-auto w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="fabric reveal-wipe aspect-[4/5] h-auto w-full bg-surface-2 object-cover"
         />
       </div>
-      <div className="flex flex-col items-start gap-1 p-3">
+      <div className="sf-foto-texto flex flex-col items-start gap-1 pt-3">
         {confirmedLabel && <span className="text-[12px] font-semibold leading-tight text-accent">{confirmedLabel}</span>}
-        <h3 className="font-display text-[15px] font-bold leading-tight">{name}</h3>
-        <p className="text-[13px] text-muted">{meta}</p>
+        <h3 className="font-display text-[16px] font-medium leading-tight @3xl:text-[20px]">{name}</h3>
+        <p className="text-[14px] text-muted @3xl:text-[15px]">{meta}</p>
       </div>
     </a>
   );

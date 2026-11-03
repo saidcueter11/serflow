@@ -11,8 +11,8 @@ const PRODUCT_ITEMS = PRODUCTS.map((p) => ({ name: p.name, meta: p.meta, href: C
 
 /**
  * La portada real (src/components/home/HomePage) con el mismo marco que pone Layout.astro: PromoBar, Header,
- * Footer y WhatsAppFab. No es una copia: si cambia HomePage, cambia aquí. El hilo (Thread) solo se dibuja
- * en el sitio, porque necesita el scroll de la página.
+ * Footer y WhatsAppFab. No es una copia: si cambia HomePage, cambia aquí. Las prendas abren el modal de foto
+ * solo en el sitio (src/scripts/photo-modal.ts).
  */
 export function BoardPortada({ width, estado = "productos" }: { width: 390 | 1280; estado?: EstadoPortada }) {
   return (

@@ -32,12 +32,12 @@ const GROUPS: { name: string; description: string; items: Swatch[] }[] = [
   },
   {
     name: "Marca",
-    description: "El dorado del logo es el único acento. accent-soft para fondos sutiles, accent-deep y secondary como apoyo.",
+    description: "Oro viejo (PRI-286), el único acento: solo en la acción principal, el chip elegido, las etiquetas pequeñas y el foco. accent-soft para fondos sutiles, accent-deep para bordes y secondary para brillo y borde al pasar.",
     items: [
-      { token: "accent", hex: "#FFD700", role: "CTA, foco, énfasis", cls: "bg-accent / text-accent", swatch: "bg-accent" },
-      { token: "accent-soft", hex: "#FFD70020", role: "Fondo tenue de acento", cls: "bg-accent-soft", swatch: "bg-accent-soft" },
-      { token: "accent-deep", hex: "#a8890a", role: "Dorado oscuro, hover/borde", cls: "bg-accent-deep", swatch: "bg-accent-deep" },
-      { token: "secondary", hex: "#D2BD3C", role: "Dorado apagado de apoyo", cls: "text-secondary", swatch: "bg-secondary" },
+      { token: "accent", hex: "#C9A24A", role: "Acción principal, foco, etiquetas", cls: "bg-accent / text-accent", swatch: "bg-accent" },
+      { token: "accent-soft", hex: "#C9A24A1F", role: "Fondo tenue de acento", cls: "bg-accent-soft", swatch: "bg-accent-soft" },
+      { token: "accent-deep", hex: "#8C6D2C", role: "Oro profundo: bordes, nunca texto", cls: "bg-accent-deep", swatch: "bg-accent-deep" },
+      { token: "secondary", hex: "#E2C47E", role: "Oro claro: brillo, borde al pasar", cls: "text-secondary", swatch: "bg-secondary" },
     ],
   },
   {

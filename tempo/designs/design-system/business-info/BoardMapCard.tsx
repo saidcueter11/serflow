@@ -8,22 +8,12 @@ export function BoardMapCard() {
         title="MapCard"
         description={
           <>
-            La sección de ubicación. Arriba, calles dibujadas solo con CSS y el pin (0 KB de imagen). Abajo, nombre,
-            dirección, los dos horarios de <Code>HOURS</Code> y Cómo llegar (Button secondary).
+            La sección de ubicación, sin caja (PRI-286). Arriba, calles dibujadas solo con CSS y el pin (0 KB de imagen); el
+            mapa de Google sale solo al tocar. Abajo, nombre, dirección, los dos horarios de <Code>HOURS</Code> y Cómo llegar
+            (Button secondary). En la portada va plegado al final, junto a Quiénes somos.
           </>
         }
       />
-
-      <Row
-        name="Abierta (portada)"
-        description="open: el mapa de Google se ve de una, como lo pidió el cliente. Es #visitanos en la portada; iframe lazy, así que en el celular (debajo del hero) no frena la primera pantalla."
-      >
-        <Demo label="400px">
-          <div className="w-[400px]">
-            <MapCard open title="Visítanos" />
-          </div>
-        </Demo>
-      </Row>
 
       <Row
         name="Cerrado (primera pintura)"

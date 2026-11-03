@@ -24,8 +24,9 @@ export function BoardTypography() {
         title="Tipografía"
         description={
           <>
-            Dos familias. <Code>font-display</Code> (Space Grotesk 500/700) para titulares y cifras;{" "}
-            <Code>font-body</Code> (la fuente del sistema) para todo lo demás: cero descarga, se lee bien con mala señal.
+            Una sola familia sin esquinas cuadradas (PRI-286): Plus Jakarta Sans, variable 400-700, un solo woff2 latin.{" "}
+            <Code>font-display</Code> (500) para titulares; <Code>font-body</Code> para todo lo demás. Escala del sistema
+            medido: titular 64 / 40, sección 48 / 34, tarjeta 22 / 18, bajada 22 / 18, cuerpo 16, etiqueta 13.
           </>
         }
       />
@@ -39,14 +40,14 @@ export function BoardTypography() {
             <Code>font-display</Code>
             <div className="font-display text-[40px] font-medium leading-[1.05]">Aa Gg 1234</div>
             <div className="text-[13px] text-muted">
-              --font-display: 'Space Grotesk', system-ui, sans-serif. Pesos 500 (medium) y 700 (bold).
+              --font-display: 'Plus Jakarta Sans', system-ui, sans-serif. Peso 500 en titulares.
             </div>
           </div>
           <div className="flex flex-col gap-3 rounded-tile border border-line bg-primary p-5">
             <Code>font-body</Code>
             <div className="font-body text-[40px] leading-[1.05]">Aa Gg 1234</div>
             <div className="text-[13px] text-muted">
-              --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif. Regular y semibold.
+              --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif. Regular y semibold.
             </div>
           </div>
         </div>
