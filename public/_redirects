@@ -1,0 +1,4 @@
+# PRI-286: la foto se abre en un modal sobre el catálogo; su URL propia es /catalogo/<categoría>/<slug>.
+# Las fichas viejas que circulan por WhatsApp redirigen ahí. Netlify no aplica la regla donde hay un archivo:
+# /products/pagina/2 sigue igual.
+/products/:category/:slug  /catalogo/:category/:slug  301

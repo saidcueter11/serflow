@@ -1,5 +1,5 @@
 /*
- * Tokens del design system de Serflow ("Noche caribe", PRI-121).
+ * Tokens del design system de Serflow ("Noche caribe", PRI-121; oro viejo y sistema medido, PRI-286).
  * Los importan el sitio (global.css) y el host del canvas (tempo/globals.css).
  * Canvas de fundaciones: tempo/designs/design-system/foundations/index.canvas.tsx
  */
@@ -18,32 +18,43 @@
   --color-ink: #F4F1E6;
   --color-muted: #B8B6AA;
 
-  /* Marca: dorado del logo. Único acento. */
-  --color-accent: #FFD700;
-  --color-accent-soft: #FFD70020;
-  --color-accent-deep: #a8890a;
-  --color-secondary: #D2BD3C;
+  /* Marca: oro viejo (PRI-286). Único acento: 7.56:1 sobre el fondo y con texto negro encima (AA y AAA). */
+  --color-accent: #C9A24A;
+  /* Tinte para fondos (foco suave). */
+  --color-accent-soft: #C9A24A1F;
+  /* Oro profundo: bordes y cantos, nunca texto (3.75:1 sobre el fondo). */
+  --color-accent-deep: #8C6D2C;
+  /* Oro claro: borde al pasar, brillo, separadores (10.7:1 sobre el fondo). */
+  --color-secondary: #E2C47E;
 
   /* Estados */
   --color-ok: #4ADE80;
   --color-danger: #FF6B6B;
 
-  /* Tipografía: display Space Grotesk (500/700), texto con la fuente del sistema */
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Una sola familia, sin esquinas cuadradas: Plus Jakarta Sans (variable 400-700). */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   /* Legado de los componentes .astro; no usar en componentes nuevos */
-  --font-titan: 'Space Grotesk', sans-serif;
+  --font-titan: 'Plus Jakarta Sans', sans-serif;
   --font-vend-sans: 'Inter', sans-serif;
 
   /* Radios: tile 12, card 20, pill = rounded-full */
   --radius-tile: 12px;
   --radius-card: 20px;
 
-  /* Motion corto: el sitio se usa con mala señal */
+  /* Motion corto para color y foco: el sitio se usa con mala señal */
   --motion-fast: 120ms;
   --motion-med: 200ms;
   --motion-slow: 280ms;
   --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Los 4 movimientos de PRI-287: sale rápido y se posa despacio. */
+  --motion-brillo: 900ms;
+  --motion-foto: 1100ms;
+  --motion-entrada: 900ms;
+  --motion-costura: 700ms;
+  --motion-escalon: 120ms;
+  --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow-oro: 0 14px 30px -12px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 
 /* Trama de tela solo con CSS (0 KB de imagen) */
@@ -54,7 +65,7 @@
 }
 
 /*
- * Movimiento de la portada (PRI-129, "B ajustada"). Todo CSS, 0 KB de JS salvo el trazado del hilo.
+ * Movimiento (PRI-129 y PRI-287). Todo CSS, 0 KB de JS salvo el trazado del hilo.
  * Canvas: tempo/designs/design-system/motion/index.canvas.tsx
  * Lo que depende del scroll (view() / scroll()) solo corre donde el navegador lo soporta; si no, se ve quieto.
  * prefers-reduced-motion apaga todo al final de este bloque.
@@ -63,11 +74,15 @@
 @keyframes sf-grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
 @keyframes sf-wipe { from { clip-path: inset(0 0 100% 0) } to { clip-path: inset(0) } }
 @keyframes sf-ticker { to { transform: translateX(-50%) } }
-@keyframes sf-ring { from { box-shadow: 0 0 0 0 rgb(255 215 0 / 0.6) } to { box-shadow: 0 0 0 20px rgb(255 215 0 / 0) } }
+@keyframes sf-ring { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent) } to { box-shadow: 0 0 0 20px transparent } }
 @keyframes sf-zoom { from { transform: scale(1) } to { transform: scale(1.08) } }
 @keyframes sf-draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
 @keyframes sf-follow { from { offset-distance: 0% } to { offset-distance: 100% } }
 @keyframes sf-glint { 0%, 100% { opacity: 0.1; transform: scale(0.6) } 50% { opacity: 0.45; transform: scale(1.2) } }
+@keyframes sf-subir { from { transform: translateY(105%) } to { transform: none } }
+@keyframes sf-entra { from { opacity: 0; transform: translateY(0.45em); clip-path: inset(0 0 100% 0) } to { opacity: 1; transform: none; clip-path: inset(-0.2em -0.2em -0.3em) } }
+@keyframes sf-sube { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+@keyframes sf-funde { from { opacity: 0 } to { opacity: 1 } }
 
 /* Entrada escalonada al cargar: cada hijo entra 100ms después del anterior */
 .anim-enter > * { animation: sf-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
@@ -103,12 +118,407 @@
   .thread-needle { animation: sf-follow linear both; animation-timeline: scroll(root); }
 }
 
+/* ---------- 1 · Botón con brillo: sube y le pasa un reflejo al pasar; se hunde al tocar (Button) ---------- */
+
+.sf-brillo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--motion-slow) var(--ease-premium), box-shadow var(--motion-slow) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium);
+}
+.sf-brillo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, var(--sf-reflejo, rgb(255 255 255 / 0.5)) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+/* Secundario: mismo gesto, reflejo tenue y sin halo dorado. */
+.sf-brillo-suave {
+  --sf-reflejo: color-mix(in srgb, var(--color-secondary) 16%, transparent);
+  --sf-sombra: 0 10px 24px -14px rgb(0 0 0 / 0.8);
+}
+@media (hover: hover) {
+  .sf-brillo:hover { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+  .sf-brillo-suave:hover { border-color: var(--color-secondary); }
+  .sf-brillo:hover::after { transform: translateX(120%); transition: transform var(--motion-brillo) var(--ease-premium); }
+}
+.sf-brillo:focus-visible { transform: translateY(-3px); box-shadow: var(--sf-sombra, var(--shadow-oro)); }
+.sf-brillo:focus-visible::after { transform: translateX(120%); transition: transform var(--motion-brillo) var(--ease-premium); }
+.sf-brillo:active { transform: translateY(1px) scale(0.97); box-shadow: none; transition-duration: var(--motion-fast); }
+
+/* ---------- 2 · Foto que se acerca: gana color y zoom lento; el texto sube. En el celular la foto ya está a todo color ---------- */
+
+.sf-foto img { transition: transform var(--motion-foto) var(--ease-premium), filter calc(var(--motion-foto) * 0.55) var(--ease-premium); }
+.sf-foto-texto { transition: transform 600ms var(--ease-premium); }
+@media (hover: hover) {
+  .sf-foto img { filter: saturate(0.85) brightness(0.95); }
+  .sf-foto:is(:hover, :focus-visible, :focus-within) img { transform: scale(1.06); filter: none; }
+  .sf-foto:hover .sf-foto-texto { transform: translateY(-4px); }
+}
+a.sf-foto:active img { transform: scale(1.03); filter: none; transition-duration: var(--motion-med); }
+
+/* ---------- 3 · Titular que entra: cada línea sube detrás de una máscara, una tras otra ---------- */
+
+.sf-lineas > span { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.sf-lineas > span > span { display: block; animation: sf-subir var(--motion-entrada) var(--ease-premium) both; }
+.sf-lineas > span:nth-child(2) > span { animation-delay: var(--motion-escalon); }
+.sf-lineas > span:nth-child(3) > span { animation-delay: calc(var(--motion-escalon) * 2); }
+/* Lo que sigue al titular entra después, sin el fundido del grupo. */
+.anim-enter:has(> .sf-lineas) > * { animation-name: none; }
+.anim-enter:has(> .sf-lineas) > :is(.sf-lineas ~ p, .sf-lineas ~ div) { animation: sf-sube var(--motion-entrada) var(--ease-premium) both; }
+.anim-enter:has(> .sf-lineas) > .sf-lineas ~ p { animation-delay: 340ms; }
+.anim-enter:has(> .sf-lineas) > .sf-lineas ~ div { animation-delay: 460ms; }
+/* Títulos de una línea al cargar (h1 de página, nombre de la categoría) y su bajada 200 ms después. */
+.sf-entra { animation: sf-entra var(--motion-entrada) var(--ease-premium) both; }
+.sf-entra + p { animation: sf-sube var(--motion-entrada) var(--ease-premium) 200ms both; }
+/* Títulos de sección: suben al entrar en pantalla (donde no hay scroll-timeline se ven quietos y completos). */
+@supports (animation-timeline: view()) {
+  .sf-entra-scroll { animation: sf-entra linear both; animation-timeline: view(); animation-range: entry 5% entry 45%; }
+}
+
+/* ---------- 4 · Enlace que se cose: costura dorada que se dibuja debajo al pasar, al enfocar o al tocar ---------- */
+
+.sf-costura { position: relative; width: fit-content; }
+.sf-costura::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--sf-costura-y, 8px);
+  height: 2px;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 8px, transparent 8px 13px);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--motion-costura) var(--ease-premium);
+}
+@media (hover: hover) {
+  .sf-costura:hover::after { clip-path: inset(0); }
+}
+.sf-costura:is(:focus-visible, :active, [aria-current])::after { clip-path: inset(0); }
+
+/* ---------- Al tocar: pestañas y chips se hunden un poco ---------- */
+
+.sf-toque { transition: transform var(--motion-fast) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium), background-color var(--motion-fast) var(--ease-premium); }
+.sf-toque:active { transform: scale(0.96); }
+a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fast) var(--ease-premium); }
+
 @media (prefers-reduced-motion: reduce) {
   .anim-enter > *, .stitch-title::after, .anim-ticker, .anim-ring, .anim-zoom, .thread-glint,
-  .reveal-up, .reveal-wipe, .thread-reveal, .thread-needle, .anim-slide, .anim-slide figcaption, .anim-bar {
+  .reveal-up, .reveal-wipe, .thread-reveal, .thread-needle, .anim-slide, .anim-bar,
+  .sf-lineas > span > span, .sf-entra, .sf-entra + p, .sf-entra-scroll {
     animation: none !important;
   }
   /* first-of-type y no first-child: el <style> del carrusel va antes de las fotos */
   figure.anim-slide:not(:first-of-type) { opacity: 0; }
+  /* Sin animación queda la primera foto: su barra llena y las demás vacías. */
+  .hero-barras > span:not(:first-child) .anim-bar { transform: scaleX(0); }
   .thread-needle { display: none; }
+  .sf-foto img { filter: none !important; transform: none !important; }
+  :is(.sf-brillo, .sf-toque, .sf-foto, .sf-foto-texto) { transform: none !important; }
+  .sf-brillo::after { transform: translateX(-120%) !important; }
+}
+
+/*
+ * Sistema medido en heirest.com (PRI-286, frame "Sistema (de Heirest)" del canvas portada-final). Cada valor va como
+ * 1280 / 390. Cada página es <div class="pf"><main class="pf-v">: .pf es el contenedor (las @3xl: de Tailwind también
+ * lo miden) y .pf-v toma la escala de desktop desde 48rem.
+ */
+.pf {
+  container: pf / inline-size;
+  /* Rejilla: margen lateral y calle. */
+  --pf-m: 16px;
+  --pf-g: 8px;
+  /* Aire: uno solo entre todas las secciones; título -> contenido; título -> bajada. */
+  --pf-aire: 64px;
+  --pf-tc: 24px;
+  --pf-td: 12px;
+  /* Escala de letra. */
+  --pf-display: 40px;
+  --pf-h2: 34px;
+  --pf-h3: 18px;
+  --pf-lead: 18px;
+  --pf-body: 16px;
+  --pf-pie: 13px;
+}
+@container pf (min-width: 48rem) {
+  .pf-v {
+    --pf-m: 48px;
+    --pf-aire: 96px;
+    --pf-tc: 32px;
+    --pf-display: 64px;
+    --pf-h2: 48px;
+    --pf-h3: 22px;
+    --pf-lead: 22px;
+  }
+}
+
+.pf-c { padding-inline: var(--pf-m); }
+.pf-sec { padding-top: var(--pf-aire); }
+.pf-sec:last-child { padding-bottom: var(--pf-aire); }
+.pf-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+@container pf (min-width: 48rem) {
+  .pf-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--pf-g); }
+}
+
+.pf-display, .pf-h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; text-wrap: balance; }
+.pf-display { font-size: var(--pf-display); line-height: 1.05; }
+.pf-h2 { font-size: var(--pf-h2); line-height: 1.1; text-box: trim-start cap alphabetic; }
+.pf-lead { font-size: var(--pf-lead); line-height: 1.45; color: var(--color-muted); max-width: 40ch; }
+.pf-pie { font-size: var(--pf-pie); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
+
+/* Cabecera de sección (Section): título y bajada a la izquierda; la acción, si hay, en la fila del título a la derecha
+   (en el celular va al pie de la sección, debajo del contenido). */
+.pf-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; align-items: center; margin-bottom: var(--pf-tc); }
+.pf-head > p { grid-column: 1 / -1; margin-top: var(--pf-td); }
+.pf-head > .pf-accion { display: none; }
+.pf-accion-pie { margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  /* La acción se centra en la fila del título sin estirarla (margen negativo). */
+  .pf-head > .pf-accion { display: block; grid-area: 1 / 2; margin-block: -8px; }
+  .pf-head > .pf-lead { max-width: none; }
+  .pf-accion-pie { display: none; }
+}
+
+/* Título de página interior (promos, 404): el aire de una sección arriba. */
+.pf-pagina-titulo { display: flex; flex-direction: column; align-items: flex-start; padding-top: var(--pf-aire); }
+.pf-pagina-titulo > h1 { margin-top: 16px; }
+.pf-pagina-titulo > .pf-lead { margin-top: var(--pf-td); }
+@container pf (min-width: 48rem) {
+  .pf-pagina-titulo > .pf-lead { max-width: 56ch; }
+}
+
+/* ---------- Hero (HeroCarousel en la portada y en el detalle de promo): foto a sangre, texto abajo a la izquierda ---------- */
+
+.pf-hero { height: 600px; }
+.pf-hero-texto { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 0 var(--pf-m) 32px; }
+.pf-hero-texto > .pf-lead { color: color-mix(in srgb, var(--color-ink) 85%, transparent); max-width: 34ch; }
+.pf-hero-texto > div { width: 100%; margin-top: 8px; }
+/* Velo: la foto se ve y su borde de abajo marca dónde empieza el aire de la siguiente sección. */
+.hero-velo { background: linear-gradient(to top, color-mix(in srgb, var(--color-primary) 90%, transparent), color-mix(in srgb, var(--color-primary) 82%, transparent) 58%, transparent 92%); }
+/* Indicadores del carrusel en el margen de la rejilla. Celular: debajo del botón, a la izquierda. */
+.hero-barras { position: absolute; left: var(--pf-m, 16px); bottom: 24px; display: flex; gap: 6px; }
+.hero-barras > span { width: 28px; background: color-mix(in srgb, var(--color-ink) 40%, transparent); }
+.pf-hero:has(.hero-barras) .pf-hero-texto { padding-bottom: 52px; }
+@container pf (min-width: 48rem) {
+  .pf-hero { height: 720px; }
+  .pf-hero-texto { padding-bottom: 56px; gap: 20px; }
+  .pf-hero-texto > div { width: auto; }
+  .pf-hero:has(.hero-barras) .pf-hero-texto { padding-bottom: 56px; }
+  /* El texto ocupa la mitad izquierda: el velo se carga de ese lado y la derecha queda limpia. */
+  .hero-velo {
+    background:
+      linear-gradient(to right, color-mix(in srgb, var(--color-primary) 88%, transparent) 20%, transparent 62%),
+      linear-gradient(to top, color-mix(in srgb, var(--color-primary) 85%, transparent), color-mix(in srgb, var(--color-primary) 40%, transparent) 45%, transparent 75%);
+  }
+  /* Desktop: a la derecha, en el borde de abajo del botón. */
+  .hero-barras { left: auto; right: var(--pf-m); bottom: 56px; }
+  .hero-barras > span { width: 40px; }
+  .pf-promo-hero .pf-hero-texto > h1 { max-width: 14ch; }
+}
+
+/* ---------- Portada ---------- */
+
+/* Diseña la tuya: texto en 5 columnas, foto en 6 desde la 7; mismo borde arriba y abajo. */
+.pf-pz-texto { display: flex; flex-direction: column; align-items: flex-start; }
+.pf-pz-texto > p { margin-top: var(--pf-td); }
+.pf-pz-foto { align-self: stretch; position: relative; overflow: hidden; border-radius: var(--radius-tile); margin-top: var(--pf-tc); aspect-ratio: 4 / 3; }
+.pf-pz-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+.pf-pasos { display: flex; flex-direction: column; gap: 16px; margin-top: var(--pf-tc); font-size: var(--pf-body); line-height: 1.4; }
+.pf-pasos li { display: flex; gap: 16px; }
+.pf-pasos li > span { width: 16px; flex-shrink: 0; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.pf-pz-texto > div:last-child { width: 100%; margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-pz-texto { grid-column: 1 / span 5; grid-row: 1; }
+  .pf-pz-foto { grid-column: 7 / -1; grid-row: 1; margin-top: 0; aspect-ratio: auto; }
+  .pf-pz-texto > div:last-child { width: auto; }
+}
+
+/* Qué hacemos: 3 tarjetas de 4 columnas; en el celular, filas foto + texto (ServiceCard). */
+.pf-servicios { display: grid; gap: 24px; }
+/* Disponible ahora: 2 x 2 en el celular, 4 de 3 columnas en desktop. */
+.pf-prendas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px var(--pf-g); }
+@container pf (min-width: 48rem) {
+  .pf-servicios { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pf-g); }
+  .pf-prendas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Quiénes somos (5 columnas) y Visítanos (6 desde la 7): mismo borde arriba y abajo. */
+.pf-quienes { display: flex; flex-direction: column; }
+.pf-quienes > p { margin-top: var(--pf-td); }
+.pf-razones { display: flex; flex-direction: column; gap: 20px; margin-top: var(--pf-tc); }
+.pf-razones h3 { font-size: var(--pf-body); font-weight: 600; }
+.pf-razones p { margin-top: 4px; font-size: var(--pf-body); line-height: 1.5; color: var(--color-muted); }
+.pf-visita { padding-top: var(--pf-aire); }
+.pf-visita > h2 { margin-bottom: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-quienes { grid-column: 1 / span 5; grid-row: 1; }
+  .pf-visita { grid-column: 7 / -1; grid-row: 1; padding-top: 0; }
+  .pf-visita > h2 { display: none; }
+  /* El mapa crece hasta que la tarjeta cierra en el borde de abajo de las razones. */
+  .pf-visita summary > div { height: 189px; }
+  /* El último texto de Quiénes somos termina en su línea base: comparte borde con el mapa. */
+  .pf-razones li:last-child p { text-box: trim-end cap alphabetic; }
+}
+
+/* ---------- Catálogo: banner, bajada, pestañas y muro, todo en el margen de la rejilla ---------- */
+
+.pf-cat-banner { position: relative; }
+.pf-cat-texto { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 var(--pf-m) 32px; }
+.pf-cat-texto > p { margin-top: var(--pf-td); color: color-mix(in srgb, var(--color-ink) 85%, transparent); }
+/* La tira de pestañas tiene 4 px de aire propio arriba y abajo (CategoryNav py-1): se descuentan. */
+.pf-cat-chips { margin-top: calc(var(--pf-tc) - 4px); }
+.pf-cat-muro { margin-top: calc(var(--pf-tc) - 4px); padding-bottom: var(--pf-aire); }
+@container pf (min-width: 48rem) {
+  .pf-cat-texto { padding-bottom: 56px; }
+  .pf-cat-texto > p { max-width: 34ch; }
+}
+
+/* Volver en su fila (detalle de promo). */
+.pf-volver { display: inline-flex; min-height: 48px; align-items: center; gap: 6px; margin-left: -6px; font-size: 14px; font-weight: 600; color: var(--color-muted); }
+.pf-volver:hover { color: var(--color-ink); }
+
+/* ---------- Promos ---------- */
+
+/* Lista: cada promo es una sección; texto en 5 columnas y foto 16:9 en 6 desde la 7 (PromoAfiche). */
+.pf-promo { padding-top: var(--pf-aire); }
+.pf-promo:last-child { padding-bottom: var(--pf-aire); }
+.pf-promo-texto { display: flex; flex-direction: column; }
+.pf-promo-texto .pf-pie + h2 { margin-top: 16px; }
+.pf-promo-texto .pf-lead { margin-top: var(--pf-td); text-wrap: pretty; }
+.pf-promo-botones { display: flex; flex-direction: column; gap: 8px; margin-top: var(--pf-tc); }
+/* En el celular la foto va primero (4:3), y el texto debajo. */
+.pf-promo-foto { order: -1; position: relative; overflow: hidden; aspect-ratio: 4 / 3; margin-bottom: var(--pf-tc); border-radius: var(--radius-tile); background: var(--color-surface-2); }
+.pf-promo-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+@container pf (min-width: 48rem) {
+  .pf-promo-texto { grid-column: 1 / span 5; grid-row: 1; justify-content: center; }
+  .pf-promo-foto { order: 0; grid-column: 7 / -1; grid-row: 1; aspect-ratio: auto; min-height: 331px; margin: 0; }
+  .pf-promo-botones { flex-direction: row; }
+}
+
+/* Más fotos: siempre una fila llena. Celular: 2 de 4:5 (una sola, 4:3 a lo ancho). Desktop: hasta 4 por fila;
+   1 -> 21:9, 2 -> 4:3, 3 o 4 -> 1:1. */
+.pf-mas-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); }
+.pf-mas-fotos img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius-tile); background: var(--color-surface-2); }
+.pf-mas-fotos[data-n='1'] { grid-template-columns: minmax(0, 1fr); }
+.pf-mas-fotos[data-n='1'] img { aspect-ratio: 4 / 3; }
+@container pf (min-width: 48rem) {
+  .pf-mas-fotos { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+  .pf-mas-fotos img { aspect-ratio: 1 / 1; }
+  .pf-mas-fotos[data-n='2'] img { aspect-ratio: 4 / 3; }
+  .pf-mas-fotos[data-n='1'] img { aspect-ratio: 21 / 9; }
+}
+
+/* Tarjetas de promo (Otras promos y la 404, PromoGrid): una debajo de otra; en desktop una fila llena. */
+.pf-promo-tarjetas { display: grid; gap: var(--pf-g); }
+@container pf (min-width: 48rem) {
+  .pf-promo-tarjetas { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+}
+
+.pf-404-botones { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: var(--pf-tc); }
+@container pf (min-width: 48rem) {
+  .pf-404-botones { flex-direction: row; width: auto; }
+}
+
+/*
+ * Modal de foto (PhotoModal + src/scripts/photo-modal.ts). Un <dialog> a pantalla completa que es contenedor de tamaño
+ * (cqw / cqh). Escritorio: la foto entera (contain) centrada y debajo una franja de una fila del mismo ancho. Celular:
+ * pantalla completa; contador y X arriba, la foto con las orillas de la anterior y la siguiente, la franja fija abajo.
+ */
+html:has(dialog.mx[open]) { overflow: hidden; }
+dialog.mx {
+  position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0;
+  border: 0; background: transparent; color: var(--color-ink); container-type: size;
+  /* clip y no hidden: las orillas del celular salen de la pantalla y enfocarlas no debe desplazar el modal. */
+  overflow: clip;
+}
+dialog.mx::backdrop { background: transparent; }
+.mx-velo {
+  position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--color-primary) 88%, transparent);
+  backdrop-filter: blur(6px);
+  animation: sf-funde var(--motion-med) var(--ease-out) both;
+}
+.mx-caja { position: absolute; inset: 0; }
+
+.mx-x, .mx-flecha {
+  position: absolute; z-index: 1; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 9999px;
+  border: 1px solid var(--color-line); color: var(--color-ink);
+  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  transition: border-color var(--motion-fast) var(--ease-out), background-color var(--motion-fast) var(--ease-out);
+}
+.mx-x:hover, .mx-flecha:hover { border-color: var(--color-muted); background: var(--color-surface); }
+.mx-x { top: 20px; right: 24px; }
+.mx-flecha { top: 50%; translate: 0 -50%; }
+.mx-flecha[hidden], .mx-vecina[hidden] { display: none; }
+.mx-ant { left: 24px; }
+.mx-sig { right: 24px; }
+
+.mx-barra { position: absolute; top: 20px; left: 24px; display: flex; align-items: center; height: 48px; }
+.mx-contador { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-muted); }
+
+.mx-foto { display: block; object-fit: contain; border-radius: var(--radius-tile); }
+
+/* Franja: categoría y nombre, y Pedir con su nota. */
+.mx-franja { display: flex; flex-direction: column; gap: 20px; }
+.mx-nombre { display: flex; flex-direction: column; gap: 4px; }
+.mx-cat { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+.mx-titulo { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; }
+.mx-desc { font-size: 14px; line-height: 1.5; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-pedir { display: flex; flex-direction: column; gap: 12px; }
+.mx-nota { font-size: 14px; line-height: 1.5; color: var(--color-muted); max-width: 32ch; text-wrap: pretty; }
+
+/* Entrada: la foto y la franja suben 16, el velo en fundido. */
+.mx-pieza { animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
+
+/* Escritorio: la foto toma el alto que dejan el aire (igual arriba y abajo), la franja y el espacio entre las dos. */
+.mx-centro { --mx-aire: 24px; --mx-franja: 76px; --mx-entre: 16px; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.mx-pieza { display: flex; flex-direction: column; gap: var(--mx-entre); pointer-events: auto; }
+.mx-pista { display: contents; }
+.mx-vecina { display: none; }
+@container (min-width: 48rem) {
+  /* Tope de ancho para una foto apaisada: no pasa por debajo de las flechas (24 + 48 + 24 por lado). */
+  .mx-centro .mx-foto { width: auto; height: auto; max-height: calc(100cqh - 2 * var(--mx-aire) - var(--mx-franja) - var(--mx-entre)); max-width: calc(100cqw - 2 * 96px); }
+  /* width 0 + min-width 100 %: la franja no ensancha la pieza, toma el ancho de la foto. */
+  .mx-lado { width: 0; min-width: 100%; height: var(--mx-franja); }
+  .mx-lado .mx-franja { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 24px; }
+  .mx-lado .mx-nombre { min-width: 0; }
+  /* Una fila siempre: un nombre largo se corta con … (el h2 completo sigue en el DOM). */
+  .mx-lado .mx-titulo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mx-lado .mx-pedir { flex: none; align-items: flex-end; gap: 10px; }
+  .mx-lado .mx-nota { font-size: 13px; line-height: 18px; white-space: nowrap; max-width: none; }
+}
+.mx-nota-larga { display: none; }
+
+@container (max-width: 47.99rem) {
+  /* Pantalla completa: el velo es opaco, detrás no se ve nada. */
+  .mx-velo { background: var(--color-primary); backdrop-filter: none; }
+  .mx-caja { display: flex; flex-direction: column; }
+  .mx-x { top: 6px; right: 12px; width: 44px; height: 44px; }
+  .mx-flecha { display: none; }
+  .mx-barra { position: static; flex: none; height: 56px; padding-inline: 20px; }
+  .mx-centro, .mx-pieza, .mx-lado { display: contents; }
+  /* La foto ocupa el ancho menos 20 por lado; de la anterior y la siguiente se ven 12, y son botones. */
+  .mx-pista { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; animation: sf-sube var(--motion-slow) var(--ease-premium) both; touch-action: pan-y; }
+  .mx-pista .mx-foto { width: calc(100cqw - 40px); max-height: 100%; height: auto; }
+  .mx-vecina { display: block; position: absolute; top: 50%; translate: 0 -50%; width: calc(100cqw - 40px); opacity: 0.45; }
+  .mx-vecina img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-tile); }
+  /* La orilla se ve de 12 pero se toca en 24. */
+  .mx-vecina::after { content: ''; position: absolute; top: 0; bottom: 0; width: 24px; }
+  .mx-vecina-ant::after { right: -12px; }
+  .mx-vecina-sig::after { left: -12px; }
+  .mx-vecina:focus-visible { opacity: 1; }
+  .mx-vecina-ant { right: calc(100cqw - 12px); }
+  .mx-vecina-sig { left: calc(100cqw - 12px); }
+  .mx-franja { flex: none; gap: 16px; padding: 16px 20px max(20px, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-line); background: var(--color-primary); animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
+  .mx-titulo { font-size: 22px; }
+  .mx-pedir { gap: 8px; }
+  .mx-nota { font-size: 13px; max-width: none; }
+  .mx-nota-larga { display: inline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mx-velo, .mx-pieza, .mx-pista, .mx-franja { animation: none !important; }
 }

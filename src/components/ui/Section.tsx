@@ -1,17 +1,11 @@
 import type { ReactNode } from 'react'
-import { Eyebrow } from './Eyebrow'
-
-const TONE = {
-  plain: '',
-  panel: 'fabric rounded-card border border-line bg-surface p-5 @3xl:p-10',
-}
+import { Button } from './Button'
 
 /**
- * Envoltorio de sección del home: Eyebrow opcional, título h2 con costura dorada (stitch-title,
- * se cose al aparecer), descripción y contenido.
- * Padding px-4 py-8 en móvil, px-12 py-14 desde 768px de ancho (container query, no md:,
- * para que el canvas lo muestre igual). tone panel = superficie con trama (para "Hablemos").
- * scroll-mt-4 basta porque el Header no es sticky: el ancla no queda tapada.
+ * Sección de página con la cabecera del sistema medido (PRI-286): título h2 (sube al entrar en pantalla), bajada pegada
+ * a él y, si hay, una acción secundaria. En desktop la acción va en la fila del título, a la derecha; en el celular, al
+ * pie de la sección y a lo ancho. Aire entre secciones y márgenes de la rejilla: .pf-sec y .pf-c (tokens.css), así que
+ * va dentro de una página .pf. scroll-mt-4 basta porque el Header no es sticky: el ancla no queda tapada.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
  *
  * The canvas for this component is at tempo/designs/design-system/app-shell/index.canvas.tsx.
@@ -19,37 +13,43 @@ const TONE = {
  */
 export function Section({
   id,
-  eyebrow,
   title,
   description,
+  action,
   children,
-  tone = 'plain',
 }: {
-  /** Ancla del nav (#quienes-somos, #que-hacemos, #disponible, #ubicacion). */
+  /** Ancla del nav (#que-hacemos, #disponible...). El título queda como <id>-titulo. */
   id?: string
-  eyebrow?: string
   title: string
   description?: string
+  /** Acción secundaria de la sección (p. ej. "Ver todo →"). */
+  action?: { label: string; href: string }
   children: ReactNode
-  tone?: 'plain' | 'panel'
 }) {
   const titleId = id ? `${id}-titulo` : undefined
   return (
-    <section id={id} aria-labelledby={titleId} className="@container scroll-mt-4 font-body text-ink">
-      <div className="px-4 py-8 @3xl:px-12 @3xl:py-14">
-        <div className={TONE[tone]}>
-          {eyebrow && (
-            <div className="mb-4">
-              <Eyebrow>{eyebrow}</Eyebrow>
-            </div>
-          )}
-          <h2 id={titleId} className="stitch-title font-display text-[28px] font-medium leading-[1.05] tracking-[-0.01em] @3xl:text-[40px]">
-            {title}
-          </h2>
-          {description && <p className="mt-2 max-w-[60ch] text-[15px] leading-relaxed text-muted @3xl:text-[17px]">{description}</p>}
-          <div className="mt-5 @3xl:mt-6">{children}</div>
-        </div>
+    <section id={id} aria-labelledby={titleId} className="pf-sec pf-c scroll-mt-4 font-body text-ink">
+      <div className="pf-head">
+        <h2 id={titleId} className="pf-h2 sf-entra-scroll">
+          {title}
+        </h2>
+        {description && <p className="pf-lead">{description}</p>}
+        {action && (
+          <div className="pf-accion">
+            <Button variant="secondary" href={action.href}>
+              {action.label}
+            </Button>
+          </div>
+        )}
       </div>
+      {children}
+      {action && (
+        <div className="pf-accion-pie">
+          <Button variant="secondary" href={action.href} fullWidth>
+            {action.label}
+          </Button>
+        </div>
+      )}
     </section>
   )
 }

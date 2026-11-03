@@ -4,8 +4,8 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
 
 /**
  * Pestañas de categoría del catálogo (PRI-130). Son links (cambian la URL), no Chip: el Chip es un radio.
- * Tienen las medidas del Chip (44 px de alto, 14 px semibold, border-line / bg-accent) y el conteo de fotos
- * activas, así una categoría vacía se nota antes de tocarla. current = href de la pestaña actual.
+ * Miden 48 px de alto (52 desde @3xl) con texto de 16: la elegida en oro viejo relleno, las demás con borde (PRI-286);
+ * se hunden un poco al tocar (sf-toque). Llevan el conteo de fotos activas, así una categoría vacía se nota antes de tocarla. current = href de la pestaña actual.
  * Móvil: una fila con scroll lateral (la última pestaña queda cortada: eso dice que hay más).
  * Desde @3xl (768 px de ancho del contenedor) se parten en varias filas.
  * Markup estático: Astro lo renderiza sin JS.
@@ -26,12 +26,12 @@ export function CategoryNav({ categories, current }: { categories: CategoryLink[
               <a
                 href={c.href}
                 aria-current={on ? 'page' : undefined}
-                className={`inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-[14px] font-semibold transition-colors duration-(--motion-fast) ${FOCUS} ${
-                  on ? 'border-accent bg-accent text-primary' : 'border-line bg-surface text-ink hover:border-muted'
+                className={`sf-toque inline-flex min-h-12 items-center gap-2 whitespace-nowrap rounded-full border px-5 text-[16px] font-semibold @3xl:min-h-[52px] ${FOCUS} ${
+                  on ? 'border-accent bg-accent text-primary' : 'border-line text-ink hover:border-muted'
                 }`}
               >
                 {c.label}
-                <span className={`text-[12px] font-medium ${on ? 'text-primary/75' : 'text-muted'}`}>{c.count}</span>
+                <span className={`text-[13px] font-medium ${on ? 'text-primary/75' : 'text-muted'}`}>{c.count}</span>
               </a>
             </li>
           )

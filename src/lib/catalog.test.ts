@@ -1,18 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { hace, interleave, isNuevo, masDe, pageHref, pages, pedirUrl } from './catalog'
+import { fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl } from './catalog'
 
 const NOW = new Date('2026-10-20T12:00:00Z')
 const ago = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000).toISOString()
 const foto = (id: string, d: number) => ({ id, createdAt: ago(d) })
 
-describe('isNuevo / hace', () => {
-  it('Nuevo hasta 20 días, no a los 21', () => {
+describe('isNuevo', () => {
+  it('nueva hasta 20 días, no a los 21', () => {
     expect(isNuevo(ago(20), NOW)).toBe(true)
     expect(isNuevo(ago(21), NOW)).toBe(false)
-  })
-
-  it('dice cuándo se subió', () => {
-    expect([0, 1, 4, 45, 95].map((d) => hace(ago(d), NOW))).toEqual(['Hoy', 'Ayer', 'Hace 4 días', 'Hace un mes', 'Hace 3 meses'])
   })
 })
 
@@ -25,10 +21,9 @@ describe('interleave', () => {
   })
 })
 
-describe('masDe', () => {
-  it('las que siguen, dando la vuelta, sin la actual', () => {
-    expect(masDe(['a', 'b', 'c', 'd'], 2, 3)).toEqual(['d', 'a', 'b'])
-    expect(masDe(['a'], 0, 6)).toEqual([])
+describe('fotoHref', () => {
+  it('cada foto tiene URL propia en /catalogo', () => {
+    expect(fotoHref('beisbol', 'beisbol-26')).toBe('/catalogo/beisbol/beisbol-26')
   })
 })
 
@@ -46,14 +41,14 @@ describe('pedirUrl', () => {
   const text = (url: string) => new URL(url).searchParams.get('text')
 
   it('identifica la foto por categoría, número y link, sin el nombre', () => {
-    expect(text(pedirUrl('Beisbol', 26, '/products/beisbol/beisbol-26'))).toBe(
-      '¡Hola! Me gustó esta de Beisbol (N.º 26). ¿Me hacen una así?\nhttps://serflowctg.netlify.app/products/beisbol/beisbol-26',
+    expect(text(pedirUrl('Beisbol', 26, fotoHref('beisbol', 'beisbol-26')))).toBe(
+      '¡Hola! Me gustó esta de Beisbol (N.º 26). ¿Me hacen una así?\nhttps://serflowctg.netlify.app/catalogo/beisbol/beisbol-26',
     )
   })
 
   it('sin legacy_id (fotos nuevas del admin) el link basta', () => {
-    expect(text(pedirUrl('Moda', null, '/products/moda/gorra-dama'))).toBe(
-      '¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\nhttps://serflowctg.netlify.app/products/moda/gorra-dama',
+    expect(text(pedirUrl('Moda', null, fotoHref('moda', 'gorra-dama')))).toBe(
+      '¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\nhttps://serflowctg.netlify.app/catalogo/moda/gorra-dama',
     )
   })
 })

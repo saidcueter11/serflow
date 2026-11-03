@@ -1,10 +1,11 @@
 type Visual = "estampado" | "dtf" | "bordado";
 
 /**
- * Un servicio del taller (Estampado, DTF, Bordado...) dentro de una lista de N items.
- * Arriba va una muestra solo con CSS (0 KB) según `visual`; sin `visual` (servicios
- * nuevos) sale una muestra neutra de tela. Si el cliente sube una foto real de la
- * técnica, `image` reemplaza la muestra. Markup estático: Astro lo renderiza sin JS.
+ * Un servicio del taller (Estampado, DTF, Bordado...) dentro de una lista de N items, sin caja (PRI-286).
+ * Celular: una fila con la foto 4:5 de 112 px y el texto al lado. Desde @3xl: la foto cuadrada arriba (no pesa más
+ * que Disponible ahora) y el texto debajo. Arriba va una muestra solo con CSS (0 KB) según `visual`; sin `visual`
+ * (servicios nuevos) sale una muestra neutra de tela. Si el cliente sube una foto real de la técnica, `image`
+ * reemplaza la muestra. Markup estático: Astro lo renderiza sin JS.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset
@@ -23,46 +24,50 @@ export function ServiceCard({
   image?: { src: string; alt: string };
 }) {
   return (
-    <article className="group reveal-up rounded-card border border-line bg-surface p-3 transition-[transform,border-color] duration-(--motion-slow) ease-out hover:-translate-y-1 hover:border-secondary">
+    <article className="group sf-foto reveal-up grid grid-cols-[112px_minmax(0,1fr)] items-start gap-x-4 @3xl:block">
       {image ? (
         <div className="overflow-hidden rounded-tile">
           <img
             src={image.src}
             alt={image.alt}
             width={400}
-            height={240}
+            height={400}
             loading="lazy"
             decoding="async"
-            className="reveal-wipe h-24 w-full bg-surface-2 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className="reveal-wipe aspect-[4/5] h-auto w-full bg-surface-2 object-cover @3xl:aspect-square"
           />
         </div>
       ) : (
         <Swatch visual={visual} />
       )}
-      <h3 className="mt-3 font-display text-[16px] font-bold leading-tight text-ink">{title}</h3>
-      <p className="mt-1 text-[14px] leading-snug text-muted">{description}</p>
+      <div className="sf-foto-texto @3xl:mt-4">
+        <h3 className="font-display text-[18px] font-medium leading-tight text-ink @3xl:text-[22px]">{title}</h3>
+        <p className="mt-1.5 text-[16px] leading-normal text-muted @3xl:mt-2">{description}</p>
+      </div>
     </article>
   );
 }
 
+const SWATCH = "aspect-[4/5] rounded-tile @3xl:aspect-square";
+
 function Swatch({ visual }: { visual?: Visual }) {
   if (visual === "dtf")
     return (
-      <div aria-hidden="true" className="relative h-24 overflow-hidden rounded-tile bg-[linear-gradient(135deg,var(--color-secondary),var(--color-accent)_55%,var(--color-ink))]">
+      <div aria-hidden="true" className={`relative overflow-hidden bg-[linear-gradient(135deg,var(--color-secondary),var(--color-accent)_55%,var(--color-ink))] ${SWATCH}`}>
         <div className="absolute -left-4 top-0 h-full w-10 rotate-12 bg-white/40 blur-[6px]" />
       </div>
     );
   if (visual === "bordado")
     return (
-      <div aria-hidden="true" className="fabric flex h-24 items-center justify-center rounded-tile bg-surface-2">
-        <div className="h-10 w-24 rounded-full border-[3px] border-dashed border-accent shadow-[inset_0_2px_0_rgb(255_255_255/0.15)]" />
+      <div aria-hidden="true" className={`fabric flex items-center justify-center bg-surface-2 ${SWATCH}`}>
+        <div className="h-10 w-3/4 max-w-24 rounded-full border-[3px] border-dashed border-accent shadow-[inset_0_2px_0_rgb(255_255_255/0.15)]" />
       </div>
     );
   if (visual === "estampado")
     return (
-      <div aria-hidden="true" className="relative h-24 overflow-hidden rounded-tile bg-secondary">
+      <div aria-hidden="true" className={`relative overflow-hidden bg-secondary ${SWATCH}`}>
         <div className="fabric absolute inset-0 mix-blend-multiply" />
       </div>
     );
-  return <div aria-hidden="true" className="fabric h-24 rounded-tile border border-line bg-surface-2" />;
+  return <div aria-hidden="true" className={`fabric border border-line bg-surface-2 ${SWATCH}`} />;
 }
