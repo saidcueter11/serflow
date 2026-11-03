@@ -427,7 +427,7 @@ a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fa
  * (cqw / cqh). Escritorio: la foto entera (contain) centrada y debajo una franja de una fila del mismo ancho. Celular:
  * pantalla completa; contador y X arriba, la foto con las orillas de la anterior y la siguiente, la franja fija abajo.
  */
-html:has(dialog.mx[open]) { overflow: hidden; }
+html:has(dialog.mx:modal) { overflow: hidden; }
 dialog.mx {
   position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0;
   border: 0; background: transparent; color: var(--color-ink); container-type: size;

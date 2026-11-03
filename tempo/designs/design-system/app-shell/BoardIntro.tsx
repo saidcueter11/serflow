@@ -51,7 +51,7 @@ export function BoardIntro() {
         </div>
         <div className="overflow-hidden rounded-card border border-line">
           <Header logoSrc={LOGO} />
-          <Section id="intro-hablemos" title="Hablemos" tone="panel">
+          <Section id="intro-hablemos" title="Hablemos">
             <ContactList />
           </Section>
           <Footer logoSrc={LOGO} />

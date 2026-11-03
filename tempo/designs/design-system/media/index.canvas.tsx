@@ -3,14 +3,14 @@ import { defineAsset } from "tempo-sdk/assets";
 import { PhotoSlot } from "../../../../src/components/ui/PhotoSlot";
 import { MascotSlot } from "../../../../src/components/ui/MascotSlot";
 import { Masonry } from "../../../../src/components/ui/Masonry";
-import { PhotoCarousel } from "../../../../src/components/ui/PhotoCarousel";
+import { PhotoModal } from "../../../../src/components/ui/PhotoModal";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { BoardIntro } from "./BoardIntro";
 import { BoardPhotoSlot } from "./BoardPhotoSlot";
 import { BoardPhotoGuide } from "./BoardPhotoGuide";
 import { BoardMascotSlot } from "./BoardMascotSlot";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
-import { BoardCategoryBanner, BoardMasonry, BoardPhotoCarousel } from "./BoardCatalogo";
+import { BoardCategoryBanner, BoardMasonry, BoardPhotoModal } from "./BoardCatalogo";
 
 export default function MediaCanvas() {
   return (
@@ -52,16 +52,16 @@ export default function MediaCanvas() {
         layout={{ x: 0, y: 3100, width: 1300, height: 2400, intrinsicSizing: "root-element" }}
       />
       <Storyboard
-        id="PhotoCarousel"
-        name="PhotoCarousel"
-        component={BoardPhotoCarousel}
-        layout={{ x: 1350, y: 3100, width: 1300, height: 1800, intrinsicSizing: "root-element" }}
+        id="PhotoModal"
+        name="PhotoModal"
+        component={BoardPhotoModal}
+        layout={{ x: 1350, y: 3100, width: 1900, height: 2000, intrinsicSizing: "root-element" }}
       />
       <Storyboard
         id="CategoryBanner"
         name="CategoryBanner"
         component={BoardCategoryBanner}
-        layout={{ x: 2700, y: 3100, width: 1300, height: 1100, intrinsicSizing: "root-element" }}
+        layout={{ x: 3300, y: 3100, width: 1300, height: 1100, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );
@@ -75,7 +75,7 @@ const EJEMPLO_LOCAL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRX
 defineAsset(PhotoSlot, {
   libraries: ["Design System"],
   usageInstructions:
-    "Foto REAL del taller en un marco con proporción fija por kind: local (fachada/mostrador, 4:3 móvil y 16:9 desde md), estanterias (4:5), equipo (3:2), trabajo (prenda terminada, 4:5). Sin src no renderiza nada, a propósito: la sección sin foto desaparece; envuelve la sección para que también se oculte. src y alt van juntos. priority solo en la única foto visible al cargar (hero). Pasa una imagen ya optimizada (WebP/AVIF, máx. 1600 px, < 150 KB). Nunca le pases fotos de stock, de Google ni de relleno. No para fotos del catálogo (usa Masonry en la galería y PhotoCarousel en el visor) ni para la mascota (usa MascotSlot).",
+    "Foto REAL del taller en un marco con proporción fija por kind: local (fachada/mostrador, 4:3 móvil y 16:9 desde md), estanterias (4:5), equipo (3:2), trabajo (prenda terminada, 4:5). Sin src no renderiza nada, a propósito: la sección sin foto desaparece; envuelve la sección para que también se oculte. src y alt van juntos. priority solo en la única foto visible al cargar (hero). Pasa una imagen ya optimizada (WebP/AVIF, máx. 1600 px, < 150 KB). Nunca le pases fotos de stock, de Google ni de relleno. No para fotos del catálogo (usa Masonry en la galería; la foto abierta es PhotoModal) ni para la mascota (usa MascotSlot).",
   variants: {
     "Trabajo terminado": {
       props: { kind: "trabajo", src: EJEMPLO_TRABAJO, alt: "Gorra con una palma bordada (ejemplo)", caption: "Gorra bordada" },
@@ -103,48 +103,40 @@ defineAsset(MascotSlot, {
 defineAsset(Masonry, {
   libraries: ["Design System"],
   usageInstructions:
-    "Muro de fotos del catálogo (/products, /products/<categoría> y \"Más de\" del visor): columnas CSS de alturas mezcladas (2, 3 desde @3xl, 4 desde @6xl), sin texto en la tarjeta: la categoría va en el alt y en un chip con el mouse. Cada tile es un link al visor con foto optimizada (getImage) y lazy, NewBadge y contador de fotos encima. mobileMax esconde las sobrantes en el celular. No le pongas nombre ni descripción de la prenda (pueden estar vacíos o ser relleno). No para Disponible ahora de la portada (ProductCard) ni para fotos del taller (PhotoSlot).",
+    "Muro de fotos del catálogo (/products y /products/<categoría>): rejilla pareja de fotos 4:5 (2 columnas, 3 desde 40rem de muro, 4 desde 64rem), sin texto en la tarjeta: la categoría va en el alt y en un chip con el mouse; el chevrón en un círculo dice que la foto se abre. Cada tile es un link a la URL propia de la foto (/catalogo/<categoría>/<slug>) con sus datos para PhotoModal (modal) y foto optimizada (getImage) y lazy; contador de fotos encima si la prenda tiene varias. Sin tarjeta de cierre: la última fila queda con las fotos que haya. No le pongas nombre ni descripción de la prenda ni \"Nuevo\". No para Disponible ahora de la portada (ProductCard) ni para fotos del taller (PhotoSlot).",
   variants: {
     "Tres fotos": {
       props: {
         tiles: [
-          { href: "/products/beisbol/beisbol-1", img: { src: EJEMPLO_TRABAJO, alt: "Beisbol, foto N.º 1", ratio: 0.69 }, label: "Beisbol", nuevo: true },
-          { href: "/products/beisbol/beisbol-2", img: { src: EJEMPLO_LOCAL, alt: "Beisbol, foto N.º 2", ratio: 1.5 }, label: "Beisbol", photos: 3 },
-          { href: "/products/beisbol/beisbol-3", img: { src: EJEMPLO_TRABAJO, alt: "Beisbol, foto N.º 3", ratio: 0.69 }, label: "Beisbol" },
+          { href: "/catalogo/beisbol/beisbol-1", img: { src: EJEMPLO_TRABAJO, alt: "Beisbol, foto N.º 1" }, label: "Beisbol" },
+          { href: "/catalogo/beisbol/beisbol-2", img: { src: EJEMPLO_LOCAL, alt: "Beisbol, foto N.º 2" }, label: "Beisbol", photos: 3 },
+          { href: "/catalogo/beisbol/beisbol-3", img: { src: EJEMPLO_TRABAJO, alt: "Beisbol, foto N.º 3" }, label: "Beisbol" },
         ],
       },
     },
   },
 });
 
-defineAsset(PhotoCarousel, {
+defineAsset(PhotoModal, {
   libraries: ["Design System"],
   usageInstructions:
-    "Fotos de una prenda en el visor del catálogo (/products/<categoría>/<slug>): carrusel scroll-snap sin JS, foto en marco 4:5 que la llena (object-cover, sin trama ni franjas): ancho completo en el celular y columna izquierda desde @3xl; las miniaturas-link son PhotoThumbs (mismo archivo), en la columna derecha del visor junto a la categoría y "Pedir por WhatsApp". La primera es el LCP (fetchPriority high): precárgala en la página. Una por página. No para el muro de fotos (Masonry) ni para el hero de la portada (HeroCarousel).",
+    "La foto abierta del catálogo (PRI-286): un <dialog> vacío, uno por página, que llena y maneja src/scripts/photo-modal.ts (importarlo en la página). Se abre al tocar un link con data-foto (fotoAttrs: Masonry y ProductCard con modal) y recorre las de su lista (data-fotos). Desktop: foto entera centrada y debajo una franja de una fila (categoría y nombre, Pedir por WhatsApp); celular: pantalla completa con Pedir fijo abajo. Cada foto tiene URL propia (/catalogo/<categoría>/<slug>) que abre la página con el modal (main[data-abrir]). No es una tienda: sin precio, carrito ni \"Más de\". No para el hero (HeroCarousel) ni para fotos sueltas del taller (PhotoSlot).",
   variants: {
-    "Dos fotos": {
-      props: {
-        label: "Fotos de Beisbol N.º 26",
-        photos: [
-          { src: EJEMPLO_TRABAJO, alt: "Beisbol, foto N.º 26" },
-          { src: EJEMPLO_LOCAL, alt: "Beisbol, foto N.º 26, foto 2 de 2" },
-        ],
-      },
-    },
+    Default: { props: {} },
   },
 });
 
 defineAsset(CategoryBanner, {
   libraries: ["Design System"],
   usageInstructions:
-    "Banner arriba de la galería del catálogo: una lámina por categoría (\"Todo\" primero) con su portada (categories.image_url optimizada), nombre y conteo; current = la de la página. En el sitio va dentro de un div con transition:persist y el script de [...gallery].astro lo desliza a la categoría nueva. Sin portada queda la trama. Uno por página, solo en la galería. No es el hero de la portada (HeroCarousel) ni una galería de fotos (Masonry).",
+    "Banner a sangre arriba de la galería del catálogo (340 / 520 de alto): una lámina por categoría (\"Todo\" primero) con su portada (categories.image_url optimizada) y un velo abajo; current = la de la página. El nombre (h1) y la bajada los pone la página encima (.pf-cat-texto). En el sitio va dentro de un div con transition:persist y el script de CatalogView.astro lo desliza a la categoría nueva. Sin portada queda la trama. Uno por página, solo en la galería. No es el hero de la portada (HeroCarousel) ni una galería de fotos (Masonry).",
   variants: {
     "Categoría con portada": {
       props: {
         current: 0,
         slides: [
-          { label: "Beisbol", count: 23, image: { src: EJEMPLO_LOCAL } },
-          { label: "Moda", count: 23 },
+          { label: "Beisbol", image: { src: EJEMPLO_LOCAL } },
+          { label: "Moda" },
         ],
       },
     },

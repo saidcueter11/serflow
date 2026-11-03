@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
 import { Section } from "../../../../src/components/ui/Section";
-import { ContactList } from "../../../../src/components/ui/ContactList";
-import { Button } from "../../../../src/components/ui/Button";
-import { WHATSAPP_URL } from "../../../../src/lib/business";
 import { Code, PageFrame, PageTitle, Row } from "../Chrome";
 import { QuienesCopy } from "./portada";
 
@@ -10,8 +7,8 @@ function Frame({ width, label, children }: { width: number; label: string; child
   return (
     <div className="flex flex-col gap-2">
       <span className="font-mono text-[12px] text-muted">{label}</span>
-      <div className="overflow-hidden rounded-card border border-line bg-primary" style={{ width }}>
-        {children}
+      <div className="pf overflow-hidden rounded-card border border-line bg-primary" style={{ width }}>
+        <div className="pf-v">{children}</div>
       </div>
     </div>
   );
@@ -23,7 +20,7 @@ function Pair({ children }: { children: (w: "m" | "d") => ReactNode }) {
       <Frame width={390} label="390 · móvil">
         {children("m")}
       </Frame>
-      <Frame width={800} label="800 · desde @3xl (768)">
+      <Frame width={1280} label="1280 · desde 48rem">
         {children("d")}
       </Frame>
     </div>
@@ -37,60 +34,33 @@ export function BoardSection() {
         title="Section"
         description={
           <>
-            El envoltorio de cada bloque del home. Padding px-4 py-8 en móvil y px-12 py-14 desde 768px; título h2 en{" "}
-            <Code>font-display</Code> 28 / 40px; <Code>scroll-mt-4</Code> para las anclas. Props: <Code>id</Code>,{" "}
-            <Code>eyebrow</Code>, <Code>title</Code>, <Code>description</Code>, <Code>children</Code>, <Code>tone</Code>.
+            La sección del sistema medido (PRI-286): margen 16 / 48, aire 64 / 96 arriba, título h2 34 / 48 y bajada 12
+            debajo; <Code>scroll-mt-4</Code> para las anclas. Props: <Code>id</Code>, <Code>title</Code>,{" "}
+            <Code>description</Code>, <Code>action</Code>, <Code>children</Code>. Va dentro de una página <Code>.pf</Code>.
           </>
         }
       />
 
-      <Row
-        name="Plain · con eyebrow"
-        description="Eyebrow solo cuando suma contexto (una campaña, el taller). La mayoría de secciones del home no lo llevan."
-      >
+      <Row name="Título y bajada" description="El caso por defecto: título, bajada opcional y contenido.">
         <Pair>
           {(w) => (
-            <Section id={`plain-eyebrow-${w}`} eyebrow="Taller en Cartagena" title="Quiénes somos">
+            <Section id={`plain-${w}`} title="Quiénes somos">
               <QuienesCopy className="text-[16px]" />
             </Section>
           )}
         </Pair>
       </Row>
 
-      <Row name="Plain · sin eyebrow" description="El caso por defecto: título, descripción opcional y contenido.">
+      <Row name="Con acción" description="La acción secundaria en la fila del título (desktop) o al pie, a lo ancho (celular).">
         <Pair>
           {(w) => (
             <Section
-              id={`plain-${w}`}
+              id={`accion-${w}`}
               title="Disponible ahora"
               description="Lo que hay en el taller esta semana."
+              action={{ label: "Ver todo →", href: "/products/mi-tierra-querida" }}
             >
-              <Button variant="ghost" href="/products/mi-tierra-querida">
-                Ver todo →
-              </Button>
-            </Section>
-          )}
-        </Pair>
-      </Row>
-
-      <Row
-        name="Panel"
-        description="Superficie rounded-card con trama fabric. Máximo una por página. No la uses para destacar secciones al azar."
-      >
-        <Pair>
-          {(w) => (
-            <Section
-              id={`panel-${w}`}
-              title="Hablemos"
-              description="Mándanos tu idea, una foto o el logo de tu negocio."
-              tone="panel"
-            >
-              <ContactList />
-              <div className="mt-4">
-                <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
-                  Escríbenos por WhatsApp
-                </Button>
-              </div>
+              <div className="h-24 rounded-tile bg-surface-2" />
             </Section>
           )}
         </Pair>

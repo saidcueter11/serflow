@@ -9,6 +9,7 @@ import { TITO_SALUDO } from "../../../../src/lib/mascot";
 // Fotos de ejemplo mientras llegan las del cliente: gorras reales del catálogo actual.
 import capLogo from "../../../../src/assets/images/moda/moda1.webp";
 import capBordado from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida2.webp";
+import gorrasEstante from "../../../../src/assets/images/stock/gorras-estante.jpg";
 import capDtf from "../../../../src/assets/images/miTierraQuerida/miTierraQuerida5.webp";
 import capNegra from "../../../../src/assets/images/moda/moda5.webp";
 import capFlamenco from "../../../../src/assets/images/kids/kid1.webp";
@@ -35,12 +36,12 @@ export const LOGO: string = logo;
 
 // Datos de muestra para la portada real (HomePage) en los composites: las mismas fotos stock que index.astro.
 export const HOME_SLIDES: Slide[] = [
-  { src: camisetas, caption: "Camisetas con tu diseño", alt: "Dos personas con camisetas negras estampadas", position: "50% 35%" },
-  { src: estampadoProceso, caption: "Estampado en el taller", alt: "Manos pasando el rasero sobre una plancha de estampado" },
-  { src: gorraBordada, caption: "Gorras bordadas", alt: "Gorra blanca con bordado rojo", position: "50% 40%" },
-  { src: amigosGorras, caption: "Para tu equipo o tu grupo", alt: "Dos amigos con gorras personalizadas riéndose", position: "50% 30%" },
+  { src: camisetas, alt: "Dos personas con camisetas negras estampadas", position: "50% 35%" },
+  { src: estampadoProceso, alt: "Manos pasando el rasero sobre una plancha de estampado" },
+  { src: gorraBordada, alt: "Gorra blanca con bordado rojo", position: "50% 40%" },
+  { src: amigosGorras, alt: "Dos amigos con gorras personalizadas riéndose", position: "50% 30%" },
 ];
-export const HOME_IMAGES: HomeImages = { estampado: estampadoRasero, dtf: camisetaDtf, bordado: gorraBordada2, personalizador: capBordado };
+export const HOME_IMAGES: HomeImages = { estampado: estampadoRasero, dtf: camisetaDtf, bordado: gorraBordada2, personalizador: gorrasEstante };
 export const PROMOS_SAMPLE: PromoLink[] = [
   { title: "2x1 en gorras bordadas este fin de semana", href: "/promos/2x1-gorras" },
   { title: "10% en camisetas para equipos de fútbol", href: "/promos/equipos" },

@@ -67,7 +67,7 @@ const SAMPLE_WORK =
 defineAsset(ServiceCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una técnica o servicio del taller (Estampado, DTF, Bordado...) dentro de una lista de N items: grid gap-3 md:grid-cols-3, sin límite de cantidad. visual da la muestra CSS de las tres técnicas de hoy; sin visual sale una muestra neutra de tela (servicios nuevos no necesitan foto). image con una foto real del taller reemplaza la muestra. No es link ni lleva precio: para una prenda que se pide usa ProductCard, para un pedido entregado WorkCard; la acción de WhatsApp va en un Button debajo de la lista.",
+    "Una técnica o servicio del taller (Estampado, DTF, Bordado...) dentro de una lista de N items, sin caja (PRI-286): en el celular una fila con la foto 4:5 de 112 px y el texto al lado; desde @3xl la foto cuadrada arriba y el texto debajo (lista .pf-servicios de la portada). visual da la muestra CSS de las tres técnicas de hoy; sin visual sale una muestra neutra de tela (servicios nuevos no necesitan foto). image con una foto real del taller reemplaza la muestra. No es link ni lleva precio: para una prenda que se pide usa ProductCard, para un pedido entregado WorkCard; la acción de WhatsApp va en un Button debajo de la lista.",
   variants: {
     "Bordado": { props: { title: "Bordado", description: "Hilo con relieve. El clásico de las gorras.", visual: "bordado" } },
     "Estampado": { props: { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas.", visual: "estampado" } },
@@ -79,7 +79,7 @@ defineAsset(ServiceCard, {
 defineAsset(ProductCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una prenda de Disponible ahora (para el catálogo usa Masonry): foto 4:3, nombre, meta (color y tallas) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link. Es fluida: el ancho lo pone la lista (fila con scroll grid grid-flow-col auto-cols-[200px] overflow-x-auto snap-x, o las columnas de un grid). No le agregues tamaño fijo, scale en hover ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
+    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link; con modal (datos de la foto) abre PhotoModal encima de la página y recorre las de su lista (data-fotos). Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
   variants: {
     "Camiseta confirmada": {
       props: {
@@ -142,7 +142,7 @@ const SAMPLE_PROMO_2 = {
 defineAsset(PromoCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una promo vigente como link a su detalle (/promos/<slug>): \"Otras promos\" del detalle y la 404 con promos. Recibe un PromoView de src/lib/promos.ts (toPromoViews en el build). headingLevel 3 dentro de una Section. Siempre dentro de PromoGrid, nunca con ancho fijo. Para /promos, donde cada promo se pide directo, usa PromoAfiche; para una prenda, ProductCard.",
+    "Una promo vigente como link a su detalle (/promos/<slug>): \"Otras promos\" del detalle y la 404 con promos. Tarjeta horizontal con caja (PRI-286): foto a todo el alto a la izquierda (112 px; 200 y la descripción desde 30rem de tarjeta), vigencia en oro, título y Ver promo con forma de botón al fondo. Recibe un PromoView de src/lib/promos.ts (toPromoViews en el build). headingLevel 3 dentro de una Section. Siempre dentro de PromoGrid, nunca con ancho fijo. Para /promos, donde cada promo se pide directo, usa PromoAfiche; para una prenda, ProductCard.",
   variants: {
     "Con fecha": { props: { promo: SAMPLE_PROMO } },
     "Sin fecha ni descripción": { props: { promo: SAMPLE_PROMO_2 } },
@@ -152,7 +152,7 @@ defineAsset(PromoCard, {
 defineAsset(PromoAfiche, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una promo en /promos con su propio botón de WhatsApp (mensaje prellenado con el nombre y el link de la promo, vía whatsappUrl) y \"Ver las N fotos\" al detalle. Excepción documentada a \"un WhatsApp por sección\": cada afiche es su propia sección. Siempre dentro de PromoGrid. Fuera de /promos usa PromoCard.",
+    "Una promo en /promos (PRI-286): su propia sección de la rejilla, texto en 5 columnas y foto 16:9 en 6 desde la 7 (en el celular la foto primero), con su propio botón de WhatsApp (mensaje prellenado con el nombre y el link de la promo, vía whatsappUrl) y \"Ver las N fotos\" al detalle. Excepción documentada a \"un WhatsApp por sección\": cada promo es su propia sección. Va directo en el main de una página .pf, una debajo de otra. Fuera de /promos usa PromoCard.",
   variants: {
     "Con fecha": { props: { promo: SAMPLE_PROMO } },
     "Sin fecha ni descripción": { props: { promo: SAMPLE_PROMO_2 } },
@@ -162,7 +162,7 @@ defineAsset(PromoAfiche, {
 defineAsset(PromoGrid, {
   libraries: ["Design System"],
   usageInstructions:
-    "Lista de PromoCard o PromoAfiche sin columnas vacías: 1 por fila en móvil, 2 en tablet, 3 en desktop, y la última fila se reparte el ancho (una card sola se pone horizontal). Necesita un ancestro @container. No la uses para productos (grid de ProductCard).",
+    "Lista de PromoCard (Otras promos y la 404): una debajo de otra en el celular y en desktop una fila llena (2 -> 6 columnas cada una, 3 -> 4). Va dentro de una página .pf. No la uses para productos (grid de ProductCard).",
   variants: {
     "Dos promos": {
       render: () => (

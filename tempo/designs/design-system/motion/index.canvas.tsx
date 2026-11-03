@@ -23,13 +23,13 @@ const PHOTO =
 defineAsset(HeroCarousel, {
   libraries: ["Design System"],
   usageInstructions:
-    "Carrusel del hero de la portada: fotos que muestran el resultado (gente usando las prendas, el taller trabajando), una etiqueta por foto, fundido cada 6 s, zoom lento y pausa con el mouse. children va encima (bienvenida + Button whatsapp). La primera foto es el LCP: pásala optimizada con getImage y precárgala. Una promo activa entra primero con promo: true. Solo en el hero, uno por página; no lo uses como galería de productos (usa ProductCard) ni con fotos decorativas sin contexto.",
+    "Carrusel del hero a sangre (PRI-286): fotos que muestran el resultado (gente usando las prendas, el taller trabajando), fundido cada 6 s, zoom lento, una barra de avance por foto en el margen de la rejilla y pausa con el mouse; con reducir movimiento queda la primera foto y solo su barra llena. children va encima (.pf-hero-texto: bienvenida + Button whatsapp); className pf-hero da el alto 600 / 720. La primera foto es el LCP: pásala optimizada con getImage y precárgala. Una promo activa entra primero. También es el hero del detalle de una promo (una foto, sin barras). Solo en el hero, uno por página; no lo uses como galería de productos (usa ProductCard) ni con fotos decorativas sin contexto.",
   variants: {
     Default: {
       props: {
         slides: [
-          { src: PHOTO, alt: "Camisetas estampadas", caption: "Camisetas con tu diseño" },
-          { src: PHOTO, alt: "Gorra bordada", caption: "Gorras bordadas" },
+          { src: PHOTO, alt: "Camisetas estampadas" },
+          { src: PHOTO, alt: "Gorra bordada" },
         ],
         className: "h-[420px]",
       },

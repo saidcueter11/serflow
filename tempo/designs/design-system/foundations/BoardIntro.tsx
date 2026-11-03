@@ -2,7 +2,7 @@ import { Code, PageFrame, Stat } from "../Chrome";
 
 const PRINCIPLES = [
   ["Fondo oscuro y cálido", "bg-primary #17160f, superficies surface / surface-2. Nada de negro puro ni gris frío."],
-  ["Un solo acento", "El dorado del logo, text-accent #FFD700. Sin segundo color de marca: los estados (ok, danger) no compiten."],
+  ["Un solo acento", "Oro viejo, text-accent #C9A24A (PRI-286). Sin segundo color de marca: los estados (ok, danger) no compiten."],
   ["Textura sin peso", "La trama de tela es la utilidad fabric: dos repeating-linear-gradient, 0 KB de imagen."],
   ["Motion corto", "120 / 200 / 280 ms. En Cartagena mucha gente entra con mala señal: nada espera a una animación."],
   ["Mobile primero", "Se diseña a 375-430 px. Toques de 44 px mínimo, foco visible en dorado."],
