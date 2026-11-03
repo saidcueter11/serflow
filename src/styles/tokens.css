@@ -526,6 +526,38 @@ dialog.mx::backdrop { background: transparent; }
   .mx-velo, .mx-pieza, .mx-pista, .mx-franja { animation: none !important; }
 }
 
+/* ---------- Personalizador (/personaliza, PRI-122): frame "Personalizador" del canvas portada-final ---------- */
+
+/* Celular: título de página interior, prenda, vista previa fija arriba al bajar y los 3 pasos; la barra de Enviar
+   va fija abajo (fuera de main). */
+.pf-pz { display: grid; grid-template-columns: minmax(0, 1fr); }
+.pf-pz-titulo { padding: var(--pf-aire) var(--pf-m) var(--pf-tc); }
+/* El aire se mide hasta la mayúscula del título, como en las secciones de la portada. */
+.pf-pz-titulo > h1 { text-box: trim-start cap alphabetic; }
+.pf-pz-titulo > .pf-lead { margin-top: var(--pf-td); }
+.pf-pz-prenda { padding: 0 var(--pf-m) 12px; }
+.pf-pz-vista { position: sticky; top: 0; z-index: 20; padding: 8px var(--pf-m) 12px; background: var(--color-primary); }
+.pf-pz-pasos { display: flex; flex-direction: column; gap: 64px; padding: 28px var(--pf-m) 32px; }
+.pf-pz-envio { display: none; }
+/* Desde el ancho de escritorio del personalizador (896, el mismo de su JS): vista previa en 6 columnas con la prenda
+   arriba y el paso 3 con Enviar debajo; pasos 1 y 2 en 5 columnas desde la 8. Filas: título | prenda + paso 1 |
+   vista + paso 2 | paso 3 + paso 2 | Enviar + paso 2. La fila 3 es 1fr: la vista previa crece hasta que Enviar cierra
+   a ras del final del paso 2 (las dos columnas empiezan y terminan en el mismo borde). */
+@container pf (min-width: 56rem) {
+  .pf-pz { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto auto 1fr auto auto; column-gap: var(--pf-g); padding: 0 var(--pf-m) var(--pf-aire); }
+  .pf-pz-titulo { grid-column: 1 / -1; padding-inline: 0; }
+  .pf-pz-prenda { grid-column: 1 / span 6; grid-row: 2; align-self: start; padding: 0; }
+  /* 16 debajo de los chips de prenda (44 de alto). Nunca más baja que el recorte de antes (500). */
+  .pf-pz-vista { grid-column: 1 / span 6; grid-row: 2 / 4; position: static; margin-top: 60px; padding: 0; }
+  .pf-pz-vista > div { height: 100% !important; min-height: 500px; }
+  .pf-pz-pasos { display: contents; }
+  .pf-pz-pasos > section:nth-child(1) { grid-column: 8 / -1; grid-row: 2; }
+  .pf-pz-pasos > section:nth-child(2) { grid-column: 8 / -1; grid-row: 3 / 6; margin-top: 40px; }
+  /* El paso 3 y Enviar van debajo de la vista previa: se manda lo que se ve. En el DOM siguen después del paso 2. */
+  .pf-pz-pasos > section:nth-child(3) { grid-column: 1 / span 6; grid-row: 4; margin-top: 40px; }
+  .pf-pz-envio { display: block; grid-column: 1 / span 6; grid-row: 5; margin-top: 24px; }
+}
+
 /* Personalizador (PRI-122): hoja que sube, fundido de la foto, girador y brillo de carga. */
 @keyframes pz-spin { to { transform: rotate(360deg) } }
 @keyframes pz-shimmer { from { transform: translateX(-100%) } to { transform: translateX(100%) } }

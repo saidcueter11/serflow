@@ -100,7 +100,7 @@ export function VistaPrevia({
     return (
       <div
         role="status"
-        className="flex flex-col items-center justify-center gap-3 rounded-card border border-line bg-surface px-6 text-center font-body text-ink"
+        className="flex flex-col items-center justify-center gap-3 rounded-tile px-6 text-center font-body text-ink"
         style={alto ? { height: alto } : { aspectRatio: '4 / 5' }}
       >
         <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-surface-2 text-danger">
@@ -129,9 +129,10 @@ export function VistaPrevia({
     bottom: Math.max(area.bl[1], area.br[1]),
   }
   const poligono = area && [area.tl, area.tr, area.br, area.bl].map(([x, y]) => `${x * ESCENA.ancho},${y * ESCENA.alto}`).join(' ')
-  // Recorte centrado en el área de impresión, sin dejar franjas vacías arriba ni abajo.
+  // Recorte centrado en el área de impresión, sin dejar franjas vacías arriba ni abajo. En % del alto real: la página
+  // de escritorio estira la vista previa más allá de `alto`.
   const foco = bbox ? ((bbox.top + bbox.bottom) / 2) * 100 : 40
-  const top = alto ? `clamp(calc(${alto}px - 125cqw), calc(${alto / 2}px - ${foco * 1.25}cqw), 0px)` : '0'
+  const top = alto ? `clamp(calc(100% - 125cqw), calc(50% - ${foco * 1.25}cqw), 0px)` : '0'
 
   /** Px de pantalla por unidad del área. */
   const escalaArea = () => {
@@ -191,7 +192,7 @@ export function VistaPrevia({
 
   return (
     <div
-      className={`@container relative overflow-hidden bg-surface-2 font-body text-ink ${limpia ? 'h-full' : 'rounded-card border border-line'}`}
+      className={`@container relative overflow-hidden bg-surface-2 font-body text-ink ${limpia ? 'h-full' : 'rounded-tile'}`}
       style={alto ? { height: alto } : { aspectRatio: '4 / 5' }}
       onPointerDown={() => setSel(false)}
     >
@@ -238,7 +239,7 @@ export function VistaPrevia({
             style={{ left: pct(bbox.left), top: pct(bbox.top), width: pct(bbox.right - bbox.left), height: pct(bbox.bottom - bbox.top) }}
           >
             <input type="file" accept={ACEPTA} className="sr-only" onChange={elegir} />
-            <span className="flex size-11 items-center justify-center rounded-full bg-accent text-primary">
+            <span className="flex size-11 items-center justify-center rounded-full border border-line bg-surface-2 text-ink">
               <IconSubir className="size-5" />
             </span>
             <span className="flex flex-col rounded-tile bg-primary/85 px-3 py-1.5 text-ink">

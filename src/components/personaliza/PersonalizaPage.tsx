@@ -329,15 +329,15 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const archivoVista = leido && (sinVista ? { nombre: leido.archivo.name, nota: 'Sin vista previa: va en el chat' } : { nombre: leido.archivo.name })
 
   return (
-    <div className="@container bg-primary font-body text-ink" onPointerDownCapture={() => tratado && setTocado(true)}>
+    <div className="pf bg-primary font-body text-ink" onPointerDownCapture={() => tratado && setTocado(true)}>
       <form key={version} onChange={cambiar} onSubmit={(e) => e.preventDefault()} aria-label="Arma tu pedido">
-        <main className="grid grid-cols-[minmax(0,1fr)] @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] @4xl:grid-rows-[auto_auto_1fr] @4xl:gap-x-12 @4xl:px-12">
-          <div className="px-4 pb-4 pt-6 @4xl:col-span-2 @4xl:px-0 @4xl:pb-5 @4xl:pt-8">
-            <h1 className="font-display text-[32px] font-medium leading-[1.05] tracking-[-0.01em] @4xl:text-[48px]">Diseña tu prenda</h1>
-            <p className="mt-2 text-[16px] leading-relaxed text-muted @4xl:text-[18px]">Arma tu pedido y nos llega por WhatsApp.</p>
+        <main className="pf-v pf-pz">
+          <div className="pf-pz-titulo">
+            <h1 className="pf-display sf-entra">Diseña tu prenda</h1>
+            <p className="pf-lead">Arma tu pedido y nos llega por WhatsApp.</p>
           </div>
 
-          <fieldset className="px-4 pb-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:px-0">
+          <fieldset className="pf-pz-prenda">
             <legend className="sr-only">Prenda</legend>
             <div className="flex gap-2">
               <Chip label="Camiseta" name="prenda" value="camiseta" selected={prenda === 'camiseta'} />
@@ -345,7 +345,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             </div>
           </fieldset>
 
-          <div className="sticky top-0 z-20 bg-primary px-4 pb-3 pt-2 @4xl:top-6 @4xl:col-start-1 @4xl:row-start-3 @4xl:self-start @4xl:px-0 @4xl:pb-0 @4xl:pt-0">
+          <div className="pf-pz-vista">
             <VistaPrevia
               foto={foto}
               etiqueta={`${nombreColor}${ubicacion === 'Espalda' ? ', espalda' : ''}`}
@@ -372,7 +372,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             />
           </div>
 
-          <div className="flex flex-col gap-10 px-4 pb-8 pt-6 @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-2 @4xl:px-0 @4xl:pt-0">
+          <div className="pf-pz-pasos">
             <Paso n={1} titulo="Sube tu diseño o una foto">
               <CampoDiseno
                 estado={procesando ? 'procesando' : estado}
@@ -422,11 +422,11 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             </Paso>
 
             <Paso n={3} titulo="Mándanoslo por WhatsApp">
-              <p className="text-[15px] leading-relaxed text-muted">
+              <p className="text-[16px] leading-normal text-muted">
                 Antes de abrir WhatsApp te mostramos el mensaje armado{tratado ? ' y la vista previa para guardarla' : ''}. El taller te responde por el chat con el precio.
               </p>
             </Paso>
-            <div className="sticky bottom-0 -mt-4 hidden bg-primary pb-6 pt-2 shadow-[0_-24px_24px_var(--color-primary)] @4xl:block">
+            <div className="pf-pz-envio">
               <BarraEnvio resumen={resumen} fija={false} esperando={!!procesando} conVista={conVista} onEnviar={enviar} />
             </div>
           </div>

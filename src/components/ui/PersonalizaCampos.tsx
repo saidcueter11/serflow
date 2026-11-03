@@ -18,12 +18,12 @@ const FOCO = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visib
 /** Para <label> que envuelven un input oculto: el foco está en el input, el anillo se pinta en la etiqueta. */
 const FOCO_LABEL = 'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent'
 
-/** Encabezado de paso: el mismo círculo numerado de "Diseña la tuya" en la portada. */
+/** Encabezado de paso con la escala de tarjeta (22 / 18) y el número como en "Diseña la tuya" de la portada: gris, sin círculo. */
 export function Paso({ n, titulo, children }: { n: number; titulo: string; children?: ReactNode }) {
   return (
     <section aria-labelledby={`paso-${n}`} className="flex flex-col gap-4 font-body text-ink">
-      <h2 id={`paso-${n}`} className="flex items-center gap-3 font-display text-[20px] font-medium leading-tight">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-accent font-display text-[14px] text-accent">{n}</span>
+      <h2 id={`paso-${n}`} className="flex items-center gap-4 font-display text-[length:var(--pf-h3,18px)] font-medium leading-[1.25] tracking-[-0.01em]">
+        <span className="w-4 shrink-0 font-body text-[length:var(--pf-body,16px)] text-muted tabular-nums">{n}</span>
         {titulo}
       </h2>
       {children}
@@ -113,16 +113,16 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, e
           <label
             onDragOver={(e) => e.preventDefault()}
             onDrop={soltar}
-            className={`group flex cursor-pointer flex-col items-center gap-2 rounded-card border-2 border-dashed border-line bg-surface px-4 py-6 text-center transition-colors duration-(--motion-fast) hover:border-accent ${FOCO_LABEL}`}
+            className={`group grid cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-0.5 rounded-card border-2 border-dashed border-line p-4 text-left transition-colors duration-(--motion-fast) hover:border-accent ${FOCO_LABEL}`}
           >
             <Selector onArchivo={onArchivo} />
-            <span className="flex size-12 items-center justify-center rounded-full bg-accent text-primary">
+            <span className="row-span-2 flex size-12 items-center justify-center rounded-full border border-line bg-surface-2 text-ink shadow-[inset_0_0_0_1px_var(--color-accent)]">
               <IconSubir className="size-6" />
             </span>
             <span className="text-[16px] font-bold">{escritorio ? 'Arrastra tu imagen aquí o elígela' : 'Subir imagen'}</span>
             <span className="text-[14px] text-muted">{escritorio ? 'PNG, JPG, PDF, AI o PSD' : 'Desde tu galería o la cámara'}</span>
           </label>
-          <p className="-mt-1 text-[14px] leading-snug text-muted">Sube tu logo, un dibujo o una foto. Un PNG sin fondo se ve mejor.</p>
+          <p className="-mt-1 text-[16px] leading-normal text-muted">Sube tu logo, un dibujo o una foto. Un PNG sin fondo se ve mejor.</p>
         </>
       )}
 
@@ -175,7 +175,7 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, e
           No tengo diseño, quiero que me ayuden
         </label>
       )}
-      {ayuda && <p className="text-[14px] leading-snug text-muted">Listo: en el chat te ayudamos a armarlo. Cuéntanos tu idea en la nota de abajo.</p>}
+      {ayuda && <p className="text-[16px] leading-normal text-muted">Listo: en el chat te ayudamos a armarlo. Cuéntanos tu idea en la nota de abajo.</p>}
     </div>
   )
 }
@@ -254,7 +254,7 @@ export function Tecnicas({ opciones, elegida }: { opciones: Tecnica[]; elegida: 
         return (
           <label key={id} className="cursor-pointer">
             <input type="radio" name="tecnica" value={id} defaultChecked={id === elegida} className="peer sr-only" />
-            <span className="flex min-h-14 items-center gap-3 rounded-tile border border-line bg-surface p-2.5 transition-colors duration-(--motion-fast) peer-checked:border-accent peer-checked:bg-accent-soft peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
+            <span className="flex min-h-14 items-center gap-3 rounded-tile border border-line p-2.5 transition-colors duration-(--motion-fast) peer-checked:border-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
               <Muestra t={id} />
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="text-[15px] font-semibold">{t.nombre}</span>
@@ -295,12 +295,12 @@ export function Nota({ valor = '', onCambio }: { valor?: string; onCambio?: (not
 }
 
 /**
- * Envío. Celular: barra fija abajo (en /personaliza reemplaza al WhatsAppFab). Escritorio: tarjeta al final del panel.
+ * Envío. Celular: barra fija abajo (en /personaliza reemplaza al WhatsAppFab). Escritorio: sin caja, debajo de la vista previa.
  * Abre la hoja "Revisa y envía", no WhatsApp directo. Mientras se prepara la vista previa, espera (aria-busy).
  */
 export function BarraEnvio({ resumen, fija = true, esperando = false, conVista = true, onEnviar }: { resumen: string; fija?: boolean; esperando?: boolean; conVista?: boolean; onEnviar?: () => void }) {
   return (
-    <div className={`${fija ? 'sticky bottom-0 z-30 border-t border-line bg-primary px-4 pb-4 pt-3' : 'rounded-card border border-line bg-surface p-4'} flex flex-col gap-2 font-body text-ink`}>
+    <div className={`${fija ? 'sticky bottom-0 z-30 border-t border-line bg-primary px-4 pb-4 pt-3' : ''} flex flex-col gap-2 font-body text-ink`}>
       <p className="truncate text-[13px] text-muted">{resumen}</p>
       <div aria-busy={esperando || undefined}>
         <Button variant="whatsapp" fullWidth icon={esperando ? <Girador className="size-5" /> : undefined} onClick={esperando ? undefined : onEnviar}>

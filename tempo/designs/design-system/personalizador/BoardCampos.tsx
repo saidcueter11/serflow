@@ -38,7 +38,7 @@ export function BoardCampos() {
           </>
         }
       />
-      <Row name="Paso y Grupo" description="El círculo numerado de la portada y el fieldset con legend; valor muestra lo elegido.">
+      <Row name="Paso y Grupo" description="Número gris y título con la escala de tarjeta, como Diseña la tuya de la portada; el fieldset con legend: valor muestra lo elegido.">
         <div className="flex flex-wrap gap-8">
           <Celular label="Paso">
             <Paso n={2} titulo="Elige color y técnica">
@@ -87,7 +87,7 @@ export function BoardCampos() {
           </Celular>
         </div>
       </Row>
-      <Row name="BarraEnvio" description="Celular: barra fija abajo, reemplaza al WhatsAppFab. Escritorio: tarjeta al final del panel. Abre la hoja, no WhatsApp directo.">
+      <Row name="BarraEnvio" description="Celular: barra fija abajo, reemplaza al WhatsAppFab. Escritorio: sin caja, debajo de la vista previa. Abre la hoja, no WhatsApp directo.">
         <div className="flex flex-wrap gap-8">
           <Celular label="fija"><BarraEnvio resumen="Camiseta negra · Estampado · Pecho · 1 unidad" /></Celular>
           <Celular label="esperando"><BarraEnvio resumen="Camiseta negra · Estampado · Pecho · 1 unidad" esperando /></Celular>

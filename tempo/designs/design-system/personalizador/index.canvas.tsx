@@ -90,7 +90,7 @@ defineAsset(Tecnicas, {
 defineAsset(BarraEnvio, {
   libraries: ["Design System"],
   usageInstructions:
-    "Envío del personalizador: en celular barra fija abajo (en /personaliza reemplaza al WhatsAppFab), en escritorio tarjeta (fija=false). Abre la hoja Revisa y envía, no WhatsApp directo.",
+    "Envío del personalizador: en celular barra fija abajo (en /personaliza reemplaza al WhatsAppFab), en escritorio sin caja, debajo de la vista previa (fija=false). Abre la hoja Revisa y envía, no WhatsApp directo.",
   variants: {
     Fija: { props: { resumen: "Camiseta negra · Estampado · Pecho · 1 unidad" } },
     Esperando: { props: { resumen: "Camiseta negra · Estampado · Pecho · 1 unidad", esperando: true } },
@@ -100,7 +100,7 @@ defineAsset(BarraEnvio, {
 
 defineAsset(Paso, {
   libraries: ["Design System"],
-  usageInstructions: "Encabezado de paso numerado del personalizador (el mismo círculo de \"Diseña la tuya\" en la portada) con su contenido debajo.",
+  usageInstructions: "Encabezado de paso numerado del personalizador (número gris sin círculo, como \"Diseña la tuya\" en la portada) con su contenido debajo.",
   variants: {
     "Paso 1": { props: { n: 1, titulo: "Sube tu diseño o una foto" } },
   },
