@@ -130,9 +130,12 @@ export function VistaPrevia({
   }
   const poligono = area && [area.tl, area.tr, area.br, area.bl].map(([x, y]) => `${x * ESCENA.ancho},${y * ESCENA.alto}`).join(' ')
   // Recorte centrado en el área de impresión, sin dejar franjas vacías arriba ni abajo. En % del alto real: la página
-  // de escritorio estira la vista previa más allá de `alto`.
+  // de escritorio estira la vista previa más allá de `alto`; si la estira más que la escena (125cqw), la escena crece a
+  // lo alto y se recorta a los lados, centrada, en vez de dejar una franja vacía arriba.
   const foco = bbox ? ((bbox.top + bbox.bottom) / 2) * 100 : 40
-  const top = alto ? `clamp(calc(100% - 125cqw), calc(50% - ${foco * 1.25}cqw), 0px)` : '0'
+  const recorte = alto
+    ? { top: `clamp(min(0px, 100% - 125cqw), calc(50% - ${foco * 1.25}cqw), 0px)`, height: 'max(100%, 125cqw)' }
+    : { top: '0' }
 
   /** Px de pantalla por unidad del área. */
   const escalaArea = () => {
@@ -198,8 +201,8 @@ export function VistaPrevia({
     >
       <div
         ref={escena}
-        className={`absolute inset-x-0 aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' ? 'opacity-40 blur-[2px]' : ''}`}
-        style={{ top }}
+        className={`absolute ${alto ? 'left-1/2 -translate-x-1/2' : 'inset-x-0'} aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' ? 'opacity-40 blur-[2px]' : ''}`}
+        style={recorte}
       >
         <canvas
           ref={lienzo}
