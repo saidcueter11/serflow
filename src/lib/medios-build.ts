@@ -1,6 +1,6 @@
 // La parte de medios.ts que necesita a Astro: las fotos de la base pasan por la misma optimización que las del repo.
 import { getImage } from 'astro:assets'
-import { armarColores, vistasDe } from './personaliza/base'
+import { armarColores, recortarColores, vistasDe } from './personaliza/base'
 import type { ColorPrenda, Prenda } from './personaliza/datos'
 import { getGarmentColors, getSiteMedia, leerFotoRemota, type Lugar } from './medios'
 
@@ -34,7 +34,7 @@ export async function fotoDeLugar(slot: Lugar, opciones: FotoOpciones) {
 
 /** Colores de la base con sus fotos optimizadas. Prenda sin ningún color completo: lista vacía (usa la muestra). */
 export async function coloresDeBase(opciones: FotoOpciones): Promise<Record<Prenda, ColorPrenda[]>> {
-  const filas = await getGarmentColors()
+  const filas = recortarColores(await getGarmentColors())
   const pendientes = filas.flatMap((c) => c.garment_photos.filter((f) => vistasDe(c.garment).includes(f.view)).map((f) => f.image_url))
   const urls = new Map<string, string>()
   // De a 4: validar 38 fotos reales tarda 26 s de una en una y 10 s así, y decodificar pesa en memoria como para soltarlas todas.

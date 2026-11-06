@@ -63,6 +63,13 @@ describe('leerFotoRemota', () => {
     expect(pedir).not.toHaveBeenCalled()
   })
 
+  it('no sigue redirecciones ni espera para siempre: si la descarga falla, descarta', async () => {
+    const pedir = vi.fn().mockRejectedValue(new TypeError('fetch failed'))
+    vi.stubGlobal('fetch', pedir)
+    expect(await leerFotoRemota(url())).toBeNull()
+    expect(pedir.mock.calls[0][1]).toEqual({ redirect: 'error', signal: expect.any(AbortSignal) })
+  })
+
   it('descarta lo que pasa de 5 MB y lo que pasa del tope de píxeles', async () => {
     servir(Buffer.alloc(5 * 1024 * 1024 + 1))
     expect(await leerFotoRemota(url())).toBeNull()

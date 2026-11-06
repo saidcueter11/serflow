@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_COLORES, POR_DEFECTO, armarColores, type FilaColor, type FilaFoto } from './base'
+import { MAX_COLORES, POR_DEFECTO, armarColores, recortarColores, type FilaColor, type FilaFoto } from './base'
 
 const foto = (view: FilaFoto['view'], image_url: string, over: Partial<FilaFoto> = {}): FilaFoto => ({ view, image_url, print_area: null, print_width_cm: null, ...over })
 const camiseta = (id: string, garment_photos: FilaFoto[]): FilaColor => ({ id, garment: 'camiseta', name: id, hex: '#000000', garment_photos })
@@ -47,8 +47,24 @@ describe('armarColores', () => {
     expect(lista[1].photos[1].print_area).toEqual(POR_DEFECTO.camiseta.espalda!.print_area)
   })
 
-  it(`no pasa de ${MAX_COLORES} colores por prenda`, () => {
-    const filas = Array.from({ length: MAX_COLORES + 3 }, (_, i) => camiseta(`c${i}`, [foto('frente', 'a'), foto('espalda', 'b')]))
-    expect(armarColores(filas, urls('a', 'b')).camiseta).toHaveLength(MAX_COLORES)
+})
+
+describe('recortarColores', () => {
+  const completa = (id: string) => camiseta(id, [foto('frente', 'a'), foto('espalda', 'b')])
+
+  it(`deja ${MAX_COLORES} colores por prenda, los primeros, antes de bajar ninguna foto`, () => {
+    const filas = Array.from({ length: MAX_COLORES + 3 }, (_, i) => completa(`c${i}`))
+    expect(recortarColores(filas)).toEqual(filas.slice(0, MAX_COLORES))
+  })
+
+  it('un color sin fila para todas sus vistas no ocupa cupo', () => {
+    const filas = [camiseta('sin-espalda', [foto('frente', 'a')]), ...Array.from({ length: MAX_COLORES }, (_, i) => completa(`c${i}`))]
+    expect(recortarColores(filas)).toEqual(filas.slice(1))
+  })
+
+  it('cada prenda tiene su propio cupo', () => {
+    const gorra: FilaColor = { id: 'g', garment: 'gorra', name: 'g', hex: '#000000', garment_photos: [foto('frente', 'a')] }
+    const camisetas = Array.from({ length: MAX_COLORES }, (_, i) => completa(`c${i}`))
+    expect(recortarColores([...camisetas, gorra])).toEqual([...camisetas, gorra])
   })
 })

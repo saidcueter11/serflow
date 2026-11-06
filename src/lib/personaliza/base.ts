@@ -39,6 +39,15 @@ export const POR_DEFECTO: Record<Prenda, Partial<Record<Vista, Pick<FotoColor, '
 /** Las vistas que usa la prenda: una foto de otra vista no se procesa. */
 export const vistasDe = (prenda: Prenda): Vista[] => PRENDAS[prenda].ubicaciones.map((u) => u.vista)
 
+/**
+ * Las filas que vale la pena procesar, antes de bajar ninguna foto: las primeras MAX_COLORES de cada prenda. Un color sin
+ * fila para todas sus vistas no ocupa cupo. Uno cuya foto resulte mala sí: su cupo queda vacío y no entra el siguiente.
+ */
+export function recortarColores(filas: FilaColor[]): FilaColor[] {
+  const usados: Record<Prenda, number> = { camiseta: 0, gorra: 0 }
+  return filas.filter(({ garment, garment_photos }) => vistasDe(garment).every((v) => garment_photos.some((f) => f.view === v)) && usados[garment]++ < MAX_COLORES)
+}
+
 const esPunto = (p: unknown) => Array.isArray(p) && p.length === 2 && p.every((n) => typeof n === 'number' && n >= 0 && n <= 1)
 
 /** La columna solo revisa las 4 llaves. Un área torcida o de ancho o alto cero rompería las cuentas del motor. */
@@ -70,7 +79,7 @@ export function armarColores(filas: FilaColor[], urls: Map<string, string>): Rec
       })
     }
     const armado = { ...color, photos }
-    if (colorCompleto(armado) && colores[color.garment].length < MAX_COLORES) colores[color.garment].push(armado)
+    if (colorCompleto(armado)) colores[color.garment].push(armado)
   }
   return colores
 }

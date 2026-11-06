@@ -37,7 +37,8 @@ async function medir(url: string): Promise<{ width: number; height: number } | n
   }
   if (!esUrlPermitida(url)) return descartar('host no permitido')
   try {
-    const res = await fetch(url)
+    // Sin redirecciones: la URL ya pasó esUrlPermitida y no puede llevar el build a otro host. Con tope: nunca lo cuelga.
+    const res = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(20_000) })
     if (!res.ok) return descartar(`HTTP ${res.status}`)
     const tipo = res.headers.get('content-type')?.split(';')[0] ?? ''
     if (!LIMITES.tipos.includes(tipo)) return descartar(`tipo ${tipo}`)
