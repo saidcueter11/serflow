@@ -1,8 +1,5 @@
-// tempo:styles:start
-import "../src/styles/global.css";
-import "./globals.css";
-// tempo:styles:end
 import { createRoot } from "react-dom/client";
+import "./globals.css";
 import TempoHost from "./.tempo/tempo-host";
 
 // This is the Tempo canvas dev server ("tempo-host"). It exists only to render

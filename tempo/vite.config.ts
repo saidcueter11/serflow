@@ -1,5 +1,3 @@
-import { createRequire as tempoStylesRequire } from "node:module";
-const tempoHostStyles = tempoStylesRequire(import.meta.url)("./.tempo-styles/host-styles.cjs");
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
@@ -16,7 +14,7 @@ export default defineConfig({
   resolve: {
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "tempo-sdk"],
   },
-  plugins: [tempoHostStyles.vite(), 
+  plugins: [
     tailwindcss(),
     tempoVitePlugin({ sourceIdentityRoot: projectRoot }),
     react(),
