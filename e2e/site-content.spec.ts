@@ -134,6 +134,8 @@ test.describe('contenido editado', () => {
     await page.goto('/')
     await expect(page.locator('#que-hacemos-titulo')).toHaveText('<img src=x onerror="window.__xss=1">Hola & <b>chao</b>')
     await expect(page.locator('#que-hacemos-titulo img, #que-hacemos-titulo b')).toHaveCount(0)
+    // Con una palabra muy larga, el título se parte en vez de salirse de la pantalla.
+    expect(await page.locator('#que-hacemos-titulo').evaluate((h) => h.scrollWidth <= h.clientWidth)).toBe(true)
     expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined()
     // Una dirección con </script> no cierra el JSON-LD: se sigue leyendo como JSON y dice lo mismo.
     expect((await jsonLdDe(page)).address.streetAddress).toBe('Calle de prueba 1 </script><script>window.__xss=1</script>')
@@ -212,7 +214,7 @@ test.describe('contenido editado', () => {
       const cajas = (await rejilla.locator('> *').evaluateAll((els) =>
         els.map((e) => {
           const r = e.getBoundingClientRect()
-          return { x: r.x, y: r.y, derecha: r.right, ancho: r.width }
+          return { x: r.x, y: r.y, abajo: r.bottom, derecha: r.right, ancho: r.width }
         }),
       ))
       const contenedor = (await rejilla.boundingBox())!
@@ -226,6 +228,8 @@ test.describe('contenido editado', () => {
       let i = 0
       for (const cuantas of filas) {
         const fila = cajas.slice(i, i + cuantas)
+        // Aire entre filas: el texto de una tarjeta no queda pegado a la foto de la siguiente.
+        if (i > 0) expect(fila[0].y - cajas[i - 1].abajo).toBeGreaterThanOrEqual(24)
         i += cuantas
         expect(new Set(fila.map((c) => Math.round(c.y))).size).toBe(1)
         // Cada fila va de borde a borde de la rejilla, sin huecos.

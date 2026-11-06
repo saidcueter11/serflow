@@ -230,6 +230,8 @@ a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fa
  * lo miden) y .pf-v toma la escala de desktop desde 48rem.
  */
 .pf {
+  /* El texto lo escribe el cliente (PRI-413): una palabra larguísima se parte en vez de desbordar la página. */
+  overflow-wrap: break-word;
   container: pf / inline-size;
   /* Rejilla: margen lateral y calle. */
   --pf-m: 16px;
@@ -345,7 +347,7 @@ a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fa
 /* Disponible ahora: 2 x 2 en el celular, 4 de 3 columnas en desktop. */
 .pf-prendas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px var(--pf-g); }
 @container pf (min-width: 48rem) {
-  .pf-servicios { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--pf-g); }
+  .pf-servicios { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--pf-tc) var(--pf-g); }
   .pf-servicios > * { grid-column: span 4; }
   .pf-servicios:has(> :nth-child(4):last-child) > * { grid-column: span 3; }
   .pf-servicios:has(> :nth-child(2):last-child) > *,
