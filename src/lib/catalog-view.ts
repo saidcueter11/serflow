@@ -3,10 +3,11 @@ import type { BannerSlide } from '../components/ui/CategoryBanner'
 import type { CategoryLink } from '../components/ui/CategoryNav'
 import type { MasonryTile } from '../components/ui/Masonry'
 import { TODO_HREF, fotoAlt, fotoHref, fotoTitulo, interleave, newestFirst, pageHref, pages, pedirUrl } from './catalog'
+import { fotoDeLugar } from './medios-build'
 import { getCategories, getProducts } from './products'
 import type { Product } from './types'
-// Portada de "Todo" en el banner: foto de Unsplash (gorras en un estante, horizontal: aguanta el recorte ancho del
-// banner) hasta que lleguen las reales (PRI-150).
+// Portada de "Todo" en el banner: la que publique el admin (lugar catalogo-todo, PRI-150) o esta foto de Unsplash
+// (gorras en un estante, horizontal: aguanta el recorte ancho del banner).
 import todoCover from '../assets/images/stock/gorras-estante.jpg'
 
 /** Una foto del catálogo lista para pintar: la del muro (con los datos del modal) y la imagen para WhatsApp (og). */
@@ -102,11 +103,16 @@ export type CatalogPageProps = {
   next?: { href: string; count: number }
 }
 
+async function portadaDelRepo() {
+  const img = await getImage({ src: todoCover, widths: [640, 960, 1280], ...opt })
+  return { src: img.src, srcSet: img.srcSet.attribute }
+}
+
 async function buildPages() {
   const { groups, todo } = await loadCatalog()
-  const cover = await getImage({ src: todoCover, widths: [640, 960, 1280], ...opt })
+  const cover = (await fotoDeLugar('catalogo-todo', { width: 1280, widths: [640, 960, 1280], quality: opt.quality })) ?? (await portadaDelRepo())
   const views = [
-    { slug: '', label: 'Todo', href: TODO_HREF, cover: { src: cover.src, srcSet: cover.srcSet.attribute }, items: todo },
+    { slug: '', label: 'Todo', href: TODO_HREF, cover: { src: cover.src, srcSet: cover.srcSet }, items: todo },
     ...groups,
   ]
   const slides = views.map((v) => ({ label: v.label, image: v.cover }))

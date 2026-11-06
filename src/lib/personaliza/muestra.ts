@@ -1,6 +1,6 @@
 /*
  * Colores y fotos de MUESTRA del personalizador, con la forma de garment_colors + garment_photos (spec 6.7).
- * Se borra cuando el sitio lea los datos reales de Supabase (PR 4, después de PRI-125 y del admin).
+ * Es el respaldo: lo usa la prenda sin ningún color completo publicado desde el admin (src/lib/personaliza/base.ts).
  *
  * FOTOS DE MUESTRA, NO DEL TALLER (las reemplazan las oficiales de PRI-125):
  * - Camisetas: un recorte sin cara de src/assets/images/stock/amigos-gorras.jpg, teñido a cada color; la "espalda" es

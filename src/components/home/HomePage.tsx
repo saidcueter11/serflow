@@ -22,7 +22,7 @@ export interface HomeImages {
   estampado: string
   dtf: string
   bordado: string
-  personalizador: string
+  personalizador: { src: string; srcSet?: string; alt: string }
 }
 
 const RAZONES = [
@@ -58,7 +58,16 @@ export function HomePage({
   ]
   const foto = (
     <div className="pf-pz-foto sf-foto">
-      <img src={images.personalizador} alt="Gorras personalizadas en un estante del taller" width={1200} height={900} loading="lazy" decoding="async" />
+      <img
+        src={images.personalizador.src}
+        srcSet={images.personalizador.srcSet}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        alt={images.personalizador.alt}
+        width={1200}
+        height={900}
+        loading="lazy"
+        decoding="async"
+      />
     </div>
   )
 

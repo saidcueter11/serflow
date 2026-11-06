@@ -41,7 +41,7 @@ export const HOME_SLIDES: Slide[] = [
   { src: gorraBordada, alt: "Gorra blanca con bordado rojo", position: "50% 40%" },
   { src: amigosGorras, alt: "Dos amigos con gorras personalizadas riéndose", position: "50% 30%" },
 ];
-export const HOME_IMAGES: HomeImages = { estampado: estampadoRasero, dtf: camisetaDtf, bordado: gorraBordada2, personalizador: gorrasEstante };
+export const HOME_IMAGES: HomeImages = { estampado: estampadoRasero, dtf: camisetaDtf, bordado: gorraBordada2, personalizador: { src: gorrasEstante, alt: 'Gorras personalizadas en un estante del taller' } };
 export const PROMOS_SAMPLE: PromoLink[] = [
   { title: "2x1 en gorras bordadas este fin de semana", href: "/promos/2x1-gorras" },
   { title: "10% en camisetas para equipos de fútbol", href: "/promos/equipos" },

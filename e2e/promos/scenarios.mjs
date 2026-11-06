@@ -51,10 +51,29 @@ const vacia = {
   updated_at: '2026-10-01T00:00:00Z',
 }
 
+// PRI-150: lo que el admin publica, con fotos que sirven y fotos que no. Las buenas son fotos de productos reales.
+const medios = (p, base) => {
+  const rota = `${base}/storage/v1/object/public/site-media/e2e-no-existe.jpg`
+  const color = (id, name, garment_photos) => ({ id, garment: 'camiseta', name, hex: '#2f7d4f', garment_photos })
+  const foto = (view, image_url) => ({ view, image_url, print_area: null, print_width_cm: null })
+  return {
+    site_media: [
+      { slot: 'personalizador', image_url: p[0], alt: 'Foto de prueba del bloque' },
+      { slot: 'catalogo-todo', image_url: rota, alt: 'Foto que no existe' },
+    ],
+    garment_colors: [
+      color('e2e-verde', 'Verde', [foto('frente', p[1]), foto('espalda', p[2])]),
+      color('e2e-sin-espalda', 'Sin espalda', [foto('frente', p[3])]),
+      color('e2e-foto-rota', 'Foto rota', [foto('frente', p[1]), foto('espalda', rota)]),
+    ],
+  }
+}
+
 export const SCENARIOS = [
   // 0 vigentes: solo una vencida, que no debe salir. Y una categoría recién creada, sin fotos (PRI-130).
   { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia] },
   { outDir: '.e2e-builds/promos-1', port: 4233, promos: (p, now) => [gorras(p, now)] },
   // Desordenadas a propósito: el sitio las ordena por sort_order.
   { outDir: '.e2e-builds/promos-3', port: 4234, promos: (p, now) => [ninos(p), vencida(now), equipos(p), gorras(p, now)] },
+  { outDir: '.e2e-builds/medios', port: 4235, promos: () => [], medios },
 ]

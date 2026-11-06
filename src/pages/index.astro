@@ -7,6 +7,7 @@ import type { Slide } from '../components/ui/HeroCarousel'
 import { getActivePromos, getCategories, getProducts } from '../lib/products'
 import { loadCatalog } from '../lib/catalog-view'
 import { PhotoModal } from '../components/ui/PhotoModal'
+import { fotoDeLugar } from '../lib/medios-build'
 import { ADDRESS, EMAIL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL } from '../lib/business'
 // Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
 // pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
@@ -44,12 +45,20 @@ const homeProducts: HomeProduct[] = await Promise.all(
     }),
 )
 
-const [estampado, dtf, bordado, personalizador] = await Promise.all([
+const [estampado, dtf, bordado] = await Promise.all([
   getImage({ src: estampadoRasero, width: 640, format: 'webp', quality: 75 }),
   getImage({ src: camisetaDtf, width: 640, format: 'webp', quality: 75 }),
   getImage({ src: gorraBordada2, width: 640, format: 'webp', quality: 75 }),
-  getImage({ src: gorrasEstante, width: 1200, format: 'webp', quality: 75 }),
 ])
+
+// Bloque "Diseña la tuya": la foto que publica el admin (PRI-150) o la del repo.
+const fotoBloque = { width: 1200, widths: [640, 1200], quality: 75 }
+const personalizador = (await fotoDeLugar('personalizador', fotoBloque)) ?? (await fotoDelRepo())
+
+async function fotoDelRepo() {
+  const img = await getImage({ src: gorrasEstante, format: 'webp', ...fotoBloque })
+  return { src: img.src, srcSet: img.srcSet.attribute, alt: 'Gorras personalizadas en un estante del taller' }
+}
 
 // Carrusel del hero: 4 fotos del resultado. Si hay promo activa, su banner entra primero y sale la última foto.
 const HERO = [
@@ -115,7 +124,7 @@ const localBusinessSchema = {
   <HomePage
     slides={heroSlides}
     products={homeProducts}
-    images={{ estampado: estampado.src, dtf: dtf.src, bordado: bordado.src, personalizador: personalizador.src }}
+    images={{ estampado: estampado.src, dtf: dtf.src, bordado: bordado.src, personalizador }}
     catalogHref={catalogHref}
   />
   <PhotoModal />
