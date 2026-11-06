@@ -7,7 +7,11 @@
  * carga no: esas fotos se pintan de una.
  * Navegar: el atributo data-navegando prende la barra de carga (.sf-nav-barra, global.css) y el menú del celular se
  * cierra, porque el header es el mismo elemento en todas las páginas.
+ * Importa del router para que Astro lo publique como archivo y no inline: la CSP de PRI-152 solo deja scripts inline por
+ * hash (e2e/motion.spec.ts lo vigila). Por lo mismo, slow-connection se conserva aquí y no en el script inline del Layout.
  */
+import { TRANSITION_AFTER_PREPARATION, TRANSITION_AFTER_SWAP, TRANSITION_BEFORE_PREPARATION, TRANSITION_BEFORE_SWAP, type TransitionBeforeSwapEvent } from 'astro:transitions/client'
+
 const SECCIONES = [
   '.pf-head',
   '.pf-accion-pie',
@@ -69,11 +73,15 @@ function armar(navego: boolean) {
 }
 
 armar(false)
-document.addEventListener('astro:after-swap', () => {
+
+const raiz = document.documentElement
+document.addEventListener(TRANSITION_BEFORE_PREPARATION, () => raiz.setAttribute('data-navegando', ''))
+document.addEventListener(TRANSITION_AFTER_PREPARATION, () => raiz.removeAttribute('data-navegando'))
+// El router copia los atributos de <html> de la página nueva: la conexión lenta se mide una sola vez.
+document.addEventListener(TRANSITION_BEFORE_SWAP, (ev) => {
+  (ev as TransitionBeforeSwapEvent).newDocument.documentElement.classList.toggle('slow-connection', raiz.classList.contains('slow-connection'))
+})
+document.addEventListener(TRANSITION_AFTER_SWAP, () => {
   document.querySelector('header details')?.removeAttribute('open')
   armar(true)
 })
-
-const raiz = document.documentElement
-document.addEventListener('astro:before-preparation', () => raiz.setAttribute('data-navegando', ''))
-document.addEventListener('astro:after-preparation', () => raiz.removeAttribute('data-navegando'))

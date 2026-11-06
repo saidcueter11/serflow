@@ -76,8 +76,6 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
         }
         update();
         c.addEventListener('change', update);
-        // El router reemplaza los atributos de <html> al navegar.
-        document.addEventListener('astro:after-swap', update);
       })();
     </script>
   </head>

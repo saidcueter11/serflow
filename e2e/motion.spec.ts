@@ -220,6 +220,13 @@ test('reduced motion: everything is visible right away and navigation does not a
   await expect.poll(() => page.evaluate(() => (window as unknown as { animadas?: number }).animadas)).toBe(0)
 })
 
+test('the motion script stays an external file: the CSP (PRI-152) only allows inline scripts by hash', async ({ page }) => {
+  for (const path of ['/', '/products']) {
+    await page.goto(path)
+    await expect(page.locator('script[type="module"]:not([src])')).toHaveCount(0)
+  }
+})
+
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
