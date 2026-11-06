@@ -1,4 +1,4 @@
-import { ESCENA, type Area, type Punto } from './datos'
+import { ESCENA, PRENDAS, type Area, type Prenda, type Punto, type Tecnica } from './datos'
 
 /** Posición del diseño dentro del área: centro (0 a 1) y ancho como fracción del ancho del área. */
 export interface Lugar {
@@ -24,6 +24,12 @@ export function enArea(a: Area, u: number, v: number): Punto {
   return [tx + (bx - tx) * v, ty + (by - ty) * v]
 }
 
+/** La escala que da el tope de bordado de la prenda; sin tope, S_MAX. anchoCm = ancho real del área. */
+export function escalaMax(prenda: Prenda, tecnica: Tecnica, anchoCm: number): number {
+  const tope = tecnica === 'bordado' ? PRENDAS[prenda].bordadoMaxCm : undefined
+  return tope ? Math.min(S_MAX, tope / anchoCm) : S_MAX
+}
+
 /** Ancho y alto medios del área en px de la escena. */
 export function medidasArea(a: Area): { ancho: number; alto: number } {
   const d = (p: Punto, q: Punto) => Math.hypot((q[0] - p[0]) * ESCENA.ancho, (q[1] - p[1]) * ESCENA.alto)
@@ -39,10 +45,11 @@ export function aspectoArea(a: Area): number {
 /**
  * La caja del diseño nunca sale del área (spec 6.3). Escala entre S_MIN y S_MAX del ancho; si a ese ancho el diseño
  * es más alto que el área, se reduce hasta caber. ratio = ancho / alto del diseño; aspecto = ancho / alto del área.
+ * max = la escala máxima para esta prenda y técnica (escalaMax).
  */
-export function limitar(l: Lugar, ratio: number, aspecto: number): Lugar {
+export function limitar(l: Lugar, ratio: number, aspecto: number, max = S_MAX): Lugar {
   const cabe = ratio / aspecto
-  const s = Math.min(clamp(l.s, S_MIN, S_MAX), cabe)
+  const s = Math.min(clamp(l.s, S_MIN, max), cabe)
   const h = (s * aspecto) / ratio
   return { s, cx: clamp(l.cx, s / 2, 1 - s / 2), cy: clamp(l.cy, h / 2, 1 - h / 2) }
 }

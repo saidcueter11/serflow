@@ -29,6 +29,5 @@ export default defineConfig({
     port: 4231,
   },
 
-  // /personaliza queda fuera del sitemap mientras sale con fotos de muestra (PRI-122, se enciende con PRI-125).
-  integrations: [react(), sitemap({ filter: (page) => !page.includes('/personaliza') })]
+  integrations: [react(), sitemap()]
 });

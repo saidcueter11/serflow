@@ -48,8 +48,9 @@ export interface Ubicacion {
   vista: Vista
 }
 
-export const PRENDAS: Record<Prenda, { nombre: string; tecnicas: Tecnica[]; ubicaciones: Ubicacion[]; curva: number }> = {
+export const PRENDAS: Record<Prenda, { nombre: string; tecnicas: Tecnica[]; ubicaciones: Ubicacion[]; curva: number; bordadoMaxCm?: number }> = {
   // curva: cuánto se envuelve el diseño como en un cilindro (cuerpo < copa de la gorra). Fijo en código.
+  // bordadoMaxCm: en camiseta se borda solo lo pequeño, un logo o un nombre (Said, PRI-122).
   camiseta: {
     nombre: 'Camiseta',
     tecnicas: ['estampado', 'dtf', 'bordado'],
@@ -58,8 +59,9 @@ export const PRENDAS: Record<Prenda, { nombre: string; tecnicas: Tecnica[]; ubic
       { nombre: 'Espalda', vista: 'espalda' },
     ],
     curva: 0.35,
+    bordadoMaxCm: 10,
   },
-  gorra: { nombre: 'Gorra', tecnicas: ['bordado'], ubicaciones: [{ nombre: 'Frente', vista: 'frente' }], curva: 0.9 },
+  gorra: { nombre: 'Gorra', tecnicas: ['bordado', 'estampado'], ubicaciones: [{ nombre: 'Frente', vista: 'frente' }], curva: 0.9 },
 }
 
 export const CANTIDADES: Cantidad[] = ['1', '2 a 5', '6 a 20', 'Más de 20']

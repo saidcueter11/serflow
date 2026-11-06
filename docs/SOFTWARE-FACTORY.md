@@ -15,7 +15,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 
 ### Git y PRs
 - Rama base: `master`. Ramas: `<feat|fix|docs|chore>/<ID>-<slug>` desde `origin/master`.
-- Un PR por cambio, contra `master`. Si el cambio necesita SQL nuevo o un cambio en serflow-admin, el cuerpo del PR lo dice arriba de todo.
+- Un PR por cambio, contra `master`. Si el cambio trae una migración nueva o necesita un cambio en serflow-admin, el cuerpo del PR lo dice arriba de todo.
 - Commits y título del PR en inglés, conventional commits (`feat:`, `fix:`, `chore:`, `docs:`). El ID del issue va en el título. Cuerpo del PR en español o inglés, con qué cambió, cómo se probó y el link del deploy preview de Netlify.
 - Solo Said mergea. Ningún agente mergea ni hace push a `master`.
 
@@ -24,9 +24,10 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
   - `npm run check` (astro check, typecheck)
   - `npm test` (Vitest, specs `src/**/*.test.ts`)
   - `npm run build && npm run e2e` (Playwright contra `astro preview` en http://localhost:4231). El build necesita `.env` con `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY` (ver `.env.example`); el build tarda ~2 min por el procesamiento de imágenes.
-- CI (GitHub Actions), ambos son gate para mergear:
+- CI (GitHub Actions), `ci` y `e2e` son gate para mergear:
   - `.github/workflows/ci.yml`, job `ci`: `npm run check` + `npm test`. Corre en PR y en push a `master`.
   - `.github/workflows/e2e.yml`, job `e2e`: build + `npm run e2e`. Corre en PR. Reporte en el artifact `playwright-report`.
+  - `.github/workflows/supabase-migrations.yml`: job `dry-run` en PRs que tocan `supabase/` (lista las migraciones que se aplicarían en prod, con un rol de solo lectura; no corre en PRs de forks) y job `apply` en push a `master` (`supabase db push`, environment `production`).
 - Netlify también publica un deploy preview por PR (`deploy-preview-<N>--serflowctg.netlify.app`); úsalo para capturas y QA visual.
 - E2E: Playwright, specs en `e2e/`, proyectos `desktop` (Desktop Chrome) y `mobile` (Pixel 7). Sin auth (sitio público). Sin mocks: leen la Supabase real a través del build. Rojo antes / verde después: correr el spec nuevo local contra `master` (rojo) y contra la rama (verde), y pegar ambos resultados en el PR.
 - No usar `waitForTimeout`; esperar con `expect(...)` sobre elementos o URL. CI reintenta 2 veces; un test que pasa en reintento se reporta como flaky en el PR.
@@ -35,7 +36,9 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 
 ### Datos y prod
 - Una sola base: Supabase de prod. El sitio, los deploy previews, CI y el dev local leen la misma base con la anon key, solo lectura (RLS).
-- SQL en `supabase/NN_<nombre>.sql` (`01_phase1_schema.sql`, `02_promos.sql`). No hay CLI de migraciones: Said los corre a mano en el SQL editor de Supabase. Los agentes escriben el archivo nuevo (siguiente número), idempotente (`if not exists`, `drop policy if exists`) y aditivo (sin borrar ni renombrar columnas que el sitio o serflow-admin usen), y nunca lo ejecutan.
+- Todo SQL nuevo va en `supabase/migrations/<YYYYMMDDHHMMSS>_<nombre>.sql` (Supabase CLI; hora UTC, posterior a la última migración), nunca suelto en `supabase/` ni en el SQL editor. Idempotente (`if not exists`, `drop policy if exists`) y aditivo (sin borrar ni renombrar columnas que el sitio o serflow-admin usen).
+- Las migraciones se aplican solas al mergear a `master` (`supabase-migrations.yml`). Los agentes escriben el archivo y revisan el dry-run del PR, pero nunca corren `supabase db push`, `link` ni `migration repair` contra prod. Una migración ya mergeada no se edita: se corrige con una nueva. Todo PR con migración es zona sensible y pasa por Seguridad.
+- Fuente única de migraciones para la base compartida con serflow-admin: si serflow-admin necesita un cambio de esquema, la migración se escribe en este repo.
 - Nunca correr `npm run phase1:seed` (`scripts/seed-supabase.mjs`): escribe en prod con la service-role key.
 - Datos de prueba: no hay; los E2E usan el catálogo real y no deben depender de un producto específico (navegar por links, no por slugs fijos).
 - Convenciones: solo se muestra lo que tiene `is_active = true`; orden por `sort_order`; las URLs usan `slug` (`/products/<categoría>/<producto>`, `/promos/<slug>`); `products.price` existe (nullable) pero el sitio no muestra precios hoy.
@@ -43,9 +46,12 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 ### Secretos
 - Nunca imprimir ni commitear `SUPABASE_SERVICE_ROLE_KEY` (solo existe para el seed; no está en CI ni Netlify como variable del sitio).
 - `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY` son públicas por diseño (van en el bundle); viven en Netlify y como secrets del repo para `e2e.yml`. `.env` está en `.gitignore`.
+- `supabase-migrations.yml` usa dos secrets, nunca se imprimen ni se usan en otro workflow ni con `pull_request_target`:
+  - `SUPABASE_DB_URL` (rol `postgres`, escritura total sobre prod): solo en el environment `production`, limitado a `master`; nunca como secret del repo.
+  - `SUPABASE_DB_URL_RO` (rol `migrations_ro`, solo lee el historial de migraciones): secret del repo para el dry-run de los PRs.
 
 ### Zonas sensibles (disparan revisión de Seguridad)
-- `supabase/**`, `scripts/**`, `src/lib/supabase.ts`, `.github/workflows/**`, `netlify.toml`, `astro.config.mjs`, `package.json` (dependencias nuevas), y cualquier `set:html` o construcción de URLs con texto del usuario (`src/components/ContactForm.astro`, `src/components/ProductPreview.astro`).
+- `supabase/**` (en especial `supabase/migrations/**`), `scripts/**`, `src/lib/supabase.ts`, `.github/workflows/**`, `netlify.toml`, `astro.config.mjs`, `package.json` (dependencias nuevas), y cualquier `set:html` o construcción de URLs con texto del usuario (`src/components/ContactForm.astro`, `src/components/ProductPreview.astro`).
 - Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y los buckets públicos de imágenes; escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
 
 ### Diseño

@@ -54,8 +54,7 @@ export const PROMOS_SAMPLE: PromoLink[] = [
 export const TITO = { ...TITO_SALUDO, hevc: undefined };
 
 export const CATALOG_HREF = "/products/mi-tierra-querida";
-// ponytail: la ruta del personalizador todavía no existe en src/pages.
-export const PERSONALIZER_HREF = "/personalizador";
+export const PERSONALIZER_HREF = "/personaliza";
 
 export const SERVICES = [
   { title: "Estampado", description: "Mate, toma la textura de la tela. Ideal para camisetas.", src: capLogo },
