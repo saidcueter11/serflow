@@ -17,6 +17,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - Rama base: `master`. Ramas: `<feat|fix|docs|chore>/<ID>-<slug>` desde `origin/master`.
 - Un PR por cambio, contra `master`. Si el cambio necesita SQL nuevo o un cambio en serflow-admin, el cuerpo del PR lo dice arriba de todo.
 - Commits y título del PR en inglés, conventional commits (`feat:`, `fix:`, `chore:`, `docs:`). El ID del issue va en el título. Cuerpo del PR en español o inglés, con qué cambió, cómo se probó y el link del deploy preview de Netlify.
+- Todo PR que no esté listo para mergear va como draft (`gh pr create --draft`). `gh pr ready` solo con todo verde en el head y las revisiones al día.
 - Solo Said mergea. Ningún agente mergea ni hace push a `master`.
 
 ### Verificación
@@ -38,7 +39,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - SQL en `supabase/NN_<nombre>.sql` (`01_phase1_schema.sql`, `02_promos.sql`). No hay CLI de migraciones: Said los corre a mano en el SQL editor de Supabase. Los agentes escriben el archivo nuevo (siguiente número), idempotente (`if not exists`, `drop policy if exists`) y aditivo (sin borrar ni renombrar columnas que el sitio o serflow-admin usen), y nunca lo ejecutan.
 - Nunca correr `npm run phase1:seed` (`scripts/seed-supabase.mjs`): escribe en prod con la service-role key.
 - Datos de prueba: no hay; los E2E usan el catálogo real y no deben depender de un producto específico (navegar por links, no por slugs fijos).
-- Convenciones: solo se muestra lo que tiene `is_active = true`; orden por `sort_order`; las URLs usan `slug` (`/products/<categoría>/<producto>`, `/promos/<slug>`); `products.price` existe (nullable) pero el sitio no muestra precios hoy.
+- Convenciones: solo se muestra lo que tiene `is_active = true`; orden por `sort_order`; las URLs usan `slug` (`/products/<categoría>`, `/catalogo/<categoría>/<slug>`, `/promos/<slug>`); `products.price` existe (nullable) pero el sitio no muestra precios hoy.
 
 ### Secretos
 - Nunca imprimir ni commitear `SUPABASE_SERVICE_ROLE_KEY` (solo existe para el seed; no está en CI ni Netlify como variable del sitio).
@@ -49,9 +50,12 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y los buckets públicos de imágenes; escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
 
 ### Diseño
-- Design system "Noche caribe" (PRI-121). Fuente de verdad: los canvases de `tempo/designs/design-system/` (foundations, buttons, labels, cards, media, business-info, states, app-shell). Antes de crear o revisar UI, consultar `asset_list` (Tempo) y reutilizar lo que hay; el tablero "Design System Debt" de cada familia dice qué falta migrar.
-- Tokens en `src/styles/tokens.css` (lo importan `global.css` y el host del canvas). Usar las clases Tailwind de los tokens (`bg-primary` = fondo, `bg-surface`, `bg-surface-2`, `border-line`, `text-ink`, `text-muted`, `text-accent` = dorado de marca y único acento, `text-ok`, `text-danger`, `rounded-tile`, `rounded-card`, `font-display`, `font-body`, `fabric`). Nada de hex sueltos ni duraciones fijas. Fuentes: Space Grotesk 500/700 (`font-display`) y la del sistema para texto (`font-body`); `font-titan`/`font-vend-sans` son legado.
-- Componentes nuevos en `src/components/ui/` (React estático: Astro los renderiza sin `client:*`, 0 KB de JS; sin hooks ni estado). Los `.astro` de `src/components/` son legado y se migran por PR. Controles de Tempo en `tempo/controls.ts` (el sitio no depende de `tempo-sdk`).
+- Serflow no vende por la web: el catálogo es un portafolio de trabajos (sin precio ni carrito) y los pedidos van por WhatsApp.
+- Ya no hay página de detalle: la foto se abre en un modal (`PhotoModal`, `src/scripts/photo-modal.ts`) encima del catálogo o la portada. Cada foto tiene URL propia, `/catalogo/<categoría>/<slug>`, que carga el muro de su categoría con el modal abierto; las viejas `/products/<categoría>/<slug>` redirigen ahí con 301 (`public/_redirects`).
+- Design system de Serflow (PRI-121; oro viejo y sistema medido, PRI-286). "Noche caribe" es el nombre viejo: ya no describe el sistema, aunque siga en comentarios y canvases. Fuente de verdad: los canvases de `tempo/designs/design-system/` (foundations, buttons, labels, cards, media, business-info, states, app-shell, motion, personalizador). Antes de crear o revisar UI, consultar `asset_list` (Tempo) y reutilizar lo que hay; el tablero "Design System Debt" de cada familia dice qué falta migrar.
+- Tokens en `src/styles/tokens.css` (lo importan `global.css` y el host del canvas). Usar las clases Tailwind de los tokens (`bg-primary` = fondo, `bg-surface`, `bg-surface-2`, `border-line`, `text-ink`, `text-muted`, `text-accent` = oro viejo `#C9A24A`, marca y único acento, `text-ok`, `text-danger`, `rounded-tile`, `rounded-card`, `font-display`, `font-body`, `fabric`). Nada de hex sueltos ni duraciones fijas. Fuente: una sola familia, Plus Jakarta Sans variable 400-700 (`font-display` y `font-body`); `font-titan`/`font-vend-sans` son legado.
+- Sistema medido de la portada aprobada (canvas `portada-final`, frame "Sistema (de Heirest)", medido en heirest.com): rejilla, aire entre secciones y escala de letra con las variables `--pf-*` de `src/styles/tokens.css`, cada valor en 1280 / 390. Cada página es `<div class="pf"><main class="pf-v">`; las secciones usan `Section` (`.pf-sec`, `.pf-c`).
+- Componentes nuevos en `src/components/ui/` (React estático: Astro los renderiza sin `client:*`, 0 KB de JS; sin hooks ni estado). La única isla es `PersonalizaPage` en `/personaliza` (`client:load`), con los componentes del personalizador. Controles de Tempo en `tempo/controls.ts` (el sitio no depende de `tempo-sdk`).
 - Datos del negocio (WhatsApp, correo, horarios, dirección, mapa) solo en `src/lib/business.ts`; para links de WhatsApp usar `whatsappUrl()`.
 - Fotos: mientras llegan las del cliente se usan fotos de ejemplo del catálogo actual (`src/assets/images/`), nunca stock genérico ajeno al taller; se reemplazan cuando lleguen las reales. `PhotoSlot` sigue ocultándose si no recibe `src`. Una sola mascota visible por página.
 - Mobile-first. Viewports de referencia: Pixel 7 y desktop (los mismos proyectos de Playwright).
