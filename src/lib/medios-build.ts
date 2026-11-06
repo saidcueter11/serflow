@@ -35,14 +35,16 @@ export async function fotoDeLugar(slot: Lugar, opciones: FotoOpciones) {
 /** Colores de la base con sus fotos optimizadas. Prenda sin ningún color completo: lista vacía (usa la muestra). */
 export async function coloresDeBase(opciones: FotoOpciones): Promise<Record<Prenda, ColorPrenda[]>> {
   const filas = await getGarmentColors()
+  const pendientes = filas.flatMap((c) => c.garment_photos.filter((f) => vistasDe(c.garment).includes(f.view)).map((f) => f.image_url))
   const urls = new Map<string, string>()
-  // De a una: decodificar para validar pesa en memoria, y son pocas fotos.
-  for (const { garment, garment_photos } of filas) {
-    for (const { view, image_url } of garment_photos) {
-      if (!vistasDe(garment).includes(view)) continue
-      const foto = await fotoRemota(image_url, opciones)
-      if (foto) urls.set(image_url, foto.src)
-    }
+  // De a 4: validar 38 fotos reales tarda 26 s de una en una y 10 s así, y decodificar pesa en memoria como para soltarlas todas.
+  for (let i = 0; i < pendientes.length; i += 4) {
+    await Promise.all(
+      pendientes.slice(i, i + 4).map(async (url) => {
+        const foto = await fotoRemota(url, opciones)
+        if (foto) urls.set(url, foto.src)
+      }),
+    )
   }
   return armarColores(filas, urls)
 }

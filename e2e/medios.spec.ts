@@ -17,7 +17,8 @@ test.describe('sin nada publicado', () => {
 
   test('la portada, el catálogo y el personalizador salen con las fotos del repo', async ({ page }) => {
     await page.goto('/')
-    const bloque = page.getByRole('img', { name: 'Gorras personalizadas en un estante del taller' }).filter({ visible: true })
+    // La portada lo pinta dos veces, una por layout: el rol solo ve la del layout activo.
+    const bloque = page.getByRole('img', { name: 'Gorras personalizadas en un estante del taller' })
     await expect(bloque).toHaveAttribute('src', /gorras-estante.*\.webp$/)
     await expect(bloque).toHaveAttribute('srcset', /640w.*1200w/)
 
@@ -32,12 +33,13 @@ test.describe('sin nada publicado', () => {
 test.describe('con fotos y colores publicados', () => {
   test.use({ baseURL: SEMBRADO })
 
-  test('la portada usa la foto y el alt de la base, optimizada en el mismo dominio', async ({ page }) => {
+  test('la portada usa la foto y el alt de la base, optimizada en el mismo dominio', async ({ page, request }) => {
     await page.goto('/')
-    const bloque = page.getByRole('img', { name: 'Foto de prueba del bloque' }).filter({ visible: true })
+    const bloque = page.getByRole('img', { name: 'Foto de prueba del bloque' })
     await expect(bloque).toHaveAttribute('src', /^\/_astro\/.*\.webp$/)
-    await bloque.scrollIntoViewIfNeeded()
-    await expect.poll(() => bloque.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
+    const foto = await request.get((await bloque.getAttribute('src'))!)
+    expect(foto.ok()).toBe(true)
+    expect(foto.headers()['content-type']).toBe('image/webp')
     await expect(page.getByRole('img', { name: 'Gorras personalizadas en un estante del taller' })).toHaveCount(0)
   })
 
