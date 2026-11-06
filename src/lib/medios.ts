@@ -68,7 +68,7 @@ export function leerFotoRemota(url: string) {
  * como vacía. Cualquier otro error sí tumba el build, como en products.ts: mejor conservar lo publicado que volver a
  * las fotos del repo por una falla pasajera de la base.
  */
-function filas<T>(tabla: string, { data, error }: { data: T[] | null; error: { code: string; message: string } | null }): T[] {
+export function filas<T>(tabla: string, { data, error }: { data: T[] | null; error: { code: string; message: string } | null }): T[] {
   if (error?.code === 'PGRST205' || error?.code === '42P01') return []
   if (error) throw new Error(`Failed to fetch ${tabla}: ${error.message}`)
   return data ?? []

@@ -8,6 +8,7 @@ import { HeroCarousel, type Slide } from '../ui/HeroCarousel'
 import type { FotoModal } from '../ui/PhotoModal'
 import { PinIcon } from '../icons/PinIcon'
 import { WHATSAPP_URL } from '../../lib/business'
+import type { SectionSlug, SectionText } from '../../lib/site-content'
 
 export interface HomeProduct {
   name: string
@@ -23,6 +24,15 @@ export interface HomeImages {
   dtf: string
   bordado: string
   personalizador: { src: string; srcSet?: string; alt: string }
+  /** srcset de las fotos de los servicios, para no mandarle la de desktop al celular. */
+  serviciosSrcSet?: { estampado: string; dtf: string; bordado: string }
+}
+
+/** Lo que el cliente edita desde el admin (PRI-413). Lo que no venga usa el texto de este archivo. */
+export interface HomeContent {
+  sections?: Partial<Record<SectionSlug, SectionText>>
+  services?: { title: string; description: string; image?: { src: string; srcSet?: string; alt: string } }[]
+  reasons?: { title: string; copy: string }[]
 }
 
 const RAZONES = [
@@ -45,17 +55,27 @@ export function HomePage({
   products,
   images,
   catalogHref,
+  content = {},
 }: {
   slides: Slide[]
   products: HomeProduct[]
   images: HomeImages
   catalogHref: string
+  content?: HomeContent
 }) {
-  const services = [
-    { title: 'Estampado', description: 'Mate, toma la textura de la tela. Ideal para camisetas.', src: images.estampado },
-    { title: 'DTF', description: 'Colores vivos y con brillo. Fotos y degradados.', src: images.dtf },
-    { title: 'Bordado', description: 'Hilo con relieve. El clásico de las gorras.', src: images.bordado },
-  ]
+  const { sections = {}, services: editedServices, reasons: editedReasons } = content
+  const services = editedServices?.length
+    ? editedServices
+    : [
+        {
+          title: 'Estampado',
+          description: 'Mate, toma la textura de la tela. Ideal para camisetas.',
+          image: { src: images.estampado, srcSet: images.serviciosSrcSet?.estampado, alt: 'Estampado' },
+        },
+        { title: 'DTF', description: 'Colores vivos y con brillo. Fotos y degradados.', image: { src: images.dtf, srcSet: images.serviciosSrcSet?.dtf, alt: 'DTF' } },
+        { title: 'Bordado', description: 'Hilo con relieve. El clásico de las gorras.', image: { src: images.bordado, srcSet: images.serviciosSrcSet?.bordado, alt: 'Bordado' } },
+      ]
+  const razones = editedReasons?.length ? editedReasons : RAZONES
   const foto = (
     <div className="pf-pz-foto sf-foto">
       <img
@@ -79,15 +99,25 @@ export function HomePage({
             <span className="pf-pie flex items-center gap-1.5">
               <PinIcon className="size-3.5" /> Mercado Bazurto · Cartagena
             </span>
-            <h1 className="pf-display sf-lineas" aria-label="Bienvenido a Serflow">
-              <span aria-hidden="true">
-                <span>Bienvenido</span>
-              </span>
-              <span aria-hidden="true">
-                <span>a Serflow</span>
-              </span>
+            <h1 className="pf-display sf-lineas" aria-label={sections.hero?.title ?? 'Bienvenido a Serflow'}>
+              {sections.hero?.title ? (
+                <span aria-hidden="true">
+                  <span>{sections.hero.title}</span>
+                </span>
+              ) : (
+                <>
+                  <span aria-hidden="true">
+                    <span>Bienvenido</span>
+                  </span>
+                  <span aria-hidden="true">
+                    <span>a Serflow</span>
+                  </span>
+                </>
+              )}
             </h1>
-            <p className="pf-lead">Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.</p>
+            <p className="pf-lead">
+              {sections.hero?.description ?? 'Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.'}
+            </p>
             <div>
               <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
                 Escríbenos por WhatsApp
@@ -100,9 +130,9 @@ export function HomePage({
           <div className="pf-grid">
             <div className="pf-pz-texto">
               <h2 id="personaliza-titulo" className="pf-h2 sf-entra-scroll">
-                Diseña la tuya
+                {sections.personalizador?.title ?? 'Diseña la tuya'}
               </h2>
-              <p className="pf-lead">Sube tu diseño, míralo sobre la camiseta o la gorra y mándanoslo listo para hacerlo.</p>
+              <p className="pf-lead">{sections.personalizador?.description ?? 'Sube tu diseño, míralo sobre la camiseta o la gorra y mándanoslo listo para hacerlo.'}</p>
               <div className="@3xl:hidden">{foto}</div>
               <ol className="pf-pasos">
                 {PASOS.map((p, i) => (
@@ -122,18 +152,22 @@ export function HomePage({
           </div>
         </section>
 
-        <Section id="que-hacemos" title="Qué hacemos" description="Camisetas y gorras, con la técnica que mejor le quede a tu diseño.">
+        <Section
+          id="que-hacemos"
+          title={sections['que-hacemos']?.title ?? 'Qué hacemos'}
+          description={sections['que-hacemos']?.description ?? 'Camisetas y gorras, con la técnica que mejor le quede a tu diseño.'}
+        >
           <div className="pf-servicios">
             {services.map((s) => (
-              <ServiceCard key={s.title} title={s.title} description={s.description} image={{ src: s.src, alt: s.title }} />
+              <ServiceCard key={s.title} title={s.title} description={s.description} image={s.image} />
             ))}
           </div>
         </Section>
 
         <Section
           id="disponible"
-          title="Disponible ahora"
-          description="Lo que hay en el taller esta semana."
+          title={sections.disponible?.title ?? 'Disponible ahora'}
+          description={sections.disponible?.description ?? 'Lo que hay en el taller esta semana.'}
           action={products.length > 0 ? { label: 'Ver todo →', href: catalogHref } : undefined}
         >
           {products.length > 0 ? (
@@ -155,14 +189,18 @@ export function HomePage({
           <div className="pf-grid">
             <div className="pf-quienes">
               <h2 id="quienes-somos-titulo" className="pf-h2 sf-entra-scroll">
-                Quiénes somos
+                {sections['quienes-somos']?.title ?? 'Quiénes somos'}
               </h2>
               <p className="pf-lead">
-                Somos un taller en <span className="text-ink">Cartagena</span> que hace prendas personalizadas. La ropa no solo se usa,{' '}
-                <span className="text-ink">se vive</span>: por eso cada pieza lleva algo tuyo.
+                {sections['quienes-somos']?.description ?? (
+                  <>
+                    Somos un taller en <span className="text-ink">Cartagena</span> que hace prendas personalizadas. La ropa no solo se usa,{' '}
+                    <span className="text-ink">se vive</span>: por eso cada pieza lleva algo tuyo.
+                  </>
+                )}
               </p>
               <ul className="pf-razones">
-                {RAZONES.map((r) => (
+                {razones.map((r) => (
                   <li key={r.title}>
                     <h3>{r.title}</h3>
                     <p>{r.copy}</p>
@@ -172,7 +210,7 @@ export function HomePage({
             </div>
             {/* #visitanos sigue siendo el ancla del menú y del footer. Dirección y horario salen una sola vez: aquí. */}
             <div id="visitanos" className="pf-visita scroll-mt-4">
-              <h2 className="pf-h2 sf-entra-scroll">Visítanos</h2>
+              <h2 className="pf-h2 sf-entra-scroll">{sections.visitanos?.title ?? 'Visítanos'}</h2>
               <MapCard
                 title={
                   <>

@@ -3,12 +3,13 @@ import { getImage } from 'astro:assets'
 import Layout from '../layouts/Layout.astro'
 import { HomePage, type HomeProduct } from '../components/home/HomePage'
 import { PromoBar } from '../components/ui/PromoBar'
-import type { Slide } from '../components/ui/HeroCarousel'
+import { HERO_SIZES, type Slide } from '../components/ui/HeroCarousel'
 import { getActivePromos, getCategories, getProducts } from '../lib/products'
 import { loadCatalog } from '../lib/catalog-view'
 import { PhotoModal } from '../components/ui/PhotoModal'
-import { fotoDeLugar } from '../lib/medios-build'
-import { ADDRESS, EMAIL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL } from '../lib/business'
+import { fotoDeLugar, fotoRemota } from '../lib/medios-build'
+import { ADDRESS, EMAIL, HOURS_EDITED, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL, jsonLd } from '../lib/business'
+import { getSiteContent } from '../lib/site-content'
 // Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
 // pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
 // 0y3DOYVP2bs, KL8EGoKDNcQ, kixK2sNVPyo
@@ -24,7 +25,13 @@ import gorrasEstante from '../assets/images/stock/gorras-estante.jpg'
 
 const PRODUCT_COUNT = 4
 
-const [products, categories, promos, catalog] = await Promise.all([getProducts(), getCategories(), getActivePromos(), loadCatalog()])
+const [products, categories, promos, catalog, content] = await Promise.all([
+  getProducts(),
+  getCategories(),
+  getActivePromos(),
+  loadCatalog(),
+  getSiteContent(),
+])
 
 // Cada prenda abre su foto en el modal (PRI-286), con la misma URL propia y el mismo mensaje que en el catálogo.
 const homeProducts: HomeProduct[] = await Promise.all(
@@ -45,11 +52,11 @@ const homeProducts: HomeProduct[] = await Promise.all(
     }),
 )
 
-const [estampado, dtf, bordado] = await Promise.all([
-  getImage({ src: estampadoRasero, width: 640, format: 'webp', quality: 75 }),
-  getImage({ src: camisetaDtf, width: 640, format: 'webp', quality: 75 }),
-  getImage({ src: gorraBordada2, width: 640, format: 'webp', quality: 75 }),
-])
+// Fotos de los servicios: 320 px para la fila del celular (112 px en pantallas densas), 640 px en desktop.
+const fotoServicio = { width: 640, widths: [320, 640], quality: 75 }
+const [estampado, dtf, bordado] = await Promise.all(
+  [estampadoRasero, camisetaDtf, gorraBordada2].map((src) => getImage({ src, format: 'webp', ...fotoServicio })),
+)
 
 // Bloque "Diseña la tuya": la foto que publica el admin (PRI-150) o la del repo.
 const fotoBloque = { width: 1200, widths: [640, 1200], quality: 75 }
@@ -67,16 +74,40 @@ const HERO = [
   { src: gorraBordada, alt: 'Gorra blanca con bordado rojo', position: '50% 40%' },
   { src: amigosGorras, alt: 'Dos amigos con gorras personalizadas riéndose', position: '50% 30%' },
 ]
-const heroSlides: Slide[] = await Promise.all(
-  HERO.map(async ({ src, ...rest }) => ({ ...rest, src: (await getImage({ src, width: 1400, format: 'webp', quality: 72 })).src })),
-)
+const fotoHero = { width: 1400, widths: [640, 1000, 1400], quality: 72 }
+// Las fotos del admin (PRI-413) que sirvan; si ninguna sirve, las de arriba.
+const editedSlides = (
+  await Promise.all(
+    content.heroSlides.map(async ({ image_url, ...rest }) => {
+      const foto = await fotoRemota(image_url, fotoHero)
+      return foto && { ...rest, ...foto }
+    }),
+  )
+).filter((s) => s !== null)
+const heroSlides: Slide[] =
+  editedSlides.length > 0
+    ? editedSlides
+    : await Promise.all(
+        HERO.map(async ({ src, ...rest }) => {
+          const img = await getImage({ src, format: 'webp', ...fotoHero })
+          return { ...rest, src: img.src, srcSet: img.srcSet.attribute }
+        }),
+      )
 const promoWithCover = promos.find((p) => p.banner_url || p.image_urls[0])
 if (promoWithCover) {
   const cover = promoWithCover.banner_url || promoWithCover.image_urls[0]
-  const img = await getImage({ src: cover, width: 1400, height: 900, format: 'webp', quality: 72 })
-  heroSlides.splice(heroSlides.length - 1, 1)
-  heroSlides.unshift({ src: img.src, alt: promoWithCover.title })
+  const img = await getImage({ src: cover, height: 900, format: 'webp', ...fotoHero })
+  if (heroSlides.length > 1) heroSlides.splice(heroSlides.length - 1, 1)
+  heroSlides.unshift({ src: img.src, srcSet: img.srcSet.attribute, alt: promoWithCover.title })
 }
+// "Qué hacemos": tarjetas del admin (2 a 6). Una foto que no sirve deja la tarjeta con la muestra neutra de ServiceCard.
+const services = await Promise.all(
+  content.services.map(async ({ image_url, image_alt, ...card }) => {
+    const foto = image_url ? await fotoRemota(image_url, fotoServicio) : null
+    return foto ? { ...card, image: { ...foto, alt: image_alt } } : card
+  }),
+)
+
 const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}` }))
 
 // "Ver todo" lleva a la primera categoría; desde ahí las pestañas llevan a las demás.
@@ -101,10 +132,12 @@ const localBusinessSchema = {
     addressRegion: 'Bolívar',
     addressCountry: 'CO',
   },
-  openingHoursSpecification: [
-    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '08:00', closes: '18:00' },
-    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday'], opens: '08:00', closes: '14:00' },
-  ],
+  openingHoursSpecification: HOURS_EDITED
+    ? undefined
+    : [
+        { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '08:00', closes: '18:00' },
+        { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday'], opens: '08:00', closes: '14:00' },
+      ],
   areaServed: 'Cartagena, Colombia',
   url: 'https://serflowctg.netlify.app/',
   sameAs: [WHATSAPP_URL, ...SOCIAL.map((s) => s.url)],
@@ -114,8 +147,8 @@ const localBusinessSchema = {
 <Layout title="Serflow: camisetas y gorras personalizadas en Cartagena" description={homeDescription}>
   <Fragment slot="head">
     <meta property="og:locale" content="es_CO" />
-    <link rel="preload" as="image" href={heroSlides[0].src} fetchpriority="high" />
-    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+    <link rel="preload" as="image" href={heroSlides[0].src} imagesrcset={heroSlides[0].srcSet} imagesizes={HERO_SIZES} fetchpriority="high" />
+    <script type="application/ld+json" set:html={jsonLd(localBusinessSchema)} />
   </Fragment>
   <Fragment slot="top">
     <PromoBar promos={promoLinks} />
@@ -124,8 +157,15 @@ const localBusinessSchema = {
   <HomePage
     slides={heroSlides}
     products={homeProducts}
-    images={{ estampado: estampado.src, dtf: dtf.src, bordado: bordado.src, personalizador }}
+    images={{
+      estampado: estampado.src,
+      dtf: dtf.src,
+      bordado: bordado.src,
+      personalizador,
+      serviciosSrcSet: { estampado: estampado.srcSet.attribute, dtf: dtf.srcSet.attribute, bordado: bordado.srcSet.attribute },
+    }}
     catalogHref={catalogHref}
+    content={{ sections: content.sections, services, reasons: content.reasons }}
   />
   <PhotoModal />
 </Layout>

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 
-// PRI-150: fotos del sitio y colores del personalizador que publica el admin. El build principal no tiene nada publicado
+// PRI-150: fotos del sitio y colores del personalizador que publica el admin. El de 4232 no tiene nada publicado
 // (respaldo); el de e2e/promos/server.mjs en 4235 tiene filas sembradas (scenarios.mjs), buenas y rotas.
 const SEMBRADO = 'http://localhost:4235'
 
@@ -12,6 +12,9 @@ async function abrirPersonaliza(page: Page) {
 }
 
 test.describe('sin nada publicado', () => {
+  // PRI-413: el build con tablas vacías, para que una publicación del cliente no ponga esto rojo.
+  test.use({ baseURL: 'http://localhost:4232' })
+
   test('la portada, el catálogo y el personalizador salen con las fotos del repo', async ({ page }) => {
     await page.goto('/')
     const bloque = page.getByRole('img', { name: 'Gorras personalizadas en un estante del taller' }).filter({ visible: true })

@@ -339,12 +339,19 @@ a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fa
   .pf-pz-texto > div:last-child { width: auto; }
 }
 
-/* Qué hacemos: 3 tarjetas de 4 columnas; en el celular, filas foto + texto (ServiceCard). */
+/* Qué hacemos: en el celular, filas foto + texto (ServiceCard). En desktop, según cuántas haya (PRI-413): 3 o 6 de 4
+   columnas; 4 de 3; 2 de 6; 5 = 3 de 4 + 2 de 6. Las de 6 van en 3:2 para que su fila tenga casi la misma altura. */
 .pf-servicios { display: grid; gap: 24px; }
 /* Disponible ahora: 2 x 2 en el celular, 4 de 3 columnas en desktop. */
 .pf-prendas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px var(--pf-g); }
 @container pf (min-width: 48rem) {
-  .pf-servicios { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pf-g); }
+  .pf-servicios { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--pf-g); }
+  .pf-servicios > * { grid-column: span 4; }
+  .pf-servicios:has(> :nth-child(4):last-child) > * { grid-column: span 3; }
+  .pf-servicios:has(> :nth-child(2):last-child) > *,
+  .pf-servicios:has(> :nth-child(5):last-child) > :nth-child(n + 4) { grid-column: span 6; }
+  .pf-servicios:has(> :nth-child(2):last-child) img,
+  .pf-servicios:has(> :nth-child(5):last-child) > :nth-child(n + 4) img { aspect-ratio: 3 / 2; }
   .pf-prendas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 

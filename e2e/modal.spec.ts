@@ -158,5 +158,5 @@ test('Disponible ahora opens the modal over the home and goes through those phot
   await expect(page).toHaveURL(new RegExp(`${photo}$`))
   await page.keyboard.press('Escape')
   await expect(page).toHaveURL(/\/$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Bienvenido a Serflow' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 })

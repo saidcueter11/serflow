@@ -4,8 +4,8 @@ import { expect, test } from '@playwright/test'
 // PRI-129: the home has no category grid anymore; it reaches the catalog through "Disponible ahora".
 test('home -> product opens its photo with the WhatsApp CTA, and Ver todo opens a category', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Disponible ahora' })).toBeVisible()
-  await expect(page.getByText('Mercado Bazurto, C.C. Bazurtico, local 31').first()).toBeVisible()
+  await expect(page.locator('#disponible h2')).toBeVisible()
+  await expect(page.locator('#visitanos h2')).toBeVisible()
 
   const verTodo = page.getByRole('link', { name: 'Ver todo →' })
   await expect(verTodo).toHaveAttribute('href', /^\/products\/[^/]+$/)

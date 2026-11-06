@@ -1,6 +1,9 @@
 import type { CSSProperties, ReactNode } from 'react'
 
-export type Slide = { src: string; alt: string; position?: string }
+export type Slide = { src: string; srcSet?: string; alt: string; position?: string }
+
+/** A sangre: la foto mide lo que mide la pantalla. */
+export const HERO_SIZES = '100vw'
 
 const SECONDS = 6
 
@@ -38,6 +41,8 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
         <figure key={s.src} className={`${n > 1 ? 'anim-slide' : ''} absolute inset-0 m-0`} style={delay(i)} aria-hidden={i !== 0 || undefined}>
           <img
             src={s.src}
+            srcSet={s.srcSet}
+            sizes={s.srcSet ? HERO_SIZES : undefined}
             alt={s.alt}
             loading={i === 0 ? 'eager' : 'lazy'}
             fetchPriority={i === 0 ? 'high' : undefined}
