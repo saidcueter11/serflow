@@ -220,6 +220,27 @@ test('reduced motion: everything is visible right away and navigation does not a
   await expect.poll(() => page.evaluate(() => (window as unknown as { animadas?: number }).animadas)).toBe(0)
 })
 
+test('slow connection: nothing waits to appear, on load or after navigating', async ({ page, isMobile }) => {
+  // Lo que el navegador reporta en 2G: el script inline del Layout lo lee antes de que corra movimiento.ts.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'connection', { value: { effectiveType: '2g', saveData: false, addEventListener() {} } })
+  })
+  await page.goto('/')
+  await expect(page.locator('html')).toHaveClass(/slow-connection/)
+  await expect(page.locator('.sf-espera')).toHaveCount(0)
+  await expect(page.locator('.pf-servicios > *').first()).toHaveCSS('opacity', '1')
+
+  await page.evaluate(() => {
+    document.addEventListener('astro:after-swap', () => {
+      ;(window as unknown as { esperando: number }).esperando = document.querySelectorAll('.sf-espera').length
+    })
+  })
+  await irAlCatalogo(page, isMobile)
+  await expect(page).toHaveURL(/\/products\/?$/)
+  await expect.poll(() => page.evaluate(() => (window as unknown as { esperando?: number }).esperando)).toBe(0)
+  await expect(page.locator('html')).toHaveClass(/slow-connection/)
+})
+
 test('the motion script stays an external file: the CSP (PRI-152) only allows inline scripts by hash', async ({ page }) => {
   for (const path of ['/', '/products']) {
     await page.goto(path)
