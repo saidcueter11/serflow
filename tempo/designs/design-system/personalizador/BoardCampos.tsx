@@ -58,6 +58,7 @@ export function BoardCampos() {
         <div className="flex flex-wrap gap-8">
           <Celular label='estado="ninguno"'><CampoDiseno estado="ninguno" /></Celular>
           <Celular label='estado="imagen" · quitar fondo'><CampoDiseno estado="imagen" nombre="logo-heroica.png" detalle="PNG · 1200 × 1200 px" miniatura={sol} quitarFondo /></Celular>
+          <Celular label='estado="imagen" · fondoFijo'><CampoDiseno estado="imagen" nombre="foto-equipo.jpg" detalle="JPG · 1600 × 1200 px" miniatura={sol} fondoFijo /></Celular>
           <Celular label='estado="procesando"'><CampoDiseno estado="procesando" nombre="logo-heroica.png" /></Celular>
           <Celular label='estado="baja"'><CampoDiseno estado="baja" nombre="logo-whatsapp.jpg" detalle="JPG · 48 × 48 px" miniatura={sol} /></Celular>
           <Celular label='estado="pesada"'><CampoDiseno estado="pesada" nombre="foto-equipo.jpg" detalle="JPG · 24 MB" /></Celular>
@@ -68,15 +69,15 @@ export function BoardCampos() {
       </Row>
       <Row name="Colores" description="La lista la arma el admin y crece sola: 4 en una fila, 10 en dos. Mientras carga la foto del elegido, girador.">
         <div className="flex flex-wrap gap-8">
-          <Celular label="4 · camiseta"><Colores colores={COLORES.camiseta} elegido="negra" /></Celular>
+          <Celular label="2 · camiseta"><Colores colores={COLORES.camiseta} elegido="negra" /></Celular>
           <Celular label="cargando"><Colores colores={COLORES.gorra} elegido="blanca" cargando="blanca" /></Celular>
           <Celular label="10"><Colores colores={DIEZ} elegido="roja" /></Celular>
         </div>
       </Row>
-      <Row name="Tecnicas" description="Tarjetas con pista y muestra. Con una sola técnica (gorra) no hay selector.">
+      <Row name="Tecnicas" description="Tarjetas con pista y muestra.">
         <div className="flex flex-wrap gap-8">
           <Celular label="camiseta"><Tecnicas opciones={["estampado", "dtf", "bordado"]} elegida="estampado" /></Celular>
-          <Celular label="gorra"><Tecnicas opciones={["bordado"]} elegida="bordado" /></Celular>
+          <Celular label="gorra"><Tecnicas opciones={["bordado", "estampado"]} elegida="bordado" /></Celular>
         </div>
       </Row>
       <Row name="Nota y Aviso" description="Nota opcional de 300 caracteres. Aviso neutro: no es un error.">

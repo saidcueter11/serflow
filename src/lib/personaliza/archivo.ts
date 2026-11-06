@@ -1,6 +1,6 @@
 // Archivos que sube el cliente (spec 6.4). Nada se sube a ningún servidor: todo queda en la memoria de la página,
 // y el original no se recomprime nunca.
-import { fondoPlano, quitarFondo } from './fondo'
+import { bordeTransparente, fondoPlano, quitarFondo } from './fondo'
 
 export const MAX_BYTES = 20 * 1024 * 1024
 export const MAX_PIXELES = 50_000_000
@@ -45,6 +45,8 @@ export interface DisenoLeido {
   trabajo?: HTMLCanvasElement
   /** La misma sin el fondo plano, si se detectó uno. */
   sinFondo?: HTMLCanvasElement
+  /** El fondo no es plano ni transparente: aquí no se puede quitar. */
+  fondoFijo?: boolean
 }
 
 function cargar(url: string): Promise<HTMLImageElement> {
@@ -89,7 +91,7 @@ export async function leerDiseno(archivo: File): Promise<DisenoLeido> {
       sinFondo.height = trabajo.height
       sinFondo.getContext('2d')!.putImageData(new ImageData(limpio.data, limpio.width, limpio.height), 0, 0)
     }
-    return { estado: t, archivo, url, trabajo, sinFondo, detalle: detalleArchivo(archivo, vector ? undefined : { ancho, alto }) }
+    return { estado: t, archivo, url, trabajo, sinFondo, fondoFijo: !fondo && !bordeTransparente(pix), detalle: detalleArchivo(archivo, vector ? undefined : { ancho, alto }) }
   } catch {
     // No decodifica (HEIC en Chrome, archivo dañado) o el canvas quedó contaminado: tarjeta de archivo.
     URL.revokeObjectURL(url)

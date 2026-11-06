@@ -3,7 +3,7 @@ import { Button } from './Button'
 import { Girador, IconArchivo, IconCentrar, IconMas, IconMenos, IconReintentar, IconSinSenal, IconSubir } from '../icons/PersonalizaIcons'
 import { ACEPTA } from '../../lib/personaliza/archivo'
 import { ESCENA, type Tecnica } from '../../lib/personaliza/datos'
-import { aspectoArea, cajaDiseno, enArea, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { S_MAX, aspectoArea, cajaDiseno, enArea, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { dibujar, type FotoLista } from '../../lib/personaliza/motor'
 
 /**
@@ -35,6 +35,8 @@ export interface VistaPreviaProps {
   diseno?: HTMLCanvasElement | null
   lugar: Lugar
   onLugar?: (l: Lugar) => void
+  /** Escala máxima del diseño (escalaMax: el bordado en camiseta va pequeño). */
+  maxS?: number
   /** Ancho real del área de impresión en cm, para "unos 19 cm de ancho". */
   anchoCm: number
   /** Tarjeta de archivo (modo archivo). */
@@ -65,6 +67,7 @@ export function VistaPrevia({
   diseno,
   lugar: l,
   onLugar,
+  maxS = S_MAX,
   anchoCm,
   archivo,
   cargando,
@@ -119,7 +122,7 @@ export function VistaPrevia({
   const aspecto = area ? aspectoArea(area) : 1
   const ratio = diseno ? diseno.width / diseno.height : 1
   const caja = area && diseno ? cajaDiseno(area, l, ratio, aspecto) : null
-  const set = (n: Lugar) => onLugar?.(limitar(n, ratio, aspecto))
+  const set = (n: Lugar) => onLugar?.(limitar(n, ratio, aspecto, maxS))
   const tamano = `unos ${tamanoCm(anchoCm, l.s)} cm de ancho`
   const centrado = Math.abs(l.cx - 0.5) < 0.01
   const bbox = area && {
