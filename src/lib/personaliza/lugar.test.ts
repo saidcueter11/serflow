@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aspectoArea, cajaDiseno, limitar, tamanoCm } from './lugar'
+import { aspectoArea, cajaDiseno, escalaMax, limitar, tamanoCm } from './lugar'
 import type { Area } from './datos'
 
 describe('limitar', () => {
@@ -23,6 +23,24 @@ describe('limitar', () => {
   it('respeta el aspecto del área: en un área ancha cabe un diseño cuadrado más chico', () => {
     // Área 2:1, diseño cuadrado: con s = 0,5 ocupa todo el alto.
     expect(limitar({ cx: 0.5, cy: 0.5, s: 0.8 }, 1, 2).s).toBe(0.5)
+  })
+})
+
+describe('escalaMax', () => {
+  it('bordado en camiseta: lo que da 10 cm en cada área', () => {
+    expect(tamanoCm(30, escalaMax('camiseta', 'bordado', 30))).toBe(10)
+    expect(tamanoCm(35, escalaMax('camiseta', 'bordado', 35))).toBe(10)
+  })
+
+  it('sin tope en las otras técnicas ni en la gorra', () => {
+    expect(escalaMax('camiseta', 'estampado', 30)).toBe(1)
+    expect(escalaMax('camiseta', 'dtf', 30)).toBe(1)
+    expect(escalaMax('gorra', 'bordado', 12)).toBe(1)
+  })
+
+  it('limitar respeta el máximo, también al crecer', () => {
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.62 }, 1, 1, 1 / 3).s).toBe(1 / 3)
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.25 }, 1, 1, 1 / 3).s).toBe(0.25)
   })
 })
 

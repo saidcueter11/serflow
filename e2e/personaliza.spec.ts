@@ -1,8 +1,8 @@
 import { deflateSync } from 'node:zlib'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-// PRI-122: /personaliza con fotos de muestra, escondida hasta PRI-125. Los archivos de prueba se arman aquí (sin datos
-// personales ni binarios en el repo).
+// PRI-122: /personaliza encendida con fotos de muestra (las oficiales llegan con PRI-125). Los archivos de prueba se arman
+// aquí (sin datos personales ni binarios en el repo).
 
 const crcTabla = Array.from({ length: 256 }, (_, n) => {
   let c = n
@@ -22,22 +22,34 @@ function bloque(tipo: string, datos: Buffer) {
   crc.writeUInt32BE(crc32(Buffer.concat([t, datos])))
   return Buffer.concat([largo, t, datos, crc])
 }
-/** PNG RGB de lado n: un logo (aro rojo y cuadro azul) sobre fondo blanco plano. */
-function logoSobreBlanco(n: number): Buffer {
-  const filas = Buffer.alloc(n * (n * 3 + 1))
-  for (let y = 0; y < n; y++)
-    for (let x = 0; x < n; x++) {
-      const r = Math.hypot(x - n / 2, y - n / 2) / n
-      const azul = Math.abs(x - n / 2) < n * 0.08 && Math.abs(y - n / 2) < n * 0.08
-      const c = azul ? [30, 60, 180] : r > 0.2 && r < 0.35 ? [210, 30, 40] : [255, 255, 255]
-      filas.set(c, y * (n * 3 + 1) + 1 + x * 3)
-    }
+/** PNG RGBA de lado n, píxel por píxel. */
+function png(n: number, pixel: (x: number, y: number) => number[]): Buffer {
+  const filas = Buffer.alloc(n * (n * 4 + 1))
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) filas.set(pixel(x, y), y * (n * 4 + 1) + 1 + x * 4)
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(n, 0)
   ihdr.writeUInt32BE(n, 4)
-  ihdr.set([8, 2, 0, 0, 0], 8)
+  ihdr.set([8, 6, 0, 0, 0], 8)
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), bloque('IHDR', ihdr), bloque('IDAT', deflateSync(filas)), bloque('IEND', Buffer.alloc(0))])
 }
+/** Un logo (aro rojo y cuadro azul) sobre fondo blanco plano. */
+const logoSobreBlanco = (n: number) =>
+  png(n, (x, y) => {
+    const r = Math.hypot(x - n / 2, y - n / 2) / n
+    if (Math.abs(x - n / 2) < n * 0.08 && Math.abs(y - n / 2) < n * 0.08) return [30, 60, 180, 255]
+    return r > 0.2 && r < 0.35 ? [210, 30, 40, 255] : [255, 255, 255, 255]
+  })
+/** Como una foto: el borde cambia de color todo el tiempo, no hay fondo plano. */
+const fotoSinFondoPlano = (n: number) => png(n, (x, y) => [(x * 255) / n, (y * 255) / n, ((x + y) * 127) / n, 255])
+/** Un cuadro azul sobre transparente: ya viene sin fondo. */
+const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, y - n / 2) < n / 4 ? [30, 60, 180, 255] : [0, 0, 0, 0]))
+
+const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
+const FONDO_FIJO = 'Esta imagen conserva su fondo'
+const PISTA_BORDADO = 'El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos 10 cm de ancho.'
+
+const colores = (page: Page) => page.locator('input[name=color]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
+const tecnicas = (page: Page) => page.locator('input[name=tecnica]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
 
 const enviar = (page: Page) => page.getByRole('button', { name: 'Enviar a Serflow por WhatsApp' }).filter({ visible: true })
 const textoWa = async (link: Locator) => {
@@ -57,21 +69,26 @@ async function subir(page: Page, archivo: { name: string; mimeType: string; buff
 }
 
 test.describe('/personaliza', () => {
-  test('está escondida: noindex, fuera del sitemap y sin links desde la portada ni el header', async ({ page, request }) => {
-    await page.goto('/personaliza')
-    await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', 'noindex, nofollow')
+  test('encendida: se indexa, está en el sitemap y el botón de la portada lleva a ella', async ({ page, request }) => {
+    await page.goto('/')
+    await page.getByRole('link', { name: 'Diseñar mi prenda' }).click()
+    await expect(page).toHaveURL(/\/personaliza\/?$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Diseña tu prenda' })).toBeVisible()
+    await expect(page.locator('meta[name=robots]')).toHaveCount(0)
     // El envío reemplaza al botón flotante de WhatsApp.
     await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' })).toHaveCount(0)
 
-    await page.goto('/')
-    await expect(page.locator('a[href*="personaliza"]')).toHaveCount(0)
-
     const sitemap = await request.get('/sitemap-0.xml')
     expect(sitemap.ok()).toBe(true)
-    const xml = await sitemap.text()
-    expect(xml).toContain('<loc>')
-    expect(xml).not.toContain('personaliza')
+    expect(await sitemap.text()).toContain('/personaliza')
+  })
+
+  test('colores: camiseta solo negra y blanca; las gorras conservan los de la muestra', async ({ page }) => {
+    await abrir(page)
+    expect(await colores(page)).toEqual(['negra', 'blanca'])
+    await page.getByText('Gorra', { exact: true }).click()
+    await expect(page.getByText('Azul', { exact: true })).toBeVisible()
+    expect(await colores(page)).toEqual(['negra', 'blanca', 'gris', 'azul'])
   })
 
   test('flujo principal: logo sobre blanco, quita el fondo, cambia color y técnica y arma el mensaje de WhatsApp', async ({ page }) => {
@@ -122,18 +139,91 @@ test.describe('/personaliza', () => {
     expect(texto).toContain('*Nota:* Tallas M y L')
   })
 
-  test('gorra sin diseño: solo bordado y pide ayuda', async ({ page }) => {
+  test('técnicas por prenda: camiseta con las 3; gorra con bordado y estampado, sin DTF, y el mensaje lo dice', async ({ page }) => {
     await abrir(page)
+    expect(await tecnicas(page)).toEqual(['estampado', 'dtf', 'bordado'])
+
     await page.getByText('Gorra', { exact: true }).click()
-    await expect(page.getByText('En gorras bordamos, es lo que mejor queda.', { exact: false })).toBeVisible()
-    await expect(page.getByText('Estampado', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('DTF', { exact: true })).toHaveCount(0)
+    expect(await tecnicas(page)).toEqual(['bordado', 'estampado'])
     await page.getByText('No tengo diseño, quiero que me ayuden').click()
 
     await enviar(page).click()
-    const texto = await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))
+    const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+    const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain('*Prenda:* Gorra negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1')
     expect(texto).toContain('*Diseño:* todavía no tengo, quiero que me ayuden')
     expect(texto).not.toContain('*Tamaño:*')
+
+    await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
+    await page.getByText('Estampado', { exact: true }).click()
+    await enviar(page).click()
+    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Técnica:* Estampado')
+  })
+
+  test('bordado en camiseta: el diseño queda pequeño, con su pista, y el mensaje dice ese tamaño', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })).toBeVisible()
+    await expect(page.getByText(PISTA_BORDADO)).toHaveCount(0)
+
+    await page.getByText('Bordado', { exact: true }).click()
+    await expect(page.getByText(PISTA_BORDADO)).toBeVisible()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
+
+    // No crece más que el tope, ni en la espalda, que tiene otra área.
+    await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
+    await page.getByText('Espalda', { exact: true }).click()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
+
+    await enviar(page).click()
+    const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+    const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
+    expect(texto).toContain('*Técnica:* Bordado')
+    expect(texto).toContain('*Tamaño:* unos 10 cm de ancho')
+
+    // Con otra técnica se quita el tope y la pista.
+    await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
+    await page.getByText('DTF', { exact: true }).click()
+    await expect(page.getByText(PISTA_BORDADO)).toHaveCount(0)
+    await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 13 cm de ancho/ })).toBeVisible()
+  })
+
+  test('fondo: aviso de calidad junto a la subida; quitar y restaurar; si no se puede quitar, lo dice', async ({ page }) => {
+    await abrir(page)
+    await expect(page.getByText(AVISO_CALIDAD)).toBeVisible()
+
+    // Fondo plano: el interruptor quita y restaura de verdad lo que se pinta.
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
+    await expect(fondo).toBeChecked()
+    await expect(page.getByText(FONDO_FIJO)).toHaveCount(0)
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    const lienzo = page.locator('.pf-pz-vista canvas')
+    const pintado = () => lienzo.evaluate((c: HTMLCanvasElement) => c.toDataURL())
+    await expect.poll(pintado).toMatch(/^data:image/)
+    const sinFondo = await pintado()
+    await page.getByText('Quitar el fondo', { exact: true }).click()
+    await expect(fondo).not.toBeChecked()
+    await expect.poll(pintado).not.toBe(sinFondo)
+
+    // Ya viene transparente: no hay nada que quitar, y tampoco se le dice que falló.
+    await subir(page, { name: 'logo-transparente.png', mimeType: 'image/png', buffer: logoTransparente(800) })
+    await expect(page.getByText('logo-transparente.png')).toBeVisible()
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    await expect(fondo).toHaveCount(0)
+    await expect(page.getByText(FONDO_FIJO)).toHaveCount(0)
+
+    // Fondo que no es plano: lo dice, sin interruptor, y el mensaje no promete quitarlo.
+    await subir(page, { name: 'foto-prueba.png', mimeType: 'image/png', buffer: fotoSinFondoPlano(800) })
+    await expect(page.getByText(FONDO_FIJO)).toBeVisible()
+    await expect(page.getByText('Aquí solo podemos quitar fondos de un solo color.')).toBeVisible()
+    await expect(fondo).toHaveCount(0)
+    await enviar(page).click()
+    const texto = await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))
+    expect(texto).toContain('*Diseño:* te lo mando en el siguiente mensaje, con la vista previa')
   })
 
   test('estados: imagen pesada, de baja calidad y formato que no se puede mostrar', async ({ page }) => {

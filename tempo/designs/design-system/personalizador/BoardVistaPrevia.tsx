@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { VistaPrevia, type ModoVista } from "../../../../src/components/ui/VistaPrevia";
 import { PRENDAS, fotoDe, type Prenda, type Tecnica } from "../../../../src/lib/personaliza/datos";
-import { LUGAR_GORRA, LUGAR_INICIAL } from "../../../../src/lib/personaliza/lugar";
+import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, limitar } from "../../../../src/lib/personaliza/lugar";
 import { cargarFoto, prepararDiseno, type FotoLista } from "../../../../src/lib/personaliza/motor";
 import { Code, PageFrame, PageTitle, Row } from "../Chrome";
 import { COLORES } from "./colores";
@@ -16,7 +16,8 @@ function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "est
   const info = fotoDe(c, prenda, ub)!;
   const [foto, setFoto] = useState<FotoLista | null>(null);
   const [tratado, setTratado] = useState<HTMLCanvasElement | null>(null);
-  const [lugar, setLugar] = useState(prenda === "gorra" ? LUGAR_GORRA : LUGAR_INICIAL);
+  const maxS = escalaMax(prenda, tecnica, info.print_width_cm);
+  const [lugar, setLugar] = useState(() => limitar(prenda === "gorra" ? LUGAR_GORRA : LUGAR_INICIAL, 1, 1, maxS));
   useEffect(() => void cargarFoto(info.image_url, info.print_area, PRENDAS[prenda].curva).then(setFoto), [info.image_url]);
   useEffect(() => {
     if (!diseno) return;
@@ -40,6 +41,7 @@ function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "est
         diseno={tratado}
         lugar={lugar}
         onLugar={setLugar}
+        maxS={maxS}
         anchoCm={info.print_width_cm}
         archivo={modo === "archivo" ? { nombre: "logo-final.pdf" } : undefined}
         cargando={`Cargando la ${nombre.toLowerCase()}…`}
@@ -80,12 +82,13 @@ export function BoardVistaPrevia() {
           <Caso label="listo · seleccionado"><Vista modo="listo" seleccionado /></Caso>
         </div>
       </Row>
-      <Row name="Técnicas y prendas" description="El mismo diseño con cada técnica. Gorra solo bordado; espalda usa su propia foto y área.">
+      <Row name="Técnicas y prendas" description="El mismo diseño con cada técnica. Gorra con bordado y estampado, sin DTF; espalda usa su propia foto y área.">
         <div className="flex flex-wrap gap-6">
-          <Caso label="DTF · azul"><Vista modo="listo" color="azul" tecnica="dtf" /></Caso>
+          <Caso label="DTF · blanca"><Vista modo="listo" color="blanca" tecnica="dtf" /></Caso>
           <Caso label="Bordado · blanca"><Vista modo="listo" color="blanca" tecnica="bordado" /></Caso>
-          <Caso label="Espalda · gris"><Vista modo="listo" color="gris" ubicacion="Espalda" /></Caso>
+          <Caso label="Espalda · negra"><Vista modo="listo" ubicacion="Espalda" /></Caso>
           <Caso label="Gorra · bordado"><Vista modo="listo" prenda="gorra" tecnica="bordado" /></Caso>
+          <Caso label="Gorra · estampado"><Vista modo="listo" prenda="gorra" /></Caso>
         </div>
       </Row>
       <Row name="Estados" description="Preparando hace esperar el envío como mucho 5 s; después, Seguir sin vista previa. Sin señal: Reintentar pide solo la foto.">
