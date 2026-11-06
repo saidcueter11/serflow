@@ -40,7 +40,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }): Promise
     Promise.all(
       p.image_urls.map(async (src, i) => {
         const img = await getImage({ src, width: sizes[i].width, height: sizes[i].height, widths: [600, 1200], ...opt })
-        return { src: img.src, srcSet: img.srcSet.attribute }
+        return { src: img.src, srcSet: img.srcSet.attribute, r: +(sizes[i].width / sizes[i].height).toFixed(3) }
       }),
     ),
     getImage({ ...first, width: 1200, height: Math.round((1200 * first.height) / first.width), format: 'jpg' }),

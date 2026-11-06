@@ -90,7 +90,7 @@ export function HomePage({
         <section aria-labelledby="personaliza-titulo" className="pf-sec pf-c">
           <div className="pf-grid">
             <div className="pf-pz-texto">
-              <h2 id="personaliza-titulo" className="pf-h2 sf-entra-scroll">
+              <h2 id="personaliza-titulo" className="pf-h2">
                 Diseña la tuya
               </h2>
               <p className="pf-lead">Sube tu diseño, míralo sobre la camiseta o la gorra y mándanoslo listo para hacerlo.</p>
@@ -146,7 +146,7 @@ export function HomePage({
         <section id="quienes-somos" aria-labelledby="quienes-somos-titulo" className="pf-sec pf-c">
           <div className="pf-grid">
             <div className="pf-quienes">
-              <h2 id="quienes-somos-titulo" className="pf-h2 sf-entra-scroll">
+              <h2 id="quienes-somos-titulo" className="pf-h2">
                 Quiénes somos
               </h2>
               <p className="pf-lead">
@@ -164,7 +164,7 @@ export function HomePage({
             </div>
             {/* #visitanos sigue siendo el ancla del menú y del footer. Dirección y horario salen una sola vez: aquí. */}
             <div id="visitanos" className="pf-visita scroll-mt-4">
-              <h2 className="pf-h2 sf-entra-scroll">Visítanos</h2>
+              <h2 className="pf-h2">Visítanos</h2>
               <MapCard
                 title={
                   <>

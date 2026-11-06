@@ -76,10 +76,13 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
         }
         update();
         c.addEventListener('change', update);
+        // El router reemplaza los atributos de <html> al navegar.
+        document.addEventListener('astro:after-swap', update);
       })();
     </script>
   </head>
   <body class="text-ink font-body">
+    <div class="sf-nav-barra" aria-hidden="true"></div>
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-accent focus:text-primary focus:px-4 focus:py-2 focus:rounded-lg"
@@ -88,13 +91,18 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
     </a>
     <div class="min-h-dvh h-full flex flex-col relative">
       <slot name="top" />
-      <Header logoSrc={logo.src} transition:persist />
+      <div class="sf-cabecera" transition:persist="cabecera">
+        <Header logoSrc={logo.src} />
+      </div>
       <div id="main-content" tabindex="-1">
         <slot />
       </div>
       {!hideFooter && <Footer logoSrc={logo.src} />}
       {!hideFab && <WhatsAppFab text={whatsappText} />}
     </div>
+    <script>
+      import '../scripts/movimiento'
+    </script>
     <script is:inline>
       (function () {
         var PREFIX = 'serflow:scroll:'

@@ -5,9 +5,12 @@ import type { FotoModal } from '../components/ui/PhotoModal'
  * las de su lista (data-fotos): flechas, ← →, deslizar y las orillas del celular. Cada foto tiene URL propia
  * (/catalogo/<categoría>/<slug>): la barra la muestra mientras está abierta (replaceState, sin pelear con el router de
  * Astro) y al cerrar vuelve la de la página. main[data-abrir] abre una foto al cargar (la página de esa URL).
+ * Mientras baja la foto, el marco tiene su forma y un brillo (data-cargando); la anterior y la siguiente quedan bajadas en
+ * las orillas (también en escritorio, donde no se ven), así que las flechas son instantáneas.
  * Los listeners van en document una sola vez: con el ClientRouter este módulo corre una vez y el <dialog> cambia por página.
  */
 
+type Foto = FotoModal['fotos'][number]
 type Estado = { lista: HTMLAnchorElement[]; i: number; j: number; opener: HTMLAnchorElement; base: string }
 let estado: Estado | null = null
 let deslizo = false
@@ -15,13 +18,41 @@ let deslizo = false
 const modal = () => document.querySelector<HTMLDialogElement>('dialog[data-photo-modal]')
 const datos = (a: HTMLAnchorElement): FotoModal => JSON.parse(a.dataset.foto!)
 
-function pintar(d: HTMLDialogElement, e: Estado) {
-  const f = datos(e.lista[e.i])
-  const foto = f.fotos[e.j]
-  const img = d.querySelector<HTMLImageElement>('.mx-foto')!
+function ponerFoto(img: HTMLImageElement, foto: Foto) {
   img.srcset = foto.srcSet ?? ''
   img.sizes = '(min-width: 768px) 60vw, 100vw'
   img.src = foto.src
+}
+
+/** La foto que se va: una copia encima que se desliza y se apaga (mx-sale). Sin animación se quita de una. */
+function despedir(marco: HTMLElement, img: HTMLImageElement) {
+  const sale = img.cloneNode() as HTMLImageElement
+  sale.className = 'mx-saliente'
+  sale.alt = ''
+  sale.style.width = `${img.offsetWidth}px`
+  sale.style.height = `${img.offsetHeight}px`
+  marco.append(sale)
+  Promise.allSettled(sale.getAnimations().map((a) => a.finished)).then(() => sale.remove())
+}
+
+/** dir: sentido de la flecha o del gesto; 0 al abrir (solo fundido). */
+function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
+  const f = datos(e.lista[e.i])
+  const foto = f.fotos[e.j]
+  const marco = d.querySelector<HTMLElement>('.mx-marco')!
+  const img = marco.querySelector<HTMLImageElement>('.mx-foto')!
+  marco.style.setProperty('--mx-dir', String(dir))
+  if (dir && !marco.hasAttribute('data-cargando')) despedir(marco, img)
+  marco.style.setProperty('--mx-r', String(foto.r ?? 0.8))
+  marco.setAttribute('data-cargando', '')
+  img.classList.remove('mx-entra')
+  void img.offsetWidth // Para que mx-entra vuelva a empezar en la foto siguiente.
+  // load llega también con la foto ya bajada: una tarea después, antes de que se vea el brillo (entra en fundido).
+  img.onload = img.onerror = () => {
+    marco.removeAttribute('data-cargando')
+    img.classList.add('mx-entra')
+  }
+  ponerFoto(img, foto)
   img.alt = e.j === 0 ? f.alt : `${f.alt}, foto ${e.j + 1} de ${f.fotos.length}`
   d.querySelector('.mx-contador')!.textContent = `${e.i + 1} / ${e.lista.length}`
   d.querySelector('.mx-cat')!.textContent = f.categoria
@@ -36,8 +67,8 @@ function pintar(d: HTMLDialogElement, e: Estado) {
   const sig = vecina(e, 1)
   d.querySelectorAll<HTMLElement>('[data-mx="ant"]').forEach((b) => (b.hidden = !ant))
   d.querySelectorAll<HTMLElement>('[data-mx="sig"]').forEach((b) => (b.hidden = !sig))
-  if (ant) d.querySelector<HTMLImageElement>('.mx-vecina-ant img')!.src = ant
-  if (sig) d.querySelector<HTMLImageElement>('.mx-vecina-sig img')!.src = sig
+  if (ant) ponerFoto(d.querySelector<HTMLImageElement>('.mx-vecina-ant img')!, ant)
+  if (sig) ponerFoto(d.querySelector<HTMLImageElement>('.mx-vecina-sig img')!, sig)
 
   history.replaceState(history.state, '', e.lista[e.i].getAttribute('href'))
 }
@@ -49,9 +80,9 @@ function paso(e: Estado, dir: 1 | -1): { i: number; j: number } | null {
   return e.j > 0 ? { i: e.i, j: e.j - 1 } : e.i > 0 ? { i: e.i - 1, j: 0 } : null
 }
 
-function vecina(e: Estado, dir: 1 | -1): string | null {
+function vecina(e: Estado, dir: 1 | -1): Foto | null {
   const p = paso(e, dir)
-  return p ? datos(e.lista[p.i]).fotos[p.j].src : null
+  return p ? datos(e.lista[p.i]).fotos[p.j] : null
 }
 
 function mover(dir: 1 | -1) {
@@ -60,7 +91,7 @@ function mover(dir: 1 | -1) {
   const p = paso(estado, dir)
   if (!p) return
   Object.assign(estado, p)
-  pintar(d, estado)
+  pintar(d, estado, dir)
 }
 
 function abrir(a: HTMLAnchorElement) {
