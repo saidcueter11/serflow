@@ -10,8 +10,17 @@ export interface Lugar {
 export const LUGAR_INICIAL: Lugar = { cx: 0.5, cy: 0.42, s: 0.62 }
 /** La copa de la gorra es baja: el diseño arranca centrado (canvas, storyboards de gorra). */
 export const LUGAR_GORRA: Lugar = { cx: 0.5, cy: 0.5, s: 0.62 }
-export const S_MIN = 0.2
+export const S_MIN = 0.1
 export const S_MAX = 1
+
+/** Rectángulo de la foto en fracciones 0 a 1. */
+export interface Ventana {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+export const FOTO_ENTERA: Ventana = { left: 0, top: 0, right: 1, bottom: 1 }
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 
@@ -42,16 +51,35 @@ export function aspectoArea(a: Area): number {
   return m.ancho / m.alto
 }
 
+/** Caja del área en la foto. */
+export function cajaArea(a: Area): Ventana {
+  return {
+    left: Math.min(a.tl[0], a.bl[0]),
+    top: Math.min(a.tl[1], a.tr[1]),
+    right: Math.max(a.tr[0], a.br[0]),
+    bottom: Math.max(a.bl[1], a.br[1]),
+  }
+}
+
+/** Una ventana de la foto en unidades del área (0 a 1 es el área). */
+export function enUnidades(a: Area, v: Ventana): Ventana {
+  const b = cajaArea(a)
+  const w = b.right - b.left
+  const h = b.bottom - b.top
+  return { left: (v.left - b.left) / w, top: (v.top - b.top) / h, right: (v.right - b.left) / w, bottom: (v.bottom - b.top) / h }
+}
+
 /**
- * La caja del diseño nunca sale del área (spec 6.3). Escala entre S_MIN y S_MAX del ancho; si a ese ancho el diseño
- * es más alto que el área, se reduce hasta caber. ratio = ancho / alto del diseño; aspecto = ancho / alto del área.
- * max = la escala máxima para esta prenda y técnica (escalaMax).
+ * El diseño se mueve libre por la foto: su caja solo se queda dentro de la ventana (lo visible de la foto), para que no
+ * se pierda. Escala entre S_MIN y max (escalaMax); si a ese ancho no cabe en la ventana, se reduce hasta caber.
+ * ratio = ancho / alto del diseño.
  */
-export function limitar(l: Lugar, ratio: number, aspecto: number, max = S_MAX): Lugar {
-  const cabe = ratio / aspecto
-  const s = Math.min(clamp(l.s, S_MIN, max), cabe)
+export function limitar(l: Lugar, ratio: number, area: Area, max = S_MAX, ventana = FOTO_ENTERA): Lugar {
+  const v = enUnidades(area, ventana)
+  const aspecto = aspectoArea(area)
+  const s = Math.min(clamp(l.s, S_MIN, max), v.right - v.left, ((v.bottom - v.top) * ratio) / aspecto)
   const h = (s * aspecto) / ratio
-  return { s, cx: clamp(l.cx, s / 2, 1 - s / 2), cy: clamp(l.cy, h / 2, 1 - h / 2) }
+  return { s, cx: clamp(l.cx, v.left + s / 2, v.right - s / 2), cy: clamp(l.cy, v.top + h / 2, v.bottom - h / 2) }
 }
 
 /** "unos N cm de ancho": ancho real del área (lo mide el taller) por la escala. */

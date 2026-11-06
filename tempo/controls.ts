@@ -195,7 +195,7 @@ defineControls(VistaPrevia, {
   etiqueta: { type: "text" },
   modo: { type: "select" },
   tecnica: { type: "select" },
-  maxS: { type: "range", min: 0.2, max: 1, step: 0.01 },
+  maxS: { type: "range", min: 0.1, max: 1, step: 0.01 },
   anchoCm: { type: "number" },
   cargando: { type: "text" },
   alto: { type: "number" },
@@ -206,6 +206,7 @@ defineControls(VistaPrevia, {
   lugar: { type: "object" },
   archivo: { type: "object" },
   foto: false,
+  fotoInicial: false,
   diseno: false,
   onLugar: false,
   onArchivo: false,
@@ -238,10 +239,10 @@ defineControls(CampoDiseno, {
   miniatura: { type: "text" },
   quitarFondo: { type: "boolean" },
   fondoFijo: { type: "boolean" },
+  rechazado: { type: "boolean" },
   escritorio: { type: "boolean" },
   onArchivo: false,
   onQuitar: false,
-  onAyuda: false,
   onQuitarFondo: false,
 });
 

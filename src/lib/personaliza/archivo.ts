@@ -8,26 +8,28 @@ export const MAX_PIXELES = 50_000_000
 export const MIN_LADO = 500
 /** Lado largo de la imagen de trabajo. */
 export const LADO_TRABAJO = 1024
-export const ACEPTA = 'image/*,.pdf,.ai,.psd'
+// Sin image/heic: así el iPhone convierte sus fotos a JPG al elegirlas.
+export const ACEPTA = 'image/png,image/jpeg,image/webp'
 
-/** Formatos que no se intentan abrir aunque el navegador los marque como imagen (PSD llega como image/vnd.adobe.photoshop). */
-const NO_MOSTRABLE = /\.(pdf|ai|psd|eps|cdr)$/i
+/** HEIC igual se intenta abrir si llega (arrastrado): Safari lo muestra; donde no decodifica, da el error de leerDiseno. */
+const SE_INTENTA = /^image\/(png|jpeg|webp|heic|heif)$/
+const HEIC = /\.(heic|heif)$/i
 
 /** Primera decisión, sin abrir el archivo. */
-export function clasificar(f: { name: string; type: string; size: number }): 'pesada' | 'archivo' | 'imagen' {
-  if (NO_MOSTRABLE.test(f.name) || !f.type.startsWith('image/')) return 'archivo'
+export function clasificar(f: { name: string; type: string; size: number }): 'pesada' | 'rechazada' | 'imagen' {
+  if (!SE_INTENTA.test(f.type) && !HEIC.test(f.name)) return 'rechazada'
   if (f.size > MAX_BYTES) return 'pesada'
   return 'imagen'
 }
 
 /** Ya abierta: más de 50 MP no se decodifica; lado corto de menos de 500 px se muestra con aviso. */
-export function porTamano(ancho: number, alto: number, vector: boolean): 'pesada' | 'baja' | 'imagen' {
+export function porTamano(ancho: number, alto: number): 'pesada' | 'baja' | 'imagen' {
   if (ancho * alto > MAX_PIXELES) return 'pesada'
-  if (!vector && Math.min(ancho, alto) < MIN_LADO) return 'baja'
+  if (Math.min(ancho, alto) < MIN_LADO) return 'baja'
   return 'imagen'
 }
 
-/** "PNG · 1200 × 1200 px" / "PDF · 2,4 MB" */
+/** "PNG · 1200 × 1200 px" / "JPG · 2,4 MB" */
 export function detalleArchivo(f: { name: string; size: number }, px?: { ancho: number; alto: number }): string {
   const ext = f.name.includes('.') ? f.name.split('.').pop()!.toUpperCase() : 'Archivo'
   if (px) return `${ext} · ${px.ancho} × ${px.alto} px`
@@ -36,7 +38,7 @@ export function detalleArchivo(f: { name: string; size: number }, px?: { ancho: 
 }
 
 export interface DisenoLeido {
-  estado: 'imagen' | 'baja' | 'archivo' | 'pesada'
+  estado: 'imagen' | 'baja' | 'pesada'
   archivo: File
   detalle: string
   /** URL del original para miniaturas (solo si se puede mostrar). */
@@ -58,24 +60,22 @@ function cargar(url: string): Promise<HTMLImageElement> {
   })
 }
 
-/** Abre el archivo en el navegador. Si no se puede (o no deja leer sus píxeles), queda como tarjeta de archivo. */
-export async function leerDiseno(archivo: File): Promise<DisenoLeido> {
+/** Abre el archivo en el navegador. null = no es una imagen que se pueda usar (otro formato, HEIC sin soporte, dañado). */
+export async function leerDiseno(archivo: File): Promise<DisenoLeido | null> {
   const tipo = clasificar(archivo)
-  if (tipo !== 'imagen') return { estado: tipo, archivo, detalle: detalleArchivo(archivo) }
+  if (tipo === 'rechazada') return null
+  if (tipo === 'pesada') return { estado: tipo, archivo, detalle: detalleArchivo(archivo) }
   const url = URL.createObjectURL(archivo)
   try {
     const img = await cargar(url)
-    const vector = archivo.type === 'image/svg+xml'
-    // Un SVG sin width/height llega con 0: se dibuja al tamaño de trabajo.
-    const ancho = img.naturalWidth || LADO_TRABAJO
-    const alto = img.naturalHeight || LADO_TRABAJO
-    const t = porTamano(ancho, alto, vector)
+    const ancho = img.naturalWidth
+    const alto = img.naturalHeight
+    const t = porTamano(ancho, alto)
     if (t === 'pesada') {
       URL.revokeObjectURL(url)
       return { estado: 'pesada', archivo, detalle: detalleArchivo(archivo) }
     }
-    // Un vector se rasteriza al tamaño de trabajo; una foto solo se reduce.
-    const k = vector ? LADO_TRABAJO / Math.max(ancho, alto) : Math.min(1, LADO_TRABAJO / Math.max(ancho, alto))
+    const k = Math.min(1, LADO_TRABAJO / Math.max(ancho, alto))
     const trabajo = document.createElement('canvas')
     trabajo.width = Math.max(1, Math.round(ancho * k))
     trabajo.height = Math.max(1, Math.round(alto * k))
@@ -91,10 +91,10 @@ export async function leerDiseno(archivo: File): Promise<DisenoLeido> {
       sinFondo.height = trabajo.height
       sinFondo.getContext('2d')!.putImageData(new ImageData(limpio.data, limpio.width, limpio.height), 0, 0)
     }
-    return { estado: t, archivo, url, trabajo, sinFondo, fondoFijo: !fondo && !bordeTransparente(pix), detalle: detalleArchivo(archivo, vector ? undefined : { ancho, alto }) }
+    return { estado: t, archivo, url, trabajo, sinFondo, fondoFijo: !fondo && !bordeTransparente(pix), detalle: detalleArchivo(archivo, { ancho, alto }) }
   } catch {
-    // No decodifica (HEIC en Chrome, archivo dañado) o el canvas quedó contaminado: tarjeta de archivo.
+    // No decodifica (HEIC en Chrome, archivo dañado).
     URL.revokeObjectURL(url)
-    return { estado: 'archivo', archivo, detalle: detalleArchivo(archivo) }
+    return null
   }
 }

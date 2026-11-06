@@ -47,6 +47,7 @@ const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
 const FONDO_FIJO = 'Esta imagen conserva su fondo'
 const PISTA_BORDADO = 'El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos 10 cm de ancho.'
+const ERROR_ARCHIVO = 'No pudimos abrir este archivo'
 
 const colores = (page: Page) => page.locator('input[name=color]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
 const tecnicas = (page: Page) => page.locator('input[name=tecnica]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
@@ -83,12 +84,13 @@ test.describe('/personaliza', () => {
     expect(await sitemap.text()).toContain('/personaliza')
   })
 
-  test('colores: camiseta solo negra y blanca; las gorras conservan los de la muestra', async ({ page }) => {
+  test('colores: solo los que tienen foto real, en camiseta y en gorra', async ({ page }) => {
     await abrir(page)
     expect(await colores(page)).toEqual(['negra', 'blanca'])
     await page.getByText('Gorra', { exact: true }).click()
-    await expect(page.getByText('Azul', { exact: true })).toBeVisible()
-    expect(await colores(page)).toEqual(['negra', 'blanca', 'gris', 'azul'])
+    await expect(page.getByText('Gris', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('Azul', { exact: true })).toHaveCount(0)
+    expect(await colores(page)).toEqual(['negra', 'blanca'])
   })
 
   test('flujo principal: logo sobre blanco, quita el fondo, cambia color y técnica y arma el mensaje de WhatsApp', async ({ page }) => {
@@ -102,7 +104,6 @@ test.describe('/personaliza', () => {
 
     await page.getByText('Blanca', { exact: true }).click()
     await expect(page.getByRole('img', { name: 'Camiseta blanca con tu diseño' })).toBeVisible()
-    await page.getByText('DTF', { exact: true }).click()
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 21 cm de ancho/ })).toBeVisible()
     await page.getByText('2 a 5', { exact: true }).click()
@@ -117,7 +118,7 @@ test.describe('/personaliza', () => {
         '¡Hola, Serflow! Quiero cotizar esta prenda personalizada:',
         '',
         '*Prenda:* Camiseta blanca',
-        '*Técnica:* DTF',
+        '*Técnica:* Estampado',
         '*Ubicación:* Pecho',
         '*Tamaño:* unos 21 cm de ancho',
         '*Cantidad:* 2 a 5',
@@ -139,20 +140,22 @@ test.describe('/personaliza', () => {
     expect(texto).toContain('*Nota:* Tallas M y L')
   })
 
-  test('técnicas por prenda: camiseta con las 3; gorra con bordado y estampado, sin DTF, y el mensaje lo dice', async ({ page }) => {
+  test('técnicas por prenda: sin DTF ni en camiseta ni en gorra; sin diseño, el mensaje no pide ayuda', async ({ page }) => {
     await abrir(page)
-    expect(await tecnicas(page)).toEqual(['estampado', 'dtf', 'bordado'])
+    expect(await tecnicas(page)).toEqual(['estampado', 'bordado'])
+    await expect(page.getByText('DTF', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('No tengo diseño, quiero que me ayuden')).toHaveCount(0)
 
     await page.getByText('Gorra', { exact: true }).click()
     await expect(page.getByText('DTF', { exact: true })).toHaveCount(0)
     expect(await tecnicas(page)).toEqual(['bordado', 'estampado'])
-    await page.getByText('No tengo diseño, quiero que me ayuden').click()
 
     await enviar(page).click()
     const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
     const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain('*Prenda:* Gorra negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1')
-    expect(texto).toContain('*Diseño:* todavía no tengo, quiero que me ayuden')
+    expect(texto).not.toContain('*Diseño:*')
+    expect(texto).not.toContain('quiero que me ayuden')
     expect(texto).not.toContain('*Tamaño:*')
 
     await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
@@ -185,7 +188,7 @@ test.describe('/personaliza', () => {
 
     // Con otra técnica se quita el tope y la pista.
     await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
-    await page.getByText('DTF', { exact: true }).click()
+    await page.getByText('Estampado', { exact: true }).click()
     await expect(page.getByText(PISTA_BORDADO)).toHaveCount(0)
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 13 cm de ancho/ })).toBeVisible()
@@ -226,19 +229,15 @@ test.describe('/personaliza', () => {
     expect(texto).toContain('*Diseño:* te lo mando en el siguiente mensaje, con la vista previa')
   })
 
-  test('estados: imagen pesada, de baja calidad y formato que no se puede mostrar', async ({ page }) => {
+  test('estados: imagen pesada y de baja calidad', async ({ page }) => {
     await abrir(page)
-
-    await subir(page, { name: 'foto-pesada.jpg', mimeType: 'image/jpeg', buffer: Buffer.alloc(21 * 1024 * 1024) })
-    await expect(page.getByText('Esta imagen pesa mucho para verla aquí')).toBeVisible()
 
     await subir(page, { name: 'logo-chico.png', mimeType: 'image/png', buffer: logoSobreBlanco(120) })
     await expect(page.getByText('Tu imagen es pequeña')).toBeVisible()
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
 
-    await subir(page, { name: 'logo-final.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%prueba\n') })
-    await expect(page.getByText('Este archivo no lo podemos mostrar aquí')).toBeVisible()
-    await expect(page.getByText('No se puede ver aquí')).toBeVisible()
+    await subir(page, { name: 'foto-pesada.jpg', mimeType: 'image/jpeg', buffer: Buffer.alloc(21 * 1024 * 1024) })
+    await expect(page.getByText('Esta imagen pesa mucho para verla aquí')).toBeVisible()
 
     await enviar(page).click()
     const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
@@ -246,6 +245,118 @@ test.describe('/personaliza', () => {
     const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain('*Diseño:* te mando el archivo en el siguiente mensaje')
     expect(texto).not.toContain('*Tamaño:*')
+  })
+
+  test('solo imágenes: PDF, AI, PSD y HEIC que no abre dan un error claro y no se envían', async ({ page }) => {
+    await abrir(page)
+    await expect(page.locator('input[type=file]').first()).toHaveAttribute('accept', 'image/png,image/jpeg,image/webp')
+    await expect(page.getByText(/PDF|PSD/)).toHaveCount(0)
+
+    const casos = [
+      { name: 'logo.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n') },
+      { name: 'logo.ai', mimeType: 'application/postscript', buffer: Buffer.from('%!PS\n') },
+      { name: 'logo.psd', mimeType: 'image/vnd.adobe.photoshop', buffer: Buffer.from('8BPS') },
+      // Chrome no decodifica HEIC; Safari sí lo abre y sigue el camino normal.
+      { name: 'foto-iphone.heic', mimeType: 'image/heic', buffer: Buffer.from('no se decodifica') },
+    ]
+    for (const archivo of casos) {
+      await subir(page, archivo)
+      await expect(page.getByText(ERROR_ARCHIVO)).toBeVisible()
+      await expect(page.getByText(archivo.name)).toHaveCount(0)
+      await enviar(page).click()
+      const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+      expect(await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))).not.toContain('*Diseño:*')
+      await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
+    }
+
+    // Una imagen válida quita el error.
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByText('logo-prueba.png')).toBeVisible()
+    await expect(page.getByText(ERROR_ARCHIVO)).toHaveCount(0)
+  })
+
+  test('cantidad: todos los botones tienen la misma forma de píldora', async ({ page }) => {
+    await abrir(page)
+    const chips = page.locator('input[name=cantidad] + span')
+    await expect(chips).toHaveCount(4)
+    for (const chip of await chips.all()) {
+      const caja = (await chip.boundingBox())!
+      expect(caja.width, `${await chip.textContent()}: más ancho que alto`).toBeGreaterThan(caja.height)
+    }
+  })
+
+  test('colocación libre: sin recuadro, se mueve fuera del área, no se pierde y conserva los cm', async ({ page }) => {
+    await abrir(page)
+    await expect(page.locator('.pf-pz-vista polygon')).toHaveCount(0)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+
+    const diseno = page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })
+    await expect(diseno).toBeVisible()
+    await diseno.scrollIntoViewIfNeeded()
+    const centro = async () => {
+      const c = (await diseno.boundingBox())!
+      return { x: c.x + c.width / 2, y: c.y + c.height / 2 }
+    }
+    const inicio = await centro()
+    await page.mouse.click(inicio.x, inicio.y)
+    // Seleccionado: manijas y tamaño, sin recuadro punteado ni guías fijas.
+    await expect(page.getByText('unos 19 cm de ancho', { exact: true })).toBeVisible()
+    await expect(page.locator('.pf-pz-vista polygon')).toHaveCount(0)
+    await expect(page.getByText('Centrado', { exact: true })).toHaveCount(0)
+
+    // Arrastre enorme hacia arriba a la izquierda: llega al borde de la foto visible y se queda ahí, entero.
+    await page.mouse.move(inicio.x, inicio.y)
+    await page.mouse.down()
+    await page.mouse.move(inicio.x - 1500, inicio.y - 1500, { steps: 4 })
+    await page.mouse.up()
+    const vista = (await page.locator('.pf-pz-vista > div').boundingBox())!
+    await expect.poll(async () => (await diseno.boundingBox())!.x - vista.x).toBeLessThan(2)
+    const arriba = (await diseno.boundingBox())!
+    expect(arriba.x).toBeGreaterThanOrEqual(vista.x - 1)
+    expect(arriba.y).toBeGreaterThanOrEqual(vista.y - 1)
+
+    // Hacia abajo a la derecha, igual.
+    const c = await centro()
+    await page.mouse.move(c.x, c.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x + 1500, c.y + 1500, { steps: 4 })
+    await page.mouse.up()
+    await expect.poll(async () => vista.x + vista.width - ((await diseno.boundingBox())!.x + (await diseno.boundingBox())!.width)).toBeLessThan(2)
+    const abajo = (await diseno.boundingBox())!
+    expect(abajo.y + abajo.height).toBeLessThanOrEqual(vista.y + vista.height + 1)
+
+    // El tamaño no cambió por moverlo, y el mensaje lo dice.
+    await enviar(page).click()
+    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Tamaño:* unos 19 cm de ancho')
+  })
+
+  test('bordado: al pedir más de 10 cm avisa el tope sobre la foto', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await page.getByText('Bordado', { exact: true }).click()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
+    const aviso = page.locator('.pf-pz-vista').getByText('Bordado: hasta unos 10 cm de ancho')
+    await expect(aviso).toHaveCount(0)
+    await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
+    await expect(aviso).toBeVisible()
+    await page.getByRole('button', { name: 'Hacer el diseño más pequeño' }).click()
+    await expect(aviso).toHaveCount(0)
+  })
+
+  test('rendimiento: baja una sola foto liviana en WebP; las otras vistas, solo al pedirlas', async ({ page, isMobile }) => {
+    const prendas: { url: string; bytes: number }[] = []
+    page.on('response', async (r) => {
+      if (/\/(camiseta|gorra)-[^/]*\.\w+$/.test(new URL(r.url()).pathname)) prendas.push({ url: new URL(r.url()).pathname, bytes: (await r.body()).length })
+    })
+    await abrir(page)
+    await expect.poll(() => prendas.length).toBe(1)
+    expect(prendas[0].url).toMatch(/\/camiseta-negra\.[^/]*\.webp$/)
+    expect(prendas[0].bytes).toBeLessThanOrEqual(isMobile ? 40 * 1024 : 70 * 1024)
+
+    await page.getByText('Espalda', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda' })).toBeVisible()
+    await expect.poll(() => prendas.length).toBe(2)
+    expect(prendas[1].url).toMatch(/\/camiseta-negra-espalda\.[^/]*\.webp$/)
   })
 
   test('escritorio angosto: la escena llena la vista previa, sin franja, y las dos columnas cierran a ras', async ({ page, isMobile }) => {

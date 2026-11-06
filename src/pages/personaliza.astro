@@ -5,7 +5,7 @@ import { PersonalizaPage } from '../components/personaliza/PersonalizaPage'
 import { coloresMuestra } from '../lib/personaliza/muestra'
 
 // Las fotos se publican optimizadas en el mismo dominio: el motor de la vista previa necesita leer sus píxeles.
-const colores = await coloresMuestra(async (src) => (await getImage({ src, width: 1080, format: 'webp', quality: 82 })).src)
+const colores = await coloresMuestra(async (src, width) => (await getImage({ src, width, format: 'webp', quality: 70 })).src)
 ---
 
 <Layout

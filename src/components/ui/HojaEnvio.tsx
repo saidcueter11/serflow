@@ -176,7 +176,7 @@ export function HojaEnvio({
       <Marco titulo="¿Ya nos llegó tu pedido?" cerrar="Cerrar" onCerrar={onCerrar}>
         <p className="text-[15px] leading-relaxed text-muted">
           {tipo === 'sin-imagen'
-            ? 'Si el mensaje no salió, vuelve al chat y mándalo. Te respondemos por ahí para armar tu diseño.'
+            ? 'Si el mensaje no salió, vuelve al chat y mándalo.'
             : 'Si te faltó adjuntar algo, vuelve al chat y mándalo con el clip o el +.'}
         </p>
         {tipo !== 'sin-imagen' && (diseno || vistaPrevia || archivo) && (
@@ -331,7 +331,6 @@ export function HojaEnvio({
           </PasoHoja>
         )}
 
-        {tipo === 'sin-imagen' && <li className="text-[14px] leading-snug text-muted">En el chat te ayudamos a armar el diseño. Si tienes una foto o un dibujo de tu idea, mándalo ahí.</li>}
       </ol>
 
       {compartir && tipo !== 'sin-imagen' && (

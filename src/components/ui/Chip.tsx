@@ -25,7 +25,7 @@ export function Chip({
   return (
     <label className="inline-flex cursor-pointer">
       <input type="radio" name={name} value={value ?? label} defaultChecked={selected} className="peer sr-only" />
-      <span className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-4 font-body text-[14px] font-semibold text-ink transition-colors duration-(--motion-fast) peer-checked:border-accent peer-checked:bg-accent peer-checked:text-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
+      <span className="inline-flex min-h-11 min-w-14 items-center justify-center rounded-full border border-line bg-surface px-4 font-body text-[14px] font-semibold text-ink transition-colors duration-(--motion-fast) peer-checked:border-accent peer-checked:bg-accent peer-checked:text-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
         {label}
       </span>
     </label>

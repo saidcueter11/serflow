@@ -1,15 +1,15 @@
 // Personalizador (PRI-122): lo que queda fijo en el código (spec, sección 6.7) y la forma de los datos que
 // configura serflow-admin (tablas garment_colors y garment_photos). Mientras llegan las fotos del taller
-// (PRI-125), los colores salen de muestra.ts con esta misma forma.
+// (PRI-125), los colores salen de muestra.ts con esta misma forma. Cada color y vista es una foto real distinta: nada se tiñe.
 
 export type Prenda = 'camiseta' | 'gorra'
-export type Tecnica = 'estampado' | 'dtf' | 'bordado'
+export type Tecnica = 'estampado' | 'bordado'
 export type Vista = 'frente' | 'espalda'
 export type Cantidad = '1' | '2 a 5' | '6 a 20' | 'Más de 20'
 
 /** [x, y] en fracciones 0 a 1 de la foto. */
 export type Punto = [number, number]
-/** Las 4 esquinas del área de impresión (columna print_area). */
+/** Las 4 esquinas del área de impresión (columna print_area). Calibra los cm y la posición inicial; el diseño puede salirse. */
 export interface Area {
   tl: Punto
   tr: Punto
@@ -21,6 +21,8 @@ export interface Area {
 export interface FotoColor {
   view: Vista
   image_url: string
+  /** La misma foto más liviana, para celular (no es columna: la deriva quien optimiza). */
+  image_url_movil: string
   print_area: Area
   print_width_cm: number
 }
@@ -39,7 +41,6 @@ export const ESCENA = { ancho: 1080, alto: 1350 } as const
 
 export const TECNICAS: Record<Tecnica, { nombre: string; pista: string }> = {
   estampado: { nombre: 'Estampado', pista: 'Mate, toma la textura de la tela' },
-  dtf: { nombre: 'DTF', pista: 'Colores vivos, con brillo' },
   bordado: { nombre: 'Bordado', pista: 'Hilo con relieve' },
 }
 
@@ -53,7 +54,7 @@ export const PRENDAS: Record<Prenda, { nombre: string; tecnicas: Tecnica[]; ubic
   // bordadoMaxCm: en camiseta se borda solo lo pequeño, un logo o un nombre (Said, PRI-122).
   camiseta: {
     nombre: 'Camiseta',
-    tecnicas: ['estampado', 'dtf', 'bordado'],
+    tecnicas: ['estampado', 'bordado'],
     ubicaciones: [
       { nombre: 'Pecho', vista: 'frente' },
       { nombre: 'Espalda', vista: 'espalda' },

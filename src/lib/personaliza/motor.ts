@@ -1,39 +1,41 @@
 // Motor de la vista realista (spec 6.2), portado del prototipo v4. Canvas 2D sin librerías ni WebGL: lo que se ve en
-// la vista previa es exactamente lo que se descarga como mockup. El diseño solo se pinta dentro del área de impresión,
-// así que no hace falta máscara de la prenda. Luminancia, desenfoque y filtros de técnica se hacen sobre los píxeles
-// (ctx.filter no existe en Safari viejo).
+// la vista previa es exactamente lo que se descarga como mockup. El diseño se pinta donde el cliente lo deje, sin máscara
+// de la prenda: el área de impresión solo da la escala y la curva. Luminancia, desenfoque y filtros de técnica se hacen
+// sobre los píxeles (ctx.filter no existe en Safari viejo).
 import { ESCENA, type Area, type Punto, type Tecnica } from './datos'
-import { aspectoArea, enArea, type Lugar } from './lugar'
+import { FOTO_ENTERA, aspectoArea, enArea, enUnidades, type Lugar } from './lugar'
 
 const { ancho: W, alto: H } = ESCENA
-/** Malla completa y la rápida que se usa mientras se arrastra (sin pliegues). */
+/** Celdas por ancho de área de la malla completa y de la rápida que se usa mientras se arrastra (sin pliegues). */
 const N = 16
 const N_RAPIDA = 8
-/** Ancho del espacio plano del área en el que se coloca el diseño. */
+/** Px del diseño por ancho de área antes de deformarlo. */
 const PA = 600
+/** Los mapas de la tela van a la mitad de la escena: 4 veces menos memoria y cálculo, y son de baja frecuencia. */
+const MAPA_W = W / 2
+const MAPA_H = H / 2
 /** Lado largo del diseño ya tratado (bordado en 512 × 512 como mucho). */
 const LADO_DISENO = 512
-const MARGEN = 12
+/** Px alrededor del diseño para la sombra del bordado y el desenfoque. */
+const MARGEN = 8
 
-export interface Region {
-  x: number
-  y: number
-  w: number
-  h: number
+/** Malla de toda la foto: el punto (i, j) corresponde a u = (i0 + i) / n, v = (j0 + j) / n del área. */
+export interface Malla {
+  n: number
+  i0: number
+  j0: number
+  puntos: Punto[][]
 }
 
 export interface FotoLista {
   escena: HTMLCanvasElement
   area: Area
-  /** Caja del área más un margen, en px de la escena: los mapas y la capa del diseño tienen este tamaño. */
-  region: Region
-  quad: Punto[]
   sombras: HTMLCanvasElement
   luces: HTMLCanvasElement
   trama: HTMLCanvasElement
   oscura: boolean
-  malla: Punto[][]
-  rapida: Punto[][]
+  malla: Malla
+  rapida: Malla
 }
 
 function lienzo(w: number, h: number): HTMLCanvasElement {
@@ -95,10 +97,13 @@ export function dentroDe(q: Punto[], x: number, y: number): boolean {
   return true
 }
 
-/** Un diseño plano sobre un cilindro visto de frente: se comprime hacia los lados. */
+/** Un diseño plano sobre un cilindro visto de frente: se comprime hacia los lados. Fuera del área sigue en línea recta. */
 export function envolver(u: number, curva: number): number {
   if (!curva) return u
   const th = curva * 1.4
+  const pendiente = th / 2 / Math.tan(th / 2)
+  if (u < 0) return u * pendiente
+  if (u > 1) return 1 + (u - 1) * pendiente
   return 0.5 + Math.sin((u - 0.5) * th) / (2 * Math.sin(th / 2))
 }
 
@@ -122,56 +127,58 @@ export function prepararFoto(img: HTMLImageElement, area: Area, curva: number): 
   const k = Math.max(W / img.naturalWidth, H / img.naturalHeight)
   ctx.drawImage(img, (W - img.naturalWidth * k) / 2, (H - img.naturalHeight * k) / 2, img.naturalWidth * k, img.naturalHeight * k)
 
-  const quad: Punto[] = [area.tl, area.tr, area.br, area.bl].map(([x, y]) => [x * W, y * H])
-  const xs = quad.map((p) => p[0])
-  const ys = quad.map((p) => p[1])
-  const x0 = Math.max(0, Math.floor(Math.min(...xs)) - MARGEN)
-  const y0 = Math.max(0, Math.floor(Math.min(...ys)) - MARGEN)
-  const region = { x: x0, y: y0, w: Math.min(W, Math.ceil(Math.max(...xs)) + MARGEN) - x0, h: Math.min(H, Math.ceil(Math.max(...ys)) + MARGEN) - y0 }
-  const { w, h } = region
-
   // Luminancia de la tela a tres escalas: pliegues (desplazar), sombras y trama.
-  const L = luminancia(ctx.getImageData(region.x, region.y, w, h).data)
-  const pliegues = desenfocar(L, w, h, 6, 3)
-  const L1 = desenfocar(L, w, h, 1, 1)
-  const L4 = desenfocar(L, w, h, 4, 2)
-  // Luz media solo con los píxeles dentro del área (el admin no la configura).
+  const chica = lienzo(MAPA_W, MAPA_H)
+  const cc = chica.getContext('2d', { willReadFrequently: true })!
+  cc.drawImage(escena, 0, 0, MAPA_W, MAPA_H)
+  const L = luminancia(cc.getImageData(0, 0, MAPA_W, MAPA_H).data)
+  const pliegues = desenfocar(L, MAPA_W, MAPA_H, 3, 3)
+  const L1 = desenfocar(L, MAPA_W, MAPA_H, 1, 1)
+  const L4 = desenfocar(L, MAPA_W, MAPA_H, 2, 2)
+  // Luz media solo con los píxeles dentro del área, que está sobre la tela (el admin no la configura).
+  const quad: Punto[] = [area.tl, area.tr, area.br, area.bl].map(([x, y]) => [x * MAPA_W, y * MAPA_H])
   let suma = 0
   let n = 0
-  for (let y = 0; y < h; y++)
-    for (let x = 0; x < w; x++)
-      if (dentroDe(quad, x + region.x, y + region.y)) {
-        suma += L1[y * w + x]
+  for (let y = 0; y < MAPA_H; y++)
+    for (let x = 0; x < MAPA_W; x++)
+      if (dentroDe(quad, x, y)) {
+        suma += L1[y * MAPA_W + x]
         n++
       }
   const ref = Math.max(8, suma / Math.max(1, n)) * 1.05
   const wk = ref < 60 ? 9 : ref < 140 ? 6 : 4.5
-  const sombras = gris(w, h, (i) => Math.min(255, (255 * L1[i]) / ref))
-  const luces = gris(w, h, (i) => Math.max(0, Math.min(255, (L1[i] - ref) * 3.2)))
-  const trama = gris(w, h, (i) => 128 + Math.max(-127, Math.min(127, (L1[i] - L4[i]) * wk)))
+  const sombras = gris(MAPA_W, MAPA_H, (i) => Math.min(255, (255 * L1[i]) / ref))
+  const luces = gris(MAPA_W, MAPA_H, (i) => Math.max(0, Math.min(255, (L1[i] - ref) * 3.2)))
+  const trama = gris(MAPA_W, MAPA_H, (i) => 128 + Math.max(-127, Math.min(127, (L1[i] - L4[i]) * wk)))
 
   const desplazar = ([px, py]: Punto): Punto => {
-    const x = Math.round(px - region.x)
-    const y = Math.round(py - region.y)
-    if (x < 5 || y < 5 || x >= w - 5 || y >= h - 5) return [px, py]
-    const gx = pliegues[y * w + x + 5] - pliegues[y * w + x - 5]
-    const gy = pliegues[(y + 5) * w + x] - pliegues[(y - 5) * w + x]
+    const x = Math.round((px / W) * MAPA_W)
+    const y = Math.round((py / H) * MAPA_H)
+    if (x < 3 || y < 3 || x >= MAPA_W - 3 || y >= MAPA_H - 3) return [px, py]
+    const gx = pliegues[y * MAPA_W + x + 3] - pliegues[y * MAPA_W + x - 3]
+    const gy = pliegues[(y + 3) * MAPA_W + x] - pliegues[(y - 3) * MAPA_W + x]
     return [px + gx * 0.2, py + gy * 0.2]
   }
-  const malla = (n: number, conPliegues: boolean): Punto[][] =>
-    Array.from({ length: n + 1 }, (_, j) =>
-      Array.from({ length: n + 1 }, (_, i) => {
-        const u = i / n
-        const v = j / n
+  // La malla cubre toda la foto, con la densidad de siempre sobre el área.
+  const foto = enUnidades(area, FOTO_ENTERA)
+  const malla = (n: number, conPliegues: boolean): Malla => {
+    const i0 = Math.floor(foto.left * n)
+    const j0 = Math.floor(foto.top * n)
+    const puntos = Array.from({ length: Math.ceil(foto.bottom * n) - j0 + 1 }, (_, j) =>
+      Array.from({ length: Math.ceil(foto.right * n) - i0 + 1 }, (_, i) => {
+        const u = (i0 + i) / n
+        const v = (j0 + j) / n
         // Sobre una superficie redonda el centro baja un poco.
-        const bulto = curva * 0.035 * Math.sin(u * Math.PI)
-        const [fx, fy] = enArea(area, envolver(u, curva), v + bulto * (1 - v))
+        const bulto = curva * 0.035 * Math.sin(Math.min(1, Math.max(0, u)) * Math.PI)
+        const [fx, fy] = enArea(area, envolver(u, curva), v + bulto * Math.max(0, 1 - v))
         const p: Punto = [fx * W, fy * H]
         return conPliegues ? desplazar(p) : p
       }),
     )
+    return { n, i0, j0, puntos }
+  }
 
-  return { escena, area, region, quad, sombras, luces, trama, oscura: ref < 70, malla: malla(N, true), rapida: malla(N_RAPIDA, false) }
+  return { escena, area, sombras, luces, trama, oscura: ref < 70, malla: malla(N, true), rapida: malla(N_RAPIDA, false) }
 }
 
 /** Filtros saturate y contrast de CSS, a mano. */
@@ -306,20 +313,8 @@ export function prepararDiseno(src: HTMLCanvasElement, tecnica: Tecnica): HTMLCa
     return c
   }
   const im = x.getImageData(0, 0, c.width, c.height)
-  if (tecnica === 'dtf') ajustar(im.data, 1.35, 1.08)
-  else ajustar(im.data, 0.85, 0.95)
+  ajustar(im.data, 0.85, 0.95)
   x.putImageData(im, 0, 0)
-  if (tecnica === 'dtf') {
-    // Brillo del film en degradado.
-    x.globalCompositeOperation = 'source-atop'
-    const gr = x.createLinearGradient(0, 0, c.width, c.height)
-    gr.addColorStop(0, 'rgba(255,255,255,.18)')
-    gr.addColorStop(0.45, 'rgba(255,255,255,0)')
-    gr.addColorStop(1, 'rgba(255,255,255,.05)')
-    x.fillStyle = gr
-    x.fillRect(0, 0, c.width, c.height)
-    x.globalCompositeOperation = 'source-over'
-  }
   return c
 }
 
@@ -354,13 +349,13 @@ function tri(ctx: CanvasRenderingContext2D, img: CanvasImageSource, s0: Punto, s
 
 const AJUSTE: Record<Tecnica, (oscura: boolean) => { sombras: number; luces: number; trama: number; alfa: number }> = {
   estampado: (o) => ({ sombras: 1, luces: o ? 0.25 : 0.45, trama: o ? 0.8 : 1, alfa: o ? 0.9 : 0.93 }),
-  dtf: () => ({ sombras: 1, luces: 0.65, trama: 0.5, alfa: 1 }),
   bordado: () => ({ sombras: 0.6, luces: 0.2, trama: 0.12, alfa: 1 }),
 }
 
 /**
- * Pinta la escena completa (1080 × 1350) en ctx: la foto y, si hay, el diseño ya tratado, deformado sobre el área,
- * con las sombras, luces y trama de la tela, recortado al área. rapida = malla 8 × 8 sin pliegues (mientras se arrastra).
+ * Pinta la escena completa (1080 × 1350) en ctx: la foto y, si hay, el diseño ya tratado, deformado sobre la malla, con
+ * las sombras, luces y trama de la tela. rapida = malla 8 × 8 sin pliegues (mientras se arrastra). La capa ocupa toda la
+ * escena, pero solo se dibuja y se compone la caja del diseño: el costo depende del diseño, no de la foto.
  */
 export function dibujar(ctx: CanvasRenderingContext2D, foto: FotoLista, diseno: HTMLCanvasElement | null, lugar: Lugar, tecnica: Tecnica, rapida = false) {
   ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -369,59 +364,75 @@ export function dibujar(ctx: CanvasRenderingContext2D, foto: FotoLista, diseno: 
   ctx.drawImage(foto.escena, 0, 0)
   if (!diseno) return
 
-  const { region } = foto
-  const paH = Math.round(PA / aspectoArea(foto.area))
-  const pa = auxiliar('pa', PA, paH)
+  const paH = PA / aspectoArea(foto.area)
+  const dw = Math.max(1, Math.round(lugar.s * PA))
+  const dh = Math.max(1, Math.round(dw / (diseno.width / diseno.height)))
+  const pa = auxiliar('pa', dw, dh)
   const px = pa.getContext('2d')!
-  px.clearRect(0, 0, PA, paH)
-  const dw = lugar.s * PA
-  const dh = dw / (diseno.width / diseno.height)
-  px.drawImage(diseno, lugar.cx * PA - dw / 2, lugar.cy * paH - dh / 2, dw, dh)
+  px.clearRect(0, 0, dw, dh)
+  px.drawImage(diseno, 0, 0, dw, dh)
 
-  const capa = auxiliar('capa', region.w, region.h)
+  const capa = auxiliar('capa', W, H)
   const cx = capa.getContext('2d')!
   cx.setTransform(1, 0, 0, 1, 0, 0)
   cx.globalCompositeOperation = 'source-over'
   cx.globalAlpha = 1
-  cx.clearRect(0, 0, region.w, region.h)
-  const malla = rapida ? foto.rapida : foto.malla
-  const n = malla.length - 1
-  const local = (p: Punto): Punto => [p[0] - region.x, p[1] - region.y]
-  const sx = PA / n
-  const sy = paH / n
-  for (let j = 0; j < n; j++)
-    for (let i = 0; i < n; i++) {
-      const s00: Punto = [i * sx, j * sy]
-      const s10: Punto = [(i + 1) * sx, j * sy]
-      const s01: Punto = [i * sx, (j + 1) * sy]
-      const s11: Punto = [(i + 1) * sx, (j + 1) * sy]
-      const [d00, d10, d01, d11] = [malla[j][i], malla[j][i + 1], malla[j + 1][i], malla[j + 1][i + 1]].map(local)
-      tri(cx, pa, s00, s10, s11, d00, d10, d11)
-      tri(cx, pa, s00, s11, s01, d00, d11, d01)
-    }
+  cx.clearRect(0, 0, W, H)
 
-  // La tinta toma la tela: sombras, luces y trama; después queda solo la forma del diseño dentro del área.
-  const forma = auxiliar('forma', region.w, region.h)
+  // Solo las celdas de la malla que toca el diseño. s = coordenadas en pa, d = en la escena.
+  const { n, i0, j0, puntos } = rapida ? foto.rapida : foto.malla
+  const izq = lugar.cx - lugar.s / 2
+  const arriba = lugar.cy - dh / paH / 2
+  const s = (i: number, j: number): Punto => [((i0 + i) / n - izq) * PA, ((j0 + j) / n - arriba) * paH]
+  const iA = Math.max(0, Math.floor(izq * n) - i0)
+  const iB = Math.min(puntos[0].length - 1, Math.ceil((izq + lugar.s) * n) - i0)
+  const jA = Math.max(0, Math.floor(arriba * n) - j0)
+  const jB = Math.min(puntos.length - 1, Math.ceil((arriba + dh / paH) * n) - j0)
+  let x0: number = W
+  let y0: number = H
+  let x1 = 0
+  let y1 = 0
+  for (let j = jA; j < jB; j++)
+    for (let i = iA; i < iB; i++) {
+      const [d00, d10, d01, d11] = [puntos[j][i], puntos[j][i + 1], puntos[j + 1][i], puntos[j + 1][i + 1]]
+      tri(cx, pa, s(i, j), s(i + 1, j), s(i + 1, j + 1), d00, d10, d11)
+      tri(cx, pa, s(i, j), s(i + 1, j + 1), s(i, j + 1), d00, d11, d01)
+      for (const [x, y] of [d00, d10, d01, d11]) {
+        x0 = Math.min(x0, x)
+        y0 = Math.min(y0, y)
+        x1 = Math.max(x1, x)
+        y1 = Math.max(y1, y)
+      }
+    }
+  const bx = Math.max(0, Math.floor(x0) - MARGEN)
+  const by = Math.max(0, Math.floor(y0) - MARGEN)
+  const bw = Math.min(W, Math.ceil(x1) + MARGEN) - bx
+  const bh = Math.min(H, Math.ceil(y1) + MARGEN) - by
+  if (bw <= 0 || bh <= 0) return
+
+  // La tinta toma la tela: sombras, luces y trama; después queda solo la forma del diseño.
+  const forma = auxiliar('forma', W, H)
   const fx = forma.getContext('2d')!
-  fx.clearRect(0, 0, region.w, region.h)
-  fx.drawImage(capa, 0, 0)
+  fx.clearRect(0, 0, W, H)
+  fx.drawImage(capa, bx, by, bw, bh, bx, by, bw, bh)
   const aj = AJUSTE[tecnica](foto.oscura)
+  cx.save()
+  cx.beginPath()
+  cx.rect(bx, by, bw, bh)
+  cx.clip()
   cx.globalCompositeOperation = 'multiply'
   cx.globalAlpha = aj.sombras
-  cx.drawImage(foto.sombras, 0, 0)
+  cx.drawImage(foto.sombras, 0, 0, W, H)
   cx.globalCompositeOperation = 'screen'
   cx.globalAlpha = aj.luces
-  cx.drawImage(foto.luces, 0, 0)
+  cx.drawImage(foto.luces, 0, 0, W, H)
   cx.globalCompositeOperation = 'overlay'
   cx.globalAlpha = aj.trama
-  cx.drawImage(foto.trama, 0, 0)
+  cx.drawImage(foto.trama, 0, 0, W, H)
   cx.globalAlpha = 1
   cx.globalCompositeOperation = 'destination-in'
   cx.drawImage(forma, 0, 0)
-  cx.beginPath()
-  foto.quad.map(local).forEach(([x, y], i) => (i ? cx.lineTo(x, y) : cx.moveTo(x, y)))
-  cx.closePath()
-  cx.fill()
+  cx.restore()
   cx.globalCompositeOperation = 'source-over'
 
   ctx.save()
@@ -433,7 +444,7 @@ export function dibujar(ctx: CanvasRenderingContext2D, foto: FotoLista, diseno: 
     ctx.shadowOffsetX = 0.8
     ctx.shadowOffsetY = 1.6
   } else ctx.filter = 'blur(0.45px)'
-  ctx.drawImage(capa, region.x, region.y)
+  ctx.drawImage(capa, bx, by, bw, bh, bx, by, bw, bh)
   ctx.restore()
 }
 

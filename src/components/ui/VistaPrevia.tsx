@@ -2,20 +2,21 @@ import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type
 import { Button } from './Button'
 import { Girador, IconArchivo, IconCentrar, IconMas, IconMenos, IconReintentar, IconSinSenal, IconSubir } from '../icons/PersonalizaIcons'
 import { ACEPTA } from '../../lib/personaliza/archivo'
-import { ESCENA, type Tecnica } from '../../lib/personaliza/datos'
-import { S_MAX, aspectoArea, cajaDiseno, enArea, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { ESCENA, type FotoColor, type Tecnica } from '../../lib/personaliza/datos'
+import { S_MAX, aspectoArea, cajaArea, cajaDiseno, enArea, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { dibujar, type FotoLista } from '../../lib/personaliza/motor'
 
 /**
  * Vista previa realista (PRI-122): la foto de la prenda en el color elegido con el diseño encima, pintada por el motor
- * canvas 2D (lo que se ve es lo que se descarga). Las guías, manijas y botones van encima, en HTML: no salen en el
- * mockup.
+ * canvas 2D (lo que se ve es lo que se descarga). Las manijas y botones van encima, en HTML: no salen en el mockup.
  *
  * Mover y escalar: tocar el diseño lo selecciona (así el scroll de la página no lo arrastra sin querer); seleccionado
  * se arrastra con un dedo, se escala con dos (pellizcar) o con las manijas. Alternativa sin arrastrar (WCAG 2.5.7):
- * botones − / + / Centrar, y con teclado flechas, + y −. El diseño nunca sale del área de impresión.
+ * botones − / + / Centrar, y con teclado flechas, + y −. La colocación es libre: el diseño solo se queda dentro de lo
+ * visible de la foto. Sin guías fijas: la línea central y "Centrado" salen solo mientras se arrastra. El área de impresión
+ * no se dibuja (calibra los cm); el tope del bordado se avisa sobre la foto cuando el cliente intenta pasarlo.
  *
- * Modos: vacio (sin diseño, el área punteada abre el selector de archivos), listo, procesando (brillo de carga),
+ * Modos: vacio (sin diseño, tocar el área abre el selector de archivos), listo, procesando (brillo de carga),
  * lento (pasaron 5 s: Seguir sin vista previa), archivo (tarjeta en vez del diseño), cargando (la foto anterior
  * atenuada mientras llega la del color nuevo), sin-senal (la foto no cargó: Reintentar pide solo la foto).
  *
@@ -27,6 +28,8 @@ export type ModoVista = 'vacio' | 'listo' | 'procesando' | 'lento' | 'archivo' |
 export interface VistaPreviaProps {
   /** Foto preparada por el motor. Mientras carga la primera, null. */
   foto: FotoLista | null
+  /** La foto como <img>, ya en el HTML: se ve sin esperar el JS de la isla y hasta que el motor pinta la primera. */
+  fotoInicial?: Pick<FotoColor, 'image_url' | 'image_url_movil'>
   /** "Camiseta negra" o "Camiseta negra, espalda". */
   etiqueta: string
   modo: ModoVista
@@ -61,6 +64,7 @@ const pct = (v: number) => `${v * 100}%`
 
 export function VistaPrevia({
   foto,
+  fotoInicial,
   etiqueta,
   modo,
   tecnica,
@@ -81,9 +85,11 @@ export function VistaPrevia({
   onSeguirSinVista,
 }: VistaPreviaProps) {
   const lienzo = useRef<HTMLCanvasElement>(null)
+  const marco = useRef<HTMLDivElement>(null)
   const escena = useRef<HTMLDivElement>(null)
   const [sel, setSel] = useState(seleccionado)
   const [arrastrando, setArrastrando] = useState(false)
+  const [enTope, setEnTope] = useState(false)
   const punteros = useRef(new Map<number, { x: number; y: number }>())
   const inicio = useRef<{ l: Lugar; dist: number; x: number; y: number; manija: boolean } | null>(null)
 
@@ -122,16 +128,24 @@ export function VistaPrevia({
   const aspecto = area ? aspectoArea(area) : 1
   const ratio = diseno ? diseno.width / diseno.height : 1
   const caja = area && diseno ? cajaDiseno(area, l, ratio, aspecto) : null
-  const set = (n: Lugar) => onLugar?.(limitar(n, ratio, aspecto, maxS))
+  /** Lo visible de la foto, que la vista previa recorta. Solo se mide al mover: el recorte depende del layout. */
+  const ventana = () => {
+    const e = escena.current!.getBoundingClientRect()
+    const m = marco.current!.getBoundingClientRect()
+    return {
+      left: Math.max(0, (m.left - e.left) / e.width),
+      top: Math.max(0, (m.top - e.top) / e.height),
+      right: Math.min(1, (m.right - e.left) / e.width),
+      bottom: Math.min(1, (m.bottom - e.top) / e.height),
+    }
+  }
+  const set = (n: Lugar) => {
+    setEnTope(n.s > maxS + 1e-6)
+    onLugar?.(limitar(n, ratio, area!, maxS, ventana()))
+  }
   const tamano = `unos ${tamanoCm(anchoCm, l.s)} cm de ancho`
   const centrado = Math.abs(l.cx - 0.5) < 0.01
-  const bbox = area && {
-    left: Math.min(area.tl[0], area.bl[0]),
-    top: Math.min(area.tl[1], area.tr[1]),
-    right: Math.max(area.tr[0], area.br[0]),
-    bottom: Math.max(area.bl[1], area.br[1]),
-  }
-  const poligono = area && [area.tl, area.tr, area.br, area.bl].map(([x, y]) => `${x * ESCENA.ancho},${y * ESCENA.alto}`).join(' ')
+  const bbox = area && cajaArea(area)
   // Recorte centrado en el área de impresión, sin dejar franjas vacías arriba ni abajo. En % del alto real: la página
   // de escritorio estira la vista previa más allá de `alto`; si la estira más que la escena (125cqw), la escena crece a
   // lo alto y se recorta a los lados, centrada, en vez de dejar una franja vacía arriba.
@@ -198,15 +212,22 @@ export function VistaPrevia({
 
   return (
     <div
+      ref={marco}
       className={`@container relative overflow-hidden bg-surface-2 font-body text-ink ${limpia ? 'h-full' : 'rounded-tile'}`}
       style={alto ? { height: alto } : { aspectRatio: '4 / 5' }}
       onPointerDown={() => setSel(false)}
     >
       <div
         ref={escena}
-        className={`absolute ${alto ? 'left-1/2 -translate-x-1/2' : 'inset-x-0'} aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' ? 'opacity-40 blur-[2px]' : ''}`}
+        className={`absolute ${alto ? 'left-1/2 -translate-x-1/2' : 'inset-x-0'} aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' && foto ? 'opacity-40 blur-[2px]' : ''}`}
         style={recorte}
       >
+        {!foto && fotoInicial && (
+          <picture>
+            <source media="(min-width: 896px)" srcSet={fotoInicial.image_url} />
+            <img src={fotoInicial.image_url_movil} alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
+          </picture>
+        )}
         <canvas
           ref={lienzo}
           width={ESCENA.ancho}
@@ -216,10 +237,9 @@ export function VistaPrevia({
           className="pz-fade absolute inset-0 h-full w-full"
         />
 
-        {area && bbox && (modo === 'vacio' || ajustando) && (
-          <svg viewBox={`0 0 ${ESCENA.ancho} ${ESCENA.alto}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-            <polygon points={poligono} fill="none" stroke="var(--color-accent)" strokeWidth="5" strokeDasharray="18 12" strokeLinejoin="round" />
-            {ajustando && (
+        {area && ajustando && arrastrando && centrado && (
+          <>
+            <svg viewBox={`0 0 ${ESCENA.ancho} ${ESCENA.alto}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
               <line
                 x1={enArea(area, 0.5, 0)[0] * ESCENA.ancho}
                 y1={enArea(area, 0.5, 0)[1] * ESCENA.alto}
@@ -230,13 +250,11 @@ export function VistaPrevia({
                 strokeWidth="2.5"
                 strokeDasharray="10 10"
               />
-            )}
-          </svg>
-        )}
-        {ajustando && bbox && centrado && (
-          <span className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent px-2 py-0.5 text-[12px] font-bold text-primary" style={{ left: pct(enArea(area!, 0.5, 0)[0]), top: pct(enArea(area!, 0.5, 0)[1]) }}>
-            Centrado
-          </span>
+            </svg>
+            <span className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent px-2 py-0.5 text-[12px] font-bold text-primary" style={{ left: pct(enArea(area, 0.5, 0)[0]), top: pct(enArea(area, 0.5, 0)[1]) }}>
+              Centrado
+            </span>
+          </>
         )}
 
         {modo === 'vacio' && bbox && (
@@ -328,7 +346,12 @@ export function VistaPrevia({
           </span>
         </div>
       )}
-      {pista && modo === 'listo' && conDiseno && !ajustando && !limpia && (
+      {enTope && maxS < S_MAX && modo === 'listo' && !limpia && (
+        <div role="status" className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-2">
+          <span className="pz-fade rounded-full bg-primary/90 px-3 py-1.5 text-center text-[13px] font-semibold">Bordado: hasta unos {tamanoCm(anchoCm, maxS)} cm de ancho</span>
+        </div>
+      )}
+      {pista && modo === 'listo' && conDiseno && !ajustando && !enTope && !limpia && (
         <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
           <span className="pz-fade rounded-full bg-primary/90 px-3 py-1.5 text-[13px] font-semibold">
             {escritorio ? 'Haz clic en tu diseño para moverlo o cambiar el tamaño' : 'Toca tu diseño para moverlo o cambiar el tamaño'}

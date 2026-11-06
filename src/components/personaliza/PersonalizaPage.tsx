@@ -5,7 +5,7 @@ import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '.
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
 import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
-import { LUGAR_GORRA, LUGAR_INICIAL, aspectoArea, escalaMax, limitar, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, limitar, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
 
@@ -17,6 +17,8 @@ import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/pe
 
 const CLAVE = 'serflow:personaliza'
 const LENTO_MS = 5000
+/** En celular se baja la foto liviana; solo el ancho de escritorio (el mismo del layout) pide la grande. */
+const ESCRITORIO = '(min-width: 896px)'
 // ponytail: guarda las 3 últimas fotos preparadas (cada una ~10 MB de canvas); subir si cambiar de color se siente lento.
 const FOTOS_EN_MEMORIA = 3
 
@@ -28,7 +30,6 @@ interface Elecciones {
   cantidad: Cantidad
   nota: string
   lugar: Lugar
-  ayuda: boolean
   chatAbierto: boolean
 }
 
@@ -37,7 +38,7 @@ const lugarDe = (p: Prenda) => (p === 'gorra' ? LUGAR_GORRA : LUGAR_INICIAL)
 function useEscritorio() {
   const [escritorio, setEscritorio] = useState(false)
   useEffect(() => {
-    const mq = matchMedia('(min-width: 896px)')
+    const mq = matchMedia(ESCRITORIO)
     const cambiar = () => setEscritorio(mq.matches)
     cambiar()
     mq.addEventListener('change', cambiar)
@@ -64,8 +65,8 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const [cantidad, setCantidad] = useState<Cantidad>('1')
   const [nota, setNota] = useState('')
   const [lugar, setLugar] = useState<Lugar>(LUGAR_INICIAL)
-  const [ayuda, setAyuda] = useState(false)
   const [leido, setLeido] = useState<DisenoLeido | null>(null)
+  const [rechazado, setRechazado] = useState(false)
   const [procesando, setProcesando] = useState<File | null>(null)
   const [lento, setLento] = useState(false)
   const [sinVista, setSinVista] = useState(false)
@@ -94,7 +95,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const [fotoEstado, setFotoEstado] = useState<'cargando' | 'lista' | 'error'>('cargando')
   const [intento, setIntento] = useState(0)
   useEffect(() => {
-    const url = fotoInfo.image_url
+    const url = matchMedia(ESCRITORIO).matches ? fotoInfo.image_url : fotoInfo.image_url_movil
     const guardada = fotos.current.get(url)
     if (guardada) {
       setFoto(guardada)
@@ -118,14 +119,14 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     }
   }, [fotoInfo.image_url, intento])
 
-  const estado: EstadoDiseno = leido ? leido.estado : ayuda ? 'ayuda' : 'ninguno'
+  const estado: EstadoDiseno = leido ? leido.estado : 'ninguno'
   const fuente = leido?.trabajo && seMuestra(leido.estado) ? (quitarFondo && leido.sinFondo ? leido.sinFondo : leido.trabajo) : null
   const tratado = useMemo(() => (fuente ? prepararDiseno(fuente, tecnica) : null), [fuente, tecnica])
   const ratio = tratado ? tratado.width / tratado.height : 1
 
-  // Un diseño con otra proporción, un área nueva o el tope del bordado pueden dejar la caja afuera: se vuelve a limitar.
+  // Un diseño con otra proporción, otra foto o el tope del bordado pueden dejar la caja afuera: se vuelve a limitar.
   useEffect(() => {
-    if (tratado) setLugar((l) => limitar(l, ratio, aspectoArea(fotoInfo.print_area), maxS))
+    if (tratado) setLugar((l) => limitar(l, ratio, fotoInfo.print_area, maxS))
   }, [ratio, fotoInfo.print_area, tratado, maxS])
 
   // Restaurar las elecciones de esta pestaña (y la pantalla C si volvió de WhatsApp tras una recarga).
@@ -141,8 +142,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
         setUbicacion(d.ubicaciones.some((u) => u.nombre === g.ubicacion) ? g.ubicacion : d.ubicaciones[0].nombre)
         if (CANTIDADES.includes(g.cantidad)) setCantidad(g.cantidad)
         setNota(String(g.nota ?? ''))
-        if (g.lugar) setLugar(limitar(g.lugar, 1, 1))
-        setAyuda(!!g.ayuda)
+        if (g.lugar) setLugar(g.lugar)
         chatAbierto.current = !!g.chatAbierto
         if (g.chatAbierto) setHoja('vuelta')
         setVersion((v) => v + 1)
@@ -155,7 +155,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
 
   const guardar = (extra?: Partial<Elecciones>) => {
     try {
-      const e: Elecciones = { prenda, colorId, tecnica, ubicacion, cantidad, nota, lugar, ayuda, chatAbierto: chatAbierto.current, ...extra }
+      const e: Elecciones = { prenda, colorId, tecnica, ubicacion, cantidad, nota, lugar, chatAbierto: chatAbierto.current, ...extra }
       sessionStorage.setItem(CLAVE, JSON.stringify(e))
     } catch {
       // Igual que arriba: sin almacenamiento no se recuerda nada.
@@ -163,7 +163,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   }
   useEffect(() => {
     if (restaurado) guardar()
-  }, [restaurado, prenda, colorId, tecnica, ubicacion, cantidad, nota, lugar, ayuda])
+  }, [restaurado, prenda, colorId, tecnica, ubicacion, cantidad, nota, lugar])
 
   // Pantalla C: al volver a la página después de abrir el chat.
   useEffect(() => {
@@ -185,7 +185,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   async function subir(f: File) {
     const id = ++subida.current
     soltarDiseno()
-    setAyuda(false)
+    setRechazado(false)
     setSinVista(false)
     setLento(false)
     setTocado(false)
@@ -198,6 +198,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     setLento(false)
     setQuitarFondo(true)
     setLeido(r)
+    setRechazado(!r)
   }
 
   const cambiarPrenda = (n: Prenda) => {
@@ -238,7 +239,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                 : 'vacio'
   // El cliente vio su diseño sobre la prenda: solo entonces el mensaje dice el tamaño (decisión del canvas).
   const vio = !!tratado && !sinVista && fotoEstado === 'lista'
-  const tipo: TipoEnvio = seMuestra(estado) ? 'imagen' : estado === 'archivo' || estado === 'pesada' ? 'archivo' : 'sin-imagen'
+  const tipo: TipoEnvio = seMuestra(estado) ? 'imagen' : estado === 'pesada' ? 'archivo' : 'sin-imagen'
   const texto = mensaje({
     prenda,
     color: color.name,
@@ -312,7 +313,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     chatAbierto.current = false
     soltarDiseno()
     setSinVista(false)
-    setAyuda(false)
+    setRechazado(false)
     setNota('')
     setCantidad('1')
     cambiarPrenda('camiseta')
@@ -349,6 +350,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
           <div className="pf-pz-vista">
             <VistaPrevia
               foto={foto}
+              fotoInicial={fotoInfo}
               etiqueta={`${nombreColor}${ubicacion === 'Espalda' ? ', espalda' : ''}`}
               modo={modo}
               tecnica={tecnica}
@@ -383,6 +385,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                 miniatura={leido?.url}
                 quitarFondo={leido?.sinFondo && !procesando ? quitarFondo : undefined}
                 fondoFijo={leido?.fondoFijo}
+                rechazado={rechazado}
                 escritorio={escritorio}
                 onArchivo={subir}
                 onQuitar={() => {
@@ -391,7 +394,6 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                   setSinVista(false)
                   soltarDiseno()
                 }}
-                onAyuda={setAyuda}
                 onQuitarFondo={setQuitarFondo}
               />
             </Paso>
