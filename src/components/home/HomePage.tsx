@@ -215,7 +215,7 @@ export function HomePage({
                 title={
                   <>
                     <span className="@3xl/pf:hidden">Serflow · Cartagena</span>
-                    <span className="hidden @3xl/pf:inline">Visítanos</span>
+                    <span className="hidden @3xl/pf:inline">{sections.visitanos?.title ?? 'Visítanos'}</span>
                   </>
                 }
               />

@@ -105,8 +105,9 @@ test.describe('contenido editado', () => {
       await expect(foto).toHaveAttribute('src', /^\/_astro\/.*\.webp$/)
       await expect(foto).toHaveAttribute('srcset', /640w/)
     }
-    const preload = page.locator('link[rel=preload][as=image]')
-    await expect(preload).toHaveAttribute('href', (await fotos.first().getAttribute('src'))!)
+    // La primera foto (el LCP) se precarga, con el mismo srcset.
+    const preload = page.locator(`link[rel=preload][as=image][href="${await fotos.first().getAttribute('src')}"]`)
+    await expect(preload).toHaveAttribute('imagesrcset', /640w/)
   })
 
   test('sections: title and description; a blank field uses the code on its own', async ({ page }) => {
@@ -116,7 +117,9 @@ test.describe('contenido editado', () => {
     await expect(page.getByText('Descripción de prueba de los servicios.')).toBeVisible()
     await expect(page.locator('#disponible-titulo')).toHaveText('Para llevar')
     await expect(page.getByText('Lo que hay en el taller esta semana.')).toBeVisible()
-    await expect(page.locator('#visitanos h2')).toHaveText('Ven al taller')
+    // En desktop el título que se ve es el de la tarjeta del mapa.
+    await expect(page.locator('#visitanos').getByText('Ven al taller').filter({ visible: true })).toHaveCount(1)
+    await expect(page.locator('#visitanos').getByText('Visítanos')).toHaveCount(0)
   })
 
   test('Quiénes somos: text and reasons by sort_order', async ({ page }) => {
