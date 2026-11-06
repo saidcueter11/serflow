@@ -9,12 +9,7 @@ create table if not exists public.site_media (
   is_active boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint site_media_slot_known check (slot in (
-    'hero-1', 'hero-2', 'hero-3', 'hero-4',
-    'servicio-estampado', 'servicio-dtf', 'servicio-bordado',
-    'personalizador',
-    'catalogo-todo'
-  )),
+  constraint site_media_slot_known check (slot in ('personalizador', 'catalogo-todo')),
   constraint site_media_image_url_https check (image_url ~ '^https://'),
   constraint site_media_alt_not_blank check (length(btrim(alt)) > 0)
 );
