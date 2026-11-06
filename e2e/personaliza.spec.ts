@@ -22,13 +22,13 @@ function bloque(tipo: string, datos: Buffer) {
   crc.writeUInt32BE(crc32(Buffer.concat([t, datos])))
   return Buffer.concat([largo, t, datos, crc])
 }
-/** PNG RGBA de lado n, píxel por píxel. */
-function png(n: number, pixel: (x: number, y: number) => number[]): Buffer {
-  const filas = Buffer.alloc(n * (n * 4 + 1))
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) filas.set(pixel(x, y), y * (n * 4 + 1) + 1 + x * 4)
+/** PNG RGBA de n × alto, píxel por píxel. */
+function png(n: number, pixel: (x: number, y: number) => number[], alto = n): Buffer {
+  const filas = Buffer.alloc(alto * (n * 4 + 1))
+  for (let y = 0; y < alto; y++) for (let x = 0; x < n; x++) filas.set(pixel(x, y), y * (n * 4 + 1) + 1 + x * 4)
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(n, 0)
-  ihdr.writeUInt32BE(n, 4)
+  ihdr.writeUInt32BE(alto, 4)
   ihdr.set([8, 6, 0, 0, 0], 8)
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), bloque('IHDR', ihdr), bloque('IDAT', deflateSync(filas)), bloque('IEND', Buffer.alloc(0))])
 }
@@ -43,6 +43,8 @@ const logoSobreBlanco = (n: number) =>
 const fotoSinFondoPlano = (n: number) => png(n, (x, y) => [(x * 255) / n, (y * 255) / n, ((x + y) * 127) / n, 255])
 /** Un cuadro azul sobre transparente: ya viene sin fondo. */
 const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, y - n / 2) < n / 4 ? [30, 60, 180, 255] : [0, 0, 0, 0]))
+/** Una tira azul 1:5 sobre transparente, más alta que el recorte del celular. */
+const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 590 ? [30, 60, 180, 255] : [0, 0, 0, 0]), 600)
 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
 const FONDO_FIJO = 'Esta imagen conserva su fondo'
@@ -67,6 +69,13 @@ async function abrir(page: Page) {
 
 async function subir(page: Page, archivo: { name: string; mimeType: string; buffer: Buffer }) {
   await page.locator('input[type=file]').first().setInputFiles(archivo)
+}
+
+/** Cuántos px se sale la caja del diseño de lo visible de la vista previa (negativo: entra de sobra). */
+async function cuantoSobra(page: Page) {
+  const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
+  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  return Math.max(v.x - d.x, v.y - d.y, d.x + d.width - v.x - v.width, d.y + d.height - v.y - v.height)
 }
 
 test.describe('/personaliza', () => {
@@ -330,6 +339,46 @@ test.describe('/personaliza', () => {
     expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Tamaño:* unos 19 cm de ancho')
   })
 
+  test('colocación: un diseño alto queda dentro de lo visible sin tocarlo', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'tira.png', mimeType: 'image/png', buffer: tiraAlta() })
+    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('colocación: al cambiar de foto el diseño queda dentro de lo visible sin tocarlo', async ({ page }) => {
+    await abrir(page)
+    await page.getByText('Blanca', { exact: true }).click()
+    await page.getByText('Espalda', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta blanca, espalda' })).toBeVisible()
+    await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(800) })
+
+    // Al borde de abajo a la derecha; la espalda negra tiene otra área y otro recorte.
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await diseno.scrollIntoViewIfNeeded()
+    const d = (await diseno.boundingBox())!
+    const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
+    await page.mouse.click(c.x, c.y)
+    await page.mouse.move(c.x, c.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x + 1500, c.y + 1500, { steps: 4 })
+    await page.mouse.up()
+
+    await page.getByText('Negra', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda con tu diseño' })).toBeVisible()
+    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('la foto no salta cuando el motor reemplaza a la del HTML', async ({ page }) => {
+    await page.route('**/*.js', (r) => r.abort())
+    await page.goto('/personaliza')
+    const html = (await page.locator('.pf-pz-vista picture img').boundingBox())!
+    await page.unrouteAll()
+    await abrir(page)
+    const motor = (await page.locator('.pf-pz-vista canvas').boundingBox())!
+    expect(Math.abs(motor.y - html.y)).toBeLessThan(1)
+  })
+
   test('bordado: al pedir más de 10 cm avisa el tope sobre la foto', async ({ page }) => {
     await abrir(page)
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
@@ -357,6 +406,23 @@ test.describe('/personaliza', () => {
     await expect(page.getByRole('img', { name: 'Camiseta negra, espalda' })).toBeVisible()
     await expect.poll(() => prendas.length).toBe(2)
     expect(prendas[1].url).toMatch(/\/camiseta-negra-espalda\.[^/]*\.webp$/)
+  })
+
+  test('mockup: en celular sale de la foto grande, que solo se baja al enviar', async ({ page, isMobile }) => {
+    const prendas: string[] = []
+    page.on('response', (r) => {
+      const url = new URL(r.url()).pathname
+      if (/\/(camiseta|gorra)-[^/]*\.\w+$/.test(url)) prendas.push(url)
+    })
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    expect(prendas).toHaveLength(1)
+
+    await enviar(page).click()
+    await expect(page.getByRole('dialog', { name: 'Revisa y envía' }).getByRole('img', { name: 'Vista previa de tu prenda' }).first()).toBeVisible()
+    expect(prendas).toHaveLength(isMobile ? 2 : 1)
+    if (isMobile) expect(prendas[1]).not.toBe(prendas[0])
   })
 
   test('escritorio angosto: la escena llena la vista previa, sin franja, y las dos columnas cierran a ras', async ({ page, isMobile }) => {

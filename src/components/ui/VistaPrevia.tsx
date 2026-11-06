@@ -29,7 +29,7 @@ export interface VistaPreviaProps {
   /** Foto preparada por el motor. Mientras carga la primera, null. */
   foto: FotoLista | null
   /** La foto como <img>, ya en el HTML: se ve sin esperar el JS de la isla y hasta que el motor pinta la primera. */
-  fotoInicial?: Pick<FotoColor, 'image_url' | 'image_url_movil'>
+  fotoInicial?: Pick<FotoColor, 'image_url' | 'image_url_movil' | 'print_area'>
   /** "Camiseta negra" o "Camiseta negra, espalda". */
   etiqueta: string
   modo: ModoVista
@@ -105,6 +105,23 @@ export function VistaPrevia({
     return () => cancelAnimationFrame(id)
   }, [foto, diseno, conDiseno, espera, l, tecnica, arrastrando])
 
+  /** Lo visible de la foto, que la vista previa recorta. Se mide al colocar y al mover: el recorte depende del layout. */
+  const ventana = () => {
+    const e = escena.current!.getBoundingClientRect()
+    const m = marco.current!.getBoundingClientRect()
+    return {
+      left: Math.max(0, (m.left - e.left) / e.width),
+      top: Math.max(0, (m.top - e.top) / e.height),
+      right: Math.min(1, (m.right - e.left) / e.width),
+      bottom: Math.min(1, (m.bottom - e.top) / e.height),
+    }
+  }
+
+  // Un diseño con otra proporción, otra foto o el tope del bordado pueden dejar la caja afuera: se vuelve a limitar.
+  useEffect(() => {
+    if (foto && diseno && escena.current) onLugar?.(limitar(l, diseno.width / diseno.height, foto.area, maxS, ventana()))
+  }, [foto, diseno, maxS])
+
   if (modo === 'sin-senal') {
     return (
       <div
@@ -128,17 +145,6 @@ export function VistaPrevia({
   const aspecto = area ? aspectoArea(area) : 1
   const ratio = diseno ? diseno.width / diseno.height : 1
   const caja = area && diseno ? cajaDiseno(area, l, ratio, aspecto) : null
-  /** Lo visible de la foto, que la vista previa recorta. Solo se mide al mover: el recorte depende del layout. */
-  const ventana = () => {
-    const e = escena.current!.getBoundingClientRect()
-    const m = marco.current!.getBoundingClientRect()
-    return {
-      left: Math.max(0, (m.left - e.left) / e.width),
-      top: Math.max(0, (m.top - e.top) / e.height),
-      right: Math.min(1, (m.right - e.left) / e.width),
-      bottom: Math.min(1, (m.bottom - e.top) / e.height),
-    }
-  }
   const set = (n: Lugar) => {
     setEnTope(n.s > maxS + 1e-6)
     onLugar?.(limitar(n, ratio, area!, maxS, ventana()))
@@ -149,7 +155,9 @@ export function VistaPrevia({
   // Recorte centrado en el área de impresión, sin dejar franjas vacías arriba ni abajo. En % del alto real: la página
   // de escritorio estira la vista previa más allá de `alto`; si la estira más que la escena (125cqw), la escena crece a
   // lo alto y se recorta a los lados, centrada, en vez de dejar una franja vacía arriba.
-  const foco = bbox ? ((bbox.top + bbox.bottom) / 2) * 100 : 40
+  const areaFoco = area ?? fotoInicial?.print_area
+  const cajaFoco = areaFoco && cajaArea(areaFoco)
+  const foco = cajaFoco ? ((cajaFoco.top + cajaFoco.bottom) / 2) * 100 : 40
   const recorte = alto
     ? { top: `clamp(min(0px, 100% - 125cqw), calc(50% - ${foco * 1.25}cqw), 0px)`, height: 'max(100%, 125cqw)' }
     : { top: '0' }

@@ -5,7 +5,7 @@ import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '.
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
 import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
-import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, limitar, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
 
@@ -82,6 +82,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const [restaurado, setRestaurado] = useState(false)
   const chatAbierto = useRef(false)
   const subida = useRef(0)
+  const envio = useRef(0)
   const escritorio = useEscritorio()
 
   const color = lista.find((c) => c.id === colorId) ?? lista[0]
@@ -122,12 +123,6 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const estado: EstadoDiseno = leido ? leido.estado : 'ninguno'
   const fuente = leido?.trabajo && seMuestra(leido.estado) ? (quitarFondo && leido.sinFondo ? leido.sinFondo : leido.trabajo) : null
   const tratado = useMemo(() => (fuente ? prepararDiseno(fuente, tecnica) : null), [fuente, tecnica])
-  const ratio = tratado ? tratado.width / tratado.height : 1
-
-  // Un diseño con otra proporción, otra foto o el tope del bordado pueden dejar la caja afuera: se vuelve a limitar.
-  useEffect(() => {
-    if (tratado) setLugar((l) => limitar(l, ratio, fotoInfo.print_area, maxS))
-  }, [ratio, fotoInfo.print_area, tratado, maxS])
 
   // Restaurar las elecciones de esta pestaña (y la pantalla C si volvió de WhatsApp tras una recarga).
   useEffect(() => {
@@ -258,6 +253,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const archivos = () => [...(leido ? [leido.archivo] : []), ...(tipo === 'imagen' && mock ? [mock.archivo] : [])]
 
   async function enviar() {
+    const id = ++envio.current
     setGuardada(false)
     setSinSenal(!navigator.onLine)
     setHoja('envio')
@@ -265,7 +261,10 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     setMock(null)
     let m: File | null = null
     if (vio && foto && tratado) {
-      const blob = await mockup(foto, tratado, lugar, tecnica)
+      // En celular la vista usa la foto de 720 px; el mockup (1080 × 1350) sale de la grande. Sin señal, de la que ya está.
+      const grande = fotos.current.get(fotoInfo.image_url) ?? (await cargarFoto(fotoInfo.image_url, fotoInfo.print_area, def.curva).catch(() => foto))
+      const blob = await mockup(grande, tratado, lugar, tecnica)
+      if (envio.current !== id) return
       m = new File([blob], nombreMockup(prenda, color.name, ubicacion), { type: 'image/jpeg' })
       setMock({ url: URL.createObjectURL(blob), archivo: m })
     }
