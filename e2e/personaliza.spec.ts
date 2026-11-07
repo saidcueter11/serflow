@@ -620,19 +620,24 @@ test.describe('/personaliza', () => {
         const url = new URL(r.url()).pathname
         if (/\/camiseta-[^/]*\.webp$/.test(url)) prendas.push(url)
       })
+      // Primero llega la foto del color y la vista: mientras carga, el botón "Tu diseño va aquí" no está.
+      const fotoLista = async (archivo: string) => {
+        await expect.poll(() => prendas.at(-1), { timeout: 15_000 }).toMatch(new RegExp(`/camiseta-${archivo}\\.[^/]*\\.webp$`))
+        await expect(page.getByText(/^Cargando la camiseta/)).toBeHidden({ timeout: 15_000 })
+      }
       await abrir(page)
       await page.getByText(nombre, { exact: true }).click()
+      await fotoLista(id)
       await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
       const etiqueta = `Camiseta ${nombre.toLowerCase()}`
       await expect(page.getByRole('img', { name: `${etiqueta} con tu diseño` })).toBeVisible()
-      await expect.poll(() => prendas.at(-1)).toMatch(new RegExp(`/camiseta-${id}\\.[^/]*\\.webp$`))
       await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
       await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(40)
       await info.attach(`${id}-pecho-${isMobile ? 390 : 1280}`, { body: await page.screenshot(), contentType: 'image/png' })
 
       await page.getByText('Espalda', { exact: true }).click()
+      await fotoLista(`${id}-espalda`)
       await expect(page.getByRole('img', { name: `${etiqueta}, espalda con tu diseño` })).toBeVisible()
-      await expect.poll(() => prendas.at(-1)).toMatch(new RegExp(`/camiseta-${id}-espalda\\.[^/]*\\.webp$`))
       await subir(page, { name: 'blanco.png', mimeType: 'image/png', buffer: bloqueBlanco(400) })
       await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
       await expect.poll(() => peorColorEnElDiseno(page, BLANCO)).toBeLessThan(40)
