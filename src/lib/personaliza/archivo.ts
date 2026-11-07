@@ -1,6 +1,6 @@
 // Archivos que sube el cliente (spec 6.4). Nada se sube a ningún servidor: todo queda en la memoria de la página,
 // y el original no se recomprime nunca.
-import { bordeTransparente, fondoPlano, quitarFondo } from './fondo'
+import { bordeTransparente, quitarFondo } from './fondo'
 
 export const MAX_BYTES = 20 * 1024 * 1024
 export const MAX_PIXELES = 50_000_000
@@ -45,9 +45,9 @@ export interface DisenoLeido {
   url?: string
   /** Imagen de trabajo (lado largo ≤ 1024), tal cual. */
   trabajo?: HTMLCanvasElement
-  /** La misma sin el fondo plano, si se detectó uno. */
+  /** La misma sin el fondo, si se encontró uno claro. */
   sinFondo?: HTMLCanvasElement
-  /** El fondo no es plano ni transparente: aquí no se puede quitar. */
+  /** Una foto u otro fondo que no es claro: conserva el suyo. */
   fondoFijo?: boolean
 }
 
@@ -80,18 +80,21 @@ export async function leerDiseno(archivo: File): Promise<DisenoLeido | null> {
     trabajo.width = Math.max(1, Math.round(ancho * k))
     trabajo.height = Math.max(1, Math.round(alto * k))
     const ctx = trabajo.getContext('2d', { willReadFrequently: true })!
-    ctx.drawImage(img, 0, 0, trabajo.width, trabajo.height)
+    // Decodificada fuera del hilo principal: con una foto grande, dibujar la <img> congela la página. Si no se puede o gira distinto, la <img>.
+    const mapa = await createImageBitmap(archivo).catch(() => null)
+    ctx.drawImage(mapa?.width === ancho && mapa.height === alto ? mapa : img, 0, 0, trabajo.width, trabajo.height)
+    mapa?.close()
     const pix = ctx.getImageData(0, 0, trabajo.width, trabajo.height)
-    const fondo = fondoPlano(pix)
+    const transparente = bordeTransparente(pix)
+    const limpio = transparente ? null : await quitarFondo(pix)
     let sinFondo: HTMLCanvasElement | undefined
-    if (fondo) {
-      const limpio = quitarFondo(pix, fondo)
+    if (limpio) {
       sinFondo = document.createElement('canvas')
       sinFondo.width = trabajo.width
       sinFondo.height = trabajo.height
       sinFondo.getContext('2d')!.putImageData(new ImageData(limpio.data, limpio.width, limpio.height), 0, 0)
     }
-    return { estado: t, archivo, url, trabajo, sinFondo, fondoFijo: !fondo && !bordeTransparente(pix), detalle: detalleArchivo(archivo, { ancho, alto }) }
+    return { estado: t, archivo, url, trabajo, sinFondo, fondoFijo: !limpio && !transparente, detalle: detalleArchivo(archivo, { ancho, alto }) }
   } catch {
     // No decodifica (HEIC en Chrome, archivo dañado).
     URL.revokeObjectURL(url)

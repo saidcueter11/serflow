@@ -82,9 +82,9 @@ export interface CampoDisenoProps {
   detalle?: string
   /** URL de la miniatura (solo si se puede mostrar). */
   miniatura?: string
-  /** Interruptor "Quitar el fondo": undefined = no hay fondo plano y no aparece. */
+  /** Interruptor "Quitar el fondo": undefined = no hay un fondo que quitar y no aparece. */
   quitarFondo?: boolean
-  /** El fondo no se puede quitar (no es plano ni transparente): se avisa. */
+  /** Una foto u otro fondo que no se puede quitar: se avisa. */
   fondoFijo?: boolean
   /** El último archivo no se pudo abrir: otro formato, HEIC sin soporte o dañado. */
   rechazado?: boolean

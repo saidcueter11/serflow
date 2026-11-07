@@ -1,8 +1,10 @@
 import { deflateSync } from 'node:zlib'
+import { readFileSync } from 'node:fs'
 import { expect, test, type Locator, type Page } from '@playwright/test'
+import { curvaGris, gorraDeCelular, logoEnPapel, logoSobreBlanco as logoReal } from './fixtures/imagenes-fondo'
 
 // PRI-122: /personaliza encendida con fotos de muestra (las oficiales llegan con PRI-125). Los archivos de prueba se arman
-// aquí (sin datos personales ni binarios en el repo).
+// aquí o salen de imágenes que ya están en el repo (sin datos personales ni binarios nuevos).
 // PRI-150: contra el build con tablas vacías, para que una publicación del cliente no ponga esto rojo.
 test.use({ baseURL: 'http://localhost:4232' })
 
@@ -55,6 +57,7 @@ const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 59
 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
 const FONDO_FIJO = 'Esta imagen conserva su fondo'
+const FONDO_FIJO_TEXTO = 'Aquí solo podemos quitar fondos de un solo color.'
 const PISTA_BORDADO = 'El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos 10 cm de ancho.'
 const ERROR_ARCHIVO = 'No pudimos abrir este archivo'
 
@@ -154,7 +157,7 @@ test.describe('/personaliza', () => {
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
 
     const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
-    await expect(fondo).toBeChecked()
+    await expect(fondo).toBeChecked({ timeout: 15_000 })
     await expect(page.getByText('PNG · 800 × 800 px')).toBeVisible()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })).toBeVisible()
 
@@ -257,7 +260,7 @@ test.describe('/personaliza', () => {
     // Fondo plano: el interruptor quita y restaura de verdad lo que se pinta.
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
     const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
-    await expect(fondo).toBeChecked()
+    await expect(fondo).toBeChecked({ timeout: 15_000 })
     await expect(page.getByText(FONDO_FIJO)).toHaveCount(0)
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
     const lienzo = page.locator('.pf-pz-vista canvas')
@@ -278,11 +281,110 @@ test.describe('/personaliza', () => {
     // Fondo que no es plano: lo dice, sin interruptor, y el mensaje no promete quitarlo.
     await subir(page, { name: 'foto-prueba.png', mimeType: 'image/png', buffer: fotoSinFondoPlano(800) })
     await expect(page.getByText(FONDO_FIJO)).toBeVisible()
-    await expect(page.getByText('Aquí solo podemos quitar fondos de un solo color.')).toBeVisible()
+    await expect(page.getByText(FONDO_FIJO_TEXTO)).toBeVisible()
     await expect(fondo).toHaveCount(0)
     await enviar(page).click()
     const texto = await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain('*Diseño:* te lo mando en el siguiente mensaje, con la vista previa')
+  })
+
+  test('fondo con imágenes reales: los logos lo pierden, la foto de una gorra lo conserva entera', async ({ page }) => {
+    // Sube 4 imágenes de verdad: en una máquina cargada pasa de los 30 s por defecto.
+    test.slow()
+    await abrir(page)
+    await expect(page.getByText(AVISO_CALIDAD)).toBeVisible()
+    const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
+    const lienzo = page.locator('.pf-pz-vista canvas')
+    const pintado = () => lienzo.evaluate((c: HTMLCanvasElement) => c.toDataURL())
+
+    // Sobre blanco y fotografiado en papel: se quita y se puede restaurar.
+    for (const [nombre, buffer] of [
+      ['logo-blanco.jpg', await logoReal()],
+      ['logo-papel.jpg', await logoEnPapel()],
+    ] as const) {
+      await subir(page, { name: nombre, mimeType: 'image/jpeg', buffer })
+      await expect(page.getByText(nombre)).toBeVisible()
+      await expect(fondo).toBeChecked({ timeout: 15_000 })
+      await expect(page.getByText(FONDO_FIJO)).toHaveCount(0)
+      await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+      await expect.poll(pintado).toMatch(/^data:image/)
+      const sinFondo = await pintado()
+      await page.getByText('Quitar el fondo', { exact: true }).click()
+      await expect(fondo).not.toBeChecked()
+      await expect.poll(pintado).not.toBe(sinFondo)
+      await page.getByText('Quitar el fondo', { exact: true }).click()
+      await expect(fondo).toBeChecked()
+    }
+
+    // hat4.jpg (se comía la gorra) y su versión de celular malo: conservan el fondo, lo dicen y no prometen quitarlo.
+    for (const [nombre, buffer] of [
+      ['gorra.jpg', readFileSync('src/assets/hat4.jpg')],
+      ['gorra-celular.jpg', await gorraDeCelular()],
+    ] as const) {
+      await subir(page, { name: nombre, mimeType: 'image/jpeg', buffer })
+      await expect(page.getByText(nombre)).toBeVisible()
+      await expect(page.getByText(FONDO_FIJO)).toBeVisible({ timeout: 15_000 })
+      await expect(page.getByText(FONDO_FIJO_TEXTO)).toBeVisible()
+      await expect(fondo).toHaveCount(0)
+      await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    }
+    await enviar(page).click()
+    const texto = await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))
+    expect(texto).not.toContain('sin el fondo')
+  })
+
+  test('un diseño claro no se come: la curva gris se pinta entera y solo se va el fondo', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'curva.jpg', mimeType: 'image/jpeg', buffer: await curvaGris() })
+    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked({ timeout: 15_000 })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    await quieto(diseno)
+    const d = (await diseno.boundingBox())!
+    const luz = (fx: number, fy: number) =>
+      page.locator('.pf-pz-vista canvas').evaluate(
+        (c: HTMLCanvasElement, { x, y }) => {
+          const r = c.getBoundingClientRect()
+          const px = Math.round(((x - r.left) / r.width) * c.width)
+          const py = Math.round(((y - r.top) / r.height) * c.height)
+          const p = c.getContext('2d')!.getImageData(px - 2, py - 2, 5, 5).data
+          let suma = 0
+          for (let i = 0; i < p.length; i += 4) suma += (p[i] + p[i + 1] + p[i + 2]) / 75
+          return suma
+        },
+        { x: d.x + d.width * fx, y: d.y + d.height * fy },
+      )
+    // Camiseta negra: la mitad del trazo se ve claro, y la esquina, que era blanca, ya no.
+    await expect.poll(() => luz(360 / 1000, 310 / 620)).toBeGreaterThan(70)
+    expect(await luz(0.05, 0.08)).toBeLessThan(50)
+  })
+
+  test('al taller le llega el original, no la imagen sin fondo', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { compartidos: File[] }
+      w.compartidos = []
+      Object.defineProperty(navigator, 'canShare', { value: () => true, configurable: true })
+      Object.defineProperty(navigator, 'share', {
+        value: async ({ files }: { files: File[] }) => {
+          w.compartidos = files
+        },
+        configurable: true,
+      })
+    })
+    await abrir(page)
+    const buffer = logoSobreBlanco(800)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer })
+    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked({ timeout: 15_000 })
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    await enviar(page).click()
+    const hoja = page.getByRole('dialog')
+    await hoja.getByRole('button', { name: 'Compartir imágenes' }).click()
+    await expect.poll(() => page.evaluate(() => (window as unknown as { compartidos: File[] }).compartidos.length)).toBeGreaterThan(0)
+    const original = await page.evaluate(async () => {
+      const f = (window as unknown as { compartidos: File[] }).compartidos.find((x) => x.name === 'logo-prueba.png')!
+      return Array.from(new Uint8Array(await f.arrayBuffer()))
+    })
+    expect(Buffer.from(original).equals(buffer)).toBe(true)
   })
 
   test('estados: imagen pesada y de baja calidad', async ({ page }) => {
