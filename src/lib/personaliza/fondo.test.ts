@@ -44,13 +44,13 @@ describe('quitarFondo: logos', () => {
   it('logo sobre blanco, como llega por WhatsApp', async () => {
     const r = await quitarFondo(await leer(await logoSobreBlanco()))
     expect(r).not.toBeNull()
-    expect(await coincidencia(r!)).toBeGreaterThan(0.93)
+    expect(await coincidencia(r!)).toBeGreaterThan(0.95)
   })
 
   it('logo fotografiado en papel, con viñeta, sombra y ruido', async () => {
     const r = await quitarFondo(await leer(await logoEnPapel()))
     expect(r).not.toBeNull()
-    expect(await coincidencia(r!)).toBeGreaterThan(0.93)
+    expect(await coincidencia(r!)).toBeGreaterThan(0.95)
   })
 
   it('logo blanco sobre negro', async () => {
@@ -132,6 +132,31 @@ describe('quitarFondo: un diseño claro no se come ni se conserva de más', () =
     expect(r).not.toBeNull()
     expect(comido(r!, alfaDiseno)).toBeLessThan(0.02)
     expect(alfa(r!, 2, 2)).toBe(0)
+  })
+
+  it.each([3, 6])('curva #D9D9D9 sobre papel con ruido (σ %i): ni se come ni deja el papel', async (sigma) => {
+    const svg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620">${C('#D9D9D9')}</svg>`)
+    const alfaDiseno = await sharp(svg).ensureAlpha().extractChannel(3).raw().toBuffer()
+    const rgb = await sharp(svg).flatten({ background: '#F4F1EA' }).raw().toBuffer()
+    let semilla = 7
+    const azar = () => (semilla = (semilla * 1664525 + 1013904223) >>> 0) / 2 ** 32
+    for (let i = 0; i < rgb.length; i += 3) {
+      let u = 0
+      for (let k = 0; k < 6; k++) u += azar()
+      const ruido = (u - 3) * Math.SQRT2 * sigma
+      for (let k = 0; k < 3; k++) rgb[i + k] = Math.max(0, Math.min(255, rgb[i + k] + ruido))
+    }
+    const jpeg = await sharp(rgb, { raw: { width: 1000, height: 620, channels: 3 } }).jpeg({ quality: 60 }).toBuffer()
+    const r = (await quitarFondo(await leer(jpeg)))!
+    expect(comido(r, alfaDiseno)).toBeLessThan(0.02)
+    let papel = 0
+    let queda = 0
+    for (let i = 0; i < alfaDiseno.length; i++) {
+      if (alfaDiseno[i] > 0) continue
+      papel++
+      if (r.data[i * 4 + 3] > 127) queda++
+    }
+    expect(queda / papel).toBeLessThan(0.02)
   })
 
   it('curva durazno: el degradado de color del JPEG puede dejarle el fondo, pero nunca se come', async () => {

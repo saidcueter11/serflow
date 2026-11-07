@@ -20,7 +20,7 @@ const APRENDE = 0.08
 /** Hasta dónde se aleja un píxel del fondo esperado y sigue siendo fondo: lo justo para un fondo limpio, y más con el ruido de una foto. */
 const TOLERANCIA_MIN = 6
 const TOLERANCIA_MAX = 14
-const TOLERANCIA_POR_RUIDO = 3
+const TOLERANCIA_POR_RUIDO = 1.5
 /** Radio del promedio de cada borde, para quitarle el ruido. */
 const RADIO_BORDE = 8
 /** Distancia máxima de una semilla del borde al color dominante del borde. */
