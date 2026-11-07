@@ -12,6 +12,7 @@ const MURO = 'main[data-banner-index] [data-fotos]'
 
 type Puesto = { li: HTMLElement; r: DOMRect }
 let antes: Map<string, Puesto> | null = null
+let scrollAntes = 0
 
 const url = (li: Element) => li.querySelector('a')!.getAttribute('href')!
 const lista = (muro: Element) => [...muro.children] as HTMLElement[]
@@ -38,6 +39,7 @@ export function medir(ev: TransitionBeforeSwapEvent) {
     img.decoding = 'sync'
   }
   antes = vistas
+  scrollAntes = scrollY
   // El fundido de página dejaría un fantasma de cada foto en su puesto viejo. ready se rechaza al saltarla: es lo esperado.
   ev.viewTransition.ready.catch(() => {})
   ev.viewTransition.skipTransition()
@@ -84,5 +86,6 @@ export function reacomodar() {
     if (de) li.style.setProperty('--sf-desde', `translate(${dx}px, ${dy}px)`)
     li.classList.add(de ? 'sf-viaja' : 'sf-llega')
   })
-  despedir([...salen.values()])
+  // Si la página saltó arriba, su puesto viejo ya es el banner y el título nuevos: ahí no se despide ninguna.
+  if (scrollY === scrollAntes) despedir([...salen.values()])
 }

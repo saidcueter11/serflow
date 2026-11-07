@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react'
 export type Slide = { src: string; alt: string; position?: string }
 
 const SECONDS = 6
+const FADE = 1
 
 /**
  * Carrusel del hero: fotos que muestran el resultado (no decoración), a sangre, con fundido y zoom lento (PRI-286).
@@ -19,7 +20,7 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
   const n = slides.length
   const cycle = n * SECONDS
   const show = 100 / n
-  const fade = (1 / cycle) * 100 // 1 s de fundido
+  const fade = (FADE / cycle) * 100
   const css =
     n > 1
       ? `@keyframes sf-slide-${n} { 0%, ${show.toFixed(2)}% { opacity: 1 } ${(show + fade).toFixed(2)}%, ${(100 - fade).toFixed(2)}% { opacity: 0 } 100% { opacity: 1 } }
@@ -28,8 +29,9 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
 .anim-bar { transform-origin: left; animation: sf-bar-${n} ${cycle}s linear infinite both; animation-delay: var(--d); }
 .hero-carousel:hover :is(.anim-slide, .anim-slide *, .anim-bar), .hero-carousel:focus-within :is(.anim-slide, .anim-slide *, .anim-bar) { animation-play-state: paused; }`
       : ''
-  // La foto i se muestra en el segundo i*6; con delay negativo arrancan todas a la vez.
-  const delay = (i: number) => ({ '--d': `${i === 0 ? 0 : i * SECONDS - cycle}s`, '--zoom-duration': `${cycle}s` }) as CSSProperties
+  // La foto i se muestra en el segundo i*6; con delay negativo arrancan todas a la vez. Todas un fundido adelante: al
+  // cargar, la última ya se fue y no tapa a la primera mientras esta se asienta (sf-asienta, tokens.css).
+  const delay = (i: number) => ({ '--d': `${(i === 0 ? 0 : i * SECONDS - cycle) - FADE}s`, '--zoom-duration': `${cycle}s` }) as CSSProperties
 
   return (
     <div className={`hero-carousel relative overflow-hidden bg-surface-2 ${className}`} aria-roledescription="carrusel" aria-label="Trabajos de Serflow">
