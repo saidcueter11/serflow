@@ -53,7 +53,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 
 ### Zonas sensibles (disparan revisión de Seguridad)
 - `supabase/**` (en especial `supabase/migrations/**`), `scripts/**`, `src/lib/supabase.ts`, `.github/workflows/**`, `netlify.toml`, `astro.config.mjs`, `package.json` (dependencias nuevas), y cualquier `set:html` o construcción de URLs con texto del usuario (`src/components/ContactForm.astro`, `src/components/ProductPreview.astro`).
-- Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y los buckets públicos de imágenes; escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
+- Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y las fotos de los buckets públicos por URL, sin listarlos (PRI-426: el SELECT sobre `storage.objects` va `to authenticated`; un bucket `public` sirve sus URLs sin esa policy); escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
 
 ### Diseño
 - Serflow no vende por la web: el catálogo es un portafolio de trabajos (sin precio ni carrito) y los pedidos van por WhatsApp.
