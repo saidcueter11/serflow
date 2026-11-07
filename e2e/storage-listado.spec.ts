@@ -21,7 +21,11 @@ test('las fotos del catálogo cargan por URL pública, sin sesión', async ({ re
 for (const bucket of ['product-images', 'category-images', 'promo-images', 'site-media']) {
   test(`la anon key no lista ${bucket}`, async ({ request }) => {
     test.skip(!process.env.E2E_STORAGE_LISTADO_CERRADO, 'Se activa cuando la migración de PRI-426 ya está en prod')
-    const res = await request.post(`${url}/storage/v1/object/list/${bucket}`, { headers, data: { prefix: '', limit: 100 } })
+    const data = { prefix: '', limit: 100 }
+    const res = await request.post(`${url}/storage/v1/object/list/${bucket}`, { headers, data })
     expect(await res.json()).toEqual([])
+    const v2 = await (await request.post(`${url}/storage/v1/object/list-v2/${bucket}`, { headers, data })).json()
+    expect(v2.objects ?? []).toEqual([])
+    expect(v2.folders ?? []).toEqual([])
   })
 }
