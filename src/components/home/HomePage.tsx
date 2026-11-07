@@ -43,6 +43,11 @@ const RAZONES = [
 
 const PASOS = ['Sube tu diseño o una foto', 'Elige prenda, color y técnica', 'Mándanoslo por WhatsApp']
 
+// La base guarda estos dos textos sin formato (la siembra los copia así). Mientras no cambien, se pintan como siempre:
+// el título en dos líneas y el texto con sus resaltados.
+const TITULO_HERO = 'Bienvenido a Serflow'
+const TEXTO_QUIENES_SOMOS = 'Somos un taller en Cartagena que hace prendas personalizadas. La ropa no solo se usa, se vive: por eso cada pieza lleva algo tuyo.'
+
 /**
  * Contenido de la portada (PRI-286, canvas tempo/designs/canvases/portada-final). Header, Footer, PromoBar y
  * WhatsAppFab los pone Layout.astro. Sistema medido de tokens.css (.pf-*): rejilla de 12 columnas, margen 48 / 16 y
@@ -76,6 +81,8 @@ export function HomePage({
         { title: 'Bordado', description: 'Hilo con relieve. El clásico de las gorras.', image: { src: images.bordado, srcSet: images.serviciosSrcSet?.bordado, alt: 'Bordado' } },
       ]
   const razones = editedReasons?.length ? editedReasons : RAZONES
+  const tituloHero = sections.hero?.title ?? TITULO_HERO
+  const textoQuienes = sections['quienes-somos']?.description ?? TEXTO_QUIENES_SOMOS
   const foto = (
     <div className="pf-pz-foto sf-foto">
       <img
@@ -99,12 +106,8 @@ export function HomePage({
             <span className="pf-pie flex items-center gap-1.5 [overflow-wrap:anywhere]">
               <PinIcon className="size-3.5 shrink-0" /> {sections.hero?.eyebrow ?? 'Mercado Bazurto · Cartagena'}
             </span>
-            <h1 className="pf-display sf-lineas" aria-label={sections.hero?.title ?? 'Bienvenido a Serflow'}>
-              {sections.hero?.title ? (
-                <span aria-hidden="true">
-                  <span>{sections.hero.title}</span>
-                </span>
-              ) : (
+            <h1 className="pf-display sf-lineas" aria-label={tituloHero}>
+              {tituloHero === TITULO_HERO ? (
                 <>
                   <span aria-hidden="true">
                     <span>Bienvenido</span>
@@ -113,6 +116,10 @@ export function HomePage({
                     <span>a Serflow</span>
                   </span>
                 </>
+              ) : (
+                <span aria-hidden="true">
+                  <span>{tituloHero}</span>
+                </span>
               )}
             </h1>
             <p className="pf-lead">
@@ -192,11 +199,13 @@ export function HomePage({
                 {sections['quienes-somos']?.title ?? 'Quiénes somos'}
               </h2>
               <p className="pf-lead">
-                {sections['quienes-somos']?.description ?? (
+                {textoQuienes === TEXTO_QUIENES_SOMOS ? (
                   <>
                     Somos un taller en <span className="text-ink">Cartagena</span> que hace prendas personalizadas. La ropa no solo se usa,{' '}
                     <span className="text-ink">se vive</span>: por eso cada pieza lleva algo tuyo.
                   </>
+                ) : (
+                  textoQuienes
                 )}
               </p>
               <ul className="pf-razones">

@@ -52,6 +52,25 @@ const homeProducts: HomeProduct[] = await Promise.all(
     }),
 )
 
+// PRI-413: las fotos sembradas en la base apuntan al repo (20261107120000_sembrar_contenido.sql), porque no tienen URL en Storage.
+const FOTOS_DEL_REPO = new Map([
+  ['repo:stock/camisetas-estampadas.jpg', camisetas],
+  ['repo:stock/estampado-proceso.jpg', estampadoProceso],
+  ['repo:stock/gorra-bordada.jpg', gorraBordada],
+  ['repo:stock/amigos-gorras.jpg', amigosGorras],
+  ['repo:stock/estampado-rasero.jpg', estampadoRasero],
+  ['repo:stock/camiseta-dtf.jpg', camisetaDtf],
+  ['repo:stock/gorra-bordada-2.jpg', gorraBordada2],
+])
+
+/** La foto de una fila: del repo si es una referencia; si no, de Storage. Una referencia desconocida la descarta fotoRemota. */
+async function fotoDeFila(url: string, opciones: { width: number; widths: number[]; quality: number }) {
+  const src = FOTOS_DEL_REPO.get(url)
+  if (!src) return fotoRemota(url, opciones)
+  const img = await getImage({ src, format: 'webp', ...opciones })
+  return { src: img.src, srcSet: img.srcSet.attribute }
+}
+
 // Fotos de los servicios: 320 px para la fila del celular (112 px en pantallas densas), 640 px en desktop.
 const fotoServicio = { width: 640, widths: [320, 640], quality: 75 }
 const [estampado, dtf, bordado] = await Promise.all(
@@ -79,7 +98,7 @@ const fotoHero = { width: 1400, widths: [640, 1000, 1400], quality: 72 }
 const editedSlides = (
   await Promise.all(
     content.heroSlides.map(async ({ image_url, ...rest }) => {
-      const foto = await fotoRemota(image_url, fotoHero)
+      const foto = await fotoDeFila(image_url, fotoHero)
       return foto && { ...rest, ...foto }
     }),
   )
@@ -103,7 +122,7 @@ if (promoWithCover) {
 // "Qué hacemos": tarjetas del admin (2 a 6). Una foto que no sirve deja la tarjeta con la muestra neutra de ServiceCard.
 const services = await Promise.all(
   content.services.map(async ({ image_url, image_alt, ...card }) => {
-    const foto = image_url ? await fotoRemota(image_url, fotoServicio) : null
+    const foto = image_url ? await fotoDeFila(image_url, fotoServicio) : null
     return foto ? { ...card, image: { ...foto, alt: image_alt } } : card
   }),
 )

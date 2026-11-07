@@ -27,26 +27,34 @@ export const DIRECTIONS_URL =
     'Serflow, Centro Comercial Bazurtico local 31, Mercado Bazurto, Cartagena',
   )}`
 
-export const SOCIAL = [
-  {
-    name: 'Instagram',
-    handle: override.instagramHandle ?? '@serflow_serflow',
-    url: override.instagramUrl ?? 'https://www.instagram.com/serflow_serflow/',
-  },
-  { name: 'TikTok', handle: override.tiktokHandle ?? '@serflow4', url: override.tiktokUrl ?? 'https://www.tiktok.com/@serflow4' },
-  {
-    name: 'Facebook',
-    handle: override.facebookHandle ?? 'Serflow',
-    url: override.facebookUrl ?? 'https://www.facebook.com/people/Serflow/100054522471881/',
-  },
-] as const
+// Una red que el cliente quitó (instagram_visible = false, etc.) no sale en ningún lado. Pueden quedar de 0 a 3.
+export const SOCIAL = (
+  [
+    {
+      name: 'Instagram',
+      handle: override.instagramHandle ?? '@serflow_serflow',
+      url: override.instagramUrl ?? 'https://www.instagram.com/serflow_serflow/',
+      hidden: override.instagramHidden,
+    },
+    { name: 'TikTok', handle: override.tiktokHandle ?? '@serflow4', url: override.tiktokUrl ?? 'https://www.tiktok.com/@serflow4', hidden: override.tiktokHidden },
+    {
+      name: 'Facebook',
+      handle: override.facebookHandle ?? 'Serflow',
+      url: override.facebookUrl ?? 'https://www.facebook.com/people/Serflow/100054522471881/',
+      hidden: override.facebookHidden,
+    },
+  ] as const
+).filter((s) => !s.hidden)
 
-export const HOURS: readonly { days: string; short: string; time: string }[] = override.hours ?? [
+const DEFAULT_HOURS = [
   { days: 'Lunes a sábado', short: 'Lun a sáb', time: '8 a.m. – 6 p.m.' },
   { days: 'Domingo y festivos', short: 'Dom y festivos', time: '8 a.m. – 2 p.m.' },
 ]
-/** Los horarios editados son texto libre: el JSON-LD no puede sacar de ahí horas exactas. */
-export const HOURS_EDITED = Boolean(override.hours)
+const hoursKey = (hours: readonly { days: string; time: string }[]) => JSON.stringify(hours.map((h) => [h.days, h.time]))
+
+export const HOURS: readonly { days: string; short: string; time: string }[] = override.hours ?? DEFAULT_HOURS
+/** Los horarios editados son texto libre: el JSON-LD no puede sacar de ahí horas exactas. Los sembrados son los de siempre. */
+export const HOURS_EDITED = hoursKey(HOURS) !== hoursKey(DEFAULT_HOURS)
 
 // Mismo embed que usa src/pages/index.astro (sección "Encuéntranos").
 export const MAP_EMBED_URL =

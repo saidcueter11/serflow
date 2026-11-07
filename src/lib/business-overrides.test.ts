@@ -123,6 +123,17 @@ describe('loadBusinessOverrides', () => {
   })
 })
 
+describe('removing a social network', () => {
+  it('only an explicit false removes it, and the stored link is kept', () => {
+    const row = { instagram_visible: false, instagram_url: 'https://www.instagram.com/x/' }
+    expect(parseBusinessOverrides(row)).toEqual({ instagramHidden: true, instagramUrl: 'https://www.instagram.com/x/' })
+  })
+
+  it.each([true, null, undefined, '', 'false', 0])('%s keeps it visible', (value) => {
+    expect(parseBusinessOverrides({ tiktok_visible: value, facebook_visible: value })).toEqual({})
+  })
+})
+
 describe('jsonLd', () => {
   it('cannot close the script tag and stays valid JSON', () => {
     const value = { address: '</script><script>alert(1)</script> & co' }

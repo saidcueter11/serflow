@@ -57,12 +57,18 @@ function cleanHours(value) {
  * @typedef {{ days: string, short: string, time: string }} BusinessHours
  * @typedef {{ whatsappNumber?: string, email?: string, address?: string, directionsUrl?: string, mapEmbedUrl?: string,
  *   instagramUrl?: string, instagramHandle?: string, tiktokUrl?: string, tiktokHandle?: string, facebookUrl?: string,
- *   facebookHandle?: string, hours?: BusinessHours[] }} BusinessOverrides
+ *   facebookHandle?: string, hours?: BusinessHours[], instagramHidden?: true, tiktokHidden?: true, facebookHidden?: true }} BusinessOverrides
  */
+
+/** Quitar una red es un estado explícito: solo false. Vacío o cualquier otra cosa la deja visible, con su valor o el del código. */
+const hidden = (value) => (value === false ? true : undefined)
 
 /** @returns {BusinessOverrides} */
 export function parseBusinessOverrides(row) {
   const all = {
+    instagramHidden: hidden(row?.instagram_visible),
+    tiktokHidden: hidden(row?.tiktok_visible),
+    facebookHidden: hidden(row?.facebook_visible),
     whatsappNumber: cleanWhatsapp(row?.whatsapp_number),
     email: cleanEmail(row?.email),
     address: cleanText(row?.address, 120),

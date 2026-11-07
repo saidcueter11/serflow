@@ -1,4 +1,6 @@
 // Promos sembradas para e2e/promos.spec.ts. Las fechas son relativas al build para que el test no caduque.
+import { filasDeLaSiembra } from './sembrado.mjs'
+
 const DAY = 24 * 60 * 60 * 1000
 
 // PRI-423: otro proyecto de Supabase. Ese host no existe: si un camino del build intentara bajar la foto, el build falla.
@@ -92,6 +94,7 @@ const contenido = (p, base) => {
         tiktok_handle: '@e2e_tt',
         facebook_url: 'https://www.facebook.com/e2e',
         facebook_handle: 'E2E',
+        facebook_visible: false,
         hours: [{ days: 'Toda la semana', time: '9 a.m. a 5 p.m.' }],
       },
     ],
@@ -109,10 +112,14 @@ const contenido = (p, base) => {
       { image_url: 'https://evil.example/x.jpg', alt: 'Dominio ajeno', sort_order: 0 },
       { image_url: FOTO_AJENA, alt: 'Proyecto ajeno', sort_order: 0 },
       { image_url: rota, alt: 'No existe', sort_order: 1 },
+      { image_url: 'repo:stock/no-existe.jpg', alt: 'Referencia desconocida', sort_order: 1 },
       { image_url: p[0], alt: 'Primera', object_position: '50% 20%', sort_order: 1 },
+      // El cliente agrega fotos sin perder las sembradas: conviven las del repo y las de Storage.
+      { image_url: 'repo:stock/gorra-bordada.jpg', alt: 'Sembrada', sort_order: 3 },
     ],
     service_cards: [
-      ...[1, 2, 3, 4, 5].map((i) => ({ title: `Servicio ${i}`, description: `Descripción ${i}`, image_url: p[i], image_alt: `Foto ${i}`, sort_order: i })),
+      ...[1, 2, 3, 4].map((i) => ({ title: `Servicio ${i}`, description: `Descripción ${i}`, image_url: p[i], image_alt: `Foto ${i}`, sort_order: i })),
+      { title: 'Servicio 5', description: 'Descripción 5', image_url: 'repo:stock/camiseta-dtf.jpg', image_alt: 'Foto 5', sort_order: 5 },
       { title: 'Servicio 6', description: 'Con una foto que no existe', image_url: rota, sort_order: 6 },
       { title: 'Servicio 7', description: 'Pasa del tope de 6', image_url: p[0], sort_order: 7 },
       { title: '   ', description: 'Sin título', image_url: p[0], sort_order: 0 },
@@ -149,6 +156,10 @@ const malo = () => ({
       instagram_url: 'http://www.instagram.com/x',
       tiktok_url: 'https://evil.example/@x',
       facebook_url: 'no es url',
+      // Solo false quita una red. Cualquier otro valor la deja visible.
+      instagram_visible: 'false',
+      tiktok_visible: null,
+      facebook_visible: 0,
       hours: 'todos los días',
     },
   ],
@@ -167,4 +178,22 @@ export const SCENARIOS = [
   // PRI-150 + PRI-413: lo que publica el admin, y (4236) datos inválidos.
   { outDir: '.e2e-builds/medios', port: 4235, promos: () => [], medios: (p, base) => ({ ...medios(p, base), ...contenido(p, base) }) },
   { outDir: '.e2e-builds/contenido-malo', port: 4236, promos: () => [], medios: malo },
+  // PRI-413: lo que deja la migración de siembra. Mismas promos y categorías que 4232, para comparar su HTML.
+  {
+    outDir: '.e2e-builds/sembrado',
+    port: 4237,
+    promos: (p, now) => [vencida(now)],
+    categories: [vacia],
+    medios: () => ({ ...vacio(), ...filasDeLaSiembra() }),
+  },
+  // PRI-413: el cliente quitó las tres redes, con enlaces guardados que no deben salir.
+  {
+    outDir: '.e2e-builds/sin-redes',
+    port: 4238,
+    promos: () => [],
+    medios: () => ({
+      ...vacio(),
+      site_settings: [{ id: 1, instagram_url: 'https://www.instagram.com/e2e-quitada/', instagram_visible: false, tiktok_visible: false, facebook_visible: false }],
+    }),
+  },
 ]

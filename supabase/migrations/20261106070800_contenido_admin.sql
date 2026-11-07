@@ -176,8 +176,8 @@ to authenticated
 using (bucket_id = 'site-media');
 
 
--- PRI-413: contenido editable de la portada y datos del negocio. Tablas vacías: mientras no haya datos, el sitio usa los
--- valores del código. Los límites se repiten al leer en el build (src/lib/site-content.ts, src/lib/business-overrides.mjs).
+-- PRI-413: contenido editable de la portada y datos del negocio. Las llena 20261107120000_sembrar_contenido.sql; lo que
+-- quede vacío usa los valores del código. Los límites se repiten al leer en el build (src/lib/site-content.ts, src/lib/business-overrides.mjs).
 
 -- Datos del negocio: una sola fila (id = 1). Cada columna vacía usa el valor de src/lib/business.ts.
 create table if not exists public.site_settings (
@@ -193,6 +193,10 @@ create table if not exists public.site_settings (
   tiktok_handle text,
   facebook_url text,
   facebook_handle text,
+  -- false: el cliente quitó esa red y el sitio no la muestra. El enlace queda guardado para poder volver a activarla.
+  instagram_visible boolean not null default true,
+  tiktok_visible boolean not null default true,
+  facebook_visible boolean not null default true,
   -- [{ "days": "Lunes a sábado", "time": "8 a.m. - 6 p.m." }], de 1 a 7 filas.
   hours jsonb,
   created_at timestamptz not null default now(),
@@ -243,7 +247,8 @@ create table if not exists public.hero_slides (
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint hero_slides_image check (char_length(image_url) <= 2000 and image_url ~ '^https://'),
+  -- repo:stock/<archivo>.jpg es una foto que vive en el repo del sitio (la siembra 20261107120000_sembrar_contenido.sql).
+  constraint hero_slides_image check (char_length(image_url) <= 2000 and image_url ~ '^(https://|repo:stock/[a-z0-9-]+\.jpg$)'),
   constraint hero_slides_alt check (alt is null or char_length(alt) <= 140),
   constraint hero_slides_position check (object_position is null or object_position ~ '^(100|[0-9]{1,2})% (100|[0-9]{1,2})%$')
 );
@@ -261,7 +266,7 @@ create table if not exists public.service_cards (
   updated_at timestamptz not null default now(),
   constraint service_cards_title check (char_length(title) between 1 and 40),
   constraint service_cards_description check (char_length(description) between 1 and 140),
-  constraint service_cards_image check (image_url is null or (char_length(image_url) <= 2000 and image_url ~ '^https://')),
+  constraint service_cards_image check (image_url is null or (char_length(image_url) <= 2000 and image_url ~ '^(https://|repo:stock/[a-z0-9-]+\.jpg$)')),
   constraint service_cards_alt check (image_alt is null or char_length(image_alt) <= 140)
 );
 

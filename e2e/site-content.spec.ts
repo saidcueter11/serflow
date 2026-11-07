@@ -1,7 +1,13 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 
 // PRI-413: contenido editable. Builds sembrados por e2e/promos/server.mjs, sin escribir en la base.
-const SITE = { vacio: 'http://localhost:4232', contenido: 'http://localhost:4235', malo: 'http://localhost:4236' }
+const SITE = {
+  vacio: 'http://localhost:4232',
+  contenido: 'http://localhost:4235',
+  malo: 'http://localhost:4236',
+  sembrado: 'http://localhost:4237',
+  sinRedes: 'http://localhost:4238',
+}
 
 const WA_HOY = 'https://wa.me/573156481243?text=Hola!%20Quiero%20m%C3%A1s%20informaci%C3%B3n'
 
@@ -104,6 +110,45 @@ test.describe('datos inválidos', () => {
   })
 })
 
+// El build sembrado lee las filas del SQL de la migración (e2e/promos/sembrado.mjs): esto es lo que quedará en prod.
+test.describe('contenido sembrado por la migración', () => {
+  test.use({ baseURL: SITE.sembrado })
+
+  test('the seeded site shows today’s content', async ({ page }) => {
+    await expectContenidoDeHoy(page)
+  })
+
+  // Solo cambia el nombre de los .js con los datos del negocio: el bundle se hashea con la fila inyectada.
+  const html = async (request: APIRequestContext, url: string) => (await (await request.get(url)).text()).replace(/\/_astro\/[^"'\s]+\.js/g, '/_astro/x.js')
+
+  for (const path of ['/', '/personaliza', '/promos', '/products/e2e-vacia']) {
+    test(`${path} is byte for byte the same with and without the seed`, async ({ request }) => {
+      expect(await html(request, SITE.sembrado + path)).toBe(await html(request, SITE.vacio + path))
+    })
+  }
+})
+
+test.describe('redes quitadas', () => {
+  test('a removed network leaves the footer and the JSON-LD; the others stay', async ({ page }) => {
+    await page.goto(`${SITE.contenido}/`)
+    const pie = page.locator('footer')
+    await expect(pie.getByLabel('Serflow en Facebook')).toHaveCount(0)
+    await expect(pie.getByLabel('Serflow en Instagram')).toHaveCount(1)
+    await expect(pie.getByLabel('Serflow en TikTok')).toHaveCount(1)
+    expect((await jsonLdDe(page)).sameAs).not.toContain('https://www.facebook.com/e2e')
+    expect(await page.content()).not.toContain('facebook.com')
+  })
+
+  test('with all three removed there is no empty row, and orders still work', async ({ page }) => {
+    await page.goto(`${SITE.sinRedes}/`)
+    await expect(page.locator('footer a[aria-label^="Serflow en"]')).toHaveCount(0)
+    await expect(page.locator('footer ul > li')).toHaveCount(1)
+    expect(await page.content()).not.toContain('e2e-quitada')
+    expect((await jsonLdDe(page)).sameAs).toEqual([WA_HOY])
+    await expect(page.getByLabel('Escríbenos por WhatsApp')).toHaveAttribute('href', WA_HOY)
+  })
+})
+
 test.describe('contenido editado', () => {
   test.use({ baseURL: SITE.contenido })
 
@@ -113,9 +158,10 @@ test.describe('contenido editado', () => {
     await expect(page.getByText('Lema de prueba del hero.')).toBeVisible()
 
     const fotos = page.locator('.hero-carousel figure img')
-    await expect(fotos).toHaveCount(2)
+    await expect(fotos).toHaveCount(3)
     await expect(fotos.first()).toHaveAttribute('alt', 'Primera')
     await expect(fotos.nth(1)).toHaveAttribute('alt', 'Segunda')
+    await expect(fotos.nth(2)).toHaveAttribute('alt', 'Sembrada')
     await expect(fotos.first()).toHaveCSS('object-position', '50% 20%')
     for (const foto of await fotos.all()) {
       await expect(foto).toHaveAttribute('src', /^\/_astro\/.*\.webp$/)
@@ -196,7 +242,6 @@ test.describe('contenido editado', () => {
     await expect(pie.getByRole('link', { name: 'taller@serflow.example' })).toHaveAttribute('href', 'mailto:taller@serflow.example')
     await expect(pie.getByLabel('Serflow en Instagram')).toHaveAttribute('href', 'https://www.instagram.com/e2e/')
     await expect(pie.getByLabel('Serflow en TikTok')).toHaveAttribute('href', 'https://www.tiktok.com/@e2e')
-    await expect(pie.getByLabel('Serflow en Facebook')).toHaveAttribute('href', 'https://www.facebook.com/e2e')
 
     const schema = await jsonLdDe(page)
     expect(schema.telephone).toBe('+57 300 111 2233')
@@ -239,6 +284,9 @@ test.describe('contenido editado', () => {
     await expect(page.locator('.pf-servicios img').first()).toHaveAttribute('alt', 'Foto 1')
     await expect(page.locator('.pf-servicios img').first()).toHaveAttribute('src', /^\/_astro\/.*\.webp$/)
     await expect(page.locator('.pf-servicios img').first()).toHaveAttribute('srcset', /320w/)
+    // Una tarjeta sembrada conserva su foto del repo.
+    await expect(page.locator('.pf-servicios img').nth(4)).toHaveAttribute('alt', 'Foto 5')
+    await expect(page.locator('.pf-servicios img').nth(4)).toHaveAttribute('srcset', /320w/)
   })
 
   // Filas esperadas en desktop por cantidad de tarjetas. La rejilla es CSS: basta quitar tarjetas de la página.
