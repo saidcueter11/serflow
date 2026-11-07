@@ -94,7 +94,7 @@ export function HomePage({
                 Diseña la tuya
               </h2>
               <p className="pf-lead">Sube tu diseño, míralo sobre la camiseta o la gorra y mándanoslo listo para hacerlo.</p>
-              <div className="@3xl:hidden">{foto}</div>
+              <div className="w-full @3xl:hidden">{foto}</div>
               <ol className="pf-pasos">
                 {PASOS.map((p, i) => (
                   <li key={p}>
