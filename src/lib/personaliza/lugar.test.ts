@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aspectoArea, cajaDiseno, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm } from './lugar'
+import { aspectoArea, cajaDiseno, enArea, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm, unidadesFoto } from './lugar'
 import type { Area } from './datos'
 
 // 4:5 en px de la escena: el área mide 432 × 432 y queda en el centro de la foto.
@@ -63,6 +63,40 @@ describe('tamanoCm', () => {
 })
 
 describe('áreas de 4 esquinas', () => {
+  it('unidadesFoto alcanza las 4 esquinas de la foto, también si el área no es un rectángulo; en un rectángulo es enUnidades', () => {
+    const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
+    const u = unidadesFoto(gorra)
+    const [xa, ya] = enArea(gorra, u.left, u.top)
+    const [xb, yb] = enArea(gorra, u.right, u.top)
+    const [xc, yc] = enArea(gorra, u.right, u.bottom)
+    const [xd, yd] = enArea(gorra, u.left, u.bottom)
+    expect(xa).toBeLessThanOrEqual(0)
+    expect(ya).toBeLessThanOrEqual(0)
+    expect(xb).toBeGreaterThanOrEqual(1)
+    expect(yb).toBeLessThanOrEqual(0)
+    expect(xc).toBeGreaterThanOrEqual(1)
+    expect(yc).toBeGreaterThanOrEqual(1)
+    expect(xd).toBeLessThanOrEqual(0)
+    expect(yd).toBeGreaterThanOrEqual(1)
+    const r = enUnidades(CENTRO, FOTO_ENTERA)
+    const c = unidadesFoto(CENTRO)
+    for (const k of ['left', 'top', 'right', 'bottom'] as const) expect(c[k]).toBeCloseTo(r[k], 9)
+  })
+
+  it('limitar mide las esquinas reales: en un área que no es un rectángulo tampoco se sale de la ventana', () => {
+    const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
+    const v = { left: 0, top: 0.1, right: 1, bottom: 0.9 }
+    for (const [cx, cy] of [[-9, 9], [9, 9], [-9, -9], [9, -9]]) {
+      const l = limitar({ cx, cy, s: 0.6 }, 1, gorra, 1, v)
+      const c = cajaDiseno(gorra, l, 1, aspectoArea(gorra))
+      expect(c.left).toBeGreaterThanOrEqual(v.left - 1e-3)
+      expect(c.top).toBeGreaterThanOrEqual(v.top - 1e-3)
+      expect(c.left + c.width).toBeLessThanOrEqual(v.right + 1e-3)
+      expect(c.top + c.height).toBeLessThanOrEqual(v.bottom + 1e-3)
+      expect(l.s).toBe(0.6)
+    }
+  })
+
   const cuadrada: Area = { tl: [0.2, 0.2], tr: [0.6, 0.2], br: [0.6, 0.52], bl: [0.2, 0.52] }
 
   it('mide el aspecto en px de la escena 4:5', () => {

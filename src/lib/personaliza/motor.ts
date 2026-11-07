@@ -3,7 +3,7 @@
 // de la prenda: el área de impresión solo da la escala y la curva. Luminancia, desenfoque y filtros de técnica se hacen
 // sobre los píxeles (ctx.filter no existe en Safari viejo).
 import { ESCENA, type Area, type Punto, type Tecnica } from './datos'
-import { FOTO_ENTERA, aspectoArea, enArea, enUnidades, type Lugar } from './lugar'
+import { aspectoArea, enArea, unidadesFoto, type Lugar } from './lugar'
 
 const { ancho: W, alto: H } = ESCENA
 /** Celdas por ancho de área de la malla completa y de la rápida que se usa mientras se arrastra (sin pliegues). */
@@ -160,7 +160,7 @@ export function prepararFoto(img: HTMLImageElement, area: Area, curva: number): 
     return [px + gx * 0.2, py + gy * 0.2]
   }
   // La malla cubre toda la foto, con la densidad de siempre sobre el área.
-  const foto = enUnidades(area, FOTO_ENTERA)
+  const foto = unidadesFoto(area)
   const malla = (n: number, conPliegues: boolean): Malla => {
     const i0 = Math.floor(foto.left * n)
     const j0 = Math.floor(foto.top * n)

@@ -72,17 +72,49 @@ export function enUnidades(a: Area, v: Ventana): Ventana {
 }
 
 /**
+ * Unidades del área que alcanzan a toda la foto, para la malla del motor. Se mide con los lados más cortos: en un área
+ * que no es un rectángulo, enUnidades se queda corto en las esquinas y el diseño se cortaba ahí. En un rectángulo da lo mismo.
+ */
+export function unidadesFoto(a: Area): Ventana {
+  const ancho = Math.min(a.tr[0] - a.tl[0], a.br[0] - a.bl[0])
+  const alto = Math.min(a.bl[1] - a.tl[1], a.br[1] - a.tr[1])
+  return {
+    left: -Math.max(a.tl[0], a.bl[0]) / ancho,
+    top: -Math.max(a.tl[1], a.tr[1]) / alto,
+    right: 1 + (1 - Math.min(a.tr[0], a.br[0])) / ancho,
+    bottom: 1 + (1 - Math.min(a.bl[1], a.br[1])) / alto,
+  }
+}
+
+/**
  * El diseño se mueve libre por la foto: su caja solo se queda dentro de la ventana (lo visible de la foto), para que no
  * se pierda. Escala entre S_MIN y max (escalaMax); si a ese ancho no cabe en la ventana, se reduce hasta caber.
- * ratio = ancho / alto del diseño.
+ * ratio = ancho / alto del diseño. Se mide con las esquinas reales de la caja en la foto, porque el área puede no ser un
+ * rectángulo (la gorra en 3/4). Corregir un eje mueve un poco el otro: 8 pasadas lo dejan a menos de 1 px; en un
+ * rectángulo basta una. Primero se trae cerca: muy lejos del área, las 4 esquinas extrapoladas ya no significan nada.
  */
 export function limitar(l: Lugar, ratio: number, area: Area, max = S_MAX, ventana = FOTO_ENTERA): Lugar {
-  const v = enUnidades(area, ventana)
   const k = giroCaja(1, ratio, aspectoArea(area), l.r)
-  const s = Math.min(clamp(l.s, S_MIN, max), (v.right - v.left) / k.w, (v.bottom - v.top) / k.h)
-  const w = s * k.w
-  const h = s * k.h
-  return { ...l, s, cx: clamp(l.cx, v.left + w / 2, v.right - w / 2), cy: clamp(l.cy, v.top + h / 2, v.bottom - h / 2) }
+  const b = cajaArea(area)
+  const u = enUnidades(area, ventana)
+  const n = { ...l, s: clamp(l.s, S_MIN, max), cx: clamp(l.cx, u.left - 1, u.right + 1), cy: clamp(l.cy, u.top - 1, u.bottom + 1) }
+  const medir = () => {
+    const w = n.s * k.w
+    const h = n.s * k.h
+    const pts = [enArea(area, n.cx - w / 2, n.cy - h / 2), enArea(area, n.cx + w / 2, n.cy - h / 2), enArea(area, n.cx + w / 2, n.cy + h / 2), enArea(area, n.cx - w / 2, n.cy + h / 2)]
+    const xs = pts.map((p) => p[0])
+    const ys = pts.map((p) => p[1])
+    return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs), bottom: Math.max(...ys) }
+  }
+  for (let i = 0; i < 8; i++) {
+    const c = medir()
+    n.s *= Math.min(1, (ventana.right - ventana.left) / (c.right - c.left), (ventana.bottom - ventana.top) / (c.bottom - c.top))
+    const d = medir()
+    // Hacia donde lo pidió, sin pasar el borde; si ya lo pasó, de vuelta adentro.
+    n.cx += clamp(l.cx - n.cx, (ventana.left - d.left) / (b.right - b.left), (ventana.right - d.right) / (b.right - b.left))
+    n.cy += clamp(l.cy - n.cy, (ventana.top - d.top) / (b.bottom - b.top), (ventana.bottom - d.bottom) / (b.bottom - b.top))
+  }
+  return n
 }
 
 /** Caja del diseño girado r grados, en unidades del área (ancho s, alto s · aspecto / ratio sin girar). */

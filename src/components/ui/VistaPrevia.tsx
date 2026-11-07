@@ -321,7 +321,9 @@ export function VistaPrevia({
             onPointerCancel={up}
             onKeyDown={tecla}
             onFocus={() => setSel(true)}
-            className={`absolute rounded-sm outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent ${ajustando ? 'cursor-move ring-[1.5px] ring-accent' : 'cursor-pointer'}`}
+            // Sin esto, arrastrar selecciona texto de la página y el siguiente arrastre arranca un drag nativo: el navegador cancela el puntero.
+            onDragStart={(e) => e.preventDefault()}
+            className={`absolute select-none rounded-sm outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent ${ajustando ? 'cursor-move ring-[1.5px] ring-accent' : 'cursor-pointer'}`}
             style={{
               left: pct(caja.left),
               top: pct(caja.top),

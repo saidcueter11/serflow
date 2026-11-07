@@ -363,8 +363,11 @@ test.describe('/personaliza', () => {
     const arriba = (await diseno.boundingBox())!
     expect(arriba.x).toBeGreaterThanOrEqual(vista.x - 1)
     expect(arriba.y).toBeGreaterThanOrEqual(vista.y - 1)
+    // Arrastrar no selecciona texto: con una selección, el siguiente arrastre arranca un drag nativo y el navegador lo corta.
+    expect(await page.evaluate(() => String(getSelection()))).toBe('')
 
-    // Hacia abajo a la derecha, igual.
+    // Hacia abajo a la derecha, igual, aunque la página tenga texto seleccionado.
+    await page.evaluate(() => getSelection()!.selectAllChildren(document.body))
     const c = await centro()
     await page.mouse.move(c.x, c.y)
     await page.mouse.down()
@@ -533,6 +536,75 @@ test.describe('/personaliza', () => {
       return b.width > b.height
     }).toBe(true)
     await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('girar con la tecla R y con la manija no cambia el tamaño del mensaje', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    const diseno = page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })
+    await expect(diseno).toBeVisible()
+    await quieto(diseno)
+
+    await diseno.focus()
+    await page.keyboard.press('r')
+    await expect(diseno).toHaveCSS('transform', /^matrix\(0\.96/)
+    await page.keyboard.press('Shift+R')
+    await expect(diseno).toHaveCSS('transform', 'none')
+
+    // La manija de arriba: del centro hacia la derecha son unos 90°.
+    const m = (await diseno.locator('.cursor-grab').boundingBox())!
+    const d = (await diseno.boundingBox())!
+    await page.mouse.move(m.x + m.width / 2, m.y + m.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(d.x + d.width / 2 + 90, d.y + d.height / 2, { steps: 4 })
+    await page.mouse.up()
+    await expect.poll(() => diseno.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).b)).toBeGreaterThan(0.99)
+
+    await enviar(page).click()
+    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Tamaño:* unos 19 cm de ancho')
+  })
+
+  for (const [lado, dx] of [['izquierda', -1], ['derecha', 1]] as const) {
+    test(`gorra negra, área que no es un rectángulo: abajo a la ${lado} el diseño no se sale de lo visible`, async ({ page }) => {
+      await abrir(page)
+      await page.getByText('Gorra', { exact: true }).click()
+      await expect(page.getByRole('img', { name: 'Gorra negra' })).toBeVisible()
+      await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
+      await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(800) })
+      const diseno = page.getByRole('group', { name: /Tu diseño/ })
+      await expect(diseno).toBeVisible()
+      await quieto(diseno)
+      const d = (await diseno.boundingBox())!
+      const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
+      await page.mouse.click(c.x, c.y)
+      await page.mouse.move(c.x, c.y)
+      await page.mouse.down()
+      await page.mouse.move(c.x + dx * 1500, c.y + 1500, { steps: 4 })
+      await page.mouse.up()
+      const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
+      await expect.poll(async () => (await diseno.boundingBox())!.y + (await diseno.boundingBox())!.height).toBeGreaterThan(v.y + v.height - 2)
+      await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+    })
+  }
+
+  test('gorra negra: en la esquina de abajo el diseño se pinta entero, sin cortarse donde se acaba la malla', async ({ page }) => {
+    await abrir(page)
+    await page.getByText('Gorra', { exact: true }).click()
+    await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
+    await page.getByText('Estampado', { exact: true }).click()
+    await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    await quieto(diseno)
+    const d = (await diseno.boundingBox())!
+    const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
+    await page.mouse.click(c.x, c.y)
+    await page.mouse.move(c.x, c.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x - 1500, c.y + 1500, { steps: 4 })
+    await page.mouse.up()
+    // Lo que se corta muestra la foto de atrás (clara), muy lejos del color del diseño.
+    await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(80)
   })
 
   test('una manija con el diseño girado no hace saltar el tamaño', async ({ page }) => {
