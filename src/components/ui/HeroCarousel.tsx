@@ -1,9 +1,17 @@
 import type { CSSProperties, ReactNode } from 'react'
 
-export type Slide = { src: string; srcSet?: string; alt: string; position?: string }
+export type Slide = { src: string; srcSet?: string; sizes?: string; alt: string; position?: string }
 
-/** A sangre: la foto mide lo que mide la pantalla. */
-export const HERO_SIZES = '100vw'
+/**
+ * `sizes` de una foto del hero según su proporción (ancho / alto). Va a sangre con object-cover en .pf-hero (600 de
+ * alto en celular, 720 desde 48rem; tokens.css): una foto más ancha que la pantalla a ese alto se pinta con el ancho
+ * del recorte, no con el de la pantalla, y pedirla a 100vw la deja blanda (PRI-150).
+ */
+export function heroSizes(ratio: number) {
+  const movil = Math.ceil(600 * ratio)
+  const escritorio = Math.ceil(720 * ratio)
+  return `(max-width: ${Math.min(movil, 767.98)}px) ${movil}px, (max-width: 767.98px) 100vw, (max-width: ${escritorio}px) ${escritorio}px, 100vw`
+}
 
 const SECONDS = 6
 const FADE = 1
@@ -44,7 +52,7 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
           <img
             src={s.src}
             srcSet={s.srcSet}
-            sizes={s.srcSet ? HERO_SIZES : undefined}
+            sizes={s.sizes}
             alt={s.alt}
             loading={i === 0 ? 'eager' : 'lazy'}
             fetchPriority={i === 0 ? 'high' : undefined}

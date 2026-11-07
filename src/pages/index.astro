@@ -1,9 +1,11 @@
 ---
 import { getImage } from 'astro:assets'
+import type { GetImageResult } from 'astro'
 import Layout from '../layouts/Layout.astro'
 import { HomePage, type HomeProduct } from '../components/home/HomePage'
 import { PromoBar } from '../components/ui/PromoBar'
-import { HERO_SIZES, type Slide } from '../components/ui/HeroCarousel'
+import { heroSizes, type Slide } from '../components/ui/HeroCarousel'
+import { serviceCardSizes } from '../components/ui/ServiceCard'
 import { getActivePromos, getCategories, getProducts } from '../lib/products'
 import { loadCatalog } from '../lib/catalog-view'
 import { PhotoModal } from '../components/ui/PhotoModal'
@@ -63,18 +65,32 @@ const FOTOS_DEL_REPO = new Map([
   ['repo:stock/gorra-bordada-2.jpg', gorraBordada2],
 ])
 
-/** La foto de una fila: del repo si es una referencia; si no, de Storage. Una referencia desconocida la descarta fotoRemota. */
-async function fotoDeFila(url: string, opciones: { width: number; widths: number[]; quality: number }) {
+// Ancho / alto de la foto que sale: con object-cover, el `sizes` de una foto horizontal depende de esto (PRI-150).
+const proporcion = (img: GetImageResult) => img.attributes.width / img.attributes.height
+
+/**
+ * La foto de una fila con el `sizes` de su caja: del repo si es una referencia; si no, de Storage. Una referencia
+ * desconocida la descarta fotoRemota.
+ */
+async function fotoDeFila(url: string, opciones: { width: number; widths: number[]; quality: number }, sizes: (ratio: number) => string) {
   const src = FOTOS_DEL_REPO.get(url)
-  if (!src) return fotoRemota(url, opciones)
+  if (!src) {
+    const foto = await fotoRemota(url, opciones)
+    return foto && { src: foto.src, srcSet: foto.srcSet, sizes: sizes(foto.ratio) }
+  }
   const img = await getImage({ src, format: 'webp', ...opciones })
-  return { src: img.src, srcSet: img.srcSet.attribute }
+  return { src: img.src, srcSet: img.srcSet.attribute, sizes: sizes(proporcion(img)) }
 }
 
-// Fotos de los servicios: 320 px para la fila del celular (112 px en pantallas densas), 640 px en desktop.
-const fotoServicio = { width: 640, widths: [320, 640], quality: 75 }
+// Fotos de los servicios: en el celular la caja es de 112 x 140 y una horizontal se pinta a ~210 px de ancho, así que
+// 320 y 480 cubren las pantallas de 1x y 2x; 640 px en desktop. Chrome se queda con la más chica si la siguiente
+// está lejos, por eso el paso intermedio.
+const fotoServicio = { width: 640, widths: [320, 480, 640], quality: 75 }
 const [estampado, dtf, bordado] = await Promise.all(
-  [estampadoRasero, camisetaDtf, gorraBordada2].map((src) => getImage({ src, format: 'webp', ...fotoServicio })),
+  [estampadoRasero, camisetaDtf, gorraBordada2].map(async (src) => {
+    const img = await getImage({ src, format: 'webp', ...fotoServicio })
+    return { src: img.src, srcSet: img.srcSet.attribute, sizes: serviceCardSizes(proporcion(img)) }
+  }),
 )
 
 // Bloque "Diseña la tuya": la foto que publica el admin (PRI-150) o la del repo.
@@ -93,12 +109,13 @@ const HERO = [
   { src: gorraBordada, alt: 'Gorra blanca con bordado rojo', position: '50% 40%' },
   { src: amigosGorras, alt: 'Dos amigos con gorras personalizadas riéndose', position: '50% 30%' },
 ]
-const fotoHero = { width: 1400, widths: [640, 1000, 1400], quality: 72 }
+// 800 es para las verticales en celulares de 2x: a 600 de alto se pintan a ~400 px y con 640 / 1000 Chrome baja la de 640.
+const fotoHero = { width: 1400, widths: [640, 800, 1000, 1400], quality: 72 }
 // Las fotos del admin (PRI-413) que sirvan; si ninguna sirve, las de arriba.
 const editedSlides = (
   await Promise.all(
     content.heroSlides.map(async ({ image_url, ...rest }) => {
-      const foto = await fotoDeFila(image_url, fotoHero)
+      const foto = await fotoDeFila(image_url, fotoHero, heroSizes)
       return foto && { ...rest, ...foto }
     }),
   )
@@ -109,7 +126,7 @@ const heroSlides: Slide[] =
     : await Promise.all(
         HERO.map(async ({ src, ...rest }) => {
           const img = await getImage({ src, format: 'webp', ...fotoHero })
-          return { ...rest, src: img.src, srcSet: img.srcSet.attribute }
+          return { ...rest, src: img.src, srcSet: img.srcSet.attribute, sizes: heroSizes(proporcion(img)) }
         }),
       )
 const promoWithCover = promos.find((p) => p.banner_url || p.image_urls[0])
@@ -117,12 +134,12 @@ if (promoWithCover) {
   const cover = promoWithCover.banner_url || promoWithCover.image_urls[0]
   const img = await getImage({ src: cover, height: 900, format: 'webp', ...fotoHero })
   if (heroSlides.length > 1) heroSlides.splice(heroSlides.length - 1, 1)
-  heroSlides.unshift({ src: img.src, srcSet: img.srcSet.attribute, alt: promoWithCover.title })
+  heroSlides.unshift({ src: img.src, srcSet: img.srcSet.attribute, sizes: heroSizes(proporcion(img)), alt: promoWithCover.title })
 }
 // "Qué hacemos": tarjetas del admin (2 a 6). Una foto que no sirve deja la tarjeta con la muestra neutra de ServiceCard.
 const services = await Promise.all(
   content.services.map(async ({ image_url, image_alt, ...card }) => {
-    const foto = image_url ? await fotoDeFila(image_url, fotoServicio) : null
+    const foto = image_url ? await fotoDeFila(image_url, fotoServicio, serviceCardSizes) : null
     return foto ? { ...card, image: { ...foto, alt: image_alt } } : card
   }),
 )
@@ -167,7 +184,7 @@ const localBusinessSchema = {
 <Layout title="Serflow: camisetas y gorras personalizadas en Cartagena" description={homeDescription}>
   <Fragment slot="head">
     <meta property="og:locale" content="es_CO" />
-    <link rel="preload" as="image" href={heroSlides[0].src} imagesrcset={heroSlides[0].srcSet} imagesizes={HERO_SIZES} fetchpriority="high" />
+    <link rel="preload" as="image" href={heroSlides[0].src} imagesrcset={heroSlides[0].srcSet} imagesizes={heroSlides[0].sizes} fetchpriority="high" />
     <script type="application/ld+json" set:html={jsonLd(localBusinessSchema)} />
   </Fragment>
   <Fragment slot="top">
@@ -182,7 +199,7 @@ const localBusinessSchema = {
       dtf: dtf.src,
       bordado: bordado.src,
       personalizador,
-      serviciosSrcSet: { estampado: estampado.srcSet.attribute, dtf: dtf.srcSet.attribute, bordado: bordado.srcSet.attribute },
+      servicios: { estampado, dtf, bordado },
     }}
     catalogHref={catalogHref}
     content={{ sections: content.sections, services, reasons: content.reasons }}

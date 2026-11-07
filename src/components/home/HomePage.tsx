@@ -25,14 +25,14 @@ export interface HomeImages {
   dtf: string
   bordado: string
   personalizador: { src: string; srcSet?: string; alt: string }
-  /** srcset de las fotos de los servicios, para no mandarle la de desktop al celular. */
-  serviciosSrcSet?: { estampado: string; dtf: string; bordado: string }
+  /** srcset y sizes de las fotos de los servicios, para no mandarle la de desktop al celular. */
+  servicios?: Record<'estampado' | 'dtf' | 'bordado', { srcSet: string; sizes: string }>
 }
 
 /** Lo que el cliente edita desde el admin (PRI-413). Lo que no venga usa el texto de este archivo. */
 export interface HomeContent {
   sections?: Partial<Record<SectionSlug, SectionText>>
-  services?: { title: string; description: string; image?: { src: string; srcSet?: string; alt: string } }[]
+  services?: { title: string; description: string; image?: { src: string; srcSet?: string; sizes?: string; alt: string } }[]
   reasons?: { title: string; copy: string }[]
 }
 
@@ -76,10 +76,10 @@ export function HomePage({
         {
           title: 'Estampado',
           description: 'Mate, toma la textura de la tela. Ideal para camisetas.',
-          image: { src: images.estampado, srcSet: images.serviciosSrcSet?.estampado, alt: 'Estampado' },
+          image: { src: images.estampado, ...images.servicios?.estampado, alt: 'Estampado' },
         },
-        { title: 'DTF', description: 'Colores vivos y con brillo. Fotos y degradados.', image: { src: images.dtf, srcSet: images.serviciosSrcSet?.dtf, alt: 'DTF' } },
-        { title: 'Bordado', description: 'Hilo con relieve. El clásico de las gorras.', image: { src: images.bordado, srcSet: images.serviciosSrcSet?.bordado, alt: 'Bordado' } },
+        { title: 'DTF', description: 'Colores vivos y con brillo. Fotos y degradados.', image: { src: images.dtf, ...images.servicios?.dtf, alt: 'DTF' } },
+        { title: 'Bordado', description: 'Hilo con relieve. El clásico de las gorras.', image: { src: images.bordado, ...images.servicios?.bordado, alt: 'Bordado' } },
       ]
   const razones = editedReasons?.length ? editedReasons : RAZONES
   const tituloHero = sections.hero?.title ?? TITULO_HERO

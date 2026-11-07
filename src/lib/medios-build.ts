@@ -21,8 +21,9 @@ export async function fotoRemota(url: string, { width, widths, quality = 72 }: F
   if (!medida) return null
   const w = Math.min(width, medida.width)
   const anchos = widths && [...widths.filter((a) => a < w), w]
-  const img = await getImage({ src: url, width: w, height: Math.round((w * medida.height) / medida.width), widths: anchos, format: 'webp', quality })
-  return { src: img.src, srcSet: anchos && img.srcSet.attribute }
+  const h = Math.round((w * medida.height) / medida.width)
+  const img = await getImage({ src: url, width: w, height: h, widths: anchos, format: 'webp', quality })
+  return { src: img.src, srcSet: anchos && img.srcSet.attribute, ratio: w / h }
 }
 
 /** La foto publicada de un lugar con su alt, o null si no hay o no sirve. */
