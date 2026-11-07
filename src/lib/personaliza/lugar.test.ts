@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aspectoArea, cajaDiseno, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm, unidadesFoto } from './lugar'
+import { aspectoArea, cajaDiseno, enArea, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm, unidadesFoto } from './lugar'
 import type { Area } from './datos'
 
 // 4:5 en px de la escena: el área mide 432 × 432 y queda en el centro de la foto.
@@ -77,18 +77,27 @@ describe('áreas de 4 esquinas', () => {
     expect(unidadesFoto(CENTRO)).toEqual(enUnidades(CENTRO, FOTO_ENTERA))
   })
 
+  it('enArea: afuera del área el diseño no se encoge ni se voltea; en el área y en un rectángulo, interpola igual', () => {
+    const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
+    expect(enArea(gorra, 0.5, 0.5)[0]).toBeCloseTo((0.356 + 0.718 + 0.785 + 0.325) / 4, 9)
+    expect(enArea(gorra, 1, 1)).toEqual(gorra.br)
+    for (const v of [-9, 9]) expect(enArea(gorra, 1, v)[0] - enArea(gorra, 0, v)[0]).toBeGreaterThan(0.3)
+    expect(enArea(CENTRO, -2, 3)[0]).toBeCloseTo(0.3 - 2 * 0.4, 9)
+    expect(enArea(CENTRO, -2, 3)[1]).toBeCloseTo(0.34 + 3 * 0.32, 9)
+  })
+
   it('limitar mide las esquinas reales: en un área que no es un rectángulo tampoco se sale de la ventana', () => {
     const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
-    const v = { left: 0, top: 0.1, right: 1, bottom: 0.9 }
-    for (const [cx, cy] of [[-9, 9], [9, 9], [-9, -9], [9, -9]]) {
-      const l = limitar({ cx, cy, s: 0.6 }, 1, gorra, 1, v)
-      const c = cajaDiseno(gorra, l, 1, aspectoArea(gorra))
-      expect(c.left).toBeGreaterThanOrEqual(v.left - 1e-3)
-      expect(c.top).toBeGreaterThanOrEqual(v.top - 1e-3)
-      expect(c.left + c.width).toBeLessThanOrEqual(v.right + 1e-3)
-      expect(c.top + c.height).toBeLessThanOrEqual(v.bottom + 1e-3)
-      expect(l.s).toBe(0.6)
-    }
+    for (const v of [FOTO_ENTERA, { left: 0, top: 0.1, right: 1, bottom: 0.9 }])
+      for (const [cx, cy] of [[-9, 9], [9, 9], [-9, -9], [9, -9]]) {
+        const l = limitar({ cx, cy, s: 0.6 }, 1, gorra, 1, v)
+        const c = cajaDiseno(gorra, l, 1, aspectoArea(gorra))
+        expect(c.left).toBeGreaterThanOrEqual(v.left - 1e-3)
+        expect(c.top).toBeGreaterThanOrEqual(v.top - 1e-3)
+        expect(c.left + c.width).toBeLessThanOrEqual(v.right + 1e-3)
+        expect(c.top + c.height).toBeLessThanOrEqual(v.bottom + 1e-3)
+        expect(l.s).toBe(0.6)
+      }
   })
 
   const cuadrada: Area = { tl: [0.2, 0.2], tr: [0.6, 0.2], br: [0.6, 0.52], bl: [0.2, 0.52] }

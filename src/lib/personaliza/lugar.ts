@@ -26,13 +26,14 @@ export const FOTO_ENTERA: Ventana = { left: 0, top: 0, right: 1, bottom: 1 }
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 
-/** Punto del área (u, v en 0 a 1) en la foto, interpolando las 4 esquinas. */
+/**
+ * Punto del área (u, v) en la foto. De 0 a 1 interpola las 4 esquinas; afuera sigue derecho con la forma del borde: en un
+ * área que no es un rectángulo, seguir interpolando encoge el diseño hasta voltearlo y limitar lo perdía fuera de la foto.
+ */
 export function enArea(a: Area, u: number, v: number): Punto {
-  const tx = a.tl[0] + (a.tr[0] - a.tl[0]) * u
-  const ty = a.tl[1] + (a.tr[1] - a.tl[1]) * u
-  const bx = a.bl[0] + (a.br[0] - a.bl[0]) * u
-  const by = a.bl[1] + (a.br[1] - a.bl[1]) * u
-  return [tx + (bx - tx) * v, ty + (by - ty) * v]
+  const cruce = clamp(u, 0, 1) * clamp(v, 0, 1)
+  const eje = (i: 0 | 1) => a.tl[i] + (a.tr[i] - a.tl[i]) * u + (a.bl[i] - a.tl[i]) * v + (a.br[i] - a.bl[i] - a.tr[i] + a.tl[i]) * cruce
+  return [eje(0), eje(1)]
 }
 
 /** La escala que da el tope de bordado de la prenda; sin tope, S_MAX. anchoCm = ancho real del área. */
@@ -88,7 +89,7 @@ export function unidadesFoto(a: Area): Ventana {
  * se pierda. Escala entre S_MIN y max (escalaMax); si a ese ancho no cabe en la ventana, se reduce hasta caber.
  * ratio = ancho / alto del diseño. Se mide con las esquinas reales de la caja en la foto, porque el área puede no ser un
  * rectángulo (la gorra en 3/4). Corregir un eje mueve un poco el otro: 8 pasadas lo dejan a menos de 1 px; en un
- * rectángulo basta una. Primero se trae cerca: muy lejos del área, las 4 esquinas extrapoladas ya no significan nada.
+ * rectángulo basta una.
  */
 export function limitar(l: Lugar, ratio: number, area: Area, max = S_MAX, ventana = FOTO_ENTERA): Lugar {
   const k = giroCaja(1, ratio, aspectoArea(area), l.r)

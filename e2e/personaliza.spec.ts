@@ -568,8 +568,8 @@ test.describe('/personaliza', () => {
     expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Tamaño:* unos 19 cm de ancho')
   })
 
-  for (const [lado, dx] of [['izquierda', -1], ['derecha', 1]] as const) {
-    test(`gorra negra, área que no es un rectángulo: abajo a la ${lado} el diseño no se sale de lo visible`, async ({ page }) => {
+  for (const [lado, dx, dy] of [['abajo a la izquierda', -1, 1], ['abajo a la derecha', 1, 1], ['arriba a la izquierda', -1, -1], ['arriba a la derecha', 1, -1]] as const) {
+    test(`gorra negra, área que no es un rectángulo: ${lado} el diseño no se sale de lo visible`, async ({ page }) => {
       await abrir(page)
       await page.getByText('Gorra', { exact: true }).click()
       await expect(page.getByRole('img', { name: 'Gorra negra' })).toBeVisible()
@@ -583,10 +583,15 @@ test.describe('/personaliza', () => {
       await page.mouse.click(c.x, c.y)
       await page.mouse.move(c.x, c.y)
       await page.mouse.down()
-      await page.mouse.move(c.x + dx * 1500, c.y + 1500, { steps: 4 })
+      await page.mouse.move(c.x + dx * 1500, c.y + dy * 1500, { steps: 4 })
       await page.mouse.up()
       const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
-      await expect.poll(async () => (await diseno.boundingBox())!.y + (await diseno.boundingBox())!.height).toBeGreaterThan(v.y + v.height - 2)
+      await expect
+        .poll(async () => {
+          const b = (await diseno.boundingBox())!
+          return dy > 0 ? v.y + v.height - (b.y + b.height) : b.y - v.y
+        })
+        .toBeLessThan(2)
       await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
     })
   }
