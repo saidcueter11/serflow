@@ -113,18 +113,16 @@ export function BoardPalabras() {
         description="Titular palabra por palabra (PRI-287, efecto 3): cada palabra sube desde atrás de una línea, con un giro leve, y la bajada llega después. Solo CSS. Sin JS, con reducir movimiento o con mala señal el texto está ahí desde el principio. Recarga el tablero para verlo otra vez."
       />
       <Row name="Portada" description="En el h1 y en la bajada (p con pf-lead y sf-bajada).">
-        <Demo label="h1 y bajada">
-          <div className="pf font-body text-ink">
-            <h1 className="pf-display">
-              <Palabras text="Bienvenido" />
-              <br />
-              <Palabras text="a Serflow" desde={1} />
-            </h1>
-            <p className="pf-lead sf-bajada mt-4">
-              <Palabras text="Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller." />
-            </p>
-          </div>
-        </Demo>
+        <div className="pf font-body text-ink">
+          <h1 className="pf-display">
+            <Palabras text="Bienvenido" />
+            <br />
+            <Palabras text="a Serflow" desde={1} />
+          </h1>
+          <p className="pf-lead sf-bajada mt-4">
+            <Palabras text="Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller." />
+          </p>
+        </div>
       </Row>
     </PageFrame>
   );
