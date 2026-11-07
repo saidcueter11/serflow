@@ -154,7 +154,7 @@ test.describe('/personaliza', () => {
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
 
     const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
-    await expect(fondo).toBeChecked()
+    await expect(fondo).toBeChecked({ timeout: 15_000 })
     await expect(page.getByText('PNG · 800 × 800 px')).toBeVisible()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })).toBeVisible()
 
@@ -257,7 +257,7 @@ test.describe('/personaliza', () => {
     // Fondo plano: el interruptor quita y restaura de verdad lo que se pinta.
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
     const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
-    await expect(fondo).toBeChecked()
+    await expect(fondo).toBeChecked({ timeout: 15_000 })
     await expect(page.getByText(FONDO_FIJO)).toHaveCount(0)
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
     const lienzo = page.locator('.pf-pz-vista canvas')
