@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aspectoArea, cajaDiseno, enUnidades, escalaMax, FOTO_ENTERA, limitar, tamanoCm } from './lugar'
+import { aspectoArea, cajaDiseno, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm } from './lugar'
 import type { Area } from './datos'
 
 // 4:5 en px de la escena: el área mide 432 × 432 y queda en el centro de la foto.
@@ -76,5 +76,31 @@ describe('áreas de 4 esquinas', () => {
     expect(c.width).toBeCloseTo(0.2)
     expect(c.top).toBeCloseTo(0.28)
     expect(c.height).toBeCloseTo(0.16)
+  })
+})
+
+describe('giro', () => {
+  it('sin giro, la caja es la del diseño; a 90°, ancho y alto se cambian', () => {
+    expect(giroCaja(0.4, 2, 1)).toEqual({ w: 0.4, h: 0.2 })
+    const g = giroCaja(0.4, 2, 1, 90)
+    expect(g.w).toBeCloseTo(0.2)
+    expect(g.h).toBeCloseTo(0.4)
+  })
+
+  it('una tira ancha girada 90° se achica para caber a lo alto, y conserva el giro', () => {
+    // Ventana de lo visible: 1 de ancho y 0,5 de alto (en unidades del área).
+    const v = { left: 0.3, top: 0.42, right: 0.7, bottom: 0.58 }
+    expect(enUnidades(CENTRO, v)).toMatchObject({ left: 0, right: 1 })
+    const l = limitar({ cx: 0.5, cy: 0.5, s: 1, r: 90 }, 4, CENTRO, 1, v)
+    expect(l.r).toBe(90)
+    expect(giroCaja(l.s, 4, 1, 90).h).toBeCloseTo(0.5)
+  })
+
+  it('enderezar deja el giro entre -180 y 180 y vuelve a 0 cerca de recto', () => {
+    expect(enderezar(195)).toBe(-165)
+    expect(enderezar(-200)).toBe(160)
+    expect(enderezar(3)).toBe(0)
+    expect(enderezar(358)).toBe(0)
+    expect(enderezar(15)).toBe(15)
   })
 })

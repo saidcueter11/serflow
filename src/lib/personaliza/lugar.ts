@@ -1,10 +1,12 @@
 import { ESCENA, PRENDAS, type Area, type Prenda, type Punto, type Tecnica } from './datos'
 
-/** Posición del diseño dentro del área: centro (0 a 1) y ancho como fracción del ancho del área. */
+/** Posición del diseño dentro del área: centro (0 a 1), ancho como fracción del ancho del área y giro en grados. */
 export interface Lugar {
   cx: number
   cy: number
   s: number
+  /** Sin r (lo guardado antes de poder girar), 0. */
+  r?: number
 }
 
 export const LUGAR_INICIAL: Lugar = { cx: 0.5, cy: 0.42, s: 0.62 }
@@ -76,10 +78,24 @@ export function enUnidades(a: Area, v: Ventana): Ventana {
  */
 export function limitar(l: Lugar, ratio: number, area: Area, max = S_MAX, ventana = FOTO_ENTERA): Lugar {
   const v = enUnidades(area, ventana)
-  const aspecto = aspectoArea(area)
-  const s = Math.min(clamp(l.s, S_MIN, max), v.right - v.left, ((v.bottom - v.top) * ratio) / aspecto)
-  const h = (s * aspecto) / ratio
-  return { s, cx: clamp(l.cx, v.left + s / 2, v.right - s / 2), cy: clamp(l.cy, v.top + h / 2, v.bottom - h / 2) }
+  const k = giroCaja(1, ratio, aspectoArea(area), l.r)
+  const s = Math.min(clamp(l.s, S_MIN, max), (v.right - v.left) / k.w, (v.bottom - v.top) / k.h)
+  const w = s * k.w
+  const h = s * k.h
+  return { ...l, s, cx: clamp(l.cx, v.left + w / 2, v.right - w / 2), cy: clamp(l.cy, v.top + h / 2, v.bottom - h / 2) }
+}
+
+/** Caja del diseño girado r grados, en unidades del área (ancho s, alto s · aspecto / ratio sin girar). */
+export function giroCaja(s: number, ratio: number, aspecto: number, r = 0) {
+  const c = Math.abs(Math.cos((r * Math.PI) / 180))
+  const n = Math.abs(Math.sin((r * Math.PI) / 180))
+  return { w: s * (c + n / ratio), h: s * aspecto * (n + c / ratio) }
+}
+
+/** Giro en grados entre -180 y 180; a menos de 4° de recto, recto (así es fácil volver a 0). */
+export function enderezar(r: number): number {
+  const g = ((((r + 180) % 360) + 360) % 360) - 180
+  return Math.abs(g) < 4 ? 0 : g
 }
 
 /** "unos N cm de ancho": ancho real del área (lo mide el taller) por la escala. */

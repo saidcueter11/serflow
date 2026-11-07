@@ -75,6 +75,8 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const [hoja, setHoja] = useState<null | 'envio' | 'vuelta'>(null)
   const [mock, setMock] = useState<{ url: string; archivo: File } | null>(null)
   const [guardada, setGuardada] = useState(false)
+  // Mientras se arma el mockup (en celular baja la foto grande) no se puede guardar: se guardaría solo el diseño.
+  const [preparando, setPreparando] = useState(false)
   const [puedeCompartir, setPuedeCompartir] = useState(false)
   const [sinSenal, setSinSenal] = useState(false)
   // Cambia para remontar los radios sin controlar (al restaurar o al empezar otra prenda).
@@ -255,18 +257,24 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   async function enviar() {
     const id = ++envio.current
     setGuardada(false)
+    setPuedeCompartir(false)
+    setPreparando(false)
     setSinSenal(!navigator.onLine)
     setHoja('envio')
     if (mock) URL.revokeObjectURL(mock.url)
     setMock(null)
     let m: File | null = null
     if (vio && foto && tratado) {
+      setPreparando(true)
       // En celular la vista usa la foto de 720 px; el mockup (1080 × 1350) sale de la grande. Sin señal, de la que ya está.
       const grande = fotos.current.get(fotoInfo.image_url) ?? (await cargarFoto(fotoInfo.image_url, fotoInfo.print_area, def.curva).catch(() => foto))
-      const blob = await mockup(grande, tratado, lugar, tecnica)
+      const blob = await mockup(grande, tratado, lugar, tecnica).catch(() => null)
       if (envio.current !== id) return
-      m = new File([blob], nombreMockup(prenda, color.name, ubicacion), { type: 'image/jpeg' })
-      setMock({ url: URL.createObjectURL(blob), archivo: m })
+      setPreparando(false)
+      if (blob) {
+        m = new File([blob], nombreMockup(prenda, color.name, ubicacion), { type: 'image/jpeg' })
+        setMock({ url: URL.createObjectURL(blob), archivo: m })
+      }
     }
     const files = [...(leido ? [leido.archivo] : []), ...(m ? [m] : [])]
     setPuedeCompartir(files.length > 0 && !!navigator.canShare?.({ files }))
@@ -453,6 +461,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
           diseno={tipo === 'imagen' ? leido?.url : undefined}
           archivo={tipo === 'archivo' && leido ? { nombre: leido.archivo.name, detalle: leido.detalle } : undefined}
           guardada={guardada}
+          preparando={preparando}
           compartir={puedeCompartir}
           sinSenal={sinSenal}
           escritorio={escritorio}

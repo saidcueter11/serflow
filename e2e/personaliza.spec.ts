@@ -44,6 +44,10 @@ const fotoSinFondoPlano = (n: number) => png(n, (x, y) => [(x * 255) / n, (y * 2
 /** Un cuadro azul sobre transparente: ya viene sin fondo. */
 const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, y - n / 2) < n / 4 ? [30, 60, 180, 255] : [0, 0, 0, 0]))
 /** Una tira azul 1:5 sobre transparente, más alta que el recorte del celular. */
+/** Un bloque azul de jean oscuro, opaco, sobre transparente: la parte oscura de un diseño (PRI-122, la pierna que se perdía). */
+const JEAN = [38, 52, 96]
+const bloqueJean = (n: number) => png(n, (x, y) => (x > n / 5 && x < (4 * n) / 5 && y > n / 5 && y < (4 * n) / 5 ? [...JEAN, 255] : [0, 0, 0, 0]))
+
 const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 590 ? [30, 60, 180, 255] : [0, 0, 0, 0]), 600)
 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
@@ -76,6 +80,20 @@ async function cuantoSobra(page: Page) {
   const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
   const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
   return Math.max(v.x - d.x, v.y - d.y, d.x + d.width - v.x - v.width, d.y + d.height - v.y - v.height)
+}
+
+/** Color medio que pinta el motor en el centro del diseño (un cuadro de 9 × 9 px de la escena). */
+async function colorEnElDiseno(page: Page) {
+  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  return page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement, d) => {
+    const r = c.getBoundingClientRect()
+    const x = Math.round(((d.x + d.width / 2 - r.left) / r.width) * c.width)
+    const y = Math.round(((d.y + d.height / 2 - r.top) / r.height) * c.height)
+    const p = c.getContext('2d')!.getImageData(x - 4, y - 4, 9, 9).data
+    const m = [0, 0, 0]
+    for (let i = 0; i < p.length; i += 4) for (let k = 0; k < 3; k++) m[k] += p[i + k] / 81
+    return m
+  }, d)
 }
 
 test.describe('/personaliza', () => {
@@ -438,5 +456,82 @@ test.describe('/personaliza', () => {
       const paso2 = (await page.locator('.pf-pz-pasos > section').nth(1).boundingBox())!
       expect(Math.abs(envio.y + envio.height - (paso2.y + paso2.height)), `${ancho}: columnas a ras`).toBeLessThanOrEqual(1)
     }
+  })
+  test('estampado en camiseta negra: las partes oscuras del diseño conservan su color', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
+    await expect(page.getByRole('img', { name: 'Camiseta negra con tu diseño' })).toBeVisible()
+    await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+    // La tela marca pliegues y trama, pero el azul no se vuelve negro (antes quedaba a menos de la mitad).
+    await expect
+      .poll(async () => {
+        const m = await colorEnElDiseno(page)
+        return Math.max(...m.map((v, k) => Math.abs(v - JEAN[k])))
+      })
+      .toBeLessThan(22)
+  })
+
+  test('un diseño chico se agarra y se mueve desde el centro, sin que las manijas lo tapen', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(400) })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    const menos = page.getByRole('button', { name: 'Hacer el diseño más pequeño' })
+    for (let i = 0; i < 8; i++) await menos.click()
+    await diseno.scrollIntoViewIfNeeded()
+    const antes = (await diseno.boundingBox())!
+    expect(antes.width).toBeLessThan(44)
+    const c = { x: antes.x + antes.width / 2, y: antes.y + antes.height / 2 }
+    await page.mouse.click(c.x, c.y)
+    await expect(page.getByText(/^unos \d+ cm de ancho$/)).toBeVisible()
+
+    // Se arrastra desde 15 px del centro, fuera del dibujo pero dentro de los 44 px táctiles.
+    await page.mouse.move(c.x + 15, c.y + 15)
+    await page.mouse.down()
+    await page.mouse.move(c.x + 75, c.y + 15, { steps: 4 })
+    await page.mouse.up()
+    await expect.poll(async () => (await diseno.boundingBox())!.x - antes.x).toBeGreaterThan(50)
+    expect((await diseno.boundingBox())!.width).toBeCloseTo(antes.width, 0)
+  })
+
+  test('girar: el botón gira el diseño de a 15° y sigue dentro de lo visible', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'tira.png', mimeType: 'image/png', buffer: tiraAlta() })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    const girar = page.getByRole('button', { name: 'Girar el diseño' })
+    await girar.click()
+    await expect(diseno).toHaveCSS('transform', /^matrix\(0\.96/)
+    for (let i = 0; i < 5; i++) await girar.click()
+    // A 90° la tira alta queda acostada: más ancha que alta, entera dentro de la vista.
+    await expect.poll(async () => {
+      const b = (await diseno.boundingBox())!
+      return b.width > b.height
+    }).toBe(true)
+    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('guardar espera la vista previa: mientras baja la foto grande no se guarda solo el diseño', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'en escritorio la foto grande ya está: el mockup sale al instante')
+    let soltar = () => {}
+    const espera = new Promise<void>((ok) => (soltar = ok))
+    // La primera foto que pide es la liviana (la de la vista); la grande, otra URL, espera.
+    let liviana = ''
+    await page.route(/\/camiseta-negra\.[^/]*\.webp$/, async (r) => {
+      liviana ||= r.request().url()
+      if (r.request().url() !== liviana) await espera
+      await r.continue()
+    })
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    await enviar(page).click()
+
+    const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+    await expect(hoja.getByText('Preparando la vista previa…')).toBeVisible()
+    await expect(hoja.getByRole('button', { name: /^Guardar/ })).toHaveCount(0)
+    soltar()
+    await expect(hoja.getByRole('button', { name: 'Guardar imágenes' })).toBeVisible()
+    await expect(hoja.getByText('Preparando la vista previa…')).toHaveCount(0)
   })
 })

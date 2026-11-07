@@ -347,8 +347,11 @@ function tri(ctx: CanvasRenderingContext2D, img: CanvasImageSource, s0: Punto, s
   ctx.restore()
 }
 
+// Sobre tela oscura el estampado lleva base blanca: la tinta tapa la tela. El mapa de sombras es la luz relativa a la
+// media, y en una tela negra esa media es tan baja que cualquier pliegue oscurece el diseño a la mitad: las partes
+// oscuras del diseño (unos jeans, unos zapatos) se volvían tela. Ahí la tela solo marca pliegues y trama, suave.
 const AJUSTE: Record<Tecnica, (oscura: boolean) => { sombras: number; luces: number; trama: number; alfa: number }> = {
-  estampado: (o) => ({ sombras: 1, luces: o ? 0.25 : 0.45, trama: o ? 0.8 : 1, alfa: o ? 0.9 : 0.93 }),
+  estampado: (o) => (o ? { sombras: 0.35, luces: 0.12, trama: 0.5, alfa: 1 } : { sombras: 1, luces: 0.45, trama: 1, alfa: 0.93 }),
   bordado: () => ({ sombras: 0.6, luces: 0.2, trama: 0.12, alfa: 1 }),
 }
 
@@ -365,12 +368,19 @@ export function dibujar(ctx: CanvasRenderingContext2D, foto: FotoLista, diseno: 
   if (!diseno) return
 
   const paH = PA / aspectoArea(foto.area)
-  const dw = Math.max(1, Math.round(lugar.s * PA))
-  const dh = Math.max(1, Math.round(dw / (diseno.width / diseno.height)))
+  const w = Math.max(1, lugar.s * PA)
+  const h = Math.max(1, w / (diseno.width / diseno.height))
+  // Girado antes de la malla: pa es la caja del diseño girado y la curva lo dobla igual que a uno recto.
+  const g = ((lugar.r ?? 0) * Math.PI) / 180
+  const dw = Math.max(1, Math.round(w * Math.abs(Math.cos(g)) + h * Math.abs(Math.sin(g))))
+  const dh = Math.max(1, Math.round(w * Math.abs(Math.sin(g)) + h * Math.abs(Math.cos(g))))
   const pa = auxiliar('pa', dw, dh)
   const px = pa.getContext('2d')!
+  px.setTransform(1, 0, 0, 1, 0, 0)
   px.clearRect(0, 0, dw, dh)
-  px.drawImage(diseno, 0, 0, dw, dh)
+  px.translate(dw / 2, dh / 2)
+  px.rotate(g)
+  px.drawImage(diseno, -w / 2, -h / 2, w, h)
 
   const capa = auxiliar('capa', W, H)
   const cx = capa.getContext('2d')!
@@ -381,11 +391,11 @@ export function dibujar(ctx: CanvasRenderingContext2D, foto: FotoLista, diseno: 
 
   // Solo las celdas de la malla que toca el diseño. s = coordenadas en pa, d = en la escena.
   const { n, i0, j0, puntos } = rapida ? foto.rapida : foto.malla
-  const izq = lugar.cx - lugar.s / 2
+  const izq = lugar.cx - dw / PA / 2
   const arriba = lugar.cy - dh / paH / 2
   const s = (i: number, j: number): Punto => [((i0 + i) / n - izq) * PA, ((j0 + j) / n - arriba) * paH]
   const iA = Math.max(0, Math.floor(izq * n) - i0)
-  const iB = Math.min(puntos[0].length - 1, Math.ceil((izq + lugar.s) * n) - i0)
+  const iB = Math.min(puntos[0].length - 1, Math.ceil((izq + dw / PA) * n) - i0)
   const jA = Math.max(0, Math.floor(arriba * n) - j0)
   const jB = Math.min(puntos.length - 1, Math.ceil((arriba + dh / paH) * n) - j0)
   let x0: number = W

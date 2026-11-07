@@ -3,16 +3,17 @@ import { Button } from './Button'
 import { Girador, IconArchivo, IconCentrar, IconMas, IconMenos, IconReintentar, IconSinSenal, IconSubir } from '../icons/PersonalizaIcons'
 import { ACEPTA } from '../../lib/personaliza/archivo'
 import { ESCENA, type FotoColor, type Tecnica } from '../../lib/personaliza/datos'
-import { S_MAX, aspectoArea, cajaArea, cajaDiseno, enArea, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { S_MAX, aspectoArea, cajaArea, cajaDiseno, enArea, enderezar, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { dibujar, type FotoLista } from '../../lib/personaliza/motor'
 
 /**
  * Vista previa realista (PRI-122): la foto de la prenda en el color elegido con el diseño encima, pintada por el motor
  * canvas 2D (lo que se ve es lo que se descarga). Las manijas y botones van encima, en HTML: no salen en el mockup.
  *
- * Mover y escalar: tocar el diseño lo selecciona (así el scroll de la página no lo arrastra sin querer); seleccionado
- * se arrastra con un dedo, se escala con dos (pellizcar) o con las manijas. Alternativa sin arrastrar (WCAG 2.5.7):
- * botones − / + / Centrar, y con teclado flechas, + y −. La colocación es libre: el diseño solo se queda dentro de lo
+ * Mover, escalar y girar: tocar el diseño lo selecciona (así el scroll de la página no lo arrastra sin querer);
+ * seleccionado se arrastra con un dedo, se escala y gira con dos (pellizcar) o con las manijas, y gira con la manija de
+ * arriba. Un diseño chico se agarra igual: el centro siempre tiene 44 px táctiles. Alternativa sin arrastrar (WCAG 2.5.7):
+ * botones − / + / Girar / Centrar, y con teclado flechas, + y −, R. La colocación es libre: el diseño solo se queda dentro de lo
  * visible de la foto. Sin guías fijas: la línea central y "Centrado" salen solo mientras se arrastra. El área de impresión
  * no se dibuja (calibra los cm); el tope del bordado se avisa sobre la foto cuando el cliente intenta pasarlo.
  *
@@ -91,7 +92,7 @@ export function VistaPrevia({
   const [arrastrando, setArrastrando] = useState(false)
   const [enTope, setEnTope] = useState(false)
   const punteros = useRef(new Map<number, { x: number; y: number }>())
-  const inicio = useRef<{ l: Lugar; dist: number; x: number; y: number; manija: boolean } | null>(null)
+  const inicio = useRef<{ l: Lugar; dist: number; ang: number; x: number; y: number; manija: 'tamano' | 'giro' | null } | null>(null)
 
   const espera = modo === 'procesando' || modo === 'lento'
   const conDiseno = !!diseno && (modo === 'listo' || espera || modo === 'cargando')
@@ -168,7 +169,16 @@ export function VistaPrevia({
     const m = medidasArea(area!)
     return { w: (m.ancho * r.width) / ESCENA.ancho, h: (m.alto * r.height) / ESCENA.alto, r }
   }
-  const down = (e: PointerEvent, manija = false) => {
+  const r = l.r ?? 0
+  /** Ángulo en grados de la recta entre dos puntos de pantalla. */
+  const angulo = (a: { x: number; y: number }, b: { x: number; y: number }) => (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI
+  /** Centro del diseño en la pantalla (el giro no lo mueve). */
+  const centroPantalla = () => {
+    const { r: e } = escalaArea()
+    const [x, y] = enArea(area!, l.cx, l.cy)
+    return { x: e.left + x * e.width, y: e.top + y * e.height }
+  }
+  const down = (e: PointerEvent, manija: 'tamano' | 'giro' | null = null) => {
     e.stopPropagation()
     if (!sel && !manija) {
       setSel(true)
@@ -177,7 +187,15 @@ export function VistaPrevia({
     ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     const ps = [...punteros.current.values()]
-    inicio.current = { l, dist: ps.length > 1 ? Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) : 0, x: e.clientX, y: e.clientY, manija }
+    const dos = ps.length > 1
+    inicio.current = {
+      l,
+      dist: dos ? Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) : 0,
+      ang: dos ? angulo(ps[0], ps[1]) : manija === 'giro' ? angulo(centroPantalla(), { x: e.clientX, y: e.clientY }) : 0,
+      x: e.clientX,
+      y: e.clientY,
+      manija,
+    }
     setArrastrando(true)
   }
   const move = (e: PointerEvent) => {
@@ -186,7 +204,9 @@ export function VistaPrevia({
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     const { w, h, r } = escalaArea()
     const ps = [...punteros.current.values()]
-    if (ps.length > 1 && i.dist) set({ ...i.l, s: (i.l.s * Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y)) / i.dist })
+    const r0 = i.l.r ?? 0
+    if (ps.length > 1 && i.dist) set({ ...i.l, s: (i.l.s * Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y)) / i.dist, r: enderezar(r0 + angulo(ps[0], ps[1]) - i.ang) })
+    else if (i.manija === 'giro') set({ ...i.l, r: enderezar(r0 + angulo(centroPantalla(), { x: e.clientX, y: e.clientY }) - i.ang) })
     else if (i.manija) set({ ...i.l, s: (2 * Math.abs(e.clientX - (r.left + enArea(area!, i.l.cx, i.l.cy)[0] * r.width))) / w })
     else set({ ...i.l, cx: i.l.cx + (e.clientX - i.x) / w, cy: i.l.cy + (e.clientY - i.y) / h })
   }
@@ -206,6 +226,8 @@ export function VistaPrevia({
       '+': { s: l.s + 0.06 },
       '=': { s: l.s + 0.06 },
       '-': { s: l.s - 0.06 },
+      r: { r: enderezar(r + 15) },
+      R: { r: enderezar(r - 15) },
     }
     if (k[e.key]) {
       e.preventDefault()
@@ -289,7 +311,7 @@ export function VistaPrevia({
           <div
             role="group"
             tabIndex={0}
-            aria-label={`Tu diseño, ${tamano}. Arrástralo para moverlo; con el teclado, flechas para moverlo y más o menos para el tamaño.`}
+            aria-label={`Tu diseño, ${tamano}. Arrástralo para moverlo; con el teclado, flechas para moverlo, más o menos para el tamaño y R para girarlo.`}
             onPointerDown={(e) => down(e)}
             onPointerMove={move}
             onPointerUp={up}
@@ -297,15 +319,37 @@ export function VistaPrevia({
             onKeyDown={tecla}
             onFocus={() => setSel(true)}
             className={`absolute rounded-sm outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent ${ajustando ? 'cursor-move ring-[1.5px] ring-accent' : 'cursor-pointer'}`}
-            style={{ left: pct(caja.left), top: pct(caja.top), width: pct(caja.width), height: pct(caja.height), touchAction: ajustando ? 'none' : 'auto' }}
+            style={{
+              left: pct(caja.left),
+              top: pct(caja.top),
+              width: pct(caja.width),
+              height: pct(caja.height),
+              transform: r ? `rotate(${r}deg)` : undefined,
+              touchAction: ajustando ? 'none' : 'auto',
+            }}
           >
+            {/* Agarre de 44 px en el centro, encima de las manijas: un diseño chico se mueve sin tener que atinarle. */}
+            <span aria-hidden="true" className="absolute left-1/2 top-1/2 z-10 size-11 -translate-x-1/2 -translate-y-1/2" />
             {ajustando && (
               <>
+                <span
+                  aria-hidden="true"
+                  onPointerDown={(e) => down(e, 'giro')}
+                  onPointerMove={move}
+                  onPointerUp={up}
+                  onPointerCancel={up}
+                  className="absolute -top-[60px] left-1/2 z-10 flex size-11 -translate-x-1/2 cursor-grab items-center justify-center"
+                  style={{ touchAction: 'none' }}
+                >
+                  <span className="flex size-6 items-center justify-center rounded-full border-2 border-accent bg-ink text-primary">
+                    <IconReintentar className="size-3.5" />
+                  </span>
+                </span>
                 {(['-left-[22px] -top-[22px]', '-right-[22px] -top-[22px]', '-left-[22px] -bottom-[22px]', '-right-[22px] -bottom-[22px]'] as const).map((p) => (
                   <span
                     key={p}
                     aria-hidden="true"
-                    onPointerDown={(e) => down(e, true)}
+                    onPointerDown={(e) => down(e, 'tamano')}
                     onPointerMove={move}
                     onPointerUp={up}
                     onPointerCancel={up}
@@ -315,7 +359,10 @@ export function VistaPrevia({
                     <span className="size-3 rounded-[3px] border-2 border-accent bg-ink" />
                   </span>
                 ))}
-                <span className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary/90 px-2.5 py-1 text-[12px] font-semibold text-ink">
+                <span
+                  className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary/90 px-2.5 py-1 text-[12px] font-semibold text-ink"
+                  style={r ? { rotate: `${-r}deg` } : undefined}
+                >
                   {tamano}
                 </span>
               </>
@@ -380,6 +427,9 @@ export function VistaPrevia({
               </BotonFoto>
               <BotonFoto etiqueta="Hacer el diseño más grande" onClick={() => set({ ...l, s: l.s + 0.08 })}>
                 <IconMas />
+              </BotonFoto>
+              <BotonFoto etiqueta="Girar el diseño" onClick={() => set({ ...l, r: enderezar(r + 15) })}>
+                <IconReintentar />
               </BotonFoto>
               <BotonFoto etiqueta="Centrar el diseño" onClick={() => set({ ...l, cx: 0.5 })}>
                 <IconCentrar />
