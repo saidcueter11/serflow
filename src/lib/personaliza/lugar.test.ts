@@ -80,7 +80,8 @@ describe('áreas de 4 esquinas', () => {
   it('enArea: afuera del área el diseño no se encoge ni se voltea; en el área y en un rectángulo, interpola igual', () => {
     const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
     expect(enArea(gorra, 0.5, 0.5)[0]).toBeCloseTo((0.356 + 0.718 + 0.785 + 0.325) / 4, 9)
-    expect(enArea(gorra, 1, 1)).toEqual(gorra.br)
+    expect(enArea(gorra, 1, 1)[0]).toBeCloseTo(gorra.br[0], 9)
+    expect(enArea(gorra, 1, 1)[1]).toBeCloseTo(gorra.br[1], 9)
     for (const v of [-9, 9]) expect(enArea(gorra, 1, v)[0] - enArea(gorra, 0, v)[0]).toBeGreaterThan(0.3)
     expect(enArea(CENTRO, -2, 3)[0]).toBeCloseTo(0.3 - 2 * 0.4, 9)
     expect(enArea(CENTRO, -2, 3)[1]).toBeCloseTo(0.34 + 3 * 0.32, 9)
