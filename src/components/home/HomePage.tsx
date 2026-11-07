@@ -1,4 +1,5 @@
 import { Button } from '../ui/Button'
+import { Palabras } from '../ui/Palabras'
 import { Section } from '../ui/Section'
 import { ServiceCard } from '../ui/ServiceCard'
 import { ProductCard } from '../ui/ProductCard'
@@ -70,15 +71,14 @@ export function HomePage({
             <span className="pf-pie flex items-center gap-1.5">
               <PinIcon className="size-3.5" /> Mercado Bazurto · Cartagena
             </span>
-            <h1 className="pf-display sf-lineas" aria-label="Bienvenido a Serflow">
-              <span aria-hidden="true">
-                <span>Bienvenido</span>
-              </span>
-              <span aria-hidden="true">
-                <span>a Serflow</span>
-              </span>
+            <h1 className="pf-display">
+              <Palabras text="Bienvenido" />
+              <br />
+              <Palabras text="a Serflow" desde={1} />
             </h1>
-            <p className="pf-lead">Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.</p>
+            <p className="pf-lead sf-bajada">
+              <Palabras text="Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller." />
+            </p>
             <div>
               <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>
                 Escríbenos por WhatsApp

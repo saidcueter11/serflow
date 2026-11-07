@@ -56,6 +56,17 @@
   --motion-entrada: 900ms;
   --motion-costura: 700ms;
   --motion-escalon: 120ms;
+  /* Los 3 efectos elegidos del laboratorio (PRI-287). */
+  --motion-crece: 620ms;
+  --motion-vuelve: 420ms;
+  --motion-palabra: 1000ms;
+  --motion-palabra-escalon: 110ms;
+  --motion-bajada: 700ms;
+  --motion-bajada-tras: 420ms;
+  --motion-bajada-escalon: 32ms;
+  --motion-asienta: 2200ms;
+  --motion-viaje: 640ms;
+  --motion-viaje-escalon: 28ms;
   --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
   --shadow-oro: 0 14px 30px -12px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
@@ -81,7 +92,6 @@
 @keyframes sf-draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
 @keyframes sf-follow { from { offset-distance: 0% } to { offset-distance: 100% } }
 @keyframes sf-glint { 0%, 100% { opacity: 0.1; transform: scale(0.6) } 50% { opacity: 0.45; transform: scale(1.2) } }
-@keyframes sf-subir { from { transform: translateY(105%) } to { transform: none } }
 @keyframes sf-entra { from { opacity: 0; transform: translateY(0.45em); clip-path: inset(0 0 100% 0) } to { opacity: 1; transform: none; clip-path: inset(-0.2em -0.2em -0.3em) } }
 @keyframes sf-sube { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
 @keyframes sf-funde { from { opacity: 0 } to { opacity: 1 } }
@@ -158,18 +168,26 @@
 }
 a.sf-foto:active img { transform: scale(1.03); filter: none; transition-duration: var(--motion-med); }
 
-/* ---------- 3 · Titular que entra: cada línea sube detrás de una máscara, una tras otra ---------- */
+/* ---------- 3 · Titular palabra por palabra (Palabras): cada palabra sube detrás de una línea, con un giro leve ---------- */
 
-.sf-lineas > span { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
-.sf-lineas > span > span { display: block; animation: sf-subir var(--motion-entrada) var(--ease-premium) both; }
-.sf-lineas > span:nth-child(2) > span { animation-delay: var(--motion-escalon); }
-.sf-lineas > span:nth-child(3) > span { animation-delay: calc(var(--motion-escalon) * 2); }
-/* Lo que sigue al titular entra después, sin el fundido del grupo. */
-.anim-enter:has(> .sf-lineas) > * { animation-name: none; }
-.anim-enter:has(> .sf-lineas) > :is(.sf-lineas ~ p, .sf-lineas ~ div) { animation: sf-sube var(--motion-entrada) var(--ease-premium) both; }
-.anim-enter:has(> .sf-lineas) > .sf-lineas ~ p { animation-delay: 340ms; }
-.anim-enter:has(> .sf-lineas) > .sf-lineas ~ div { animation-delay: 460ms; }
-/* Títulos de una línea al cargar (h1 de página, nombre de la categoría) y su bajada 200 ms después. */
+/* El relleno da aire a las tildes y a la cola de la g sin que la línea crezca. Una palabra larguísima se parte, no se corta. */
+.sf-palabra { display: inline-block; max-width: 100%; overflow: hidden; overflow-wrap: anywhere; vertical-align: top; padding-block: 0.14em; margin-block: -0.14em; }
+.sf-palabra > span { display: inline-block; max-width: 100%; transform-origin: 0 100%; }
+.sf-bajada .sf-palabra { overflow: visible; padding-block: 0; margin-block: 0; }
+@keyframes sf-palabra { from { transform: translateY(125%) rotate(5deg) } }
+@keyframes sf-bajada { from { opacity: 0; transform: translateY(0.5em) } }
+/* scale y no transform: el zoom lento del carrusel ya usa transform en la misma foto. */
+@keyframes sf-asienta { from { scale: 1.14 } }
+/* Sin JS no hay script que mida la señal: el texto se ve de una. Con mala señal lo apaga .slow-connection (global.css). */
+@media (scripting: enabled) {
+  .sf-palabra > span { animation: sf-palabra var(--motion-palabra) var(--ease-premium) calc(var(--i) * var(--motion-palabra-escalon)) backwards; }
+  .sf-bajada .sf-palabra > span { animation: sf-bajada var(--motion-bajada) var(--ease-premium) calc(var(--motion-bajada-tras) + var(--i) * var(--motion-bajada-escalon)) backwards; }
+  .hero-carousel figure:first-of-type img { animation: sf-zoom var(--zoom-duration, 24s) ease-out infinite alternate, sf-asienta var(--motion-asienta) var(--ease-premium); }
+}
+/* Lo que sigue al titular va por su cuenta: el pie quieto y el botón entra pronto, sin esperar a la bajada. */
+.anim-enter:has(> h1 .sf-palabra) > * { animation-name: none; }
+.anim-enter:has(> h1 .sf-palabra) > div { animation: sf-sube var(--motion-entrada) var(--ease-premium) 460ms both; }
+/* Títulos que todavía no usan Palabras (/personaliza) y su bajada 200 ms después. */
 .sf-entra { animation: sf-entra var(--motion-entrada) var(--ease-premium) both; }
 .sf-entra + p { animation: sf-sube var(--motion-entrada) var(--ease-premium) 200ms both; }
 
@@ -213,10 +231,21 @@ a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fa
   .sf-espera { opacity: 1; transform: none; }
 }
 
+/* ---------- 7 · Rejilla que se reacomoda al cambiar de categoría (src/scripts/reacomoda.ts) ---------- */
+
+@keyframes sf-viaja { from { transform: var(--sf-desde) } }
+@keyframes sf-llega { from { opacity: 0; transform: scale(0.9) } }
+@keyframes sf-sale { to { opacity: 0; transform: scale(0.92) } }
+li.sf-viaja { animation: sf-viaja var(--motion-viaje) var(--ease-premium) calc(var(--sf-i) * var(--motion-viaje-escalon)) backwards; }
+li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(var(--sf-i) * var(--motion-viaje-escalon)) backwards; }
+/* Las que se van, encima del muro nuevo. Afuera de data-fotos: el modal no las recorre. */
+.sf-salen { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.sf-salen > li { position: absolute; list-style: none; animation: sf-sale calc(var(--motion-viaje) / 3) var(--ease-out) forwards; }
+
 @media (prefers-reduced-motion: reduce) {
   .anim-enter > *, .stitch-title::after, .anim-ticker, .anim-ring, .anim-zoom, .thread-glint,
   .thread-reveal, .thread-needle, .anim-slide, .anim-bar,
-  .sf-lineas > span > span, .sf-entra, .sf-entra + p {
+  .sf-palabra > span, .sf-entra, .sf-entra + p {
     animation: none !important;
   }
   /* first-of-type y no first-child: el <style> del carrusel va antes de las fotos */
@@ -493,6 +522,23 @@ dialog.mx::backdrop { background: transparent; }
 /* Entrada: la foto y la franja suben 16, el velo en fundido. */
 .mx-pieza { animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
 
+/* Foto que crece: el marco sale de la foto del muro (--mx-desde y --mx-recorte, photo-modal.ts) y lo demás llega cuando ya
+   va en camino. Al volver, lo demás se apaga rápido. Con la miniatura debajo no hace falta el brillo de espera. */
+@keyframes mx-crece { from { transform: var(--mx-desde); clip-path: var(--mx-recorte) } to { transform: none; clip-path: inset(0 round var(--radius-tile)) } }
+@keyframes mx-vuelve { from { transform: none; clip-path: inset(0 round var(--radius-tile)) } to { transform: var(--mx-desde); clip-path: var(--mx-recorte) } }
+@keyframes mx-aparece { from { opacity: 0 } }
+@keyframes mx-apaga { to { opacity: 0 } }
+.mx-marco[data-viaje] { z-index: 2; will-change: transform, clip-path; }
+.mx-marco[data-viaje='crece'] { animation: mx-crece var(--motion-crece) var(--ease-premium) backwards; }
+.mx-marco[data-viaje='vuelve'] { animation: mx-vuelve var(--motion-vuelve) var(--ease-premium) forwards; }
+.mx-mini { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.mx-marco:has(.mx-mini) .mx-foto { position: relative; }
+.mx-marco:has(.mx-mini) .mx-brillo { display: none; }
+dialog.mx-crece .mx-velo { animation: mx-aparece var(--motion-vuelve) var(--ease-out) both; }
+dialog.mx-crece :is(.mx-barra, .mx-x, .mx-flecha, .mx-vecina) { animation: mx-aparece var(--motion-slow) var(--ease-out) calc(var(--motion-crece) * 0.4) both; }
+dialog.mx-sale :is(.mx-barra, .mx-x, .mx-flecha, .mx-vecina, .mx-franja) { animation: mx-apaga var(--motion-fast) linear both; }
+dialog.mx-sale .mx-velo { animation: mx-apaga var(--motion-vuelve) var(--ease-out) both; }
+
 /* Escritorio: la foto toma el alto que dejan el aire (igual arriba y abajo), la franja y el espacio entre las dos.
    La franja reserva dos líneas de nombre: con más crece y se come el aire, nunca corta el nombre. */
 .mx-centro { --mx-aire: 24px; --mx-franja: 88px; --mx-entre: 16px; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
@@ -536,6 +582,10 @@ dialog.mx::backdrop { background: transparent; }
   .mx-titulo { font-size: 22px; }
   .mx-pedir { gap: 8px; }
 }
+
+/* Después de las de arriba: el celular les pone su propia entrada a la pista y a la franja. */
+dialog.mx-crece :is(.mx-pieza, .mx-pista) { animation: none; }
+dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow) var(--ease-premium) calc(var(--motion-crece) * 0.4) both; }
 
 @media (prefers-reduced-motion: reduce) {
   .mx-velo, .mx-pieza, .mx-pista, .mx-franja, .mx-brillo, .mx-foto.mx-entra, .mx-saliente { animation: none !important; }

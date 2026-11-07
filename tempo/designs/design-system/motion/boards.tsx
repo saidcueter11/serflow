@@ -2,6 +2,7 @@ import { HeroCarousel } from "../../../../src/components/ui/HeroCarousel";
 import { Ticker } from "../../../../src/components/ui/Ticker";
 import { PromoBar } from "../../../../src/components/ui/PromoBar";
 import { Thread } from "../../../../src/components/ui/Thread";
+import { Palabras } from "../../../../src/components/ui/Palabras";
 import { Code, Demo, PageFrame, PageTitle, Row } from "../Chrome";
 import { HOME_SLIDES, PROMOS_SAMPLE } from "../app-shell/portada";
 
@@ -99,6 +100,31 @@ export function BoardThread() {
         <div className="relative h-[900px] w-[640px] overflow-hidden rounded-card bg-primary">
           <Thread width={640} height={900} viewport={300} />
         </div>
+      </Row>
+    </PageFrame>
+  );
+}
+
+export function BoardPalabras() {
+  return (
+    <PageFrame family="movimiento" width={1000}>
+      <PageTitle
+        title="Palabras"
+        description="Titular palabra por palabra (PRI-287, efecto 3): cada palabra sube desde atrás de una línea, con un giro leve, y la bajada llega después. Solo CSS. Sin JS, con reducir movimiento o con mala señal el texto está ahí desde el principio. Recarga el tablero para verlo otra vez."
+      />
+      <Row name="Portada" description="En el h1 y en la bajada (p con pf-lead y sf-bajada).">
+        <Demo label="h1 y bajada">
+          <div className="pf font-body text-ink">
+            <h1 className="pf-display">
+              <Palabras text="Bienvenido" />
+              <br />
+              <Palabras text="a Serflow" desde={1} />
+            </h1>
+            <p className="pf-lead sf-bajada mt-4">
+              <Palabras text="Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller." />
+            </p>
+          </div>
+        </Demo>
       </Row>
     </PageFrame>
   );
