@@ -40,6 +40,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - Todo SQL nuevo va en `supabase/migrations/<YYYYMMDDHHMMSS>_<nombre>.sql` (Supabase CLI; hora UTC, posterior a la última migración), nunca suelto en `supabase/` ni en el SQL editor. Idempotente (`if not exists`, `drop policy if exists`) y aditivo (sin borrar ni renombrar columnas que el sitio o serflow-admin usen).
 - Las migraciones se aplican solas al mergear a `master` (`supabase-migrations.yml`). Los agentes escriben el archivo y revisan el dry-run del PR, pero nunca corren `supabase db push`, `link` ni `migration repair` contra prod. Una migración ya mergeada no se edita: se corrige con una nueva. Todo PR con migración es zona sensible y pasa por Seguridad.
 - Fuente única de migraciones para la base compartida con serflow-admin: si serflow-admin necesita un cambio de esquema, la migración se escribe en este repo.
+- Storage: el `SELECT` sobre `storage.objects` va siempre `to authenticated`, nunca `to public`. Un bucket `public = true` sirve sus URLs sin esa policy, y con ella cualquiera lista los archivos con la anon key (PRI-426).
 - Nunca correr `npm run phase1:seed` (`scripts/seed-supabase.mjs`): escribe en prod con la service-role key.
 - Datos de prueba: no hay; los E2E usan el catálogo real y no deben depender de un producto específico (navegar por links, no por slugs fijos).
 - Convenciones: solo se muestra lo que tiene `is_active = true`; orden por `sort_order`; las URLs usan `slug` (`/products/<categoría>`, `/catalogo/<categoría>/<slug>`, `/promos/<slug>`); `products.price` existe (nullable) pero el sitio no muestra precios hoy.
@@ -53,7 +54,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 
 ### Zonas sensibles (disparan revisión de Seguridad)
 - `supabase/**` (en especial `supabase/migrations/**`), `scripts/**`, `src/lib/supabase.ts`, `.github/workflows/**`, `netlify.toml`, `astro.config.mjs`, `package.json` (dependencias nuevas), y cualquier `set:html` o construcción de URLs con texto del usuario (`src/components/ContactForm.astro`, `src/components/ProductPreview.astro`).
-- Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y las fotos de los buckets públicos por URL, sin listarlos (PRI-426: el SELECT sobre `storage.objects` va `to authenticated`; un bucket `public` sirve sus URLs sin esa policy); escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
+- Modelo de amenaza: la anon key es pública, así que RLS es la única barrera. El público solo debe poder leer filas activas de `categories`, `products`, `promos` y los buckets públicos de imágenes; escribir es solo para usuarios autenticados (serflow-admin). Toda policy nueva se revisa contra eso. El texto del usuario que va a WhatsApp siempre pasa por `encodeURIComponent`.
 
 ### Diseño
 - Serflow no vende por la web: el catálogo es un portafolio de trabajos (sin precio ni carrito) y los pedidos van por WhatsApp.
