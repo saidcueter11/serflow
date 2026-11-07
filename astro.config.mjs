@@ -3,6 +3,11 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
+import { writeFile } from 'node:fs/promises'
+
+// PRI-127: serflow-admin lee /build.json para saber si ya salió lo publicado. La hora se toma aquí, antes de leer
+// Supabase: con la del final del build, uno que leyó los datos antes de publicar haría decir "Ya salió" al panel.
+const builtAt = new Date().toISOString()
 
 // https://astro.build/config
 export default defineConfig({
@@ -29,5 +34,14 @@ export default defineConfig({
     port: 4231,
   },
 
-  integrations: [react(), sitemap()]
+  integrations: [
+    react(),
+    sitemap(),
+    {
+      name: 'build-json',
+      hooks: {
+        'astro:build:done': ({ dir }) => writeFile(new URL('build.json', dir), JSON.stringify({ builtAt })),
+      },
+    },
+  ]
 });
