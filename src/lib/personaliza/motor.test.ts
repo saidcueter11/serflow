@@ -31,4 +31,17 @@ describe('envolver', () => {
     expect(envolver(0.25, 0.9)).toBeLessThan(0.25)
     expect(envolver(0.3, 0)).toBe(0.3)
   })
+
+  it('fuera del área sigue creciendo, sin doblarse ni saltar', () => {
+    expect(envolver(-0.001, 0.9)).toBeCloseTo(0, 2)
+    expect(envolver(1.001, 0.9)).toBeCloseTo(1, 2)
+    for (const curva of [0.35, 0.9]) {
+      let antes = envolver(-2, curva)
+      for (let u = -1.9; u <= 3; u += 0.1) {
+        const v = envolver(u, curva)
+        expect(v).toBeGreaterThan(antes)
+        antes = v
+      }
+    }
+  })
 })

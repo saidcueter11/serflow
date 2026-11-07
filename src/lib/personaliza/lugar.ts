@@ -1,27 +1,39 @@
 import { ESCENA, PRENDAS, type Area, type Prenda, type Punto, type Tecnica } from './datos'
 
-/** Posición del diseño dentro del área: centro (0 a 1) y ancho como fracción del ancho del área. */
+/** Posición del diseño dentro del área: centro (0 a 1), ancho como fracción del ancho del área y giro en grados. */
 export interface Lugar {
   cx: number
   cy: number
   s: number
+  /** Sin r (lo guardado antes de poder girar), 0. */
+  r?: number
 }
 
 export const LUGAR_INICIAL: Lugar = { cx: 0.5, cy: 0.42, s: 0.62 }
 /** La copa de la gorra es baja: el diseño arranca centrado (canvas, storyboards de gorra). */
 export const LUGAR_GORRA: Lugar = { cx: 0.5, cy: 0.5, s: 0.62 }
-export const S_MIN = 0.2
+export const S_MIN = 0.1
 export const S_MAX = 1
+
+/** Rectángulo de la foto en fracciones 0 a 1. */
+export interface Ventana {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+export const FOTO_ENTERA: Ventana = { left: 0, top: 0, right: 1, bottom: 1 }
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 
-/** Punto del área (u, v en 0 a 1) en la foto, interpolando las 4 esquinas. */
+/**
+ * Punto del área (u, v) en la foto. De 0 a 1 interpola las 4 esquinas; afuera sigue derecho con la forma del borde: en un
+ * área que no es un rectángulo, seguir interpolando encoge el diseño hasta voltearlo y limitar lo perdía fuera de la foto.
+ */
 export function enArea(a: Area, u: number, v: number): Punto {
-  const tx = a.tl[0] + (a.tr[0] - a.tl[0]) * u
-  const ty = a.tl[1] + (a.tr[1] - a.tl[1]) * u
-  const bx = a.bl[0] + (a.br[0] - a.bl[0]) * u
-  const by = a.bl[1] + (a.br[1] - a.bl[1]) * u
-  return [tx + (bx - tx) * v, ty + (by - ty) * v]
+  const cruce = clamp(u, 0, 1) * clamp(v, 0, 1)
+  const eje = (i: 0 | 1) => a.tl[i] + (a.tr[i] - a.tl[i]) * u + (a.bl[i] - a.tl[i]) * v + (a.br[i] - a.bl[i] - a.tr[i] + a.tl[i]) * cruce
+  return [eje(0), eje(1)]
 }
 
 /** La escala que da el tope de bordado de la prenda; sin tope, S_MAX. anchoCm = ancho real del área. */
@@ -42,16 +54,78 @@ export function aspectoArea(a: Area): number {
   return m.ancho / m.alto
 }
 
+/** Caja del área en la foto. */
+export function cajaArea(a: Area): Ventana {
+  return {
+    left: Math.min(a.tl[0], a.bl[0]),
+    top: Math.min(a.tl[1], a.tr[1]),
+    right: Math.max(a.tr[0], a.br[0]),
+    bottom: Math.max(a.bl[1], a.br[1]),
+  }
+}
+
+/** Una ventana de la foto en unidades del área (0 a 1 es el área). */
+export function enUnidades(a: Area, v: Ventana): Ventana {
+  const b = cajaArea(a)
+  const w = b.right - b.left
+  const h = b.bottom - b.top
+  return { left: (v.left - b.left) / w, top: (v.top - b.top) / h, right: (v.right - b.left) / w, bottom: (v.bottom - b.top) / h }
+}
+
 /**
- * La caja del diseño nunca sale del área (spec 6.3). Escala entre S_MIN y S_MAX del ancho; si a ese ancho el diseño
- * es más alto que el área, se reduce hasta caber. ratio = ancho / alto del diseño; aspecto = ancho / alto del área.
- * max = la escala máxima para esta prenda y técnica (escalaMax).
+ * Unidades del área que cubre la malla del motor: toda la foto. En un área que no es un rectángulo (la gorra en 3/4)
+ * enUnidades se queda corto en las esquinas y el diseño se cortaba ahí: se suma lo que limitar deja alcanzar más allá
+ * (su margen de 1 más medio diseño de S_MAX).
  */
-export function limitar(l: Lugar, ratio: number, aspecto: number, max = S_MAX): Lugar {
-  const cabe = ratio / aspecto
-  const s = Math.min(clamp(l.s, S_MIN, max), cabe)
-  const h = (s * aspecto) / ratio
-  return { s, cx: clamp(l.cx, s / 2, 1 - s / 2), cy: clamp(l.cy, h / 2, 1 - h / 2) }
+export function unidadesFoto(a: Area): Ventana {
+  const u = enUnidades(a, FOTO_ENTERA)
+  const rectangulo = a.tl[0] === a.bl[0] && a.tr[0] === a.br[0] && a.tl[1] === a.tr[1] && a.bl[1] === a.br[1]
+  const m = rectangulo ? 0 : 1 + S_MAX / 2
+  return { left: u.left - m, top: u.top - m, right: u.right + m, bottom: u.bottom + m }
+}
+
+/**
+ * El diseño se mueve libre por la foto: su caja solo se queda dentro de la ventana (lo visible de la foto), para que no
+ * se pierda. Escala entre S_MIN y max (escalaMax); si a ese ancho no cabe en la ventana, se reduce hasta caber.
+ * ratio = ancho / alto del diseño. Se mide con las esquinas reales de la caja en la foto, porque el área puede no ser un
+ * rectángulo (la gorra en 3/4). Corregir un eje mueve un poco el otro: 8 pasadas lo dejan a menos de 1 px; en un
+ * rectángulo basta una.
+ */
+export function limitar(l: Lugar, ratio: number, area: Area, max = S_MAX, ventana = FOTO_ENTERA): Lugar {
+  const k = giroCaja(1, ratio, aspectoArea(area), l.r)
+  const b = cajaArea(area)
+  const u = enUnidades(area, ventana)
+  const n = { ...l, s: clamp(l.s, S_MIN, max), cx: clamp(l.cx, u.left - 1, u.right + 1), cy: clamp(l.cy, u.top - 1, u.bottom + 1) }
+  const medir = () => {
+    const w = n.s * k.w
+    const h = n.s * k.h
+    const pts = [enArea(area, n.cx - w / 2, n.cy - h / 2), enArea(area, n.cx + w / 2, n.cy - h / 2), enArea(area, n.cx + w / 2, n.cy + h / 2), enArea(area, n.cx - w / 2, n.cy + h / 2)]
+    const xs = pts.map((p) => p[0])
+    const ys = pts.map((p) => p[1])
+    return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs), bottom: Math.max(...ys) }
+  }
+  for (let i = 0; i < 8; i++) {
+    const c = medir()
+    n.s *= Math.min(1, (ventana.right - ventana.left) / (c.right - c.left), (ventana.bottom - ventana.top) / (c.bottom - c.top))
+    const d = medir()
+    // Hacia donde lo pidió, sin pasar el borde; si ya lo pasó, de vuelta adentro.
+    n.cx += clamp(l.cx - n.cx, (ventana.left - d.left) / (b.right - b.left), (ventana.right - d.right) / (b.right - b.left))
+    n.cy += clamp(l.cy - n.cy, (ventana.top - d.top) / (b.bottom - b.top), (ventana.bottom - d.bottom) / (b.bottom - b.top))
+  }
+  return n
+}
+
+/** Caja del diseño girado r grados, en unidades del área (ancho s, alto s · aspecto / ratio sin girar). */
+export function giroCaja(s: number, ratio: number, aspecto: number, r = 0) {
+  const c = Math.abs(Math.cos((r * Math.PI) / 180))
+  const n = Math.abs(Math.sin((r * Math.PI) / 180))
+  return { w: s * (c + n / ratio), h: s * aspecto * (n + c / ratio) }
+}
+
+/** Giro en grados entre -180 y 180; a menos de 4° de recto, recto (así es fácil volver a 0). */
+export function enderezar(r: number): number {
+  const g = ((((r + 180) % 360) + 360) % 360) - 180
+  return Math.abs(g) < 4 ? 0 : g
 }
 
 /** "unos N cm de ancho": ancho real del área (lo mide el taller) por la escala. */

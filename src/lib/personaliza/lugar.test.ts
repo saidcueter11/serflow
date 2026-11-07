@@ -1,28 +1,40 @@
 import { describe, expect, it } from 'vitest'
-import { aspectoArea, cajaDiseno, escalaMax, limitar, tamanoCm } from './lugar'
+import { aspectoArea, cajaDiseno, enArea, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm, unidadesFoto } from './lugar'
 import type { Area } from './datos'
 
+// 4:5 en px de la escena: el área mide 432 × 432 y queda en el centro de la foto.
+const CENTRO: Area = { tl: [0.3, 0.34], tr: [0.7, 0.34], br: [0.7, 0.66], bl: [0.3, 0.66] }
+
 describe('limitar', () => {
-  it('deja la escala entre 0,2 y 1', () => {
-    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.05 }, 1, 1).s).toBe(0.2)
-    expect(limitar({ cx: 0.5, cy: 0.5, s: 3 }, 2, 1).s).toBe(1)
+  it('deja la escala entre 0,1 y el máximo', () => {
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.01 }, 1, CENTRO).s).toBe(0.1)
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 3 }, 1, CENTRO).s).toBe(1)
   })
 
-  it('el diseño nunca sale del área', () => {
-    const l = limitar({ cx: 0.95, cy: -1, s: 0.4 }, 1, 1)
-    expect(l).toEqual({ s: 0.4, cx: 0.8, cy: 0.2 })
+  it('el diseño se sale del área libremente, dentro de la foto', () => {
+    const l = limitar({ cx: -0.2, cy: 1.3, s: 0.4 }, 1, CENTRO)
+    expect(l).toEqual({ s: 0.4, cx: -0.2, cy: 1.3 })
   })
 
-  it('si a ese ancho el diseño es más alto que el área, se reduce hasta caber', () => {
-    // Diseño vertical (1:2) en un área cuadrada: a lo sumo la mitad del ancho.
-    const l = limitar({ cx: 0.5, cy: 0.5, s: 0.9 }, 0.5, 1)
-    expect(l.s).toBe(0.5)
-    expect(l.cy).toBe(0.5)
+  it('pero no se pierde: su caja se queda dentro de la foto', () => {
+    const v = enUnidades(CENTRO, FOTO_ENTERA)
+    const l = limitar({ cx: 99, cy: -99, s: 0.4 }, 1, CENTRO)
+    expect(l.cx + 0.2).toBeCloseTo(v.right)
+    expect(l.cy - 0.2).toBeCloseTo(v.top)
   })
 
-  it('respeta el aspecto del área: en un área ancha cabe un diseño cuadrado más chico', () => {
-    // Área 2:1, diseño cuadrado: con s = 0,5 ocupa todo el alto.
-    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.8 }, 1, 2).s).toBe(0.5)
+  it('con una ventana (el recorte visible) se queda dentro de ella', () => {
+    const ventana = { left: 0, top: 0.2, right: 1, bottom: 0.8 }
+    const v = enUnidades(CENTRO, ventana)
+    const l = limitar({ cx: 0.5, cy: -99, s: 0.4 }, 1, CENTRO, 1, ventana)
+    expect(l.cy - 0.2).toBeCloseTo(v.top)
+    expect(limitar({ cx: 0.5, cy: 99, s: 0.4 }, 1, CENTRO, 1, ventana).cy + 0.2).toBeCloseTo(v.bottom)
+  })
+
+  it('si no cabe en la ventana a ese ancho, se reduce hasta caber', () => {
+    // Diseño muy vertical (1:4) con una ventana de 2 áreas de alto: a lo sumo 0,5 de ancho.
+    const ventana = { left: 0, top: 0.18, right: 1, bottom: 0.82 }
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.9 }, 0.25, CENTRO, 1, ventana).s).toBeCloseTo(0.5)
   })
 })
 
@@ -34,13 +46,12 @@ describe('escalaMax', () => {
 
   it('sin tope en las otras técnicas ni en la gorra', () => {
     expect(escalaMax('camiseta', 'estampado', 30)).toBe(1)
-    expect(escalaMax('camiseta', 'dtf', 30)).toBe(1)
     expect(escalaMax('gorra', 'bordado', 12)).toBe(1)
   })
 
   it('limitar respeta el máximo, también al crecer', () => {
-    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.62 }, 1, 1, 1 / 3).s).toBe(1 / 3)
-    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.25 }, 1, 1, 1 / 3).s).toBe(0.25)
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.62 }, 1, CENTRO, 1 / 3).s).toBe(1 / 3)
+    expect(limitar({ cx: 0.5, cy: 0.5, s: 0.25 }, 1, CENTRO, 1 / 3).s).toBe(0.25)
   })
 })
 
@@ -52,6 +63,44 @@ describe('tamanoCm', () => {
 })
 
 describe('áreas de 4 esquinas', () => {
+  it('unidadesFoto cubre todo lo que limitar deja alcanzar; en un rectángulo es enUnidades', () => {
+    const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
+    const u = unidadesFoto(gorra)
+    for (const [cx, cy] of [[-9, 9], [9, 9], [-9, -9], [9, -9]]) {
+      const l = limitar({ cx, cy, s: 0.6 }, 1, gorra)
+      const h = 0.6 * aspectoArea(gorra)
+      expect(l.cx - l.s / 2).toBeGreaterThanOrEqual(u.left)
+      expect(l.cx + l.s / 2).toBeLessThanOrEqual(u.right)
+      expect(l.cy - h / 2).toBeGreaterThanOrEqual(u.top)
+      expect(l.cy + h / 2).toBeLessThanOrEqual(u.bottom)
+    }
+    expect(unidadesFoto(CENTRO)).toEqual(enUnidades(CENTRO, FOTO_ENTERA))
+  })
+
+  it('enArea: afuera del área el diseño no se encoge ni se voltea; en el área y en un rectángulo, interpola igual', () => {
+    const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
+    expect(enArea(gorra, 0.5, 0.5)[0]).toBeCloseTo((0.356 + 0.718 + 0.785 + 0.325) / 4, 9)
+    expect(enArea(gorra, 1, 1)[0]).toBeCloseTo(gorra.br[0], 9)
+    expect(enArea(gorra, 1, 1)[1]).toBeCloseTo(gorra.br[1], 9)
+    for (const v of [-9, 9]) expect(enArea(gorra, 1, v)[0] - enArea(gorra, 0, v)[0]).toBeGreaterThan(0.3)
+    expect(enArea(CENTRO, -2, 3)[0]).toBeCloseTo(0.3 - 2 * 0.4, 9)
+    expect(enArea(CENTRO, -2, 3)[1]).toBeCloseTo(0.34 + 3 * 0.32, 9)
+  })
+
+  it('limitar mide las esquinas reales: en un área que no es un rectángulo tampoco se sale de la ventana', () => {
+    const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
+    for (const v of [FOTO_ENTERA, { left: 0, top: 0.1, right: 1, bottom: 0.9 }])
+      for (const [cx, cy] of [[-9, 9], [9, 9], [-9, -9], [9, -9]]) {
+        const l = limitar({ cx, cy, s: 0.6 }, 1, gorra, 1, v)
+        const c = cajaDiseno(gorra, l, 1, aspectoArea(gorra))
+        expect(c.left).toBeGreaterThanOrEqual(v.left - 1e-3)
+        expect(c.top).toBeGreaterThanOrEqual(v.top - 1e-3)
+        expect(c.left + c.width).toBeLessThanOrEqual(v.right + 1e-3)
+        expect(c.top + c.height).toBeLessThanOrEqual(v.bottom + 1e-3)
+        expect(l.s).toBe(0.6)
+      }
+  })
+
   const cuadrada: Area = { tl: [0.2, 0.2], tr: [0.6, 0.2], br: [0.6, 0.52], bl: [0.2, 0.52] }
 
   it('mide el aspecto en px de la escena 4:5', () => {
@@ -65,5 +114,31 @@ describe('áreas de 4 esquinas', () => {
     expect(c.width).toBeCloseTo(0.2)
     expect(c.top).toBeCloseTo(0.28)
     expect(c.height).toBeCloseTo(0.16)
+  })
+})
+
+describe('giro', () => {
+  it('sin giro, la caja es la del diseño; a 90°, ancho y alto se cambian', () => {
+    expect(giroCaja(0.4, 2, 1)).toEqual({ w: 0.4, h: 0.2 })
+    const g = giroCaja(0.4, 2, 1, 90)
+    expect(g.w).toBeCloseTo(0.2)
+    expect(g.h).toBeCloseTo(0.4)
+  })
+
+  it('una tira ancha girada 90° se achica para caber a lo alto, y conserva el giro', () => {
+    // Ventana de lo visible: 1 de ancho y 0,5 de alto (en unidades del área).
+    const v = { left: 0.3, top: 0.42, right: 0.7, bottom: 0.58 }
+    expect(enUnidades(CENTRO, v)).toMatchObject({ left: 0, right: 1 })
+    const l = limitar({ cx: 0.5, cy: 0.5, s: 1, r: 90 }, 4, CENTRO, 1, v)
+    expect(l.r).toBe(90)
+    expect(giroCaja(l.s, 4, 1, 90).h).toBeCloseTo(0.5)
+  })
+
+  it('enderezar deja el giro entre -180 y 180 y vuelve a 0 cerca de recto', () => {
+    expect(enderezar(195)).toBe(-165)
+    expect(enderezar(-200)).toBe(160)
+    expect(enderezar(3)).toBe(0)
+    expect(enderezar(358)).toBe(0)
+    expect(enderezar(15)).toBe(15)
   })
 })

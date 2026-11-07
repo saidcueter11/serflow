@@ -1,7 +1,7 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { Button } from './Button'
 import { Aviso } from './PersonalizaCampos'
-import { IconArchivo, IconCerrar, IconCheck, IconClip, IconCompartir, IconGuardar, IconSinSenal } from '../icons/PersonalizaIcons'
+import { Girador, IconArchivo, IconCerrar, IconCheck, IconClip, IconCompartir, IconGuardar, IconSinSenal } from '../icons/PersonalizaIcons'
 import { whatsappUrl } from '../../lib/business'
 
 /**
@@ -24,6 +24,8 @@ export interface HojaEnvioProps {
   diseno?: string
   archivo?: { nombre: string; detalle: string }
   guardada?: boolean
+  /** La vista previa todavía se está armando: Guardar espera, para no guardar solo el diseño. */
+  preparando?: boolean
   /** navigator.canShare({ files }) es true: aparece Compartir. */
   compartir?: boolean
   sinSenal?: boolean
@@ -161,6 +163,7 @@ export function HojaEnvio({
   diseno,
   archivo,
   guardada = false,
+  preparando = false,
   compartir = false,
   sinSenal = false,
   escritorio = false,
@@ -176,7 +179,7 @@ export function HojaEnvio({
       <Marco titulo="¿Ya nos llegó tu pedido?" cerrar="Cerrar" onCerrar={onCerrar}>
         <p className="text-[15px] leading-relaxed text-muted">
           {tipo === 'sin-imagen'
-            ? 'Si el mensaje no salió, vuelve al chat y mándalo. Te respondemos por ahí para armar tu diseño.'
+            ? 'Si el mensaje no salió, vuelve al chat y mándalo.'
             : 'Si te faltó adjuntar algo, vuelve al chat y mándalo con el clip o el +.'}
         </p>
         {tipo !== 'sin-imagen' && (diseno || vistaPrevia || archivo) && (
@@ -224,8 +227,8 @@ export function HojaEnvio({
     )
   }
 
-  const conMockup = tipo === 'imagen' && !!vistaPrevia
-  const columna = escritorio && conMockup
+  const conMockup = tipo === 'imagen' && (!!vistaPrevia || preparando)
+  const columna = escritorio && !!vistaPrevia && conMockup
   const cuerpo = (
     <>
       {sinSenal && (
@@ -259,7 +262,11 @@ export function HojaEnvio({
                   <Imagen src={vistaPrevia} alt="" />
                 </div>
               )}
-              {guardada ? (
+              {preparando ? (
+                <span role="status" className="flex min-h-12 items-center gap-2 text-[15px] font-semibold text-muted">
+                  <Girador /> Preparando la vista previa…
+                </span>
+              ) : guardada ? (
                 <span role="status" className="flex min-h-12 items-center gap-2 text-[15px] font-semibold text-ok">
                   <IconCheck /> {escritorio ? (conMockup ? 'Descargadas' : 'Descargado') : conMockup ? 'Guardadas' : 'Guardado'}
                 </span>
@@ -269,7 +276,7 @@ export function HojaEnvio({
                 </Button>
               )}
             </div>
-            {!escritorio && !guardada && (
+            {!escritorio && !guardada && !preparando && (
               <p className="text-[13px] leading-snug text-muted">
                 {conMockup ? 'En iPhone se abre un menú: elige Guardar imágenes. En Android se descargan.' : 'En iPhone se abre un menú: elige Guardar imagen. En Android se descarga.'}
               </p>
@@ -331,7 +338,6 @@ export function HojaEnvio({
           </PasoHoja>
         )}
 
-        {tipo === 'sin-imagen' && <li className="text-[14px] leading-snug text-muted">En el chat te ayudamos a armar el diseño. Si tienes una foto o un dibujo de tu idea, mándalo ahí.</li>}
       </ol>
 
       {compartir && tipo !== 'sin-imagen' && (

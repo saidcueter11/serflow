@@ -2,10 +2,17 @@
  * Colores y fotos de MUESTRA del personalizador, con la forma de garment_colors + garment_photos (spec 6.7).
  * Se borra cuando el sitio lea los datos reales de Supabase (PR 4, después de PRI-125 y del admin).
  *
- * FOTOS DE MUESTRA, NO DEL TALLER (las reemplazan las oficiales de PRI-125):
- * - Camisetas: un recorte sin cara de src/assets/images/stock/amigos-gorras.jpg, teñido a cada color; la "espalda" es
- *   una zona de solo tela de la misma foto.
- * - Gorras: gorras Serflow del catálogo (moda5 y moda8) con el parche borrado; la blanca y la gris son la azul teñida.
+ * FOTOS REALES DE STOCK, NO DEL TALLER (las reemplazan las oficiales de PRI-125). Una foto por color y vista, sin teñir;
+ * si falta una foto, ese color queda fuera. Licencias Pexels y Unsplash: uso comercial, sin atribución obligatoria.
+ * - camiseta-negra: Hanna Pad, pexels.com/photo/8532616
+ * - camiseta-negra-espalda: Angela Roma, pexels.com/photo/7319032
+ * - camiseta-blanca: Avtar Singh, unsplash.com/photos/8ACmRoleM24
+ * - camiseta-blanca-espalda: Estefania Milazzo, pexels.com/photo/17858291
+ * - gorra-negra: Giorgio Trovato, unsplash.com/photos/a6PIHHL7d4I
+ * - gorra-blanca: personalgraphic.com, unsplash.com/photos/ozdzzeBu4Go
+ *
+ * Para cambiar una foto: reemplaza el archivo en src/assets/personalizador/ (4:5, 1080 × 1350) y recalibra aquí su area
+ * (fracciones de la foto) y su print_width_cm (lo que mide esa área en la prenda real).
  */
 import type { ImageMetadata } from 'astro'
 import type { Area, ColorPrenda, FotoColor, Prenda } from './datos'
@@ -15,55 +22,45 @@ import espaldaNegra from '../../assets/personalizador/camiseta-negra-espalda.jpg
 import espaldaBlanca from '../../assets/personalizador/camiseta-blanca-espalda.jpg'
 import gorraNegra from '../../assets/personalizador/gorra-negra.jpg'
 import gorraBlanca from '../../assets/personalizador/gorra-blanca.jpg'
-import gorraGris from '../../assets/personalizador/gorra-gris.jpg'
-import gorraAzul from '../../assets/personalizador/gorra-azul.jpg'
 
 const rect = (x: number, y: number, w: number, h: number): Area => ({ tl: [x, y], tr: [x + w, y], br: [x + w, y + h], bl: [x, y + h] })
-const PECHO = rect(0.24, 0.1, 0.56, 0.48)
-const ESPALDA = rect(0.2, 0.12, 0.6, 0.56)
-const FRENTE = rect(0.3, 0.28, 0.4, 0.28)
 
-type FotoMuestra = Omit<FotoColor, 'image_url'> & { image: ImageMetadata }
+type FotoMuestra = Omit<FotoColor, 'image_url' | 'image_url_movil'> & { image: ImageMetadata }
 type ColorMuestra = Omit<ColorPrenda, 'photos'> & { photos: FotoMuestra[] }
 
-const camiseta = (id: string, name: string, hex: string, frente: ImageMetadata, espalda: ImageMetadata): ColorMuestra => ({
-  id,
-  garment: 'camiseta',
-  name,
-  hex,
-  photos: [
-    { view: 'frente', image: frente, print_area: PECHO, print_width_cm: 30 },
-    { view: 'espalda', image: espalda, print_area: ESPALDA, print_width_cm: 35 },
-  ],
-})
-const gorra = (id: string, name: string, hex: string, frente: ImageMetadata): ColorMuestra => ({
-  id,
-  garment: 'gorra',
-  name,
-  hex,
-  photos: [{ view: 'frente', image: frente, print_area: FRENTE, print_width_cm: 12 }],
-})
+const foto = (view: FotoColor['view'], image: ImageMetadata, print_area: Area, print_width_cm: number): FotoMuestra => ({ view, image, print_area, print_width_cm })
 
 export const MUESTRA: Record<Prenda, ColorMuestra[]> = {
   camiseta: [
-    camiseta('negra', 'Negra', '#1d1c1a', camisetaNegra, espaldaNegra),
-    camiseta('blanca', 'Blanca', '#f2f0ea', camisetaBlanca, espaldaBlanca),
+    {
+      id: 'negra',
+      garment: 'camiseta',
+      name: 'Negra',
+      hex: '#1d1c1a',
+      photos: [foto('frente', camisetaNegra, rect(0.3, 0.25, 0.4, 0.38), 30), foto('espalda', espaldaNegra, rect(0.295, 0.27, 0.35, 0.34), 35)],
+    },
+    {
+      id: 'blanca',
+      garment: 'camiseta',
+      name: 'Blanca',
+      hex: '#f2f0ea',
+      photos: [foto('frente', camisetaBlanca, rect(0.31, 0.28, 0.36, 0.35), 30), foto('espalda', espaldaBlanca, rect(0.353, 0.3, 0.294, 0.3), 35)],
+    },
   ],
   gorra: [
-    gorra('negra', 'Negra', '#1d1c1a', gorraNegra),
-    gorra('blanca', 'Blanca', '#f2f0ea', gorraBlanca),
-    gorra('gris', 'Gris', '#8a8781', gorraGris),
-    gorra('azul', 'Azul', '#2340c8', gorraAzul),
+    // Esta foto está en 3/4: el área sigue el panel de la copa, y así el diseño se acuesta con la gorra (el motor ya usa 4 esquinas).
+    { id: 'negra', garment: 'gorra', name: 'Negra', hex: '#1d1c1a', photos: [foto('frente', gorraNegra, { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }, 12)] },
+    { id: 'blanca', garment: 'gorra', name: 'Blanca', hex: '#f2f0ea', photos: [foto('frente', gorraBlanca, rect(0.29, 0.42, 0.42, 0.24), 12)] },
   ],
 }
 
-/** Publica las fotos optimizadas en el mismo dominio (el canvas solo lee píxeles de su propio origen). */
-export async function coloresMuestra(optimizar: (img: ImageMetadata) => Promise<string>): Promise<Record<Prenda, ColorPrenda[]>> {
+/** Publica cada foto optimizada en el mismo dominio (el canvas solo lee píxeles de su propio origen), en dos anchos. */
+export async function coloresMuestra(optimizar: (img: ImageMetadata, ancho: number) => Promise<string>): Promise<Record<Prenda, ColorPrenda[]>> {
   const pasar = (colores: ColorMuestra[]) =>
     Promise.all(
       colores.map(async ({ photos, ...c }) => ({
         ...c,
-        photos: await Promise.all(photos.map(async ({ image, ...f }) => ({ ...f, image_url: await optimizar(image) }))),
+        photos: await Promise.all(photos.map(async ({ image, ...f }) => ({ ...f, image_url: await optimizar(image, 1080), image_url_movil: await optimizar(image, 720) }))),
       })),
     )
   return { camiseta: await pasar(MUESTRA.camiseta), gorra: await pasar(MUESTRA.gorra) }
