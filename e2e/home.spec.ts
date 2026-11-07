@@ -68,3 +68,14 @@ test('hero carousel full-bleed with 4 photos, sections in the new order, folded 
   await expect(page.locator('#visitanos details')).not.toHaveAttribute('open')
   await expect(page.locator('#visitanos').getByTitle('Mapa de Serflow en Cartagena')).toBeHidden()
 })
+
+// PRI-414: la foto de "Diseña la tuya" se renderiza dos veces (celular y desktop) y una siempre está en display: none.
+// filter visible descarta esa y también una foto de 0x0, que es el bug: debe quedar exactamente una con tamaño.
+for (const width of [390, 768]) {
+  test(`"Diseña la tuya" shows its photo at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/')
+    const fotos = page.locator('section[aria-labelledby="personaliza-titulo"] img')
+    await expect(fotos.filter({ visible: true })).toHaveCount(1)
+  })
+}

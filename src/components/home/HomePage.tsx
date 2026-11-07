@@ -129,11 +129,11 @@ export function HomePage({
         <section aria-labelledby="personaliza-titulo" className="pf-sec pf-c">
           <div className="pf-grid">
             <div className="pf-pz-texto">
-              <h2 id="personaliza-titulo" className="pf-h2 sf-entra-scroll">
+              <h2 id="personaliza-titulo" className="pf-h2">
                 {sections.personalizador?.title ?? 'Diseña la tuya'}
               </h2>
               <p className="pf-lead">{sections.personalizador?.description ?? 'Sube tu diseño, míralo sobre la camiseta o la gorra y mándanoslo listo para hacerlo.'}</p>
-              <div className="@3xl:hidden">{foto}</div>
+              <div className="w-full @3xl:hidden">{foto}</div>
               <ol className="pf-pasos">
                 {PASOS.map((p, i) => (
                   <li key={p}>
@@ -188,7 +188,7 @@ export function HomePage({
         <section id="quienes-somos" aria-labelledby="quienes-somos-titulo" className="pf-sec pf-c">
           <div className="pf-grid">
             <div className="pf-quienes">
-              <h2 id="quienes-somos-titulo" className="pf-h2 sf-entra-scroll">
+              <h2 id="quienes-somos-titulo" className="pf-h2">
                 {sections['quienes-somos']?.title ?? 'Quiénes somos'}
               </h2>
               <p className="pf-lead">
@@ -210,7 +210,7 @@ export function HomePage({
             </div>
             {/* #visitanos sigue siendo el ancla del menú y del footer. Dirección y horario salen una sola vez: aquí. */}
             <div id="visitanos" className="pf-visita scroll-mt-4">
-              <h2 className="pf-h2 sf-entra-scroll">{sections.visitanos?.title ?? 'Visítanos'}</h2>
+              <h2 className="pf-h2">{sections.visitanos?.title ?? 'Visítanos'}</h2>
               <MapCard
                 title={
                   <>

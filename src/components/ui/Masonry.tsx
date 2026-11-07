@@ -43,7 +43,7 @@ function Tile({ t }: { t: MasonryTile }) {
         height={500}
         loading="lazy"
         decoding="async"
-        className="fabric reveal-wipe aspect-[4/5] h-auto w-full object-cover"
+        className="fabric aspect-[4/5] h-auto w-full object-cover"
       />
       <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-primary/80 to-transparent opacity-0 transition-opacity duration-(--motion-med) group-hover:opacity-100 group-focus-visible:opacity-100" />
       <span

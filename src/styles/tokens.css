@@ -75,7 +75,6 @@
  */
 @keyframes sf-up { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
 @keyframes sf-grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
-@keyframes sf-wipe { from { clip-path: inset(0 0 100% 0) } to { clip-path: inset(0) } }
 @keyframes sf-ticker { to { transform: translateX(-50%) } }
 @keyframes sf-ring { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent) } to { box-shadow: 0 0 0 20px transparent } }
 @keyframes sf-zoom { from { transform: scale(1) } to { transform: scale(1.08) } }
@@ -110,10 +109,6 @@
 .thread-glint { transform-box: fill-box; transform-origin: center; animation: sf-glint 1.4s ease-in-out infinite; }
 
 @supports (animation-timeline: view()) {
-  /* Sube al entrar en pantalla */
-  .reveal-up { animation: sf-up linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
-  /* La foto se destapa de arriba abajo */
-  .reveal-wipe { animation: sf-wipe linear both; animation-timeline: view(); animation-range: entry 10% entry 70%; }
   .stitch-title::after { animation: sf-grow linear both; animation-timeline: view(); animation-range: entry 20% entry 80%; }
 }
 @supports (animation-timeline: scroll()) {
@@ -177,10 +172,6 @@ a.sf-foto:active img { transform: scale(1.03); filter: none; transition-duration
 /* Títulos de una línea al cargar (h1 de página, nombre de la categoría) y su bajada 200 ms después. */
 .sf-entra { animation: sf-entra var(--motion-entrada) var(--ease-premium) both; }
 .sf-entra + p { animation: sf-sube var(--motion-entrada) var(--ease-premium) 200ms both; }
-/* Títulos de sección: suben al entrar en pantalla (donde no hay scroll-timeline se ven quietos y completos). */
-@supports (animation-timeline: view()) {
-  .sf-entra-scroll { animation: sf-entra linear both; animation-timeline: view(); animation-range: entry 5% entry 45%; }
-}
 
 /* ---------- 4 · Enlace que se cose: costura dorada que se dibuja debajo al pasar, al enfocar o al tocar ---------- */
 
@@ -208,10 +199,24 @@ a.sf-foto:active img { transform: scale(1.03); filter: none; transition-duration
 .sf-toque:active { transform: scale(0.96); }
 a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fast) var(--ease-premium); }
 
+/* ---------- Aparece al hacer scroll, una sola vez (src/scripts/movimiento.ts) ---------- */
+
+/* El script pone sf-espera solo a lo que está debajo de la pantalla: sin él, o con reducir movimiento, nada se esconde. */
+.sf-espera { opacity: 0; transform: translateY(16px); }
+.sf-aparece {
+  transition: opacity var(--sf-aparece, var(--motion-entrada)) var(--ease-premium), transform var(--sf-aparece, var(--motion-entrada)) var(--ease-premium);
+  transition-delay: calc(var(--sf-i, 0) * var(--motion-escalon) / 2);
+}
+/* El muro son muchas fotos: entran más corto. */
+[data-fotos] > li.sf-aparece { --sf-aparece: var(--motion-slow); }
+@media print {
+  .sf-espera { opacity: 1; transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-enter > *, .stitch-title::after, .anim-ticker, .anim-ring, .anim-zoom, .thread-glint,
-  .reveal-up, .reveal-wipe, .thread-reveal, .thread-needle, .anim-slide, .anim-bar,
-  .sf-lineas > span > span, .sf-entra, .sf-entra + p, .sf-entra-scroll {
+  .thread-reveal, .thread-needle, .anim-slide, .anim-bar,
+  .sf-lineas > span > span, .sf-entra, .sf-entra + p {
     animation: none !important;
   }
   /* first-of-type y no first-child: el <style> del carrusel va antes de las fotos */
@@ -222,6 +227,7 @@ a.sf-foto:active { transform: scale(0.98); transition: transform var(--motion-fa
   .sf-foto img { filter: none !important; transform: none !important; }
   :is(.sf-brillo, .sf-toque, .sf-foto, .sf-foto-texto) { transform: none !important; }
   .sf-brillo::after { transform: translateX(-120%) !important; }
+  .sf-espera { opacity: 1 !important; transform: none !important; }
 }
 
 /*
@@ -471,38 +477,49 @@ dialog.mx::backdrop { background: transparent; }
 .mx-barra { position: absolute; top: 20px; left: 24px; display: flex; align-items: center; height: 48px; }
 .mx-contador { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-muted); }
 
-.mx-foto { display: block; object-fit: contain; border-radius: var(--radius-tile); }
+/* El marco tiene la forma de la foto desde antes de que baje (--mx-r = ancho / alto, photo-modal.ts): nada salta al llegar. */
+.mx-marco { position: relative; flex: none; aspect-ratio: var(--mx-r, 0.8); border-radius: var(--radius-tile); }
+.mx-foto { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
+/* Esperando: el brillo sobre la superficie, en fundido para que una espera cortísima no parpadee. */
+.mx-brillo { display: none; position: absolute; inset: 0; overflow: hidden; border-radius: inherit; background: var(--color-surface-2); animation: sf-funde var(--motion-med) var(--ease-out) both; }
+.mx-marco[data-cargando] .mx-brillo { display: block; }
+.mx-marco[data-cargando] .mx-foto { opacity: 0; }
+/* Pasar de foto: la nueva entra y la anterior sale en el sentido de la flecha (--mx-dir: 1, -1; 0 al abrir, solo fundido). */
+@keyframes mx-entra { from { opacity: 0; transform: translateX(calc(var(--mx-dir, 0) * 32px)) } to { opacity: 1; transform: none } }
+@keyframes mx-sale { to { opacity: 0; transform: translateX(calc(var(--mx-dir, 0) * -32px)) } }
+.mx-foto.mx-entra { animation: mx-entra var(--motion-slow) var(--ease-premium); }
+.mx-saliente { position: absolute; left: 50%; top: 50%; translate: -50% -50%; object-fit: contain; border-radius: inherit; pointer-events: none; animation: mx-sale var(--motion-slow) var(--ease-premium) both; }
 
 /* Franja: categoría y nombre, y Pedir con su nota. */
 .mx-franja { display: flex; flex-direction: column; gap: 20px; }
 .mx-nombre { display: flex; flex-direction: column; gap: 4px; }
 .mx-cat { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
-.mx-titulo { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; }
+.mx-titulo { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; overflow-wrap: anywhere; text-wrap: pretty; }
 .mx-desc { font-size: 14px; line-height: 1.5; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mx-pedir { display: flex; flex-direction: column; gap: 12px; }
-.mx-nota { font-size: 14px; line-height: 1.5; color: var(--color-muted); max-width: 32ch; text-wrap: pretty; }
+.mx-nota { font-size: 13px; line-height: 1.5; color: var(--color-muted); }
 
 /* Entrada: la foto y la franja suben 16, el velo en fundido. */
 .mx-pieza { animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
 
-/* Escritorio: la foto toma el alto que dejan el aire (igual arriba y abajo), la franja y el espacio entre las dos. */
-.mx-centro { --mx-aire: 24px; --mx-franja: 76px; --mx-entre: 16px; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+/* Escritorio: la foto toma el alto que dejan el aire (igual arriba y abajo), la franja y el espacio entre las dos.
+   La franja reserva dos líneas de nombre: con más crece y se come el aire, nunca corta el nombre. */
+.mx-centro { --mx-aire: 24px; --mx-franja: 88px; --mx-entre: 16px; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .mx-pieza { display: flex; flex-direction: column; gap: var(--mx-entre); pointer-events: auto; }
 .mx-pista { display: contents; }
 .mx-vecina { display: none; }
 @container (min-width: 48rem) {
   /* Tope de ancho para una foto apaisada: no pasa por debajo de las flechas (24 + 48 + 24 por lado). */
-  .mx-centro .mx-foto { width: auto; height: auto; max-height: calc(100cqh - 2 * var(--mx-aire) - var(--mx-franja) - var(--mx-entre)); max-width: calc(100cqw - 2 * 96px); }
-  /* width 0 + min-width 100 %: la franja no ensancha la pieza, toma el ancho de la foto. */
-  .mx-lado { width: 0; min-width: 100%; height: var(--mx-franja); }
+  .mx-centro .mx-marco { align-self: center; width: min(100cqw - 2 * 96px, (100cqh - 2 * var(--mx-aire) - var(--mx-franja) - var(--mx-entre)) * var(--mx-r, 0.8)); }
+  /* Una foto vertical es angosta: la pieza no baja de este ancho, para que el nombre quepa junto al botón. */
+  .mx-pieza { min-width: min(38rem, 100cqw - 2 * 96px); }
+  /* width 0 + min-width 100 %: la franja no ensancha la pieza, toma su ancho. */
+  .mx-lado { width: 0; min-width: 100%; min-height: var(--mx-franja); }
   .mx-lado .mx-franja { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 24px; }
-  .mx-lado .mx-nombre { min-width: 0; }
-  /* Una fila siempre: un nombre largo se corta con … (el h2 completo sigue en el DOM). */
-  .mx-lado .mx-titulo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mx-lado .mx-pedir { flex: none; align-items: flex-end; gap: 10px; }
-  .mx-lado .mx-nota { font-size: 13px; line-height: 18px; white-space: nowrap; max-width: none; }
+  .mx-lado .mx-nombre { flex: 1; min-width: 0; }
+  .mx-lado .mx-pedir { flex: none; }
+  .mx-lado .mx-nota { display: none; }
 }
-.mx-nota-larga { display: none; }
 
 @container (max-width: 47.99rem) {
   /* Pantalla completa: el velo es opaco, detrás no se ve nada. */
@@ -513,8 +530,8 @@ dialog.mx::backdrop { background: transparent; }
   .mx-barra { position: static; flex: none; height: 56px; padding-inline: 20px; }
   .mx-centro, .mx-pieza, .mx-lado { display: contents; }
   /* La foto ocupa el ancho menos 20 por lado; de la anterior y la siguiente se ven 12, y son botones. */
-  .mx-pista { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; animation: sf-sube var(--motion-slow) var(--ease-premium) both; touch-action: pan-y; }
-  .mx-pista .mx-foto { width: calc(100cqw - 40px); max-height: 100%; height: auto; }
+  .mx-pista { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; animation: sf-sube var(--motion-slow) var(--ease-premium) both; touch-action: pan-y; container-type: size; }
+  .mx-marco { width: min(100cqw - 40px, 100cqh * var(--mx-r, 0.8)); }
   .mx-vecina { display: block; position: absolute; top: 50%; translate: 0 -50%; width: calc(100cqw - 40px); opacity: 0.45; }
   .mx-vecina img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-tile); }
   /* La orilla se ve de 12 pero se toca en 24. */
@@ -527,12 +544,10 @@ dialog.mx::backdrop { background: transparent; }
   .mx-franja { flex: none; gap: 16px; padding: 16px 20px max(20px, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-line); background: var(--color-primary); animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
   .mx-titulo { font-size: 22px; }
   .mx-pedir { gap: 8px; }
-  .mx-nota { font-size: 13px; max-width: none; }
-  .mx-nota-larga { display: inline; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mx-velo, .mx-pieza, .mx-pista, .mx-franja { animation: none !important; }
+  .mx-velo, .mx-pieza, .mx-pista, .mx-franja, .mx-brillo, .mx-foto.mx-entra, .mx-saliente { animation: none !important; }
 }
 
 /* ---------- Personalizador (/personaliza, PRI-122): frame "Personalizador" del canvas portada-final ---------- */
