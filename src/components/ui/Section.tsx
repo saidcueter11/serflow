@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Button } from './Button'
 
 /**
- * Sección de página con la cabecera del sistema medido (PRI-286): título h2 (sube al entrar en pantalla), bajada pegada
+ * Sección de página con la cabecera del sistema medido (PRI-286): título h2, bajada pegada
  * a él y, si hay, una acción secundaria. En desktop la acción va en la fila del título, a la derecha; en el celular, al
  * pie de la sección y a lo ancho. Aire entre secciones y márgenes de la rejilla: .pf-sec y .pf-c (tokens.css), así que
  * va dentro de una página .pf. scroll-mt-4 basta porque el Header no es sticky: el ancla no queda tapada.
@@ -30,7 +30,7 @@ export function Section({
   return (
     <section id={id} aria-labelledby={titleId} className="pf-sec pf-c scroll-mt-4 font-body text-ink">
       <div className="pf-head">
-        <h2 id={titleId} className="pf-h2 sf-entra-scroll">
+        <h2 id={titleId} className="pf-h2">
           {title}
         </h2>
         {description && <p className="pf-lead">{description}</p>}

@@ -8,8 +8,8 @@ export type FotoModal = {
   alt: string
   /** Link de "Pedir por WhatsApp" con la URL propia de la foto (pedirUrl). */
   pedir: string
-  /** Fotos del producto: la primera es la del muro. */
-  fotos: { src: string; srcSet?: string }[]
+  /** Fotos del producto: la primera es la del muro. r = ancho / alto, reserva la forma mientras carga (si falta, 4:5). */
+  fotos: { src: string; srcSet?: string; r?: number }[]
   descripcion?: string | null
 }
 
@@ -30,10 +30,12 @@ const SIG = 'M9 6l6 6-6 6'
 
 /**
  * Foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle.
- * No es una tienda: la foto entera (contain), qué es y cómo pedirla. Escritorio: la foto centrada y debajo una franja de
- * una fila con la categoría y el nombre a la izquierda y "Pedir por WhatsApp" a la derecha; flechas a los lados, contador
- * arriba a la izquierda y la X arriba a la derecha. Celular: pantalla completa, las orillas de la anterior y la siguiente
- * son botones y la franja va fija abajo.
+ * No es una tienda: la foto entera (contain), qué es y cómo pedirla. Escritorio: la foto centrada y debajo una franja
+ * con la categoría y el nombre a la izquierda y "Pedir por WhatsApp" a la derecha; el nombre nunca se corta (la franja
+ * puede ser más ancha que la foto y un nombre muy largo pasa a otra línea). Flechas a los lados, contador arriba a la
+ * izquierda y la X arriba a la derecha. Celular: pantalla completa, las orillas de la anterior y la siguiente son botones
+ * y la franja va fija abajo. Mientras baja, el marco ya tiene la forma de la foto y un brillo; la foto entra en fundido
+ * y al pasar de foto se desliza en el sentido de la flecha (PRI-287).
  * Markup estático y vacío (uno por página): lo llena y lo maneja src/scripts/photo-modal.ts con los datos de la foto
  * tocada (fotoAttrs). showModal() trae el foco atrapado, aria-modal y Esc; el script agrega flechas, deslizar, clic
  * afuera, la URL propia de cada foto y el foco de vuelta a la foto al cerrar. Estilos: .mx-* en tokens.css.
@@ -64,7 +66,10 @@ export function PhotoModal() {
               <button type="button" className="mx-vecina mx-vecina-ant" aria-label="Foto anterior" data-mx="ant">
                 <img alt="" />
               </button>
-              <img className="mx-foto" alt="" draggable={false} />
+              <div className="mx-marco">
+                <div className="mx-brillo pz-shimmer" aria-hidden="true" />
+                <img className="mx-foto" alt="" draggable={false} />
+              </div>
               <button type="button" className="mx-vecina mx-vecina-sig" aria-label="Foto siguiente" data-mx="sig">
                 <img alt="" />
               </button>
@@ -80,9 +85,7 @@ export function PhotoModal() {
                   <Button variant="whatsapp" href="https://wa.me/" external>
                     Pedir por WhatsApp
                   </Button>
-                  <p className="mx-nota">
-                    <span className="mx-nota-larga">Se abre WhatsApp con el link de esta foto. </span>Te la hacemos igual o con tu logo.
-                  </p>
+                  <p className="mx-nota">Se abre WhatsApp con el link de esta foto.</p>
                 </div>
               </div>
             </div>

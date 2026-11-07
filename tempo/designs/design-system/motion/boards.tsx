@@ -15,9 +15,9 @@ export function BoardIntro() {
         description={
           <>
             La portada se mueve sin mascota y casi sin JavaScript: carrusel, cinta, barra de promos e hilo de bordado, más las
-            utilidades de <Code>src/styles/tokens.css</Code> (<Code>anim-enter</Code>, <Code>reveal-up</Code>,{" "}
-            <Code>reveal-wipe</Code>, <Code>stitch-title</Code>, <Code>anim-ring</Code>). Todo se apaga con
-            &quot;reducir movimiento&quot;.
+            utilidades de <Code>src/styles/tokens.css</Code> (<Code>anim-enter</Code>, <Code>stitch-title</Code>, <Code>anim-ring</Code>). Secciones, tarjetas y filas aparecen
+            al hacer scroll una sola vez (<Code>sf-espera</Code> y <Code>sf-aparece</Code>, los pone{" "}
+            <Code>src/scripts/movimiento.ts</Code>). Todo se apaga con &quot;reducir movimiento&quot;.
           </>
         }
       />
