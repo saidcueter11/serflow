@@ -3,10 +3,15 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
+import { writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 import { loadEnv } from 'vite'
 import { loadBusinessOverrides } from './src/lib/business-overrides.mjs'
 import { hostDeFotos } from './src/lib/fotos-host.mjs'
+
+// PRI-127: serflow-admin lee /build.json para saber si ya salió lo publicado. La hora se toma aquí, antes de leer
+// Supabase: con la del final del build, uno que leyó los datos antes de publicar haría decir "Ya salió" al panel.
+const builtAt = new Date().toISOString()
 
 // PRI-150, PRI-421: el build solo decodifica JPEG, PNG y WebP. sharp 0.34.4 tiene avisos de RCE en los demás decodificadores
 // y mira los bytes, no el tipo declarado. El bloqueo es de todo el proceso, así que también cubre la optimización de Astro.
@@ -46,5 +51,14 @@ export default defineConfig({
     port: 4231,
   },
 
-  integrations: [react(), sitemap()]
+  integrations: [
+    react(),
+    sitemap(),
+    {
+      name: 'build-json',
+      hooks: {
+        'astro:build:done': ({ dir }) => writeFile(new URL('build.json', dir), JSON.stringify({ builtAt })),
+      },
+    },
+  ]
 });
