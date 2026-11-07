@@ -46,6 +46,8 @@ const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, 
 /** Un bloque azul de jean oscuro, opaco, sobre transparente: la parte oscura de un diseño (PRI-122, la pierna que se perdía). */
 const JEAN = [38, 52, 96]
 const bloqueJean = (n: number) => png(n, (x, y) => (x > n / 5 && x < (4 * n) / 5 && y > n / 5 && y < (4 * n) / 5 ? [...JEAN, 255] : [0, 0, 0, 0]))
+/** Un bloque de color casi hasta el borde: pinta toda la caja del diseño. */
+const bloqueLleno = (n: number) => png(n, (x, y) => (x > 6 && x < n - 6 && y > 6 && y < n - 6 ? [210, 30, 40, 255] : [0, 0, 0, 0]))
 /** Una tira azul 1:5 sobre transparente, más alta que el recorte del celular. */
 const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 590 ? [30, 60, 180, 255] : [0, 0, 0, 0]), 600)
 
@@ -77,7 +79,9 @@ async function subir(page: Page, archivo: { name: string; mimeType: string; buff
 /** Cuántos px se sale la caja del diseño de lo visible de la vista previa (negativo: entra de sobra). */
 async function cuantoSobra(page: Page) {
   const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
-  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  const d = await page.getByRole('group', { name: /Tu diseño/ }).boundingBox()
+  // Mientras llega la foto, el diseño no está: que el poll siga esperando.
+  if (!d) return Infinity
   return Math.max(v.x - d.x, v.y - d.y, d.x + d.width - v.x - v.width, d.y + d.height - v.y - v.height)
 }
 
@@ -591,8 +595,12 @@ test.describe('/personaliza', () => {
     await abrir(page)
     await page.getByText('Gorra', { exact: true }).click()
     await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
-    await page.getByText('Estampado', { exact: true }).click()
-    await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
+    const lienzo = page.locator('.pf-pz-vista canvas')
+    // La foto sin diseño, para ver después qué pintó el motor.
+    await lienzo.evaluate((c: HTMLCanvasElement) => {
+      ;(window as unknown as { base: ImageData }).base = c.getContext('2d')!.getImageData(0, 0, c.width, c.height)
+    })
+    await subir(page, { name: 'bloque.png', mimeType: 'image/png', buffer: bloqueLleno(400) })
     const diseno = page.getByRole('group', { name: /Tu diseño/ })
     await expect(diseno).toBeVisible()
     await quieto(diseno)
@@ -603,8 +611,28 @@ test.describe('/personaliza', () => {
     await page.mouse.down()
     await page.mouse.move(c.x - 1500, c.y + 1500, { steps: 4 })
     await page.mouse.up()
-    // Lo que se corta muestra la foto de atrás (clara), muy lejos del color del diseño.
-    await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(80)
+    // El punto menos pintado de una rejilla dentro del diseño: donde se corta, la foto queda igual (diferencia 0).
+    await expect
+      .poll(async () => {
+        const caja = (await diseno.boundingBox())!
+        return lienzo.evaluate((el: HTMLCanvasElement, b) => {
+          const base = (window as unknown as { base: ImageData }).base
+          const r = el.getBoundingClientRect()
+          const ahora = el.getContext('2d')!.getImageData(0, 0, el.width, el.height)
+          let menor = 255
+          for (const fy of [0.3, 0.4, 0.5, 0.6, 0.7])
+            for (const fx of [0.3, 0.4, 0.5, 0.6, 0.7]) {
+              const px = Math.round(((b.x + b.width * fx - r.left) / r.width) * el.width)
+              const py = Math.round(((b.y + b.height * fy - r.top) / r.height) * el.height)
+              if (px < 0 || py < 0 || px >= el.width || py >= el.height) continue
+              const o = (py * el.width + px) * 4
+              const dif = Math.abs(ahora.data[o] - base.data[o]) + Math.abs(ahora.data[o + 1] - base.data[o + 1]) + Math.abs(ahora.data[o + 2] - base.data[o + 2])
+              menor = Math.min(menor, dif)
+            }
+          return menor
+        }, caja)
+      })
+      .toBeGreaterThan(10)
   })
 
   test('una manija con el diseño girado no hace saltar el tamaño', async ({ page }) => {

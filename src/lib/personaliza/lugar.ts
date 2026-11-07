@@ -72,18 +72,15 @@ export function enUnidades(a: Area, v: Ventana): Ventana {
 }
 
 /**
- * Unidades del área que alcanzan a toda la foto, para la malla del motor. Se mide con los lados más cortos: en un área
- * que no es un rectángulo, enUnidades se queda corto en las esquinas y el diseño se cortaba ahí. En un rectángulo da lo mismo.
+ * Unidades del área que cubre la malla del motor: toda la foto. En un área que no es un rectángulo (la gorra en 3/4)
+ * enUnidades se queda corto en las esquinas y el diseño se cortaba ahí: se suma lo que limitar deja alcanzar más allá
+ * (su margen de 1 más medio diseño de S_MAX).
  */
 export function unidadesFoto(a: Area): Ventana {
-  const ancho = Math.min(a.tr[0] - a.tl[0], a.br[0] - a.bl[0])
-  const alto = Math.min(a.bl[1] - a.tl[1], a.br[1] - a.tr[1])
-  return {
-    left: -Math.max(a.tl[0], a.bl[0]) / ancho,
-    top: -Math.max(a.tl[1], a.tr[1]) / alto,
-    right: 1 + (1 - Math.min(a.tr[0], a.br[0])) / ancho,
-    bottom: 1 + (1 - Math.min(a.bl[1], a.br[1])) / alto,
-  }
+  const u = enUnidades(a, FOTO_ENTERA)
+  const rectangulo = a.tl[0] === a.bl[0] && a.tr[0] === a.br[0] && a.tl[1] === a.tr[1] && a.bl[1] === a.br[1]
+  const m = rectangulo ? 0 : 1 + S_MAX / 2
+  return { left: u.left - m, top: u.top - m, right: u.right + m, bottom: u.bottom + m }
 }
 
 /**

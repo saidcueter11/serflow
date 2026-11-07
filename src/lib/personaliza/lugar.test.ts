@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aspectoArea, cajaDiseno, enArea, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm, unidadesFoto } from './lugar'
+import { aspectoArea, cajaDiseno, enderezar, enUnidades, escalaMax, FOTO_ENTERA, giroCaja, limitar, tamanoCm, unidadesFoto } from './lugar'
 import type { Area } from './datos'
 
 // 4:5 en px de la escena: el área mide 432 × 432 y queda en el centro de la foto.
@@ -63,24 +63,18 @@ describe('tamanoCm', () => {
 })
 
 describe('áreas de 4 esquinas', () => {
-  it('unidadesFoto alcanza las 4 esquinas de la foto, también si el área no es un rectángulo; en un rectángulo es enUnidades', () => {
+  it('unidadesFoto cubre todo lo que limitar deja alcanzar; en un rectángulo es enUnidades', () => {
     const gorra: Area = { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }
     const u = unidadesFoto(gorra)
-    const [xa, ya] = enArea(gorra, u.left, u.top)
-    const [xb, yb] = enArea(gorra, u.right, u.top)
-    const [xc, yc] = enArea(gorra, u.right, u.bottom)
-    const [xd, yd] = enArea(gorra, u.left, u.bottom)
-    expect(xa).toBeLessThanOrEqual(0)
-    expect(ya).toBeLessThanOrEqual(0)
-    expect(xb).toBeGreaterThanOrEqual(1)
-    expect(yb).toBeLessThanOrEqual(0)
-    expect(xc).toBeGreaterThanOrEqual(1)
-    expect(yc).toBeGreaterThanOrEqual(1)
-    expect(xd).toBeLessThanOrEqual(0)
-    expect(yd).toBeGreaterThanOrEqual(1)
-    const r = enUnidades(CENTRO, FOTO_ENTERA)
-    const c = unidadesFoto(CENTRO)
-    for (const k of ['left', 'top', 'right', 'bottom'] as const) expect(c[k]).toBeCloseTo(r[k], 9)
+    for (const [cx, cy] of [[-9, 9], [9, 9], [-9, -9], [9, -9]]) {
+      const l = limitar({ cx, cy, s: 0.6 }, 1, gorra)
+      const h = 0.6 * aspectoArea(gorra)
+      expect(l.cx - l.s / 2).toBeGreaterThanOrEqual(u.left)
+      expect(l.cx + l.s / 2).toBeLessThanOrEqual(u.right)
+      expect(l.cy - h / 2).toBeGreaterThanOrEqual(u.top)
+      expect(l.cy + h / 2).toBeLessThanOrEqual(u.bottom)
+    }
+    expect(unidadesFoto(CENTRO)).toEqual(enUnidades(CENTRO, FOTO_ENTERA))
   })
 
   it('limitar mide las esquinas reales: en un área que no es un rectángulo tampoco se sale de la ventana', () => {
