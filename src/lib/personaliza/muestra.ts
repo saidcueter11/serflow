@@ -48,7 +48,8 @@ export const MUESTRA: Record<Prenda, ColorMuestra[]> = {
     },
   ],
   gorra: [
-    { id: 'negra', garment: 'gorra', name: 'Negra', hex: '#1d1c1a', photos: [foto('frente', gorraNegra, rect(0.3, 0.56, 0.42, 0.24), 12)] },
+    // Esta foto está en 3/4: el área sigue el panel de la copa, y así el diseño se acuesta con la gorra (el motor ya usa 4 esquinas).
+    { id: 'negra', garment: 'gorra', name: 'Negra', hex: '#1d1c1a', photos: [foto('frente', gorraNegra, { tl: [0.356, 0.593], tr: [0.718, 0.615], br: [0.785, 0.845], bl: [0.325, 0.795] }, 12)] },
     { id: 'blanca', garment: 'gorra', name: 'Blanca', hex: '#f2f0ea', photos: [foto('frente', gorraBlanca, rect(0.29, 0.42, 0.42, 0.24), 12)] },
   ],
 }

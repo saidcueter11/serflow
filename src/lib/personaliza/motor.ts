@@ -181,19 +181,6 @@ export function prepararFoto(img: HTMLImageElement, area: Area, curva: number): 
   return { escena, area, sombras, luces, trama, oscura: ref < 70, malla: malla(N, true), rapida: malla(N_RAPIDA, false) }
 }
 
-/** Filtros saturate y contrast de CSS, a mano. */
-function ajustar(d: Uint8ClampedArray, sat: number, con: number) {
-  const m = [
-    0.213 + 0.787 * sat, 0.715 - 0.715 * sat, 0.072 - 0.072 * sat,
-    0.213 - 0.213 * sat, 0.715 + 0.285 * sat, 0.072 - 0.072 * sat,
-    0.213 - 0.213 * sat, 0.715 - 0.715 * sat, 0.072 + 0.928 * sat,
-  ]
-  for (let o = 0; o < d.length; o += 4) {
-    const [r, g, b] = [d[o], d[o + 1], d[o + 2]]
-    for (let k = 0; k < 3; k++) d[o + k] = (m[k * 3] * r + m[k * 3 + 1] * g + m[k * 3 + 2] * b - 128) * con + 128
-  }
-}
-
 /** Bordado: pocos colores de hilo (k-means), relieve por distancia al borde, puntadas satinadas con dirección por color. */
 function bordar(c: HTMLCanvasElement) {
   const w = c.width
@@ -308,13 +295,7 @@ export function prepararDiseno(src: HTMLCanvasElement, tecnica: Tecnica): HTMLCa
   const c = lienzo(Math.max(1, Math.round(src.width * k)), Math.max(1, Math.round(src.height * k)))
   const x = c.getContext('2d', { willReadFrequently: true })!
   x.drawImage(src, 0, 0, c.width, c.height)
-  if (tecnica === 'bordado') {
-    bordar(c)
-    return c
-  }
-  const im = x.getImageData(0, 0, c.width, c.height)
-  ajustar(im.data, 0.85, 0.95)
-  x.putImageData(im, 0, 0)
+  if (tecnica === 'bordado') bordar(c)
   return c
 }
 

@@ -33,6 +33,8 @@ interface Elecciones {
   chatAbierto: boolean
 }
 
+/** Lo máximo que el mockup espera la foto grande: en Slow 4G llega en 1 a 2 s. */
+const ESPERA_FOTO = 6000
 const lugarDe = (p: Prenda) => (p === 'gorra' ? LUGAR_GORRA : LUGAR_INICIAL)
 
 function useEscritorio() {
@@ -267,7 +269,10 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     if (vio && foto && tratado) {
       setPreparando(true)
       // En celular la vista usa la foto de 720 px; el mockup (1080 × 1350) sale de la grande. Sin señal, de la que ya está.
-      const grande = fotos.current.get(fotoInfo.image_url) ?? (await cargarFoto(fotoInfo.image_url, fotoInfo.print_area, def.curva).catch(() => foto))
+      // Con señal mala tampoco se espera para siempre: a los ESPERA_FOTO ms sale de la que ya está y Guardar se habilita.
+      const grande =
+        fotos.current.get(fotoInfo.image_url) ??
+        (await Promise.race([cargarFoto(fotoInfo.image_url, fotoInfo.print_area, def.curva).catch(() => foto), new Promise<FotoLista>((ok) => setTimeout(() => ok(foto), ESPERA_FOTO))]))
       const blob = await mockup(grande, tratado, lugar, tecnica).catch(() => null)
       if (envio.current !== id) return
       setPreparando(false)

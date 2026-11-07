@@ -221,6 +221,7 @@ defineControls(HojaEnvio, {
   diseno: { type: "text" },
   archivo: { type: "object" },
   guardada: { type: "boolean" },
+  preparando: { type: "boolean" },
   compartir: { type: "boolean" },
   sinSenal: { type: "boolean" },
   escritorio: { type: "boolean" },

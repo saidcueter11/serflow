@@ -60,6 +60,7 @@ export function BoardHoja() {
       />
       <div className="flex flex-wrap gap-8">
         <Marco label='tipo="imagen"'><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} vistaPrevia={mock} diseno={sol} /></Marco>
+        <Marco label="imagen · preparando"><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} diseno={sol} preparando /></Marco>
         <Marco label="imagen · guardada · compartir"><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} vistaPrevia={mock} diseno={sol} guardada compartir /></Marco>
         <Marco label='tipo="sin-imagen"'><HojaEnvio tipo="sin-imagen" mensaje={SIN_IMAGEN} /></Marco>
         <Marco label='tipo="archivo" · sin señal'><HojaEnvio tipo="archivo" mensaje={ARCHIVO} archivo={PESADA} sinSenal /></Marco>

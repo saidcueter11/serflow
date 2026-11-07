@@ -202,13 +202,16 @@ export function VistaPrevia({
     const i = inicio.current
     if (!i || !punteros.current.has(e.pointerId)) return
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
-    const { w, h, r } = escalaArea()
+    const { w, h } = escalaArea()
     const ps = [...punteros.current.values()]
     const r0 = i.l.r ?? 0
     if (ps.length > 1 && i.dist) set({ ...i.l, s: (i.l.s * Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y)) / i.dist, r: enderezar(r0 + angulo(ps[0], ps[1]) - i.ang) })
     else if (i.manija === 'giro') set({ ...i.l, r: enderezar(r0 + angulo(centroPantalla(), { x: e.clientX, y: e.clientY }) - i.ang) })
-    else if (i.manija) set({ ...i.l, s: (2 * Math.abs(e.clientX - (r.left + enArea(area!, i.l.cx, i.l.cy)[0] * r.width))) / w })
-    else set({ ...i.l, cx: i.l.cx + (e.clientX - i.x) / w, cy: i.l.cy + (e.clientY - i.y) / h })
+    else if (i.manija) {
+      // Por distancia al centro, no por x: con el diseño girado la esquina no está a s/2 en horizontal.
+      const c = centroPantalla()
+      set({ ...i.l, s: (i.l.s * Math.hypot(e.clientX - c.x, e.clientY - c.y)) / Math.max(1, Math.hypot(i.x - c.x, i.y - c.y)) })
+    } else set({ ...i.l, cx: i.l.cx + (e.clientX - i.x) / w, cy: i.l.cy + (e.clientY - i.y) / h })
   }
   const up = (e: PointerEvent) => {
     punteros.current.delete(e.pointerId)
@@ -359,12 +362,6 @@ export function VistaPrevia({
                     <span className="size-3 rounded-[3px] border-2 border-accent bg-ink" />
                   </span>
                 ))}
-                <span
-                  className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary/90 px-2.5 py-1 text-[12px] font-semibold text-ink"
-                  style={r ? { rotate: `${-r}deg` } : undefined}
-                >
-                  {tamano}
-                </span>
               </>
             )}
           </div>
@@ -399,6 +396,12 @@ export function VistaPrevia({
           <span className="flex items-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-[14px] font-semibold">
             <Girador /> Preparando tu diseño…
           </span>
+        </div>
+      )}
+      {/* Arriba, como los demás avisos: debajo del diseño lo tapaban los botones cuando el diseño estaba abajo. */}
+      {ajustando && !enTope && modo === 'listo' && (
+        <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
+          <span className="whitespace-nowrap rounded-full bg-primary/90 px-2.5 py-1 text-[12px] font-semibold text-ink">{tamano}</span>
         </div>
       )}
       {enTope && maxS < S_MAX && modo === 'listo' && !limpia && (
