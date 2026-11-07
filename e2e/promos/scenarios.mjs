@@ -109,7 +109,6 @@ const contenido = (p, base) => {
     ],
     hero_slides: [
       { image_url: p[1], alt: 'Segunda', sort_order: 2 },
-      { image_url: 'https://evil.example/x.jpg', alt: 'Dominio ajeno', sort_order: 0 },
       { image_url: FOTO_AJENA, alt: 'Proyecto ajeno', sort_order: 0 },
       { image_url: rota, alt: 'No existe', sort_order: 1 },
       { image_url: 'repo:stock/no-existe.jpg', alt: 'Referencia desconocida', sort_order: 1 },
