@@ -286,6 +286,8 @@ test.describe('/personaliza', () => {
   })
 
   test('fondo con imágenes reales: los logos lo pierden, la foto de una gorra lo conserva entera', async ({ page }) => {
+    // Sube 4 imágenes de verdad: en una máquina cargada pasa de los 30 s por defecto.
+    test.slow()
     await abrir(page)
     await expect(page.getByText(AVISO_CALIDAD)).toBeVisible()
     const fondo = page.getByRole('switch', { name: 'Quitar el fondo' })
@@ -299,7 +301,7 @@ test.describe('/personaliza', () => {
     ] as const) {
       await subir(page, { name: nombre, mimeType: 'image/jpeg', buffer })
       await expect(page.getByText(nombre)).toBeVisible()
-      await expect(fondo).toBeChecked()
+      await expect(fondo).toBeChecked({ timeout: 15_000 })
       await expect(page.getByText(FONDO_FIJO)).toHaveCount(0)
       await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
       await expect.poll(pintado).toMatch(/^data:image/)
@@ -318,7 +320,7 @@ test.describe('/personaliza', () => {
     ] as const) {
       await subir(page, { name: nombre, mimeType: 'image/jpeg', buffer })
       await expect(page.getByText(nombre)).toBeVisible()
-      await expect(page.getByText(FONDO_FIJO)).toBeVisible()
+      await expect(page.getByText(FONDO_FIJO)).toBeVisible({ timeout: 15_000 })
       await expect(page.getByText(FONDO_FIJO_TEXTO)).toBeVisible()
       await expect(fondo).toHaveCount(0)
       await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
@@ -331,7 +333,7 @@ test.describe('/personaliza', () => {
   test('un diseño claro no se come: la curva gris se pinta entera y solo se va el fondo', async ({ page }) => {
     await abrir(page)
     await subir(page, { name: 'curva.jpg', mimeType: 'image/jpeg', buffer: await curvaGris() })
-    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked()
+    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked({ timeout: 15_000 })
     const diseno = page.getByRole('group', { name: /Tu diseño/ })
     await expect(diseno).toBeVisible()
     await quieto(diseno)
@@ -369,7 +371,7 @@ test.describe('/personaliza', () => {
     await abrir(page)
     const buffer = logoSobreBlanco(800)
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer })
-    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked()
+    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked({ timeout: 15_000 })
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
     await enviar(page).click()
     const hoja = page.getByRole('dialog')
