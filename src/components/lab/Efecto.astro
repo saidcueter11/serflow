@@ -1,0 +1,62 @@
+---
+import { Repetir } from './Repetir'
+
+// Un efecto del laboratorio: número, nombre, escena con su botón Repetir y la ficha para decidir.
+export interface Props {
+  n: number
+  nombre: string
+  texto: string
+  donde: string
+  /** "0 KB" o "1,2 KB". Medido: esbuild --minify + gzip (scripts/lab/). */
+  js: string
+  /** Medición en Pixel 7 emulado con CPU 4x. */
+  celular: { ok: boolean; detalle: string }
+  sitio: { nombre: string; url: string }
+  /** La escena va a sangre, sin el margen de la rejilla. */
+  sangre?: boolean
+  escena: string
+  /** La escena se esconde hasta entrar en pantalla (animaciones de entrada). */
+  arma?: boolean
+}
+
+const { n, nombre, texto, donde, js, celular, sitio, sangre, escena, arma } = Astro.props
+const num = String(n).padStart(2, '0')
+---
+
+<section id={`efecto-${n}`} class="lab-e" data-efecto={n} aria-labelledby={`efecto-${n}-t`}>
+  <header class="lab-cabeza pf-c">
+    <p class="lab-num" aria-hidden="true">{num}</p>
+    <div>
+      <h2 id={`efecto-${n}-t`} class="pf-h2">{nombre}</h2>
+      <p class="pf-lead">{texto}</p>
+    </div>
+  </header>
+  <div class="lab-repetir pf-c" data-repetir>
+    <Repetir n={n} />
+  </div>
+  <div class:list={['lab-escena', { 'pf-c': !sangre }]} data-escena={escena} data-arma={arma ? '' : undefined}>
+    <slot />
+  </div>
+  <dl class="lab-ficha pf-c">
+    <div>
+      <dt>Costo en JS</dt>
+      <dd>{js}</dd>
+    </div>
+    <div>
+      <dt>En celular</dt>
+      <dd>
+        <span class:list={[celular.ok ? 'text-ok' : 'text-accent']} aria-hidden="true">{celular.ok ? '✓' : '⚠'}</span>
+        <span class="sr-only">{celular.ok ? 'Fluido:' : 'Con reparos:'}</span>
+        {celular.detalle}
+      </dd>
+    </div>
+    <div>
+      <dt>Dónde iría</dt>
+      <dd>{donde}</dd>
+    </div>
+    <div>
+      <dt>Míralo en</dt>
+      <dd><a href={sitio.url} target="_blank" rel="noopener noreferrer" class="lab-sitio">{sitio.nombre}<span aria-hidden="true"> ↗</span></a></dd>
+    </div>
+  </dl>
+</section>

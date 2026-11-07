@@ -1,0 +1,197 @@
+/*
+ * Laboratorio de movimiento (PRI-287, /lab-movimiento). Nunca se mergea. Solo se anima transform, opacity y clip-path.
+ * Los estados "antes" existen solo con [data-armada], que el script pone si hay permiso de moverse: sin JS, con reducir
+ * movimiento o con mala señal se ve el estado final. Los @keyframes solo describen el "desde": el "hasta" es el estado normal.
+ */
+
+/* ---------- La página ---------- */
+
+.lab-intro { padding-top: var(--pf-aire); }
+.lab-intro h1 { margin-top: 16px; }
+.lab-intro .pf-lead { margin-top: var(--pf-td); max-width: 52ch; }
+.lab-aviso { display: none; margin-top: 16px; padding: 12px 16px; border: 1px solid var(--color-accent-deep); border-radius: var(--radius-tile); font-size: 15px; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .lab-aviso-rm { display: block; } }
+.slow-connection .lab-aviso-lenta { display: block; }
+.lab-indice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); margin-top: var(--pf-tc); }
+.lab-indice a { display: flex; align-items: center; gap: 10px; min-height: 48px; height: 100%; padding: 8px 14px; border: 1px solid var(--color-line); border-radius: var(--radius-tile); font-size: 14px; font-weight: 600; line-height: 1.2; transition: border-color var(--motion-fast) var(--ease-out); }
+.lab-indice a:hover { border-color: var(--color-accent); }
+.lab-indice b { color: var(--color-accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+.lab-leyenda { margin-top: 16px; font-size: 14px; line-height: 1.5; color: var(--color-muted); }
+
+.lab-e { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'cabeza' 'escena' 'repetir' 'ficha'; padding-top: var(--pf-aire); scroll-margin-top: 0; }
+.lab-e:last-of-type { padding-bottom: var(--pf-aire); }
+.lab-cabeza { grid-area: cabeza; display: flex; gap: 14px; align-items: baseline; margin-bottom: var(--pf-tc); }
+.lab-cabeza .pf-lead { margin-top: var(--pf-td); max-width: 52ch; }
+.lab-num { flex: none; font-size: var(--pf-h2); font-weight: 500; line-height: 1.1; color: var(--color-accent); font-variant-numeric: tabular-nums; }
+.lab-escena { grid-area: escena; min-width: 0; }
+.lab-repetir { grid-area: repetir; margin-top: 16px; }
+.lab-ficha { grid-area: ficha; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px var(--pf-g); margin-top: 20px; }
+.lab-ficha dt { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); }
+.lab-ficha dd { margin-top: 4px; font-size: 15px; line-height: 1.4; }
+.lab-sitio { display: inline-flex; align-items: center; min-height: 44px; margin-top: -10px; font-weight: 600; color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+
+@container pf (min-width: 48rem) {
+  .lab-intro .lab-indice { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lab-e { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'cabeza repetir' 'escena escena' 'ficha ficha'; }
+  .lab-repetir { margin-top: 0; }
+  .lab-ficha { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 24px; }
+}
+
+/* ---------- Motores compartidos ---------- */
+
+@keyframes lab-desde-cero { from { opacity: 0 } }
+
+/* ---------- 1 · Foto que crece (el muro y el modal son los reales) ---------- */
+
+dialog.lab-crece .mx-pieza, dialog.lab-crece .mx-pista { animation: none; }
+dialog.lab-crece .mx-marco { z-index: 2; will-change: transform, clip-path; }
+dialog.lab-crece .mx-foto { position: relative; z-index: 1; }
+.lab-mini { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+/* Con la miniatura debajo no hace falta el brillo de espera. */
+dialog.lab-crece .mx-brillo { display: none; }
+dialog.lab-crece :is(.mx-barra, .mx-x, .mx-flecha, .mx-vecina) { animation: lab-desde-cero var(--motion-slow) var(--ease-out) 260ms both; }
+dialog.lab-crece .mx-franja { animation: sf-sube var(--motion-slow) var(--ease-premium) 260ms both; }
+dialog.lab-crece .mx-velo { animation: lab-desde-cero 420ms var(--ease-out) both; }
+dialog.lab-sale :is(.mx-barra, .mx-x, .mx-flecha, .mx-vecina, .mx-franja) { animation: none; opacity: 0; transition: opacity var(--motion-fast) linear; }
+@keyframes lab-velo-sale { to { opacity: 0 } }
+dialog.lab-sale .mx-velo { animation: lab-velo-sale 420ms var(--ease-out) both; }
+
+/* ---------- 2 · Foto que se destapa ---------- */
+
+.lab-destapa { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); }
+.lab-destapa > :first-child { grid-column: 1 / -1; }
+.lab-destapa figure { position: relative; margin: 0; aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--radius-tile); background: var(--color-surface); }
+.lab-destapa > :first-child figure { aspect-ratio: 4 / 3; }
+.lab-velo { position: absolute; inset: 0; }
+.lab-velo img { width: 100%; height: 100%; object-fit: cover; }
+.lab-filo { position: absolute; inset: 0; border-top: 2px solid var(--color-secondary); opacity: 0; pointer-events: none; }
+@container pf (min-width: 48rem) {
+  .lab-destapa { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lab-destapa > :first-child { grid-column: auto; }
+  .lab-destapa > :first-child figure { aspect-ratio: 4 / 5; }
+}
+@keyframes lab-destapa { from { clip-path: inset(100% 0 0 0) } to { clip-path: inset(0) } }
+@keyframes lab-afina { from { transform: scale(1.22) } }
+@keyframes lab-filo { from { transform: translateY(100%); opacity: 1 } 90% { opacity: 1 } to { transform: none; opacity: 0 } }
+[data-armada]:not([data-toca]) .lab-velo { clip-path: inset(100% 0 0 0); }
+[data-toca] .lab-velo { animation: lab-destapa 1200ms var(--ease-premium) calc(var(--i) * 160ms) both; }
+[data-toca] .lab-velo img { animation: lab-afina 1500ms var(--ease-premium) calc(var(--i) * 160ms) both; }
+[data-toca] .lab-filo { animation: lab-filo 1200ms var(--ease-premium) calc(var(--i) * 160ms) both; }
+
+/* ---------- 3 · Titular palabra por palabra ---------- */
+
+.lab-titular { position: relative; overflow: hidden; background: var(--color-surface-2); }
+.lab-titular > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lab-titular .pf-display { max-width: 12ch; }
+.lab-p { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.lab-p > span { display: inline-block; transform-origin: 0 100%; }
+.lab-bajada > span { display: inline-block; }
+@keyframes lab-palabra { from { transform: translateY(112%) rotate(5deg) } }
+@keyframes lab-bajada { from { opacity: 0; transform: translateY(0.5em) } }
+@keyframes lab-empuja { from { transform: scale(1.14) } }
+[data-armada]:not([data-toca]) .lab-p > span { transform: translateY(112%); }
+[data-armada]:not([data-toca]) .lab-bajada > span { opacity: 0; }
+[data-toca] .lab-p > span { animation: lab-palabra 1000ms var(--ease-premium) calc(var(--i) * 110ms) both; }
+[data-toca] .lab-bajada > span { animation: lab-bajada 700ms var(--ease-premium) calc(420ms + var(--i) * 32ms) both; }
+[data-toca] .lab-titular > img { animation: lab-empuja 2200ms var(--ease-premium) both; }
+
+/* ---------- 4 · Fondo con profundidad: CSS puro; corre fuera del hilo principal donde hay scroll timelines ---------- */
+
+.lab-para { position: relative; overflow: hidden; height: 460px; background: var(--color-surface-2); }
+.lab-para + .lab-para { margin-top: var(--pf-g); height: 340px; }
+.lab-para > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lab-para-texto { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 var(--pf-m) 32px; }
+.lab-para-texto > p { margin-top: var(--pf-td); color: color-mix(in srgb, var(--color-ink) 85%, transparent); }
+.lab-sin-soporte { display: none; margin-top: 12px; padding-inline: var(--pf-m); font-size: 14px; color: var(--color-muted); }
+@container pf (min-width: 48rem) {
+  .lab-para { height: 620px; }
+  .lab-para + .lab-para { height: 460px; }
+  .lab-para-texto { padding-bottom: 56px; }
+}
+@supports not (animation-timeline: view()) {
+  .lab-sin-soporte { display: block; }
+}
+@supports (animation-timeline: view()) {
+  @keyframes lab-para-foto { from { transform: translateY(-9%) scale(1.22) } to { transform: translateY(9%) scale(1.22) } }
+  @keyframes lab-para-texto { from { transform: translateY(32px) } to { transform: translateY(-32px) } }
+  .lab-para > img { animation: lab-para-foto linear both; animation-timeline: view(); will-change: transform; }
+  .lab-para-texto { animation: lab-para-texto linear both; animation-timeline: view(); will-change: transform; }
+}
+
+/* ---------- 5 · Tarjeta que sigue el cursor ---------- */
+
+.lab-inclinas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px var(--pf-g); }
+@container pf (min-width: 48rem) {
+  .lab-inclinas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.lab-inclina { position: relative; touch-action: pan-y; transition: transform 500ms var(--ease-premium), opacity var(--motion-slow) var(--ease-out); }
+.lab-inclina[data-activa] { transition: opacity var(--motion-slow) var(--ease-out); will-change: transform; }
+.lab-inclinas:has(.lab-inclina[data-activa]) .lab-inclina:not([data-activa]) { opacity: 0.55; }
+/* El foco va encima de la foto (4:5, como la foto de ProductCard); su degradado nunca se repinta: solo se mueve. */
+.lab-foco-marco { position: absolute; inset: 0 0 auto; aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--radius-tile); pointer-events: none; }
+.lab-foco { position: absolute; left: 0; top: 0; width: 130%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--color-secondary) 38%, transparent), transparent); opacity: 0; transition: opacity var(--motion-slow) var(--ease-out); transform: translate(-50%, -50%); }
+.lab-inclina[data-activa] .lab-foco { opacity: 1; }
+
+/* ---------- 6 · Cinta de categorías y trabajos ---------- */
+
+.lab-cinta { overflow: hidden; }
+.lab-cinta + .lab-cinta { margin-top: 12px; }
+.lab-pista { display: flex; width: max-content; will-change: transform; animation: sf-ticker 48s linear infinite; }
+.lab-cinta-fotos .lab-pista { animation-duration: 72s; animation-direction: reverse; }
+.lab-escena:not([data-visible]) .lab-pista, .lab-escena:hover .lab-pista, .lab-escena:focus-within .lab-pista { animation-play-state: paused; }
+.lab-pista > ul { display: flex; flex: none; align-items: center; }
+.lab-cinta-nombres li { display: flex; align-items: center; gap: 28px; padding-right: 28px; font-size: var(--pf-display); font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; white-space: nowrap; }
+.lab-cinta-nombres li::after { content: ''; width: 0.26em; height: 0.26em; rotate: 45deg; background: var(--color-accent); }
+.lab-cinta-fotos li { flex: none; width: 150px; padding-right: var(--pf-g); }
+.lab-cinta-fotos img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius-tile); background: var(--color-surface-2); }
+@container pf (min-width: 48rem) {
+  .lab-cinta-fotos li { width: 240px; }
+}
+@keyframes lab-cinta-entra { from { clip-path: inset(0 100% 0 0) } to { clip-path: inset(0) } }
+[data-armada]:not([data-toca]) .lab-cinta { clip-path: inset(0 100% 0 0); }
+[data-toca] .lab-cinta { animation: lab-cinta-entra 1100ms var(--ease-premium) both; }
+[data-toca] .lab-cinta-fotos { animation-delay: 140ms; }
+
+/* ---------- 7 · Rejilla que se reacomoda ---------- */
+
+.lab-rejilla { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); margin-top: 16px; }
+.lab-rejilla li[hidden] { display: none; }
+.lab-rejilla li[data-sale] { pointer-events: none; }
+.lab-rejilla img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius-tile); }
+@container pf (min-width: 48rem) {
+  .lab-rejilla { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+/* CategoryNav pinta la elegida al renderizar: aquí la elegida cambia sin navegar. */
+.lab-chips a { background: transparent; border-color: var(--color-line); color: var(--color-ink); }
+.lab-chips a > span { color: var(--color-muted); }
+.lab-chips a[aria-current] { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-primary); }
+.lab-chips a[aria-current] > span { color: color-mix(in srgb, var(--color-primary) 75%, transparent); }
+
+/* ---------- 8 · Costura y contadores ---------- */
+
+.lab-cuentas { position: relative; display: grid; gap: 40px; padding-block: 8px; }
+.lab-cuenta { position: relative; }
+.lab-cifra { display: flex; font-size: 72px; font-weight: 500; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.lab-cuenta p { margin-top: 8px; font-size: var(--pf-body); color: var(--color-muted); }
+.lab-digito { display: block; height: 1em; overflow: hidden; }
+.lab-rueda { display: block; transform: translateY(calc(var(--d) * -5%)); }
+.lab-rueda > span { display: block; height: 1em; }
+.lab-hilo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.lab-hilo path { fill: none; stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 9 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.lab-hilo-h { display: none; }
+.lab-hilo-v { left: auto; right: 0; width: 45%; }
+@container pf (min-width: 48rem) {
+  .lab-cuentas { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pf-g); padding-block: 8px 72px; }
+  .lab-cifra { font-size: 120px; }
+  .lab-hilo-v { display: none; }
+  .lab-hilo-h { display: block; }
+}
+@keyframes lab-rueda { from { transform: none } }
+[data-toca] .lab-rueda { animation: lab-rueda 1500ms var(--ease-premium) calc(var(--i) * 90ms) both; }
+[data-armada]:not([data-toca]) .lab-rueda { transform: none; }
+@supports (animation-timeline: view()) {
+  @keyframes lab-cose-h { from { clip-path: inset(-8px 100% -8px -8px) } to { clip-path: inset(-8px) } }
+  @keyframes lab-cose-v { from { clip-path: inset(-8px -8px 100% -8px) } to { clip-path: inset(-8px) } }
+  .lab-hilo-h { animation: lab-cose-h linear both; animation-timeline: view(); animation-range: entry 10% cover 45%; }
+  .lab-hilo-v { animation: lab-cose-v linear both; animation-timeline: view(); animation-range: entry 10% cover 55%; }
+}

@@ -1,0 +1,236 @@
+---
+import '../styles/lab-movimiento.css'
+import { getImage } from 'astro:assets'
+import Layout from '../layouts/Layout.astro'
+import Efecto from '../components/lab/Efecto.astro'
+import { Masonry } from '../components/ui/Masonry'
+import { PhotoModal } from '../components/ui/PhotoModal'
+import { ProductCard } from '../components/ui/ProductCard'
+import { CategoryNav } from '../components/ui/CategoryNav'
+import { Eyebrow } from '../components/ui/Eyebrow'
+import { getProducts } from '../lib/products'
+import { loadCatalog } from '../lib/catalog-view'
+import camisetas from '../assets/images/stock/camisetas-estampadas.jpg'
+import amigosGorras from '../assets/images/stock/amigos-gorras.jpg'
+
+// PRI-287: para que Said elija viendo. Nunca se mergea: vive en un PR draft solo por su deploy preview. Sin links, noindex
+// y fuera del sitemap. Todo sale del catálogo real y de las piezas reales de la portada.
+const { groups, todo } = await loadCatalog()
+const products = await getProducts()
+
+const FOTOS = 8
+const miniatura = (srcSet?: string) => srcSet?.split(' ')[0] ?? ''
+
+// 1 · Muro real
+const muro = todo.slice(0, FOTOS).map((it) => it.tile)
+
+// 2 · Una foto de cada una de las tres categorías con más fotos
+const grandes = [...groups].sort((a, b) => b.items.length - a.items.length)
+const destapa = grandes.slice(0, 3).map((g) => g.items[0].tile)
+
+// 3 y 4 · Las fotos del hero, con los mismos ajustes de la portada
+const [fotoTitular, fotoPara] = await Promise.all([camisetas, amigosGorras].map((src) => getImage({ src, width: 1400, format: 'webp', quality: 72 })))
+const bannerGrupo = groups.find((g) => g.cover && g.items.length >= FOTOS) ?? groups.find((g) => g.cover)
+
+// 5 · "Disponible ahora", igual que en la portada
+const prendas = await Promise.all(
+  products
+    .filter((p) => p.image_urls.length > 0 && p.categories?.slug)
+    .slice(0, 4)
+    .map(async (p) => {
+      const item = groups.find((g) => g.slug === p.categories!.slug)?.items.find((it) => it.slug === p.slug)
+      const img = await getImage({ src: p.image_urls[0], width: 480, height: 600, format: 'webp', quality: 75 })
+      return { name: p.name, meta: p.categories?.label ?? '', href: item?.tile.href ?? `/products/${p.categories!.slug}`, image: { src: img.src, alt: p.name }, modal: item?.tile.modal }
+    }),
+)
+
+// 6 · Cinta
+const nombres = groups.map((g) => g.label)
+const cintaFotos = todo.slice(FOTOS, FOTOS + 12).map((it) => miniatura(it.tile.img.srcSet))
+
+// 7 · Las categorías que llenan las dos filas, y "Todo"
+const vistas = [
+  { slug: 'todo', label: 'Todo', count: todo.length, items: todo.slice(0, FOTOS) },
+  ...grandes.filter((g) => g.items.length >= FOTOS).slice(0, 4).map((g) => ({ slug: g.slug, label: g.label, count: g.items.length, items: g.items.slice(0, FOTOS) })),
+]
+const rejilla = new Map<string, { img: { srcSet?: string; alt: string }; vistas: Record<string, number> }>()
+for (const v of vistas) {
+  v.items.forEach((it, i) => {
+    const r = rejilla.get(it.slug) ?? { img: it.tile.img, vistas: {} }
+    r.vistas[v.slug] = i
+    rejilla.set(it.slug, r)
+  })
+}
+
+// 8 · Cifras reales: fotos del catálogo, categorías y las técnicas de la portada (Estampado, DTF, Bordado)
+const cifras = [
+  { valor: todo.length, label: 'fotos de trabajos en el catálogo' },
+  { valor: groups.length, label: 'categorías para mirar' },
+  { valor: 3, label: 'técnicas: estampado, DTF y bordado' },
+]
+const DIGITOS = [...Array(20).keys()].map((i) => i % 10)
+
+const EFECTOS = {
+  crece: { n: 1, nombre: 'Foto que crece', texto: 'Tocas una foto del muro y crece desde su puesto hasta abrirse. Al cerrar, vuelve a su puesto. Toca cualquiera.', donde: 'Muro del catálogo y Disponible ahora', js: '1,0 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'medium-zoom', url: 'https://medium-zoom.francoischalifour.com/' } },
+  destapa: { n: 2, nombre: 'Foto que se destapa', texto: 'La foto aparece detrás de una cortina que sube con un filo dorado, y se acomoda mientras se revela.', donde: 'Qué hacemos y fotos al bajar', js: '0 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'Image Reveal (Bramus)', url: 'https://scroll-driven-animations.style/demos/image-reveal/css/' } },
+  titular: { n: 3, nombre: 'Titular palabra por palabra', texto: 'Cada palabra sube desde atrás de una línea, con un giro leve; la bajada llega después y la foto se asienta.', donde: 'Portada y títulos de página', js: '0 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'GSAP SplitText, demo Masking', url: 'https://gsap.com/docs/v3/Plugins/SplitText/' } },
+  parallax: { n: 4, nombre: 'Fondo con profundidad', texto: 'Al bajar, la foto se mueve más despacio que la página y el texto un poco más rápido. Sube y baja para verlo.', donde: 'Portada y banner de categorías', js: '0 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'Window Carousel (Bramus)', url: 'https://scroll-driven-animations.style/demos/parallax-carousel/css/' } },
+  inclina: { n: 5, nombre: 'Tarjeta que sigue el cursor', texto: 'La tarjeta se inclina hacia el cursor, un foco dorado la sigue y las demás se apagan. En el celular responde al dedo.', donde: 'Disponible ahora y Qué hacemos', js: '0,6 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'vanilla-tilt.js', url: 'https://micku7zu.github.io/vanilla-tilt.js/' } },
+  cinta: { n: 6, nombre: 'Cinta de categorías y trabajos', texto: 'Las categorías corren en grande y debajo los trabajos en sentido contrario. Se detiene al pasar el mouse.', donde: 'Entre secciones de la portada', js: '0 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'Magic UI Marquee', url: 'https://magicui.design/docs/components/marquee' } },
+  reacomoda: { n: 7, nombre: 'Rejilla que se reacomoda', texto: 'Cambias de categoría y las fotos viajan a su nuevo puesto, sin recargar. Toca las pestañas.', donde: 'Pestañas del catálogo', js: '0,9 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'Isotope, Filtering', url: 'https://isotope.metafizzy.co/' } },
+  costura: { n: 8, nombre: 'Costura y contadores', texto: 'Un hilo dorado se cose mientras bajas y las cifras ruedan hasta el número real del catálogo.', donde: 'Quiénes somos y separar secciones', js: '0 KB', celular: { ok: true, detalle: 'pendiente' }, sitio: { nombre: 'SVG Scroll-Driven Story', url: 'https://jvinhit.github.io/tools/svg-scroll-story-demo/' } },
+}
+
+const TITULAR = 'Bienvenido a Serflow'
+const BAJADA = 'Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.'
+---
+
+<Layout title="Laboratorio de movimiento: Serflow" description="Efectos de movimiento para elegir." noindex hideFab hideFooter>
+  <div class="pf font-body text-ink">
+    <main class="pf-v">
+      <div class="lab-intro pf-c">
+        <Eyebrow>Para elegir</Eyebrow>
+        <h1 class="pf-display">Laboratorio de movimiento</h1>
+        <p class="pf-lead">Ocho efectos sobre fotos y titulares reales de Serflow. Míralos, toca Repetir y dime los números que te gustan.</p>
+        <p class="lab-aviso lab-aviso-rm">Tu dispositivo tiene activado "reducir movimiento": aquí se ve cómo queda cada efecto para quien lo tiene así, sin animar. Desactívalo para verlos.</p>
+        <p class="lab-aviso lab-aviso-lenta">Tu conexión se detectó lenta o con ahorro de datos: el sitio apaga el movimiento en ese caso. Prueba con otra red para verlos.</p>
+        <nav aria-label="Efectos">
+          <ol class="lab-indice">
+            {Object.values(EFECTOS).map((e) => <li><a href={`#efecto-${e.n}`} data-astro-prefetch="false"><b>{String(e.n).padStart(2, '0')}</b>{e.nombre}</a></li>)}
+          </ol>
+        </nav>
+        <p class="lab-leyenda">pendiente</p>
+      </div>
+
+      <Efecto {...EFECTOS.crece} escena="crece">
+        <Masonry tiles={muro} />
+      </Efecto>
+
+      <Efecto {...EFECTOS.destapa} escena="destapa" arma>
+        <div class="lab-destapa">
+          {destapa.map((t, i) => (
+            <div>
+              <figure style={`--i:${i}`}>
+                <div class="lab-velo"><img src={miniatura(t.img.srcSet)} srcset={t.img.srcSet} sizes="(min-width: 768px) 33vw, 100vw" alt={t.img.alt} loading="lazy" decoding="async" /></div>
+                <div class="lab-filo" aria-hidden="true"></div>
+              </figure>
+            </div>
+          ))}
+        </div>
+      </Efecto>
+
+      <Efecto {...EFECTOS.titular} escena="titular" arma sangre>
+        <div class="lab-titular pf-hero">
+          <img src={fotoTitular.src} alt="Dos personas con camisetas negras estampadas" loading="lazy" decoding="async" style="object-position: 50% 35%" />
+          <div class="hero-velo absolute inset-0" aria-hidden="true"></div>
+          <div class="pf-hero-texto">
+            <p class="pf-display" aria-label={TITULAR}>
+              {TITULAR.split(' ').map((w, i) => <><span class="lab-p" aria-hidden="true"><span style={`--i:${i}`}>{w}</span></span>{' '}</>)}
+            </p>
+            <p class="pf-lead lab-bajada">
+              {BAJADA.split(' ').map((w, i) => <><span style={`--i:${i}`}>{w}</span>{' '}</>)}
+            </p>
+          </div>
+        </div>
+      </Efecto>
+
+      <Efecto {...EFECTOS.parallax} escena="parallax" sangre>
+        <div class="lab-para">
+          <img src={fotoPara.src} alt="Dos amigos con gorras personalizadas riéndose" loading="lazy" decoding="async" style="object-position: 50% 30%" />
+          <div class="hero-velo absolute inset-0" aria-hidden="true"></div>
+          <div class="lab-para-texto">
+            <p class="pf-display">Diseña la tuya</p>
+            <p class="pf-lead">Sube tu diseño, míralo sobre la camiseta o la gorra y mándanoslo listo para hacerlo.</p>
+          </div>
+        </div>
+        {bannerGrupo?.cover && (
+          <div class="lab-para">
+            <img src={miniatura(bannerGrupo.cover.srcSet)} srcset={bannerGrupo.cover.srcSet} sizes="100vw" alt="" loading="lazy" decoding="async" />
+            <div class="absolute inset-0 bg-linear-to-t from-primary via-primary/40 to-transparent" aria-hidden="true"></div>
+            <div class="lab-para-texto">
+              <p class="pf-display">{bannerGrupo.label}</p>
+            </div>
+          </div>
+        )}
+        <p class="lab-sin-soporte">Este navegador todavía no hace este efecto: la foto se queda quieta, y nada se rompe.</p>
+      </Efecto>
+
+      <Efecto {...EFECTOS.inclina} escena="inclina">
+        <div class="lab-inclinas" data-fotos>
+          {prendas.map((p) => (
+            <div class="lab-inclina">
+              <ProductCard name={p.name} meta={p.meta} href={p.href} image={p.image} modal={p.modal} />
+              <div class="lab-foco-marco" aria-hidden="true"><div class="lab-foco"></div></div>
+            </div>
+          ))}
+        </div>
+      </Efecto>
+
+      <Efecto {...EFECTOS.cinta} escena="cinta" arma sangre>
+        <div class="lab-cinta lab-cinta-nombres">
+          <div class="lab-pista">
+            {[0, 1].map((copia) => (
+              <ul aria-hidden={copia === 1 ? 'true' : undefined}>
+                {[...nombres, ...nombres, ...nombres].map((n) => <li>{n}</li>)}
+              </ul>
+            ))}
+          </div>
+        </div>
+        <div class="lab-cinta lab-cinta-fotos" aria-hidden="true">
+          <div class="lab-pista">
+            {[0, 1].map(() => (
+              <ul>
+                {cintaFotos.map((src) => <li><img src={src} alt="" loading="lazy" decoding="async" /></li>)}
+              </ul>
+            ))}
+          </div>
+        </div>
+      </Efecto>
+
+      <Efecto {...EFECTOS.reacomoda} escena="reacomoda">
+        <div class="lab-chips">
+          <CategoryNav categories={vistas.map((v) => ({ label: v.label, href: `#${v.slug}`, count: v.count }))} current="#todo" />
+        </div>
+        <ul class="lab-rejilla">
+          {[...rejilla.values()].map((r) => {
+            const puesto = r.vistas.todo
+            return (
+              <li data-vistas={JSON.stringify(r.vistas)} hidden={puesto === undefined} style={puesto !== undefined ? `order:${puesto}` : undefined}>
+                <img class="fabric" src={miniatura(r.img.srcSet)} srcset={r.img.srcSet} sizes="(min-width: 768px) 25vw, 50vw" alt={r.img.alt} loading="lazy" decoding="async" />
+              </li>
+            )
+          })}
+        </ul>
+      </Efecto>
+
+      <Efecto {...EFECTOS.costura} escena="costura" arma>
+        <div class="lab-cuentas">
+          <svg class="lab-hilo lab-hilo-h" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 95 C 160 95, 200 70, 330 80 S 520 100, 660 80 S 860 70, 1000 92" />
+          </svg>
+          <svg class="lab-hilo lab-hilo-v" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M92 0 C 92 160, 40 210, 62 340 S 96 520, 58 660 S 30 850, 92 1000" />
+          </svg>
+          {cifras.map((c) => (
+            <div class="lab-cuenta">
+              <div class="lab-cifra" role="img" aria-label={String(c.valor)}>
+                {[...String(c.valor)].map((d, i) => (
+                  <span class="lab-digito" aria-hidden="true">
+                    <span class="lab-rueda" style={`--d:${Number(d) + 10};--i:${i}`}>{DIGITOS.map((x) => <span>{x}</span>)}</span>
+                  </span>
+                ))}
+              </div>
+              <p>{c.label}</p>
+            </div>
+          ))}
+        </div>
+      </Efecto>
+    </main>
+  </div>
+  <PhotoModal />
+</Layout>
+
+<script>
+  import '../scripts/photo-modal'
+  import '../scripts/lab/index'
+</script>
