@@ -212,6 +212,9 @@ test.describe('1 · foto que crece', () => {
 })
 
 test.describe('3 · titular palabra por palabra', () => {
+  // PRI-413: el título de la portada lo edita el cliente; estos fijan el de hoy, en el build con tablas vacías.
+  test.use({ baseURL: 'http://localhost:4232' })
+
   const TITULOS: [string, string | RegExp][] = [
     ['/', 'Bienvenido a Serflow'],
     ['/products', 'Catálogo'],

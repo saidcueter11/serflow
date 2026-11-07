@@ -5,7 +5,8 @@ type Visual = "estampado" | "dtf" | "bordado";
  * Celular: una fila con la foto 4:5 de 112 px y el texto al lado. Desde @3xl: la foto cuadrada arriba (no pesa más
  * que Disponible ahora) y el texto debajo. Arriba va una muestra solo con CSS (0 KB) según `visual`; sin `visual`
  * (servicios nuevos) sale una muestra neutra de tela. Si el cliente sube una foto real de la técnica, `image`
- * reemplaza la muestra. Markup estático: Astro lo renderiza sin JS.
+ * reemplaza la muestra. En la portada van de 2 a 6 (PRI-413); .pf-servicios acomoda la rejilla según cuántas haya.
+ * Markup estático: Astro lo renderiza sin JS.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset
@@ -21,7 +22,7 @@ export function ServiceCard({
   description: string;
   visual?: Visual;
   /** Foto real de la técnica; tiene prioridad sobre la muestra CSS. */
-  image?: { src: string; alt: string };
+  image?: { src: string; srcSet?: string; alt: string };
 }) {
   return (
     <article className="group sf-foto grid grid-cols-[112px_minmax(0,1fr)] items-start gap-x-4 @3xl:block">
@@ -29,6 +30,8 @@ export function ServiceCard({
         <div className="overflow-hidden rounded-tile">
           <img
             src={image.src}
+            srcSet={image.srcSet}
+            sizes={image.srcSet ? "(min-width: 48rem) 50vw, 112px" : undefined}
             alt={image.alt}
             width={400}
             height={400}

@@ -40,20 +40,22 @@ export function Footer({ logoSrc }: { logoSrc: string }) {
               {EMAIL}
             </a>
           </li>
-          <li className="mt-2 flex gap-2">
-            {SOCIAL.map((s) => (
-              <a
-                key={s.name}
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Serflow en ${s.name}`}
-                className="flex size-11 items-center justify-center rounded-full border border-line text-accent transition-colors duration-[var(--motion-fast)] hover:border-accent hover:bg-accent/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              >
-                {SOCIAL_ICONS[s.name]}
-              </a>
-            ))}
-          </li>
+          {SOCIAL.length > 0 && (
+            <li className="mt-2 flex gap-2">
+              {SOCIAL.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Serflow en ${s.name}`}
+                  className="flex size-11 items-center justify-center rounded-full border border-line text-accent transition-colors duration-[var(--motion-fast)] hover:border-accent hover:bg-accent/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  {SOCIAL_ICONS[s.name]}
+                </a>
+              ))}
+            </li>
+          )}
         </ul>
       </div>
     </footer>
