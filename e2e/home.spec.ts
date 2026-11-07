@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test'
 import { ADDRESS } from '../src/lib/business'
 
+// PRI-413: fixed copy lives on the build with empty content tables, so a client edit can't turn these red.
+test.use({ baseURL: 'http://localhost:4232' })
+
 // PRI-129 ("B ajustada"): the business data shows up once, and WhatsApp has one generic entry (the floating button)
 // plus the hero call to action. The header carries no WhatsApp button anymore.
 test('home: address and hours once, map visible, WhatsApp only in the hero and the floating button', async ({ page }) => {

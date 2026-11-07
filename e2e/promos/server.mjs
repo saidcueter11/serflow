@@ -20,10 +20,14 @@ if (photos.length < 6) throw new Error(`Need 6 product photos for the seeded pro
 
 let promos = []
 let categories = []
+// PRI-150: filas sembradas de las tablas del admin. Sin sembrar, van a la base real: vacías, o sin tabla antes de la migración.
+let medios = {}
 const proxy = http.createServer(async (req, out) => {
-  if (req.url.startsWith('/rest/v1/promos')) {
+  const tabla = req.url.split('?')[0].replace('/rest/v1/', '')
+  const sembrado = tabla === 'promos' ? promos : medios[tabla]
+  if (sembrado) {
     out.writeHead(200, { 'content-type': 'application/json' })
-    out.end(JSON.stringify(promos))
+    out.end(JSON.stringify(sembrado))
     return
   }
   const headers = { ...req.headers }
@@ -55,7 +59,9 @@ const run = (args, env = {}) =>
 for (const s of SCENARIOS) {
   promos = s.promos(photos, new Date())
   categories = s.categories ?? []
-  await run(['build', '--outDir', s.outDir], { PUBLIC_SUPABASE_URL: proxyUrl })
+  medios = s.medios?.(photos, REAL) ?? {}
+  // Las filas se leen por el proxy, pero las fotos siguen en el host real: el único del que el build puede bajarlas (PRI-423).
+  await run(['build', '--outDir', s.outDir], { PUBLIC_SUPABASE_URL: proxyUrl, PUBLIC_SUPABASE_FOTOS_URL: REAL })
 }
 proxy.close()
 

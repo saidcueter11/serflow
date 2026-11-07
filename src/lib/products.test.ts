@@ -1,11 +1,21 @@
 import { describe, expect, it, vi } from 'vitest'
 
+const PROPIA = 'https://x.supabase.co/storage/v1/object/public/product-images/a.webp'
+const AJENA = 'https://otro-proyecto.supabase.co/storage/v1/object/public/product-images/b.webp'
+
 const tables: Record<string, unknown[]> = {
   categories: [
-    { id: 'c1', slug: 'moda' },
-    { id: 'c2', slug: 'kids' },
+    { id: 'c1', slug: 'moda', image_url: PROPIA },
+    { id: 'c2', slug: 'kids', image_url: AJENA },
   ],
-  products: [{ category_id: 'c1' }, { category_id: 'c1' }],
+  products: [
+    { category_id: 'c1', image_urls: [AJENA, PROPIA] },
+    { category_id: 'c1', image_urls: [AJENA] },
+  ],
+  promos: [
+    { slug: 'a', banner_url: AJENA, image_urls: [PROPIA, AJENA], ends_at: null, created_at: '2026-10-01' },
+    { slug: 'b', banner_url: PROPIA, image_urls: [], ends_at: null, created_at: '2026-10-02' },
+  ],
 }
 
 // Chainable stand-in for the supabase query builder; resolves with the table rows.
@@ -22,7 +32,24 @@ vi.mock('./supabase', () => ({
   },
 }))
 
-const { getCategoriesWithCounts } = await import('./products')
+vi.stubEnv('PUBLIC_SUPABASE_URL', 'https://x.supabase.co')
+vi.stubEnv('PUBLIC_SUPABASE_FOTOS_URL', '')
+
+const { getActivePromos, getCategories, getCategoriesWithCounts, getProducts } = await import('./products')
+
+// PRI-423: inferRemoteSize e inferSize bajan cualquier URL sin mirar image.remotePatterns.
+describe('fotos de otro proyecto de Supabase', () => {
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+  it('no llegan al build: ni productos, ni categorías, ni promos', async () => {
+    expect((await getProducts()).map((p) => p.image_urls)).toEqual([[PROPIA], []])
+    expect((await getCategories()).map((c) => c.image_url)).toEqual([PROPIA, null])
+    expect((await getActivePromos()).map((p) => [p.banner_url, p.image_urls])).toEqual([
+      [null, [PROPIA]],
+      [PROPIA, []],
+    ])
+  })
+})
 
 describe('getCategoriesWithCounts', () => {
   it('counts active products per category, zero when none', async () => {

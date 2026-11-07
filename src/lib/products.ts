@@ -1,6 +1,16 @@
+import { esUrlPermitida } from './fotos-host.mjs'
 import { supabase } from './supabase'
 import { livePromos } from './promos'
 import type { Category, Product, Promo } from './types'
+
+// PRI-423: el build solo baja fotos del proyecto propio. inferRemoteSize e inferSize (catalog-view, promo-view) bajan
+// cualquier URL sin mirar image.remotePatterns, así que una foto de otro host se queda aquí: ni se descarga ni se publica.
+function fotoPropia(url: string): boolean {
+  const ok = esUrlPermitida(url)
+  if (!ok) console.warn(`[fotos] ${url}: host no permitido. Se ignora.`)
+  return ok
+}
+const conFotosPropias = <T extends { image_urls: string[] }>(fila: T): T => ({ ...fila, image_urls: fila.image_urls.filter(fotoPropia) })
 
 /* ── Categories ──────────────────────────────────────────── */
 
@@ -12,7 +22,7 @@ export async function getCategories(): Promise<Category[]> {
     .order('sort_order')
 
   if (error) throw new Error(`Failed to fetch categories: ${error.message}`)
-  return data ?? []
+  return (data ?? []).map((c: Category) => (c.image_url && !fotoPropia(c.image_url) ? { ...c, image_url: null } : c))
 }
 
 export async function getCategoryBySlug(
@@ -74,7 +84,7 @@ export async function getProducts(): Promise<Product[]> {
     .order('sort_order')
 
   if (error) throw new Error(`Failed to fetch products: ${error.message}`)
-  return data ?? []
+  return (data ?? []).map(conFotosPropias)
 }
 
 export async function getProductsByCategory(
@@ -115,5 +125,9 @@ export async function getActivePromos(): Promise<Promo[]> {
     .eq('is_active', true)
 
   if (error) throw new Error(`Failed to fetch promos: ${error.message}`)
-  return livePromos(data ?? [], new Date())
+  const promos = (data ?? []).map((promo: Promo) => {
+    const fila = conFotosPropias(promo)
+    return fila.banner_url && !fotoPropia(fila.banner_url) ? { ...fila, banner_url: null } : fila
+  })
+  return livePromos(promos, new Date())
 }

@@ -3,6 +3,8 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 // PRI-122: /personaliza encendida con fotos de muestra (las oficiales llegan con PRI-125). Los archivos de prueba se arman
 // aquí (sin datos personales ni binarios en el repo).
+// PRI-150: contra el build con tablas vacías, para que una publicación del cliente no ponga esto rojo.
+test.use({ baseURL: 'http://localhost:4232' })
 
 const crcTabla = Array.from({ length: 256 }, (_, n) => {
   let c = n
@@ -62,7 +64,8 @@ const tecnicas = (page: Page) => page.locator('input[name=tecnica]').evaluateAll
 const enviar = (page: Page) => page.getByRole('button', { name: 'Enviar a Serflow por WhatsApp' }).filter({ visible: true })
 const textoWa = async (link: Locator) => {
   const url = new URL((await link.getAttribute('href'))!)
-  expect(url.origin + url.pathname).toBe('https://wa.me/573156481243')
+  // Sigue el número que haya en la base: lo exacto lo prueba e2e/site-content.spec.ts.
+  expect(url.origin + url.pathname).toMatch(/^https:\/\/wa\.me\/573\d{9}$/)
   return url.searchParams.get('text')!
 }
 
