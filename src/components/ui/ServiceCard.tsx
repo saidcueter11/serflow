@@ -1,6 +1,14 @@
 type Visual = "estampado" | "dtf" | "bordado";
 
 /**
+ * `sizes` de la foto según su proporción (ancho / alto). En el celular la caja mide 112 x 140 con object-cover: una
+ * foto horizontal se pinta más ancha que la caja, y pedirla a 112px la deja blanda (PRI-150).
+ */
+export function serviceCardSizes(ratio: number) {
+  return `(min-width: 48rem) 50vw, ${Math.ceil(Math.max(112, 140 * ratio))}px`;
+}
+
+/**
  * Un servicio del taller (Estampado, DTF, Bordado...) dentro de una lista de N items, sin caja (PRI-286).
  * Celular: una fila con la foto 4:5 de 112 px y el texto al lado. Desde @3xl: la foto cuadrada arriba (no pesa más
  * que Disponible ahora) y el texto debajo. Arriba va una muestra solo con CSS (0 KB) según `visual`; sin `visual`
@@ -22,7 +30,7 @@ export function ServiceCard({
   description: string;
   visual?: Visual;
   /** Foto real de la técnica; tiene prioridad sobre la muestra CSS. */
-  image?: { src: string; srcSet?: string; alt: string };
+  image?: { src: string; srcSet?: string; sizes?: string; alt: string };
 }) {
   return (
     <article className="group sf-foto grid grid-cols-[112px_minmax(0,1fr)] items-start gap-x-4 @3xl:block">
@@ -31,7 +39,7 @@ export function ServiceCard({
           <img
             src={image.src}
             srcSet={image.srcSet}
-            sizes={image.srcSet ? "(min-width: 48rem) 50vw, 112px" : undefined}
+            sizes={image.sizes}
             alt={image.alt}
             width={400}
             height={400}
