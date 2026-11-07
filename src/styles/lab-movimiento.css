@@ -13,7 +13,7 @@
 @media (prefers-reduced-motion: reduce) { .lab-aviso-rm { display: block; } }
 .slow-connection .lab-aviso-lenta { display: block; }
 .lab-indice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); margin-top: var(--pf-tc); }
-.lab-indice a { display: flex; align-items: center; gap: 10px; min-height: 48px; height: 100%; padding: 8px 14px; border: 1px solid var(--color-line); border-radius: var(--radius-tile); font-size: 14px; font-weight: 600; line-height: 1.2; transition: border-color var(--motion-fast) var(--ease-out); }
+.lab-indice a { display: flex; align-items: center; gap: 10px; min-height: 48px; height: 100%; padding: 8px 14px; border: 1px solid var(--color-line); border-radius: var(--radius-tile); font-size: 14px; font-weight: 600; line-height: 1.2; }
 .lab-indice a:hover { border-color: var(--color-accent); }
 .lab-indice b { color: var(--color-accent); font-weight: 600; font-variant-numeric: tabular-nums; }
 .lab-leyenda { margin-top: 16px; font-size: 14px; line-height: 1.5; color: var(--color-muted); }
@@ -28,7 +28,7 @@
 .lab-ficha { grid-area: ficha; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px var(--pf-g); margin-top: 20px; }
 .lab-ficha dt { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-muted); }
 .lab-ficha dd { margin-top: 4px; font-size: 15px; line-height: 1.4; }
-.lab-sitio { display: inline-flex; align-items: center; min-height: 44px; margin-top: -10px; font-weight: 600; color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+.lab-sitio { display: inline-block; padding-block: 12px; margin-block: -10px -12px; font-weight: 600; color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
 
 @container pf (min-width: 48rem) {
   .lab-intro .lab-indice { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -38,6 +38,10 @@
 }
 
 /* ---------- Motores compartidos ---------- */
+
+/* Los componentes reales animan color y filter al hover; aquí nada anima más que transform, opacity y clip-path. */
+.lab-repetir button, .lab-chips a { transition-property: transform, opacity; }
+.lab-e .sf-foto img { filter: none; transition-property: transform; }
 
 @keyframes lab-desde-cero { from { opacity: 0 } }
 
@@ -97,7 +101,8 @@ dialog.lab-sale .mx-velo { animation: lab-velo-sale 420ms var(--ease-out) both; 
 
 /* ---------- 4 · Fondo con profundidad: CSS puro; corre fuera del hilo principal donde hay scroll timelines ---------- */
 
-.lab-para { position: relative; overflow: hidden; height: 460px; background: var(--color-surface-2); }
+/* clip y no hidden: hidden lo volvería el contenedor de scroll de view() y la foto no se movería. */
+.lab-para { position: relative; overflow: clip; height: 460px; background: var(--color-surface-2); }
 .lab-para + .lab-para { margin-top: var(--pf-g); height: 340px; }
 .lab-para > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .lab-para-texto { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 var(--pf-m) 32px; }
