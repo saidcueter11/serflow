@@ -80,9 +80,9 @@ export function BoardPhotoModal() {
     <PageFrame family="fotos y mascota" width={1900}>
       <PageTitle
         title="PhotoModal"
-        description="La foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle. La foto entera (contain), la categoría y el nombre, y Pedir por WhatsApp con la URL propia de la foto. Flechas, ← →, deslizar, contador, Esc, la X o tocar afuera para cerrar; el foco vuelve a la foto."
+        description="La foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle. La foto entera (contain), la categoría y el nombre completo, y Pedir por WhatsApp con la URL propia de la foto. Flechas, ← →, deslizar (la foto se desliza con fundido), contador, Esc, la X o tocar afuera para cerrar; el foco vuelve a la foto. Mientras baja la foto: el marco con su forma y un brillo, y la foto entra en fundido; la anterior y la siguiente quedan precargadas."
       />
-      <Row name="Desktop (1280)" description="La foto centrada y debajo una franja de una fila del mismo ancho: nombre a la izquierda, Pedir a la derecha.">
+      <Row name="Desktop (1280)" description="La foto centrada y debajo una franja: nombre a la izquierda, Pedir a la derecha. Con una foto vertical la franja es más ancha que la foto; un nombre muy largo pasa a otra línea, nunca se corta.">
         <Pantalla width={1280} height={800} />
       </Row>
       <Row name="Celular (390)" description="Pantalla completa: las orillas de la anterior y la siguiente son botones y Pedir va fijo abajo.">
