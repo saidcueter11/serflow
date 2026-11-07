@@ -187,7 +187,7 @@ test.describe('/personaliza', () => {
     expect(cm).toBeGreaterThanOrEqual(15)
     expect(cm).toBeLessThanOrEqual(30)
     await quieto(diseno)
-    await page.screenshot({ path: test.info().outputPath(`camiseta-azul-${ancho}.png`), fullPage: true })
+    await test.info().attach(`camiseta-azul-${ancho}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
 
     await enviar(page).click()
     const texto = await textoWa(page.getByRole('dialog', { name: 'Revisa y envía' }).getByRole('link', { name: 'Abrir chat con Serflow' }))
