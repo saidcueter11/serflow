@@ -16,3 +16,11 @@
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
+
+# PRI-127: lo lee el panel (serflow-admin, otro dominio) desde el navegador, sin cookies. CORS abierto solo en este
+# archivo: es público y solo trae la hora del build, y el panel también corre en dominios de preview de Vercel.
+[[headers]]
+  for = "/build.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Access-Control-Allow-Origin = "*"
