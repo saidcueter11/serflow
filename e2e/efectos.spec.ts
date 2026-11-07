@@ -260,6 +260,22 @@ test.describe('3 · titular palabra por palabra', () => {
     expect(nombres).toContain('sf-asienta')
   })
 
+  test('no other photo covers the home photo while it settles', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    // En el instante de la carga, sin depender de cuánto tardó en llegar hasta aquí.
+    const encima = await page.locator('.hero-carousel figure').evaluateAll((fs) =>
+      fs.slice(1).map((f) => {
+        const a = f.getAnimations()[0]
+        a.pause()
+        a.currentTime = 0
+        return getComputedStyle(f).opacity
+      }),
+    )
+    expect(encima.length).toBeGreaterThan(0)
+    // Los keyframes van redondeados a 2 decimales: queda un resto que no se ve.
+    for (const o of encima) expect(Number(o)).toBeLessThan(0.01)
+  })
+
   test('reduced motion: the title is there from the start', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/')
@@ -384,6 +400,21 @@ test.describe('7 · rejilla que se reacomoda', () => {
     await expect(page.locator('.sf-salen')).toHaveCount(0)
   })
 
+  test('with the page scrolled, the photos that leave do not stay on top of the new title', async ({ page }) => {
+    await page.goto('/products')
+    const chip = await pestanaConViaje(page)
+    await page.evaluate(() => {
+      window.scrollTo({ top: 305, behavior: 'instant' })
+      document.addEventListener('astro:before-swap', () => ((window as unknown as { scrollAlTocar: number }).scrollAlTocar = scrollY), { once: true })
+    })
+    await espiarSwap(page)
+    await chip.click()
+    await expect.poll(() => leer<number | undefined>(page, 'capa')).toBe(0)
+    expect(await leer<number>(page, 'scrollAlTocar')).toBeGreaterThan(0)
+    await expect.poll(() => page.evaluate(() => scrollY)).toBe(0)
+    await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
+  })
+
   test('only what is on screen animates', async ({ page }) => {
     await page.goto('/products')
     await espiarSwap(page)
@@ -413,10 +444,24 @@ test.describe('7 · rejilla que se reacomoda', () => {
     await chips(page).nth(2).click()
     await expect(chips(page).nth(2)).toHaveAttribute('aria-current', 'page')
     await page.goBack()
-    await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
+    // Con latencia el segundo toque cancela el primero y Atrás vuelve a /products: a dónde vuelve lo decide el historial.
+    await expect(chips(page).nth(2)).not.toHaveAttribute('aria-current', 'page')
+    await expect(chips(page).and(page.locator('[aria-current="page"]'))).toHaveCount(1)
     await expect(page.locator('.sf-salen')).toHaveCount(0)
     await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
     expect(errores).toEqual([])
+  })
+
+  test('with one tab already open before the next, Back returns to that tab', async ({ page }) => {
+    await page.goto('/products')
+    await chips(page).nth(1).click()
+    await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
+    await chips(page).nth(2).click()
+    await expect(chips(page).nth(2)).toHaveAttribute('aria-current', 'page')
+    await page.goBack()
+    await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
+    await expect(page.locator('.sf-salen')).toHaveCount(0)
+    await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
   })
 
   test('below the fold the wall keeps its one-time reveal', async ({ page }) => {
