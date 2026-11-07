@@ -80,7 +80,10 @@ export async function leerDiseno(archivo: File): Promise<DisenoLeido | null> {
     trabajo.width = Math.max(1, Math.round(ancho * k))
     trabajo.height = Math.max(1, Math.round(alto * k))
     const ctx = trabajo.getContext('2d', { willReadFrequently: true })!
-    ctx.drawImage(img, 0, 0, trabajo.width, trabajo.height)
+    // Decodificada fuera del hilo principal: con una foto grande, dibujar la <img> congela la página. Si no se puede o gira distinto, la <img>.
+    const mapa = await createImageBitmap(archivo).catch(() => null)
+    ctx.drawImage(mapa?.width === ancho && mapa.height === alto ? mapa : img, 0, 0, trabajo.width, trabajo.height)
+    mapa?.close()
     const pix = ctx.getImageData(0, 0, trabajo.width, trabajo.height)
     const transparente = bordeTransparente(pix)
     const limpio = transparente ? null : await quitarFondo(pix)

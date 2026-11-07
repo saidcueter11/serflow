@@ -29,8 +29,6 @@ const BORDE_MIN = 0.7
 /** La región cubre una parte creíble de la imagen. */
 const REGION_MIN = 0.08
 const REGION_MAX = 0.985
-/** Salto de color mínimo en el contorno encontrado (percentil 75); debajo, el relleno se fugó por dentro del sujeto. */
-const CONTRASTE = 27
 /** Relieve: cambio por píxel, medido entre puntos a RELIEVE_PX a cada lado, desde el que algo ya no es fondo. El papel con viñeta y sombras queda muy por debajo; la tela de una gorra blanca, por encima. */
 const RELIEVE_PX = 16
 const RELIEVE_PENDIENTE = 0.3
@@ -172,22 +170,6 @@ function* recorte(img: Pixeles): Generator<void, Pixeles | null, void> {
   }
   // Una muestra de cada 16 píxeles.
   if (relieve > muestras * RELIEVE_REGION || relieve * 16 > (n - fin) * RELIEVE_DISENO) return null
-
-  // Contorno: cada píxel del diseño pegado al fondo, con la distancia a ese fondo.
-  const saltos = new Float32Array((n - fin) * 4)
-  let m = 0
-  for (let j = 0; j < fin; j++) {
-    const i = cola[j]
-    vecinos(i, w, n, v)
-    for (let k = 0; k < 4; k++) {
-      const q = v[k]
-      if (q >= 0 && !fondo[q]) saltos[m++] = distancia(c, q, est[i * 3], est[i * 3 + 1], est[i * 3 + 2])
-    }
-    if (j % 65536 === 0) yield
-  }
-  yield
-  const contraste = m ? saltos.subarray(0, m).sort()[Math.floor(m * 0.75)] : 0
-  if (contraste < CONTRASTE) return null
 
   const out = new Uint8ClampedArray(img.data)
   for (let j = 0; j < fin; j++) out[cola[j] * 4 + 3] = 0
