@@ -449,6 +449,18 @@ test.describe('7 · rejilla que se reacomoda', () => {
     expect(errores).toEqual([])
   })
 
+  test('with one tab already open before the next, Back returns to that tab', async ({ page }) => {
+    await page.goto('/products')
+    await chips(page).nth(1).click()
+    await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
+    await chips(page).nth(2).click()
+    await expect(chips(page).nth(2)).toHaveAttribute('aria-current', 'page')
+    await page.goBack()
+    await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
+    await expect(page.locator('.sf-salen')).toHaveCount(0)
+    await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
+  })
+
   test('below the fold the wall keeps its one-time reveal', async ({ page }) => {
     await page.goto('/products')
     await chips(page).nth(0).scrollIntoViewIfNeeded()
