@@ -54,7 +54,7 @@ export function BoardCampos() {
           </Celular>
         </div>
       </Row>
-      <Row name="CampoDiseno" description="Paso 1. Con fondo plano detectado aparece Quitar el fondo (encendido). Los avisos no bloquean.">
+      <Row name="CampoDiseno" description="Paso 1. Con un fondo claro (logo sobre blanco o en papel) aparece Quitar el fondo (encendido); una foto conserva el suyo. Los avisos no bloquean.">
         <div className="flex flex-wrap gap-8">
           <Celular label='estado="ninguno"'><CampoDiseno estado="ninguno" /></Celular>
           <Celular label='estado="imagen" · quitar fondo'><CampoDiseno estado="imagen" nombre="logo-heroica.png" detalle="PNG · 1200 × 1200 px" miniatura={sol} quitarFondo /></Celular>
