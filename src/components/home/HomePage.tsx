@@ -96,8 +96,8 @@ export function HomePage({
       <main className="pf-v">
         <HeroCarousel slides={slides} className="pf-hero">
           <div className="pf-hero-texto anim-enter">
-            <span className="pf-pie flex items-center gap-1.5">
-              <PinIcon className="size-3.5" /> Mercado Bazurto · Cartagena
+            <span className="pf-pie flex items-center gap-1.5 [overflow-wrap:anywhere]">
+              <PinIcon className="size-3.5 shrink-0" /> {sections.hero?.eyebrow ?? 'Mercado Bazurto · Cartagena'}
             </span>
             <h1 className="pf-display sf-lineas" aria-label={sections.hero?.title ?? 'Bienvenido a Serflow'}>
               {sections.hero?.title ? (

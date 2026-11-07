@@ -114,6 +114,7 @@ const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}
 const catalogHref = categories[0] ? `/products/${categories[0].slug}` : '/'
 
 const homeDescription =
+  content.sections.hero?.seoDescription ??
   'Serflow en Cartagena: camisetas y gorras con estampado, DTF y bordado. Ven al taller en el Mercado Bazurto o escríbenos por WhatsApp.'
 
 const localBusinessSchema = {

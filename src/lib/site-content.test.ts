@@ -36,6 +36,21 @@ describe('parseSections', () => {
       disponible: { title: undefined, description: 'Hoy en el taller' },
     })
   })
+
+  it('hero label up to 60 and search description up to 160; blank or longer use the code', () => {
+    expect(parseSections([{ slug: 'hero', eyebrow: ' Barranquilla ', seo_description: 'x'.repeat(160) }]).hero).toMatchObject({
+      eyebrow: 'Barranquilla',
+      seoDescription: 'x'.repeat(160),
+    })
+    expect(parseSections([{ slug: 'hero', eyebrow: 'x'.repeat(61), seo_description: 'x'.repeat(161) }]).hero).toMatchObject({
+      eyebrow: undefined,
+      seoDescription: undefined,
+    })
+    expect(parseSections([{ slug: 'hero', eyebrow: '   ', seo_description: null }]).hero).toMatchObject({
+      eyebrow: undefined,
+      seoDescription: undefined,
+    })
+  })
 })
 
 describe('parseHeroSlides', () => {

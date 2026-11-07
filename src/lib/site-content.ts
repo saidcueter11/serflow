@@ -8,7 +8,8 @@ import { filas } from './medios'
 
 export const SECTION_SLUGS = ['hero', 'personalizador', 'que-hacemos', 'disponible', 'quienes-somos', 'visitanos'] as const
 export type SectionSlug = (typeof SECTION_SLUGS)[number]
-export type SectionText = { title?: string; description?: string }
+/** eyebrow y seoDescription solo los usa hero. */
+export type SectionText = { title?: string; description?: string; eyebrow?: string; seoDescription?: string }
 
 export interface HeroSlideRow {
   image_url: string
@@ -49,7 +50,9 @@ export function parseSections(rows: Row[]): SiteContent['sections'] {
   const sections: SiteContent['sections'] = {}
   for (const row of rows) {
     const slug = SECTION_SLUGS.find((s) => s === row.slug)
-    if (slug) sections[slug] = { title: cleanText(row.title, 80), description: cleanText(row.description, 400) }
+    if (!slug) continue
+    sections[slug] = { title: cleanText(row.title, 80), description: cleanText(row.description, 400) }
+    if (slug === 'hero') Object.assign(sections.hero!, { eyebrow: cleanText(row.eyebrow, 60), seoDescription: cleanText(row.seo_description, 160) })
   }
   return sections
 }

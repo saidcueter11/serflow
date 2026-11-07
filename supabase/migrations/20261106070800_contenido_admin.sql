@@ -216,15 +216,20 @@ create table if not exists public.site_settings (
 );
 
 -- Título y descripción de cada sección de la portada. Cada campo vacío usa el texto del código.
+-- eyebrow (la etiqueta sobre el título) y seo_description (la descripción para buscadores de la portada) son solo de hero.
 create table if not exists public.site_sections (
   slug text primary key,
   title text,
   description text,
+  eyebrow text,
+  seo_description text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint site_sections_slug check (slug in ('hero', 'personalizador', 'que-hacemos', 'disponible', 'quienes-somos', 'visitanos')),
   constraint site_sections_title check (title is null or char_length(title) <= 80),
-  constraint site_sections_description check (description is null or char_length(description) <= 400)
+  constraint site_sections_description check (description is null or char_length(description) <= 400),
+  constraint site_sections_eyebrow check (eyebrow is null or (slug = 'hero' and char_length(eyebrow) <= 60)),
+  constraint site_sections_seo_description check (seo_description is null or (slug = 'hero' and char_length(seo_description) <= 160))
 );
 
 -- Fotos del carrusel del hero, de 1 a 6 (el sitio toma las 6 primeras). Sin filas, las 4 del código.
