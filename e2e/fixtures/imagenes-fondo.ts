@@ -77,3 +77,9 @@ export async function gorraDeCelular(): Promise<Buffer> {
   }
   return sharp(data, { raw: { width: info.width, height: info.height, channels: 3 } }).jpeg({ quality: 40 }).toBuffer()
 }
+
+/** Una C gris gruesa sobre blanco, JPEG q70: el diseño claro que un relleno sin freno se come por la curva. Va de 0 a 1000 × 0 a 620. */
+export async function curvaGris(): Promise<Buffer> {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620"><path d="M640 180 A170 170 0 1 0 640 440" fill="none" stroke="#999999" stroke-width="60"/></svg>'
+  return sharp(Buffer.from(svg)).flatten({ background: '#ffffff' }).jpeg({ quality: 70 }).toBuffer()
+}

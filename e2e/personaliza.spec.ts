@@ -1,7 +1,7 @@
 import { deflateSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { gorraDeCelular, logoEnPapel, logoSobreBlanco as logoReal } from './fixtures/imagenes-fondo'
+import { curvaGris, gorraDeCelular, logoEnPapel, logoSobreBlanco as logoReal } from './fixtures/imagenes-fondo'
 
 // PRI-122: /personaliza encendida con fotos de muestra (las oficiales llegan con PRI-125). Los archivos de prueba se arman
 // aquí o salen de imágenes que ya están en el repo (sin datos personales ni binarios nuevos).
@@ -328,6 +328,32 @@ test.describe('/personaliza', () => {
     expect(texto).not.toContain('sin el fondo')
   })
 
+  test('un diseño claro no se come: la curva gris se pinta entera y solo se va el fondo', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'curva.jpg', mimeType: 'image/jpeg', buffer: await curvaGris() })
+    await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked()
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    await quieto(diseno)
+    const d = (await diseno.boundingBox())!
+    const luz = (fx: number, fy: number) =>
+      page.locator('.pf-pz-vista canvas').evaluate(
+        (c: HTMLCanvasElement, { x, y }) => {
+          const r = c.getBoundingClientRect()
+          const px = Math.round(((x - r.left) / r.width) * c.width)
+          const py = Math.round(((y - r.top) / r.height) * c.height)
+          const p = c.getContext('2d')!.getImageData(px - 2, py - 2, 5, 5).data
+          let suma = 0
+          for (let i = 0; i < p.length; i += 4) suma += (p[i] + p[i + 1] + p[i + 2]) / 75
+          return suma
+        },
+        { x: d.x + d.width * fx, y: d.y + d.height * fy },
+      )
+    // Camiseta negra: la mitad del trazo se ve claro, y la esquina, que era blanca, ya no.
+    await expect.poll(() => luz(360 / 1000, 310 / 620)).toBeGreaterThan(70)
+    expect(await luz(0.05, 0.08)).toBeLessThan(50)
+  })
+
   test('al taller le llega el original, no la imagen sin fondo', async ({ page }) => {
     await page.addInitScript(() => {
       const w = window as unknown as { compartidos: File[] }
@@ -341,8 +367,8 @@ test.describe('/personaliza', () => {
       })
     })
     await abrir(page)
-    const buffer = await logoEnPapel()
-    await subir(page, { name: 'logo-papel.jpg', mimeType: 'image/jpeg', buffer })
+    const buffer = logoSobreBlanco(800)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer })
     await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked()
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
     await enviar(page).click()
@@ -350,7 +376,7 @@ test.describe('/personaliza', () => {
     await hoja.getByRole('button', { name: 'Compartir imágenes' }).click()
     await expect.poll(() => page.evaluate(() => (window as unknown as { compartidos: File[] }).compartidos.length)).toBeGreaterThan(0)
     const original = await page.evaluate(async () => {
-      const f = (window as unknown as { compartidos: File[] }).compartidos.find((x) => x.name === 'logo-papel.jpg')!
+      const f = (window as unknown as { compartidos: File[] }).compartidos.find((x) => x.name === 'logo-prueba.png')!
       return Array.from(new Uint8Array(await f.arrayBuffer()))
     })
     expect(Buffer.from(original).equals(buffer)).toBe(true)

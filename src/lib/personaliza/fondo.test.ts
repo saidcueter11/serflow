@@ -73,8 +73,8 @@ describe('quitarFondo: logos', () => {
   })
 
   it('el contorno no deja halo: lo que aún es fondo se va y lo mezclado queda parcial y sin el color del fondo', async () => {
-    // Un cuadro negro sobre blanco, con una línea gris clara alrededor, como el borde de un JPEG.
-    const g = 210
+    // Un cuadro negro sobre blanco, con una línea gris alrededor, como el borde de un JPEG.
+    const g = 128
     const img = imagen(120, 120, (x, y) => {
       if (x >= 40 && x < 80 && y >= 40 && y < 80) return [0, 0, 0, 255]
       return x >= 39 && x < 81 && y >= 39 && y < 81 ? [g, g, g, 255] : BLANCO
@@ -87,6 +87,64 @@ describe('quitarFondo: logos', () => {
     expect(a).toBeLessThan(255)
     expect(r.data[(60 * 120 + 39) * 4]).toBeLessThan(g)
     expect(alfa(r, 60, 60)).toBe(255)
+  })
+})
+
+// Diseños claros sobre blanco, JPEG q70. Con trazos, sin depender de las fuentes de la máquina.
+const C = (color: string, grueso = 60) => `<path d="M640 180 A170 170 0 1 0 640 440" fill="none" stroke="${color}" stroke-width="${grueso}"/>`
+const ESLOGAN = '<g fill="#D9D9D9"><rect x="280" y="500" width="440" height="12"/><rect x="340" y="524" width="320" height="12"/></g>'
+const TEXTO = '<path d="M430 250 h140 M430 310 h140 M430 370 h140" stroke="#333" stroke-width="22"/>'
+const DISCO = (color: string) => `<circle cx="500" cy="310" r="210" fill="${color}"/>${TEXTO}`
+
+/** Devuelve la imagen como JPEG sobre blanco y el alfa exacto del diseño. */
+async function disenoSobreBlanco(trazos: string) {
+  const svg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620">${trazos}</svg>`)
+  const alfaDiseno = await sharp(svg).ensureAlpha().extractChannel(3).raw().toBuffer()
+  const jpeg = await sharp(svg).flatten({ background: '#ffffff' }).jpeg({ quality: 70 }).toBuffer()
+  return { img: await leer(jpeg), alfaDiseno }
+}
+
+const comido = (r: Pixeles, alfaDiseno: Buffer) => {
+  let diseno = 0
+  let perdido = 0
+  for (let i = 0; i < alfaDiseno.length; i++) {
+    if (alfaDiseno[i] < 200) continue
+    diseno++
+    if (r.data[i * 4 + 3] < 128) perdido++
+  }
+  return perdido / diseno
+}
+
+describe('quitarFondo: un diseño claro no se come ni se conserva de más', () => {
+  it.each([
+    ['curva gris #999', C('#999999')],
+    ['curva gris #888', C('#888888')],
+    ['curva gris #AAA', C('#AAAAAA')],
+    ['curva gris #BBB', C('#BBBBBB')],
+    ['eslogan claro bajo un texto oscuro', C('#222222') + ESLOGAN],
+    ['círculo rosa con texto', DISCO('#FFE4E1')],
+    ['círculo azul con texto', DISCO('#DCEBFA')],
+    ['círculo crema con texto', DISCO('#FFF3C4')],
+    ['círculo gris con texto', DISCO('#E6E6E6')],
+  ])('%s', async (_, trazos) => {
+    const { img, alfaDiseno } = await disenoSobreBlanco(trazos)
+    const r = await quitarFondo(img)
+    expect(r).not.toBeNull()
+    expect(comido(r!, alfaDiseno)).toBeLessThan(0.02)
+    expect(alfa(r!, 2, 2)).toBe(0)
+  })
+
+  it('curva durazno: el degradado de color del JPEG puede dejarle el fondo, pero nunca se come', async () => {
+    const { img, alfaDiseno } = await disenoSobreBlanco(C('#FFB380'))
+    const r = await quitarFondo(img)
+    if (r) expect(comido(r, alfaDiseno)).toBeLessThan(0.02)
+  })
+
+  it('el trazo claro queda opaco por dentro: no se vuelve transparente por ser pálido', async () => {
+    const { img } = await disenoSobreBlanco(C('#D9D9D9'))
+    const r = (await quitarFondo(img))!
+    // Mitad del trazo de la C, a la izquierda.
+    expect(alfa(r, 360, 310)).toBe(255)
   })
 })
 
@@ -116,7 +174,24 @@ describe('quitarFondo: una foto conserva su fondo', () => {
     expect(await quitarFondo(await leer(foto))).toBeNull()
   })
 
-  it('una personaje con partes blancas sobre blanco', async () => {
+  it.each([
+    ['ropa', 'src/assets/images/moda/moda9.webp'],
+    ['gorra', 'src/assets/images/kids/kid3.webp'],
+  ])('%s pequeña en un lienzo blanco: casi no pesa en la región, pero pesa contra lo que queda', async (_, archivo) => {
+    const prenda = await sharp(archivo).resize(300).flatten({ background: '#ffffff' }).png().toBuffer()
+    const foto = await sharp({ create: { width: 1024, height: 1024, channels: 3, background: '#fbfbfb' } })
+      .composite([{ input: prenda, left: 360, top: 300 }])
+      .jpeg({ quality: 80 })
+      .toBuffer()
+    expect(await quitarFondo(await leer(foto))).toBeNull()
+  })
+
+  it.each(['src/assets/hat4.jpg', 'src/assets/images/beisbol/beisbol9.webp', 'src/assets/images/miTierraQuerida/miTierraQuerida12.webp'])('%s también conserva su fondo si llega más pequeña', async (archivo) => {
+    const chica = await sharp(archivo).rotate().resize(512, 512, { fit: 'inside' }).jpeg({ quality: 80 }).toBuffer()
+    expect(await quitarFondo(await leer(chica))).toBeNull()
+  })
+
+  it('un personaje con partes blancas sobre blanco', async () => {
     const tito = await sharp('public/mascota/tito-saludo.webp').resize(600).png().toBuffer()
     const foto = await sharp({ create: { width: 1100, height: 800, channels: 3, background: '#ffffff' } })
       .composite([{ input: tito }])
