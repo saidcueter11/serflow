@@ -3,7 +3,7 @@ import { MAX_COLORES, POR_DEFECTO, armarColores, recortarColores, type FilaColor
 
 const foto = (view: FilaFoto['view'], image_url: string, over: Partial<FilaFoto> = {}): FilaFoto => ({ view, image_url, print_area: null, print_width_cm: null, ...over })
 const camiseta = (id: string, garment_photos: FilaFoto[]): FilaColor => ({ id, garment: 'camiseta', name: id, hex: '#000000', garment_photos })
-const urls = (...u: string[]) => new Map(u.map((x) => [x, `/_astro/${x}`]))
+const urls = (...u: string[]) => new Map(u.map((x) => [x, { image_url: `/_astro/${x}`, image_url_movil: `/_astro/${x}-720` }]))
 
 describe('armarColores', () => {
   it('saca el color solo si tiene todas las vistas de su prenda', () => {
@@ -26,8 +26,8 @@ describe('armarColores', () => {
 
   it('sin área ni cm usa el valor por defecto de la prenda y la vista; el cliente no calibra nada', () => {
     const { camiseta: lista } = armarColores([camiseta('c', [foto('frente', 'a'), foto('espalda', 'b')])], urls('a', 'b'))
-    expect(lista[0].photos[0]).toEqual({ view: 'frente', image_url: '/_astro/a', ...POR_DEFECTO.camiseta.frente })
-    expect(lista[0].photos[1]).toEqual({ view: 'espalda', image_url: '/_astro/b', ...POR_DEFECTO.camiseta.espalda })
+    expect(lista[0].photos[0]).toEqual({ view: 'frente', image_url: '/_astro/a', image_url_movil: '/_astro/a-720', ...POR_DEFECTO.camiseta.frente })
+    expect(lista[0].photos[1]).toEqual({ view: 'espalda', image_url: '/_astro/b', image_url_movil: '/_astro/b-720', ...POR_DEFECTO.camiseta.espalda })
   })
 
   it('respeta el área y los cm guardados, y descarta un área que rompería las cuentas', () => {

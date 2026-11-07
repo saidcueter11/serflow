@@ -10,9 +10,9 @@ import sol from "./sol-heroica.svg";
 
 const BASE: Pedido = { prenda: "camiseta", color: "Negra", tecnica: "estampado", ubicacion: "Pecho", cantidad: "2 a 5", diseno: "imagen", vistaPrevia: true, tamanoCm: 19, nota: "Tallas M y L" };
 const CON_IMAGEN = mensaje(BASE);
-const SIN_IMAGEN = mensaje({ ...BASE, diseno: "ayuda", vistaPrevia: false, nota: undefined });
-const ARCHIVO = mensaje({ ...BASE, diseno: "archivo", vistaPrevia: false });
-const PDF = { nombre: "logo-final.pdf", detalle: "PDF · 2,4 MB" };
+const SIN_IMAGEN = mensaje({ ...BASE, diseno: "ninguno", vistaPrevia: false, nota: undefined });
+const ARCHIVO = mensaje({ ...BASE, diseno: "pesada", vistaPrevia: false });
+const PESADA = { nombre: "foto-equipo.jpg", detalle: "JPG · 24 MB" };
 
 // El mockup JPG real que arma el motor (camiseta negra, estampado), como el que se guarda y se manda.
 function useMockup() {
@@ -60,9 +60,10 @@ export function BoardHoja() {
       />
       <div className="flex flex-wrap gap-8">
         <Marco label='tipo="imagen"'><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} vistaPrevia={mock} diseno={sol} /></Marco>
+        <Marco label="imagen · preparando"><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} diseno={sol} preparando /></Marco>
         <Marco label="imagen · guardada · compartir"><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} vistaPrevia={mock} diseno={sol} guardada compartir /></Marco>
         <Marco label='tipo="sin-imagen"'><HojaEnvio tipo="sin-imagen" mensaje={SIN_IMAGEN} /></Marco>
-        <Marco label='tipo="archivo" · sin señal'><HojaEnvio tipo="archivo" mensaje={ARCHIVO} archivo={PDF} sinSenal /></Marco>
+        <Marco label='tipo="archivo" · sin señal'><HojaEnvio tipo="archivo" mensaje={ARCHIVO} archivo={PESADA} sinSenal /></Marco>
         <Marco label="vuelta (pantalla C)"><HojaEnvio tipo="imagen" mensaje={CON_IMAGEN} vistaPrevia={mock} diseno={sol} vuelta /></Marco>
       </div>
       <div className="mt-10">

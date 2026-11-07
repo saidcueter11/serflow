@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import sharp from 'sharp'
 
 // PRI-150: fotos del sitio y colores del personalizador que publica el admin. El de 4232 no tiene nada publicado
 // (respaldo); el de e2e/promos/server.mjs en 4235 tiene filas sembradas (scenarios.mjs), buenas y rotas.
@@ -60,12 +61,31 @@ test.describe('con fotos y colores publicados', () => {
     expect(await colores(page)).toContain('negra')
   })
 
+  test('las fotos de la base salen en dos anchos: cada pantalla baja solo la suya, y va de primera', async ({ page, request }) => {
+    const html = await (await request.get('/personaliza')).text()
+    const escritorio = html.match(/<source[^>]*srcset="([^"]+)"/i)![1]
+    const movil = html.match(/<img[^>]*src="([^"]+)"[^>]*fetchpriority="high"/i)![1]
+    expect(movil).toMatch(/^\/_astro\/.*\.webp$/)
+    expect(escritorio).toMatch(/^\/_astro\/.*\.webp$/)
+    const ancho = async (url: string) => (await sharp(await (await request.get(url)).body()).metadata()).width
+    expect(await ancho(movil)).toBeLessThanOrEqual(720)
+    expect(await ancho(escritorio)).toBeGreaterThan(await ancho(movil))
+
+    const pedidas: string[] = []
+    page.on('request', (r) => pedidas.push(new URL(r.url()).pathname))
+    await abrirPersonaliza(page)
+    const [suya, otra] = test.info().project.name === 'mobile' ? [movil, escritorio] : [escritorio, movil]
+    await expect.poll(() => pedidas).toContain(suya)
+    expect(pedidas).not.toContain(otra)
+  })
+
   test('sin calibrar nada: el motor lee los píxeles de la foto de la base y el tamaño sale del valor por defecto', async ({ page }) => {
     await abrirPersonaliza(page)
     await page.locator('input[type=file]').first().setInputFiles({
-      name: 'logo.svg',
-      mimeType: 'image/svg+xml',
-      buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="800" height="800" fill="#1e3cb4"/></svg>'),
+      name: 'logo.png',
+      mimeType: 'image/png',
+      // Un PNG de 1 × 1, rojo.
+      buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==', 'base64'),
     })
     await expect(page.getByRole('group', { name: /Tu diseño, unos \d+ cm de ancho/ })).toBeVisible()
     await page.getByText('Espalda', { exact: true }).click()

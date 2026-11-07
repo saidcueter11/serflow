@@ -22,7 +22,7 @@ export default function PersonalizadorCanvas() {
 }
 
 const PEDIDO =
-  "¡Hola, Serflow! Quiero cotizar esta prenda personalizada:\n\n*Prenda:* Gorra negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1\n*Diseño:* todavía no tengo, quiero que me ayuden\n\nArmado en la web de Serflow";
+  "¡Hola, Serflow! Quiero cotizar esta prenda personalizada:\n\n*Prenda:* Gorra negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1\n\nArmado en la web de Serflow";
 
 defineAsset(VistaPrevia, {
   libraries: ["Design System"],
@@ -40,7 +40,7 @@ defineAsset(HojaEnvio, {
     "Hoja \"Revisa y envía\" del personalizador (pantalla B) y su estado vuelta (pantalla C, al volver de WhatsApp). Muestra el mensaje exacto y los pasos guardar, abrir chat (whatsappUrl) y adjuntar. Diálogo modal con foco atrapado. No para otros links de WhatsApp (usa Button whatsapp o WhatsAppFab).",
   variants: {
     "Sin imagen": { props: { tipo: "sin-imagen", mensaje: PEDIDO } },
-    "Archivo PDF": { props: { tipo: "archivo", mensaje: PEDIDO, archivo: { nombre: "logo-final.pdf", detalle: "PDF · 2,4 MB" } } },
+    "Imagen pesada": { props: { tipo: "archivo", mensaje: PEDIDO, archivo: { nombre: "foto-equipo.jpg", detalle: "JPG · 24 MB" } } },
     "Al volver": { props: { tipo: "sin-imagen", mensaje: PEDIDO, vuelta: true } },
   },
 });
@@ -48,14 +48,14 @@ defineAsset(HojaEnvio, {
 defineAsset(CampoDiseno, {
   libraries: ["Design System"],
   usageInstructions:
-    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando hay fondo plano, el aviso cuando el fondo no se puede quitar y los avisos de pesada, baja calidad o formato no mostrable. Acepta imágenes y PDF/AI/PSD.",
+    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando hay fondo plano, el aviso cuando el fondo no se puede quitar y los avisos de pesada, baja calidad o archivo que no abre. Solo imágenes: PNG, JPG y WEBP.",
   variants: {
     Inicial: { props: { estado: "ninguno" } },
     "Con fondo plano": { props: { estado: "imagen", nombre: "logo-heroica.png", detalle: "PNG · 1200 × 1200 px", quitarFondo: true } },
     "Fondo que no se puede quitar": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true } },
     "Baja calidad": { props: { estado: "baja", nombre: "logo-whatsapp.jpg", detalle: "JPG · 48 × 48 px" } },
-    "Archivo PDF": { props: { estado: "archivo", nombre: "logo-final.pdf", detalle: "PDF · 2,4 MB" } },
-    "No tengo diseño": { props: { estado: "ayuda" } },
+    "Imagen pesada": { props: { estado: "pesada", nombre: "foto-equipo.jpg", detalle: "JPG · 24 MB" } },
+    "Archivo que no abre": { props: { estado: "ninguno", rechazado: true } },
   },
 });
 
@@ -64,13 +64,11 @@ defineAsset(Colores, {
   usageInstructions:
     "Colores de una prenda como radios (name=\"color\") con círculo de 44 px y nombre. La lista viene del admin y crece en grilla. Va dentro de un form que lee el onChange. No para filtros del catálogo (usa Chip).",
   variants: {
-    "Gorra, 4 colores": {
+    "Gorra, 2 colores": {
       props: {
         colores: [
           { id: "negra", name: "Negra", hex: "#1d1c1a" },
           { id: "blanca", name: "Blanca", hex: "#f2f0ea" },
-          { id: "gris", name: "Gris", hex: "#8a8781" },
-          { id: "azul", name: "Azul", hex: "#2340c8" },
         ],
         elegido: "negra",
       },
@@ -83,7 +81,7 @@ defineAsset(Tecnicas, {
   usageInstructions:
     "Técnica de la prenda: tarjetas radio (name=\"tecnica\") con pista y muestra. ",
   variants: {
-    Camiseta: { props: { opciones: ["estampado", "dtf", "bordado"], elegida: "estampado" } },
+    Camiseta: { props: { opciones: ["estampado", "bordado"], elegida: "estampado" } },
     Gorra: { props: { opciones: ["bordado", "estampado"], elegida: "bordado" } },
   },
 });
@@ -128,7 +126,7 @@ defineAsset(Nota, {
 defineAsset(Aviso, {
   libraries: ["Design System"],
   usageInstructions:
-    "Aviso neutro que no bloquea (imagen pesada, pequeña, archivo que no se muestra, sin señal en la hoja). No para errores que cortan el flujo (usa ErrorState).",
+    "Aviso neutro que no bloquea (imagen pesada, pequeña, archivo que no abre, sin señal en la hoja). No para errores que cortan el flujo (usa ErrorState).",
   variants: {
     "Baja calidad": { props: { titulo: "Tu imagen es pequeña", children: "Puede verse pixelada en la prenda. Si tienes una más grande, súbela." } },
   },

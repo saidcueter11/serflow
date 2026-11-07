@@ -156,6 +156,9 @@ test.describe('contenido editado', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1, name: 'Hola Cartagena' })).toBeVisible()
     await expect(page.getByText('Lema de prueba del hero.')).toBeVisible()
+    // El efecto del título y la bajada (PRI-287) también va con el texto editado.
+    await expect(page.locator('h1 .sf-palabra')).toHaveCount(2)
+    await expect(page.locator('.sf-bajada .sf-palabra')).toHaveCount(4)
 
     const fotos = page.locator('.hero-carousel figure img')
     await expect(fotos).toHaveCount(3)

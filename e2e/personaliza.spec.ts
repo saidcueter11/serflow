@@ -3,6 +3,8 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 // PRI-122: /personaliza encendida con fotos de muestra (las oficiales llegan con PRI-125). Los archivos de prueba se arman
 // aquí (sin datos personales ni binarios en el repo).
+// PRI-150: contra el build con tablas vacías, para que una publicación del cliente no ponga esto rojo.
+test.use({ baseURL: 'http://localhost:4232' })
 
 const crcTabla = Array.from({ length: 256 }, (_, n) => {
   let c = n
@@ -22,13 +24,13 @@ function bloque(tipo: string, datos: Buffer) {
   crc.writeUInt32BE(crc32(Buffer.concat([t, datos])))
   return Buffer.concat([largo, t, datos, crc])
 }
-/** PNG RGBA de lado n, píxel por píxel. */
-function png(n: number, pixel: (x: number, y: number) => number[]): Buffer {
-  const filas = Buffer.alloc(n * (n * 4 + 1))
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) filas.set(pixel(x, y), y * (n * 4 + 1) + 1 + x * 4)
+/** PNG RGBA de n × alto, píxel por píxel. */
+function png(n: number, pixel: (x: number, y: number) => number[], alto = n): Buffer {
+  const filas = Buffer.alloc(alto * (n * 4 + 1))
+  for (let y = 0; y < alto; y++) for (let x = 0; x < n; x++) filas.set(pixel(x, y), y * (n * 4 + 1) + 1 + x * 4)
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(n, 0)
-  ihdr.writeUInt32BE(n, 4)
+  ihdr.writeUInt32BE(alto, 4)
   ihdr.set([8, 6, 0, 0, 0], 8)
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), bloque('IHDR', ihdr), bloque('IDAT', deflateSync(filas)), bloque('IEND', Buffer.alloc(0))])
 }
@@ -43,10 +45,18 @@ const logoSobreBlanco = (n: number) =>
 const fotoSinFondoPlano = (n: number) => png(n, (x, y) => [(x * 255) / n, (y * 255) / n, ((x + y) * 127) / n, 255])
 /** Un cuadro azul sobre transparente: ya viene sin fondo. */
 const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, y - n / 2) < n / 4 ? [30, 60, 180, 255] : [0, 0, 0, 0]))
+/** Un bloque azul de jean oscuro, opaco, sobre transparente: la parte oscura de un diseño (PRI-122, la pierna que se perdía). */
+const JEAN = [38, 52, 96]
+const bloqueJean = (n: number) => png(n, (x, y) => (x > n / 5 && x < (4 * n) / 5 && y > n / 5 && y < (4 * n) / 5 ? [...JEAN, 255] : [0, 0, 0, 0]))
+/** Un bloque de color casi hasta el borde: pinta toda la caja del diseño. */
+const bloqueLleno = (n: number) => png(n, (x, y) => (x > 6 && x < n - 6 && y > 6 && y < n - 6 ? [210, 30, 40, 255] : [0, 0, 0, 0]))
+/** Una tira azul 1:5 sobre transparente, más alta que el recorte del celular. */
+const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 590 ? [30, 60, 180, 255] : [0, 0, 0, 0]), 600)
 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
 const FONDO_FIJO = 'Esta imagen conserva su fondo'
 const PISTA_BORDADO = 'El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos 10 cm de ancho.'
+const ERROR_ARCHIVO = 'No pudimos abrir este archivo'
 
 const colores = (page: Page) => page.locator('input[name=color]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
 const tecnicas = (page: Page) => page.locator('input[name=tecnica]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
@@ -69,6 +79,52 @@ async function subir(page: Page, archivo: { name: string; mimeType: string; buff
   await page.locator('input[type=file]').first().setInputFiles(archivo)
 }
 
+/** Cuántos px se sale la caja del diseño de lo visible de la vista previa (negativo: entra de sobra). */
+async function cuantoSobra(page: Page) {
+  const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
+  const d = await page.getByRole('group', { name: /Tu diseño/ }).boundingBox()
+  // Mientras llega la foto, el diseño no está: que el poll siga esperando.
+  if (!d) return Infinity
+  return Math.max(v.x - d.x, v.y - d.y, d.x + d.width - v.x - v.width, d.y + d.height - v.y - v.height)
+}
+
+/** Trae el diseño a la vista y espera a que se quede quieto (el scroll suave sigue moviéndolo un rato): el mouse apunta a coordenadas de pantalla. */
+async function quieto(diseno: Locator) {
+  await diseno.scrollIntoViewIfNeeded()
+  let previa = -1
+  await expect
+    .poll(async () => {
+      const y = (await diseno.boundingBox())!.y
+      const igual = y === previa
+      previa = y
+      return igual
+    })
+    .toBe(true)
+}
+
+/** Lo más que se aleja del color esperado una rejilla de 5 × 5 puntos dentro del diseño (9 × 9 px de la escena cada uno): el daño está en los pliegues, no en el centro. */
+async function peorColorEnElDiseno(page: Page, esperado: number[]) {
+  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  return page.locator('.pf-pz-vista canvas').evaluate(
+    (c: HTMLCanvasElement, { d, esperado }) => {
+      const r = c.getBoundingClientRect()
+      const x = c.getContext('2d')!
+      let peor = 0
+      for (const fy of [0.3, 0.4, 0.5, 0.6, 0.7])
+        for (const fx of [0.3, 0.4, 0.5, 0.6, 0.7]) {
+          const px = Math.round(((d.x + d.width * fx - r.left) / r.width) * c.width)
+          const py = Math.round(((d.y + d.height * fy - r.top) / r.height) * c.height)
+          const p = x.getImageData(px - 4, py - 4, 9, 9).data
+          const m = [0, 0, 0]
+          for (let i = 0; i < p.length; i += 4) for (let k = 0; k < 3; k++) m[k] += p[i + k] / 81
+          peor = Math.max(peor, ...m.map((v, k) => Math.abs(v - esperado[k])))
+        }
+      return peor
+    },
+    { d, esperado },
+  )
+}
+
 test.describe('/personaliza', () => {
   test('encendida: se indexa, está en el sitemap y el botón de la portada lleva a ella', async ({ page, request }) => {
     await page.goto('/')
@@ -84,12 +140,13 @@ test.describe('/personaliza', () => {
     expect(await sitemap.text()).toContain('/personaliza')
   })
 
-  test('colores: camiseta solo negra y blanca; las gorras conservan los de la muestra', async ({ page }) => {
+  test('colores: solo los que tienen foto real, en camiseta y en gorra', async ({ page }) => {
     await abrir(page)
     expect(await colores(page)).toEqual(['negra', 'blanca'])
     await page.getByText('Gorra', { exact: true }).click()
-    await expect(page.getByText('Azul', { exact: true })).toBeVisible()
-    expect(await colores(page)).toEqual(['negra', 'blanca', 'gris', 'azul'])
+    await expect(page.getByText('Gris', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('Azul', { exact: true })).toHaveCount(0)
+    expect(await colores(page)).toEqual(['negra', 'blanca'])
   })
 
   test('flujo principal: logo sobre blanco, quita el fondo, cambia color y técnica y arma el mensaje de WhatsApp', async ({ page }) => {
@@ -103,7 +160,6 @@ test.describe('/personaliza', () => {
 
     await page.getByText('Blanca', { exact: true }).click()
     await expect(page.getByRole('img', { name: 'Camiseta blanca con tu diseño' })).toBeVisible()
-    await page.getByText('DTF', { exact: true }).click()
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 21 cm de ancho/ })).toBeVisible()
     await page.getByText('2 a 5', { exact: true }).click()
@@ -118,7 +174,7 @@ test.describe('/personaliza', () => {
         '¡Hola, Serflow! Quiero cotizar esta prenda personalizada:',
         '',
         '*Prenda:* Camiseta blanca',
-        '*Técnica:* DTF',
+        '*Técnica:* Estampado',
         '*Ubicación:* Pecho',
         '*Tamaño:* unos 21 cm de ancho',
         '*Cantidad:* 2 a 5',
@@ -140,20 +196,22 @@ test.describe('/personaliza', () => {
     expect(texto).toContain('*Nota:* Tallas M y L')
   })
 
-  test('técnicas por prenda: camiseta con las 3; gorra con bordado y estampado, sin DTF, y el mensaje lo dice', async ({ page }) => {
+  test('técnicas por prenda: sin DTF ni en camiseta ni en gorra; sin diseño, el mensaje no pide ayuda', async ({ page }) => {
     await abrir(page)
-    expect(await tecnicas(page)).toEqual(['estampado', 'dtf', 'bordado'])
+    expect(await tecnicas(page)).toEqual(['estampado', 'bordado'])
+    await expect(page.getByText('DTF', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('No tengo diseño, quiero que me ayuden')).toHaveCount(0)
 
     await page.getByText('Gorra', { exact: true }).click()
     await expect(page.getByText('DTF', { exact: true })).toHaveCount(0)
     expect(await tecnicas(page)).toEqual(['bordado', 'estampado'])
-    await page.getByText('No tengo diseño, quiero que me ayuden').click()
 
     await enviar(page).click()
     const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
     const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain('*Prenda:* Gorra negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1')
-    expect(texto).toContain('*Diseño:* todavía no tengo, quiero que me ayuden')
+    expect(texto).not.toContain('*Diseño:*')
+    expect(texto).not.toContain('quiero que me ayuden')
     expect(texto).not.toContain('*Tamaño:*')
 
     await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
@@ -186,7 +244,7 @@ test.describe('/personaliza', () => {
 
     // Con otra técnica se quita el tope y la pista.
     await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
-    await page.getByText('DTF', { exact: true }).click()
+    await page.getByText('Estampado', { exact: true }).click()
     await expect(page.getByText(PISTA_BORDADO)).toHaveCount(0)
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 13 cm de ancho/ })).toBeVisible()
@@ -227,19 +285,15 @@ test.describe('/personaliza', () => {
     expect(texto).toContain('*Diseño:* te lo mando en el siguiente mensaje, con la vista previa')
   })
 
-  test('estados: imagen pesada, de baja calidad y formato que no se puede mostrar', async ({ page }) => {
+  test('estados: imagen pesada y de baja calidad', async ({ page }) => {
     await abrir(page)
-
-    await subir(page, { name: 'foto-pesada.jpg', mimeType: 'image/jpeg', buffer: Buffer.alloc(21 * 1024 * 1024) })
-    await expect(page.getByText('Esta imagen pesa mucho para verla aquí')).toBeVisible()
 
     await subir(page, { name: 'logo-chico.png', mimeType: 'image/png', buffer: logoSobreBlanco(120) })
     await expect(page.getByText('Tu imagen es pequeña')).toBeVisible()
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
 
-    await subir(page, { name: 'logo-final.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%prueba\n') })
-    await expect(page.getByText('Este archivo no lo podemos mostrar aquí')).toBeVisible()
-    await expect(page.getByText('No se puede ver aquí')).toBeVisible()
+    await subir(page, { name: 'foto-pesada.jpg', mimeType: 'image/jpeg', buffer: Buffer.alloc(21 * 1024 * 1024) })
+    await expect(page.getByText('Esta imagen pesa mucho para verla aquí')).toBeVisible()
 
     await enviar(page).click()
     const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
@@ -247,6 +301,178 @@ test.describe('/personaliza', () => {
     const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain('*Diseño:* te mando el archivo en el siguiente mensaje')
     expect(texto).not.toContain('*Tamaño:*')
+  })
+
+  test('solo imágenes: PDF, AI, PSD y HEIC que no abre dan un error claro y no se envían', async ({ page }) => {
+    await abrir(page)
+    await expect(page.locator('input[type=file]').first()).toHaveAttribute('accept', 'image/png,image/jpeg,image/webp')
+    await expect(page.getByText(/PDF|PSD/)).toHaveCount(0)
+
+    const casos = [
+      { name: 'logo.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n') },
+      { name: 'logo.ai', mimeType: 'application/postscript', buffer: Buffer.from('%!PS\n') },
+      { name: 'logo.psd', mimeType: 'image/vnd.adobe.photoshop', buffer: Buffer.from('8BPS') },
+      // Chrome no decodifica HEIC; Safari sí lo abre y sigue el camino normal.
+      { name: 'foto-iphone.heic', mimeType: 'image/heic', buffer: Buffer.from('no se decodifica') },
+    ]
+    for (const archivo of casos) {
+      await subir(page, archivo)
+      await expect(page.getByText(ERROR_ARCHIVO)).toBeVisible()
+      await expect(page.getByText(archivo.name)).toHaveCount(0)
+      await enviar(page).click()
+      const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+      expect(await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))).not.toContain('*Diseño:*')
+      await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
+    }
+
+    // Una imagen válida quita el error.
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByText('logo-prueba.png')).toBeVisible()
+    await expect(page.getByText(ERROR_ARCHIVO)).toHaveCount(0)
+  })
+
+  test('cantidad: todos los botones tienen la misma forma de píldora', async ({ page }) => {
+    await abrir(page)
+    const chips = page.locator('input[name=cantidad] + span')
+    await expect(chips).toHaveCount(4)
+    for (const chip of await chips.all()) {
+      const caja = (await chip.boundingBox())!
+      expect(caja.width, `${await chip.textContent()}: más ancho que alto`).toBeGreaterThan(caja.height)
+    }
+  })
+
+  test('colocación libre: sin recuadro, se mueve fuera del área, no se pierde y conserva los cm', async ({ page }) => {
+    await abrir(page)
+    await expect(page.locator('.pf-pz-vista polygon')).toHaveCount(0)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+
+    const diseno = page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })
+    await expect(diseno).toBeVisible()
+    await diseno.scrollIntoViewIfNeeded()
+    const centro = async () => {
+      const c = (await diseno.boundingBox())!
+      return { x: c.x + c.width / 2, y: c.y + c.height / 2 }
+    }
+    const inicio = await centro()
+    await page.mouse.click(inicio.x, inicio.y)
+    // Seleccionado: manijas y tamaño, sin recuadro punteado ni guías fijas.
+    await expect(page.getByText('unos 19 cm de ancho', { exact: true })).toBeVisible()
+    await expect(page.locator('.pf-pz-vista polygon')).toHaveCount(0)
+    await expect(page.getByText('Centrado', { exact: true })).toHaveCount(0)
+
+    // Arrastre enorme hacia arriba a la izquierda: llega al borde de la foto visible y se queda ahí, entero.
+    await page.mouse.move(inicio.x, inicio.y)
+    await page.mouse.down()
+    await page.mouse.move(inicio.x - 1500, inicio.y - 1500, { steps: 4 })
+    await page.mouse.up()
+    const vista = (await page.locator('.pf-pz-vista > div').boundingBox())!
+    await expect.poll(async () => (await diseno.boundingBox())!.x - vista.x).toBeLessThan(2)
+    const arriba = (await diseno.boundingBox())!
+    expect(arriba.x).toBeGreaterThanOrEqual(vista.x - 1)
+    expect(arriba.y).toBeGreaterThanOrEqual(vista.y - 1)
+    // Arrastrar no selecciona texto: con una selección, el siguiente arrastre arranca un drag nativo y el navegador lo corta.
+    expect(await page.evaluate(() => String(getSelection()))).toBe('')
+
+    // Hacia abajo a la derecha, igual, aunque la página tenga texto seleccionado.
+    await page.evaluate(() => getSelection()!.selectAllChildren(document.body))
+    const c = await centro()
+    await page.mouse.move(c.x, c.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x + 1500, c.y + 1500, { steps: 4 })
+    await page.mouse.up()
+    await expect.poll(async () => vista.x + vista.width - ((await diseno.boundingBox())!.x + (await diseno.boundingBox())!.width)).toBeLessThan(2)
+    const abajo = (await diseno.boundingBox())!
+    expect(abajo.y + abajo.height).toBeLessThanOrEqual(vista.y + vista.height + 1)
+
+    // El tamaño no cambió por moverlo, y el mensaje lo dice.
+    await enviar(page).click()
+    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Tamaño:* unos 19 cm de ancho')
+  })
+
+  test('colocación: un diseño alto queda dentro de lo visible sin tocarlo', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'tira.png', mimeType: 'image/png', buffer: tiraAlta() })
+    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('colocación: al cambiar de foto el diseño queda dentro de lo visible sin tocarlo', async ({ page }) => {
+    await abrir(page)
+    await page.getByText('Blanca', { exact: true }).click()
+    await page.getByText('Espalda', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta blanca, espalda' })).toBeVisible()
+    await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(800) })
+
+    // Al borde de abajo a la derecha; la espalda negra tiene otra área y otro recorte.
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await diseno.scrollIntoViewIfNeeded()
+    const d = (await diseno.boundingBox())!
+    const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
+    await page.mouse.click(c.x, c.y)
+    await page.mouse.move(c.x, c.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x + 1500, c.y + 1500, { steps: 4 })
+    await page.mouse.up()
+
+    await page.getByText('Negra', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda con tu diseño' })).toBeVisible()
+    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('la foto no salta cuando el motor reemplaza a la del HTML', async ({ page }) => {
+    await page.route('**/*.js', (r) => r.abort())
+    await page.goto('/personaliza')
+    const html = (await page.locator('.pf-pz-vista picture img').boundingBox())!
+    await page.unrouteAll()
+    await abrir(page)
+    const motor = (await page.locator('.pf-pz-vista canvas').boundingBox())!
+    expect(Math.abs(motor.y - html.y)).toBeLessThan(1)
+  })
+
+  test('bordado: al pedir más de 10 cm avisa el tope sobre la foto', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await page.getByText('Bordado', { exact: true }).click()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
+    const aviso = page.locator('.pf-pz-vista').getByText('Bordado: hasta unos 10 cm de ancho')
+    await expect(aviso).toHaveCount(0)
+    await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
+    await expect(aviso).toBeVisible()
+    await page.getByRole('button', { name: 'Hacer el diseño más pequeño' }).click()
+    await expect(aviso).toHaveCount(0)
+  })
+
+  test('rendimiento: baja una sola foto liviana en WebP; las otras vistas, solo al pedirlas', async ({ page, isMobile }) => {
+    const prendas: { url: string; bytes: number }[] = []
+    page.on('response', async (r) => {
+      if (/\/(camiseta|gorra)-[^/]*\.\w+$/.test(new URL(r.url()).pathname)) prendas.push({ url: new URL(r.url()).pathname, bytes: (await r.body()).length })
+    })
+    await abrir(page)
+    await expect.poll(() => prendas.length).toBe(1)
+    expect(prendas[0].url).toMatch(/\/camiseta-negra\.[^/]*\.webp$/)
+    expect(prendas[0].bytes).toBeLessThanOrEqual(isMobile ? 40 * 1024 : 70 * 1024)
+
+    await page.getByText('Espalda', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda' })).toBeVisible()
+    await expect.poll(() => prendas.length).toBe(2)
+    expect(prendas[1].url).toMatch(/\/camiseta-negra-espalda\.[^/]*\.webp$/)
+  })
+
+  test('mockup: en celular sale de la foto grande, que solo se baja al enviar', async ({ page, isMobile }) => {
+    const prendas: string[] = []
+    page.on('response', (r) => {
+      const url = new URL(r.url()).pathname
+      if (/\/(camiseta|gorra)-[^/]*\.\w+$/.test(url)) prendas.push(url)
+    })
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    expect(prendas).toHaveLength(1)
+
+    await enviar(page).click()
+    await expect(page.getByRole('dialog', { name: 'Revisa y envía' }).getByRole('img', { name: 'Vista previa de tu prenda' }).first()).toBeVisible()
+    expect(prendas).toHaveLength(isMobile ? 2 : 1)
+    if (isMobile) expect(prendas[1]).not.toBe(prendas[0])
   })
 
   test('escritorio angosto: la escena llena la vista previa, sin franja, y las dos columnas cierran a ras', async ({ page, isMobile }) => {
@@ -262,5 +488,221 @@ test.describe('/personaliza', () => {
       const paso2 = (await page.locator('.pf-pz-pasos > section').nth(1).boundingBox())!
       expect(Math.abs(envio.y + envio.height - (paso2.y + paso2.height)), `${ancho}: columnas a ras`).toBeLessThanOrEqual(1)
     }
+  })
+  for (const prenda of ['Camiseta', 'Gorra']) {
+    test(`estampado en ${prenda.toLowerCase()} negra: las partes oscuras del diseño conservan su color`, async ({ page }) => {
+      await abrir(page)
+      await page.getByText(prenda, { exact: true }).click()
+      if (prenda === 'Gorra') await page.getByText('Estampado', { exact: true }).click()
+      await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
+      await expect(page.getByRole('img', { name: `${prenda} negra con tu diseño` })).toBeVisible()
+      await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+      // La tela marca pliegues y trama, pero el azul no se vuelve negro (antes se alejaba 89 en camiseta y 77 en gorra; ahora, 31 y 23).
+      await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(40)
+    })
+  }
+
+  test('un diseño chico se agarra y se mueve desde el centro, sin que las manijas lo tapen', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(400) })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    await diseno.focus()
+    for (let i = 0; i < 12; i++) await page.keyboard.press('-')
+    await quieto(diseno)
+    const b = (await diseno.boundingBox())!
+    expect(b.width).toBeLessThan(44)
+    await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2)
+    await expect(page.getByText(/^unos \d+ cm de ancho$/)).toBeVisible()
+    // El clic lo enfoca y eso puede volver a mover la página: se mide después.
+    await quieto(diseno)
+    const antes = (await diseno.boundingBox())!
+    const c = { x: antes.x + antes.width / 2, y: antes.y + antes.height / 2 }
+
+    // Se arrastra desde 15 px del centro, fuera del dibujo pero dentro de los 44 px táctiles.
+    await page.mouse.move(c.x + 15, c.y + 15)
+    await page.mouse.down()
+    await page.mouse.move(c.x + 75, c.y + 15, { steps: 4 })
+    await page.mouse.up()
+    await expect.poll(async () => (await diseno.boundingBox())!.x - antes.x).toBeGreaterThan(50)
+    expect((await diseno.boundingBox())!.width).toBeCloseTo(antes.width, 0)
+  })
+
+  test('girar: el botón gira el diseño de a 15° y sigue dentro de lo visible', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'tira.png', mimeType: 'image/png', buffer: tiraAlta() })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    const girar = page.getByRole('button', { name: 'Girar el diseño' })
+    await girar.click()
+    await expect(diseno).toHaveCSS('transform', /^matrix\(0\.96/)
+    for (let i = 0; i < 5; i++) await girar.click()
+    // A 90° la tira alta queda acostada: más ancha que alta, entera dentro de la vista.
+    await expect.poll(async () => {
+      const b = (await diseno.boundingBox())!
+      return b.width > b.height
+    }).toBe(true)
+    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+  })
+
+  test('girar con la tecla R y con la manija no cambia el tamaño del mensaje', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    const diseno = page.getByRole('group', { name: /Tu diseño, unos 19 cm de ancho/ })
+    await expect(diseno).toBeVisible()
+    await quieto(diseno)
+
+    await diseno.focus()
+    await page.keyboard.press('r')
+    await expect(diseno).toHaveCSS('transform', /^matrix\(0\.96/)
+    await page.keyboard.press('Shift+R')
+    await expect(diseno).toHaveCSS('transform', 'none')
+
+    // La manija de arriba: del centro hacia la derecha son unos 90°.
+    const m = (await diseno.locator('.cursor-grab').boundingBox())!
+    const d = (await diseno.boundingBox())!
+    await page.mouse.move(m.x + m.width / 2, m.y + m.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(d.x + d.width / 2 + 90, d.y + d.height / 2, { steps: 4 })
+    await page.mouse.up()
+    await expect.poll(() => diseno.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).b)).toBeGreaterThan(0.99)
+
+    await enviar(page).click()
+    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain('*Tamaño:* unos 19 cm de ancho')
+  })
+
+  for (const [lado, dx, dy] of [['abajo a la izquierda', -1, 1], ['abajo a la derecha', 1, 1], ['arriba a la izquierda', -1, -1], ['arriba a la derecha', 1, -1]] as const) {
+    test(`gorra negra, área que no es un rectángulo: ${lado} el diseño no se sale de lo visible`, async ({ page }) => {
+      await abrir(page)
+      await page.getByText('Gorra', { exact: true }).click()
+      await expect(page.getByRole('img', { name: 'Gorra negra' })).toBeVisible()
+      await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
+      await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(800) })
+      const diseno = page.getByRole('group', { name: /Tu diseño/ })
+      await expect(diseno).toBeVisible()
+      await quieto(diseno)
+      const d = (await diseno.boundingBox())!
+      const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
+      await page.mouse.click(c.x, c.y)
+      await page.mouse.move(c.x, c.y)
+      await page.mouse.down()
+      await page.mouse.move(c.x + dx * 1500, c.y + dy * 1500, { steps: 4 })
+      await page.mouse.up()
+      const v = (await page.locator('.pf-pz-vista > div').boundingBox())!
+      await expect
+        .poll(async () => {
+          const b = (await diseno.boundingBox())!
+          return dy > 0 ? v.y + v.height - (b.y + b.height) : b.y - v.y
+        })
+        .toBeLessThan(2)
+      await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
+    })
+  }
+
+  test('gorra negra: en la esquina de abajo el diseño se pinta entero, sin cortarse donde se acaba la malla', async ({ page }) => {
+    await abrir(page)
+    await page.getByText('Gorra', { exact: true }).click()
+    await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
+    const lienzo = page.locator('.pf-pz-vista canvas')
+    // La foto sin diseño, para ver después qué pintó el motor.
+    await lienzo.evaluate((c: HTMLCanvasElement) => {
+      ;(window as unknown as { base: ImageData }).base = c.getContext('2d')!.getImageData(0, 0, c.width, c.height)
+    })
+    await subir(page, { name: 'bloque.png', mimeType: 'image/png', buffer: bloqueLleno(400) })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    await quieto(diseno)
+    const d = (await diseno.boundingBox())!
+    const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
+    await page.mouse.click(c.x, c.y)
+    await page.mouse.move(c.x, c.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x - 1500, c.y + 1500, { steps: 4 })
+    await page.mouse.up()
+    // El punto menos pintado de una rejilla dentro del diseño: donde se corta, la foto queda igual (diferencia 0).
+    await expect
+      .poll(async () => {
+        const caja = (await diseno.boundingBox())!
+        return lienzo.evaluate((el: HTMLCanvasElement, b) => {
+          const base = (window as unknown as { base: ImageData }).base
+          const r = el.getBoundingClientRect()
+          const ahora = el.getContext('2d')!.getImageData(0, 0, el.width, el.height)
+          let menor = 255
+          for (const fy of [0.3, 0.4, 0.5, 0.6, 0.7])
+            for (const fx of [0.3, 0.4, 0.5, 0.6, 0.7]) {
+              const px = Math.round(((b.x + b.width * fx - r.left) / r.width) * el.width)
+              const py = Math.round(((b.y + b.height * fy - r.top) / r.height) * el.height)
+              if (px < 0 || py < 0 || px >= el.width || py >= el.height) continue
+              const o = (py * el.width + px) * 4
+              const dif = Math.abs(ahora.data[o] - base.data[o]) + Math.abs(ahora.data[o + 1] - base.data[o + 1]) + Math.abs(ahora.data[o + 2] - base.data[o + 2])
+              menor = Math.min(menor, dif)
+            }
+          return menor
+        }, caja)
+      })
+      .toBeGreaterThan(10)
+  })
+
+  test('una manija con el diseño girado no hace saltar el tamaño', async ({ page }) => {
+    await abrir(page)
+    await subir(page, { name: 'tira.png', mimeType: 'image/png', buffer: tiraAlta() })
+    const diseno = page.getByRole('group', { name: /Tu diseño/ })
+    await expect(diseno).toBeVisible()
+    const girar = page.getByRole('button', { name: 'Girar el diseño' })
+    for (let i = 0; i < 6; i++) await girar.click()
+    await expect.poll(async () => {
+      const b = (await diseno.boundingBox())!
+      return b.width > b.height
+    }).toBe(true)
+    await quieto(diseno)
+    const antes = (await diseno.boundingBox())!
+    // Una esquina a 90°: antes el tamaño salía de la x y la tira 1:5 se agrandaba de golpe.
+    await page.mouse.move(antes.x + antes.width, antes.y + antes.height)
+    await page.mouse.down()
+    await page.mouse.move(antes.x + antes.width - 1, antes.y + antes.height - 1, { steps: 2 })
+    await page.mouse.up()
+    expect(Math.abs((await diseno.boundingBox())!.width - antes.width)).toBeLessThan(antes.width * 0.1)
+  })
+
+  test('guardar espera la vista previa: mientras baja la foto grande no se guarda solo el diseño', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'en escritorio la foto grande ya está: el mockup sale al instante')
+    let soltar = () => {}
+    const espera = new Promise<void>((ok) => (soltar = ok))
+    // La primera foto que pide es la liviana (la de la vista); la grande, otra URL, espera.
+    let liviana = ''
+    await page.route(/\/camiseta-negra\.[^/]*\.webp$/, async (r) => {
+      liviana ||= r.request().url()
+      if (r.request().url() !== liviana) await espera
+      await r.continue()
+    })
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    await enviar(page).click()
+
+    const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+    await expect(hoja.getByText('Preparando la vista previa…')).toBeVisible()
+    await expect(hoja.getByRole('button', { name: /^Guardar/ })).toHaveCount(0)
+    soltar()
+    await expect(hoja.getByRole('button', { name: 'Guardar imágenes' })).toBeVisible()
+    await expect(hoja.getByText('Preparando la vista previa…')).toHaveCount(0)
+  })
+
+  test('con la foto grande colgada, a los pocos segundos se puede guardar la vista previa de la foto que ya está', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'en escritorio la foto grande ya está: el mockup sale al instante')
+    let liviana = ''
+    await page.route(/\/camiseta-negra\.[^/]*\.webp$/, async (r) => {
+      liviana ||= r.request().url()
+      if (r.request().url() === liviana) await r.continue()
+      // La grande nunca responde: mala señal que no llega a dar error.
+    })
+    await abrir(page)
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible()
+    await enviar(page).click()
+    const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+    await expect(hoja.getByText('Preparando la vista previa…')).toBeVisible()
+    await expect(hoja.getByRole('button', { name: 'Guardar imágenes' })).toBeVisible({ timeout: 10_000 })
+    await page.unrouteAll({ behavior: 'ignoreErrors' })
   })
 })

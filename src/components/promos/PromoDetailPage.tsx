@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
 import { Button } from '../ui/Button'
 import { HeroCarousel } from '../ui/HeroCarousel'
+import { Palabras } from '../ui/Palabras'
 import { PromoCard } from '../ui/PromoCard'
 import { PromoGrid } from '../ui/PromoGrid'
 import { Section } from '../ui/Section'
@@ -29,8 +30,14 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
         <HeroCarousel slides={promo.cover ? [promo.cover] : []} className="pf-hero pf-promo-hero">
           <div className="pf-hero-texto anim-enter">
             {hasta && <span className="pf-pie">{hasta}</span>}
-            <h1 className="pf-display">{promo.title}</h1>
-            {promo.description && <p className="pf-lead">{promo.description}</p>}
+            <h1 className="pf-display">
+              <Palabras text={promo.title} />
+            </h1>
+            {promo.description && (
+              <p className="pf-lead sf-bajada">
+                <Palabras text={promo.description} />
+              </p>
+            )}
             <div>
               <Button variant="whatsapp" href={promoWhatsapp(promo)} external fullWidth>
                 Pedir esta promo por WhatsApp

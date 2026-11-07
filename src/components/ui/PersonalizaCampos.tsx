@@ -45,7 +45,7 @@ export function Grupo({ legend, valor, children, nota }: { legend: string; valor
   )
 }
 
-/** Aviso que no bloquea: imagen pesada, pequeña, archivo que no se muestra o sin señal. Neutro (no es un error). */
+/** Aviso que no bloquea: imagen pesada, pequeña, archivo que no abre o sin señal. Neutro: lo elegido sigue en pie. */
 export function Aviso({ titulo, children, icono }: { titulo: string; children: ReactNode; icono?: ReactNode }) {
   return (
     <div role="status" className="flex gap-3 rounded-tile border border-line bg-surface-2 p-3.5 font-body text-ink">
@@ -64,7 +64,6 @@ const AVISOS: Partial<Record<EstadoDiseno, { titulo: string; texto: string }>> =
     titulo: 'Tu imagen es pequeña',
     texto: 'Puede verse pixelada en la prenda. Si tienes una más grande, súbela; si no, igual la revisamos en el taller.',
   },
-  archivo: { titulo: 'Este archivo no lo podemos mostrar aquí', texto: 'Pero sí lo recibimos. Mándalo en el chat como documento.' },
 }
 
 function Selector({ onArchivo }: { onArchivo?: (f: File) => void }) {
@@ -87,20 +86,20 @@ export interface CampoDisenoProps {
   quitarFondo?: boolean
   /** El fondo no se puede quitar (no es plano ni transparente): se avisa. */
   fondoFijo?: boolean
+  /** El último archivo no se pudo abrir: otro formato, HEIC sin soporte o dañado. */
+  rechazado?: boolean
   escritorio?: boolean
   onArchivo?: (f: File) => void
   onQuitar?: () => void
-  onAyuda?: (ayuda: boolean) => void
   onQuitarFondo?: (quitar: boolean) => void
 }
 
 /**
  * Paso 1: subir el diseño. Un <label> con <input type="file"> (abre galería o cámara en el celular); en escritorio
- * también se puede soltar el archivo. Acepta imágenes y también PDF, AI y PSD (se reciben aunque no se muestren).
+ * también se puede soltar el archivo. Solo imágenes: PNG, JPG y WEBP (el iPhone convierte sus HEIC a JPG al elegirlos).
  */
-export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, fondoFijo = false, escritorio = false, onArchivo, onQuitar, onAyuda, onQuitarFondo }: CampoDisenoProps) {
-  const ayuda = estado === 'ayuda'
-  const conArchivo = estado !== 'ninguno' && !ayuda
+export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, fondoFijo = false, rechazado = false, escritorio = false, onArchivo, onQuitar, onQuitarFondo }: CampoDisenoProps) {
+  const conArchivo = estado !== 'ninguno'
   const aviso = AVISOS[estado as EstadoDiseno]
   const soltar = (e: DragEvent) => {
     e.preventDefault()
@@ -110,7 +109,7 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, f
 
   return (
     <div className="flex flex-col gap-3 font-body text-ink">
-      {!conArchivo && !ayuda && (
+      {!conArchivo && (
         <>
           <label
             onDragOver={(e) => e.preventDefault()}
@@ -122,7 +121,7 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, f
               <IconSubir className="size-6" />
             </span>
             <span className="text-[16px] font-bold">{escritorio ? 'Arrastra tu imagen aquí o elígela' : 'Subir imagen'}</span>
-            <span className="text-[14px] text-muted">{escritorio ? 'PNG, JPG, PDF, AI o PSD' : 'Desde tu galería o la cámara'}</span>
+            <span className="text-[14px] text-muted">{escritorio ? 'PNG, JPG o WEBP' : 'Desde tu galería o la cámara'}</span>
           </label>
           <p className="-mt-1 text-[16px] leading-normal text-muted">Sube tu logo, un dibujo o una foto. Un PNG sin fondo se ve mejor.</p>
           <p className="-mt-1 text-[16px] leading-normal text-muted">Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.</p>
@@ -171,16 +170,7 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, f
 
       {aviso && <Aviso titulo={aviso.titulo}>{aviso.texto}</Aviso>}
 
-      {!conArchivo && (
-        <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-tile text-[15px]">
-          <input type="checkbox" checked={ayuda} onChange={(e) => onAyuda?.(e.target.checked)} className="peer sr-only" />
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-line text-primary peer-checked:border-accent peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent">
-            {ayuda && <IconCheck className="size-4" />}
-          </span>
-          No tengo diseño, quiero que me ayuden
-        </label>
-      )}
-      {ayuda && <p className="text-[16px] leading-normal text-muted">Listo: en el chat te ayudamos a armarlo. Cuéntanos tu idea en la nota de abajo.</p>}
+      {rechazado && <Aviso titulo="No pudimos abrir este archivo">Sube una imagen PNG, JPG o WEBP. Si es una foto HEIC del iPhone, guárdala como JPG.</Aviso>}
     </div>
   )
 }
@@ -216,12 +206,6 @@ export function Colores({ colores, elegido, cargando }: { colores: { id: string;
 
 /** Muestra mini de cada técnica (la Swatch de ServiceCard a 40px). */
 function Muestra({ t }: { t: Tecnica }) {
-  if (t === 'dtf')
-    return (
-      <span aria-hidden="true" className="relative size-10 shrink-0 overflow-hidden rounded-tile bg-[linear-gradient(135deg,var(--color-secondary),var(--color-accent)_55%,var(--color-ink))]">
-        <span className="absolute -left-2 top-0 h-full w-4 rotate-12 bg-white/40 blur-[3px]" />
-      </span>
-    )
   if (t === 'bordado')
     return (
       <span aria-hidden="true" className="fabric flex size-10 shrink-0 items-center justify-center rounded-tile bg-surface-2">

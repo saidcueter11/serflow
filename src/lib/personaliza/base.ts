@@ -16,23 +16,26 @@ export interface FilaColor {
   garment_photos: FilaFoto[]
 }
 
-/** Por prenda: cada color son hasta 2 fotos más que procesar en cada build. */
+export type FotoOptimizada = Pick<FotoColor, 'image_url' | 'image_url_movil'>
+
+/** Por prenda: cada color son hasta 2 fotos más que procesar en cada build, cada una en 2 anchos. */
 export const MAX_COLORES = 12
 
 const rect = (x: number, y: number, w: number, h: number): Area => ({ tl: [x, y], tr: [x + w, y], br: [x + w, y + h], bl: [x, y + h] })
 
 /**
  * Con la colocación libre, el área solo calibra los cm y la posición inicial. Estos valores suponen una foto vertical
- * 4:5 con la prenda centrada; el cliente nunca los toca y los cm siguen siendo "unos N". Medidos sobre fotos reales de
- * camiseta y gorra; el ancho en cm es la propuesta de la spec 6.7.
+ * 4:5 con la prenda centrada; el cliente nunca los toca y los cm siguen siendo "unos N". Salen de las fotos reales de
+ * muestra.ts: el promedio de las dos camisetas y la gorra blanca, la que está de frente (la negra está en 3/4). El ancho
+ * en cm es la propuesta de la spec 6.7.
  */
 export const POR_DEFECTO: Record<Prenda, Partial<Record<Vista, Pick<FotoColor, 'print_area' | 'print_width_cm'>>>> = {
   camiseta: {
-    frente: { print_area: rect(0.3, 0.26, 0.4, 0.36), print_width_cm: 30 },
-    espalda: { print_area: rect(0.32, 0.28, 0.36, 0.34), print_width_cm: 35 },
+    frente: { print_area: rect(0.31, 0.27, 0.38, 0.36), print_width_cm: 30 },
+    espalda: { print_area: rect(0.32, 0.29, 0.32, 0.32), print_width_cm: 35 },
   },
   gorra: {
-    frente: { print_area: rect(0.29, 0.46, 0.42, 0.24), print_width_cm: 12 },
+    frente: { print_area: rect(0.29, 0.42, 0.42, 0.24), print_width_cm: 12 },
   },
 }
 
@@ -60,20 +63,20 @@ function esArea(a: unknown): a is Area {
 }
 
 /**
- * urls: la foto optimizada de cada image_url; la que no está no sirvió. Un color sale solo con todas sus vistas
- * (colorCompleto). Los cm y el área son opcionales: lo que falte, o no sirva, sale de POR_DEFECTO.
+ * urls: la foto optimizada de cada image_url, en sus dos anchos; la que no está no sirvió. Un color sale solo con todas
+ * sus vistas (colorCompleto). Los cm y el área son opcionales: lo que falte, o no sirva, sale de POR_DEFECTO.
  */
-export function armarColores(filas: FilaColor[], urls: Map<string, string>): Record<Prenda, ColorPrenda[]> {
+export function armarColores(filas: FilaColor[], urls: Map<string, FotoOptimizada>): Record<Prenda, ColorPrenda[]> {
   const colores: Record<Prenda, ColorPrenda[]> = { camiseta: [], gorra: [] }
   for (const { garment_photos, ...color } of filas) {
     const photos: FotoColor[] = []
     for (const f of garment_photos) {
-      const url = urls.get(f.image_url)
+      const optimizada = urls.get(f.image_url)
       const defecto = POR_DEFECTO[color.garment][f.view]
-      if (!url || !defecto) continue
+      if (!optimizada || !defecto) continue
       photos.push({
         view: f.view,
-        image_url: url,
+        ...optimizada,
         print_area: esArea(f.print_area) ? f.print_area : defecto.print_area,
         print_width_cm: f.print_width_cm ?? defecto.print_width_cm,
       })

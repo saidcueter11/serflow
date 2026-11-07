@@ -2,6 +2,7 @@ import { whatsappUrl } from '../../lib/business'
 import type { PromoView } from '../../lib/promos'
 import { Button } from '../ui/Button'
 import { NAV_LINKS } from '../ui/Header'
+import { Palabras } from '../ui/Palabras'
 import { PromoCard } from '../ui/PromoCard'
 import { PromoGrid } from '../ui/PromoGrid'
 import { Section } from '../ui/Section'
@@ -16,10 +17,11 @@ export function NotFoundPage({ promos }: { promos: PromoView[] }) {
       <main className="pf-v">
         <div className="pf-c pf-pagina-titulo">
           <p className="pf-pie">Error 404</p>
-          <h1 className="pf-display sf-entra">Esta página no existe</h1>
-          <p className="pf-lead">
-            Puede que el link esté viejo o mal copiado. Si venías por una promo, puede que ya haya terminado. Escríbenos y te
-            mandamos lo que buscabas.
+          <h1 className="pf-display">
+            <Palabras text="Esta página no existe" />
+          </h1>
+          <p className="pf-lead sf-bajada">
+            <Palabras text="Puede que el link esté viejo o mal copiado. Si venías por una promo, puede que ya haya terminado. Escríbenos y te mandamos lo que buscabas." />
           </p>
           <div className="pf-404-botones">
             <Button variant="whatsapp" href={whatsappUrl('¡Hola! Llegué a una página de Serflow que no existe. Estaba buscando...')} external>

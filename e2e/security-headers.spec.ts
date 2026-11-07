@@ -59,9 +59,10 @@ test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promo
   await page.goto('/personaliza')
   await expect(page.getByText('Tu diseño va aquí')).toBeVisible({ timeout: 15_000 })
   await page.locator('input[type=file]').first().setInputFiles({
-    name: 'logo-prueba.svg',
-    mimeType: 'image/svg+xml',
-    buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><circle cx="400" cy="400" r="300" fill="red"/></svg>'),
+    name: 'logo-prueba.png',
+    mimeType: 'image/png',
+    // Un PNG de 1 × 1, rojo.
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==', 'base64'),
   })
   await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible({ timeout: 15_000 })
 

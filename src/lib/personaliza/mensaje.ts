@@ -1,10 +1,7 @@
 import { PRENDAS, TECNICAS, type Cantidad, type Prenda, type Tecnica } from './datos'
 
-/**
- * ninguno: no subió nada · ayuda: "No tengo diseño" · imagen / baja: se ve en la vista previa (baja = menos de 500 px)
- * archivo: PDF, AI, PSD u otro que no se muestra · pesada: más de 20 MB o más de 50 MP.
- */
-export type EstadoDiseno = 'ninguno' | 'ayuda' | 'imagen' | 'baja' | 'archivo' | 'pesada'
+/** ninguno: no subió nada · imagen / baja: se ve en la vista previa (baja = menos de 500 px) · pesada: más de 20 MB o más de 50 MP. */
+export type EstadoDiseno = 'ninguno' | 'imagen' | 'baja' | 'pesada'
 
 export const NOTA_MAX = 300
 
@@ -31,9 +28,9 @@ export function mensaje(p: Pedido): string {
   const muestra = seMuestra(p.diseno)
   const diseno = muestra
     ? `te lo mando en el siguiente mensaje${p.sinFondo ? ' (sin el fondo)' : ''}${p.vistaPrevia ? ', con la vista previa' : ''}`
-    : p.diseno === 'archivo' || p.diseno === 'pesada'
+    : p.diseno === 'pesada'
       ? 'te mando el archivo en el siguiente mensaje'
-      : 'todavía no tengo, quiero que me ayuden'
+      : null
   const nota = p.nota?.trim().slice(0, NOTA_MAX)
   return [
     '¡Hola, Serflow! Quiero cotizar esta prenda personalizada:',
@@ -43,7 +40,7 @@ export function mensaje(p: Pedido): string {
     `*Ubicación:* ${p.ubicacion}`,
     ...(muestra && p.vistaPrevia && p.tamanoCm ? [`*Tamaño:* unos ${p.tamanoCm} cm de ancho`] : []),
     `*Cantidad:* ${p.cantidad}`,
-    `*Diseño:* ${diseno}`,
+    ...(diseno ? [`*Diseño:* ${diseno}`] : []),
     ...(nota ? [`*Nota:* ${nota}`] : []),
     '',
     'Armado en la web de Serflow',

@@ -26,6 +26,7 @@ import { HeroCarousel } from "../src/components/ui/HeroCarousel";
 import { Ticker } from "../src/components/ui/Ticker";
 import { PromoBar } from "../src/components/ui/PromoBar";
 import { Thread } from "../src/components/ui/Thread";
+import { Palabras } from "../src/components/ui/Palabras";
 import { CategoryNav } from "../src/components/ui/CategoryNav";
 import { Masonry } from "../src/components/ui/Masonry";
 import { CategoryBanner } from "../src/components/ui/CategoryBanner";
@@ -175,6 +176,12 @@ defineControls(Thread, {
   viewport: { type: "number" },
 });
 
+// PRI-287: titular palabra por palabra.
+defineControls(Palabras, {
+  text: { type: "text" },
+  desde: { type: "number" },
+});
+
 // PRI-130: catálogo como galería de fotos.
 defineControls(CategoryNav, {
   categories: { type: "object" },
@@ -195,7 +202,7 @@ defineControls(VistaPrevia, {
   etiqueta: { type: "text" },
   modo: { type: "select" },
   tecnica: { type: "select" },
-  maxS: { type: "range", min: 0.2, max: 1, step: 0.01 },
+  maxS: { type: "range", min: 0.1, max: 1, step: 0.01 },
   anchoCm: { type: "number" },
   cargando: { type: "text" },
   alto: { type: "number" },
@@ -206,6 +213,7 @@ defineControls(VistaPrevia, {
   lugar: { type: "object" },
   archivo: { type: "object" },
   foto: false,
+  fotoInicial: false,
   diseno: false,
   onLugar: false,
   onArchivo: false,
@@ -220,6 +228,7 @@ defineControls(HojaEnvio, {
   diseno: { type: "text" },
   archivo: { type: "object" },
   guardada: { type: "boolean" },
+  preparando: { type: "boolean" },
   compartir: { type: "boolean" },
   sinSenal: { type: "boolean" },
   escritorio: { type: "boolean" },
@@ -238,10 +247,10 @@ defineControls(CampoDiseno, {
   miniatura: { type: "text" },
   quitarFondo: { type: "boolean" },
   fondoFijo: { type: "boolean" },
+  rechazado: { type: "boolean" },
   escritorio: { type: "boolean" },
   onArchivo: false,
   onQuitar: false,
-  onAyuda: false,
   onQuitarFondo: false,
 });
 

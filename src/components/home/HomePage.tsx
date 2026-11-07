@@ -1,4 +1,5 @@
 import { Button } from '../ui/Button'
+import { Palabras } from '../ui/Palabras'
 import { Section } from '../ui/Section'
 import { ServiceCard } from '../ui/ServiceCard'
 import { ProductCard } from '../ui/ProductCard'
@@ -106,24 +107,19 @@ export function HomePage({
             <span className="pf-pie flex items-center gap-1.5 [overflow-wrap:anywhere]">
               <PinIcon className="size-3.5 shrink-0" /> {sections.hero?.eyebrow ?? 'Mercado Bazurto · Cartagena'}
             </span>
-            <h1 className="pf-display sf-lineas" aria-label={tituloHero}>
+            <h1 className="pf-display">
               {tituloHero === TITULO_HERO ? (
                 <>
-                  <span aria-hidden="true">
-                    <span>Bienvenido</span>
-                  </span>
-                  <span aria-hidden="true">
-                    <span>a Serflow</span>
-                  </span>
+                  <Palabras text="Bienvenido" />
+                  <br />
+                  <Palabras text="a Serflow" desde={1} />
                 </>
               ) : (
-                <span aria-hidden="true">
-                  <span>{tituloHero}</span>
-                </span>
+                <Palabras text={tituloHero} />
               )}
             </h1>
-            <p className="pf-lead">
-              {sections.hero?.description ?? 'Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.'}
+            <p className="pf-lead sf-bajada">
+              <Palabras text={sections.hero?.description ?? 'Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.'} />
             </p>
             <div>
               <Button variant="whatsapp" href={WHATSAPP_URL} external fullWidth>

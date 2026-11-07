@@ -1,6 +1,6 @@
 // La parte de medios.ts que necesita a Astro: las fotos de la base pasan por la misma optimización que las del repo.
 import { getImage } from 'astro:assets'
-import { armarColores, recortarColores, vistasDe } from './personaliza/base'
+import { armarColores, recortarColores, vistasDe, type FotoOptimizada } from './personaliza/base'
 import type { ColorPrenda, Prenda } from './personaliza/datos'
 import { getGarmentColors, getSiteMedia, leerFotoRemota, type Lugar } from './medios'
 
@@ -32,17 +32,18 @@ export async function fotoDeLugar(slot: Lugar, opciones: FotoOpciones) {
   return foto ? { ...foto, alt: fila.alt } : null
 }
 
-/** Colores de la base con sus fotos optimizadas. Prenda sin ningún color completo: lista vacía (usa la muestra). */
-export async function coloresDeBase(opciones: FotoOpciones): Promise<Record<Prenda, ColorPrenda[]>> {
+/** Colores de la base con sus fotos optimizadas, en dos anchos. Prenda sin ningún color completo: lista vacía (usa la muestra). */
+export async function coloresDeBase({ width, widthMovil, quality }: { width: number; widthMovil: number; quality?: number }): Promise<Record<Prenda, ColorPrenda[]>> {
   const filas = recortarColores(await getGarmentColors())
   const pendientes = filas.flatMap((c) => c.garment_photos.filter((f) => vistasDe(c.garment).includes(f.view)).map((f) => f.image_url))
-  const urls = new Map<string, string>()
+  const urls = new Map<string, FotoOptimizada>()
   // De a 4: validar 38 fotos reales tarda 26 s de una en una y 10 s así, y decodificar pesa en memoria como para soltarlas todas.
   for (let i = 0; i < pendientes.length; i += 4) {
     await Promise.all(
       pendientes.slice(i, i + 4).map(async (url) => {
-        const foto = await fotoRemota(url, opciones)
-        if (foto) urls.set(url, foto.src)
+        // leerFotoRemota recuerda la medida: los dos anchos validan con una sola descarga.
+        const [foto, movil] = await Promise.all([fotoRemota(url, { width, quality }), fotoRemota(url, { width: widthMovil, quality })])
+        if (foto && movil) urls.set(url, { image_url: foto.src, image_url_movil: movil.src })
       }),
     )
   }

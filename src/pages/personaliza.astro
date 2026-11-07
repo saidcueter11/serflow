@@ -6,8 +6,8 @@ import { coloresDeBase } from '../lib/medios-build'
 import { coloresMuestra } from '../lib/personaliza/muestra'
 
 // Las fotos se publican optimizadas en el mismo dominio: el motor de la vista previa necesita leer sus píxeles.
-const base = await coloresDeBase({ width: 1080, quality: 82 })
-const muestra = await coloresMuestra(async (src) => (await getImage({ src, width: 1080, format: 'webp', quality: 82 })).src)
+const base = await coloresDeBase({ width: 1080, widthMovil: 720, quality: 70 })
+const muestra = await coloresMuestra(async (src, width) => (await getImage({ src, width, format: 'webp', quality: 70 })).src)
 // Lo que publica el admin (PRI-122); la prenda que aún no tenga ningún color completo sigue con la muestra.
 const colores = { camiseta: base.camiseta.length ? base.camiseta : muestra.camiseta, gorra: base.gorra.length ? base.gorra : muestra.gorra }
 ---

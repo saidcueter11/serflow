@@ -2,20 +2,22 @@ import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type
 import { Button } from './Button'
 import { Girador, IconArchivo, IconCentrar, IconMas, IconMenos, IconReintentar, IconSinSenal, IconSubir } from '../icons/PersonalizaIcons'
 import { ACEPTA } from '../../lib/personaliza/archivo'
-import { ESCENA, type Tecnica } from '../../lib/personaliza/datos'
-import { S_MAX, aspectoArea, cajaDiseno, enArea, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { ESCENA, type FotoColor, type Tecnica } from '../../lib/personaliza/datos'
+import { S_MAX, aspectoArea, cajaArea, cajaDiseno, enArea, enderezar, limitar, medidasArea, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { dibujar, type FotoLista } from '../../lib/personaliza/motor'
 
 /**
  * Vista previa realista (PRI-122): la foto de la prenda en el color elegido con el diseño encima, pintada por el motor
- * canvas 2D (lo que se ve es lo que se descarga). Las guías, manijas y botones van encima, en HTML: no salen en el
- * mockup.
+ * canvas 2D (lo que se ve es lo que se descarga). Las manijas y botones van encima, en HTML: no salen en el mockup.
  *
- * Mover y escalar: tocar el diseño lo selecciona (así el scroll de la página no lo arrastra sin querer); seleccionado
- * se arrastra con un dedo, se escala con dos (pellizcar) o con las manijas. Alternativa sin arrastrar (WCAG 2.5.7):
- * botones − / + / Centrar, y con teclado flechas, + y −. El diseño nunca sale del área de impresión.
+ * Mover, escalar y girar: tocar el diseño lo selecciona (así el scroll de la página no lo arrastra sin querer);
+ * seleccionado se arrastra con un dedo, se escala y gira con dos (pellizcar) o con las manijas, y gira con la manija de
+ * arriba. Un diseño chico se agarra igual: el centro siempre tiene 44 px táctiles. Alternativa sin arrastrar (WCAG 2.5.7):
+ * botones − / + / Girar / Centrar, y con teclado flechas, + y −, R. La colocación es libre: el diseño solo se queda dentro de lo
+ * visible de la foto. Sin guías fijas: la línea central y "Centrado" salen solo mientras se arrastra. El área de impresión
+ * no se dibuja (calibra los cm); el tope del bordado se avisa sobre la foto cuando el cliente intenta pasarlo.
  *
- * Modos: vacio (sin diseño, el área punteada abre el selector de archivos), listo, procesando (brillo de carga),
+ * Modos: vacio (sin diseño, tocar el área abre el selector de archivos), listo, procesando (brillo de carga),
  * lento (pasaron 5 s: Seguir sin vista previa), archivo (tarjeta en vez del diseño), cargando (la foto anterior
  * atenuada mientras llega la del color nuevo), sin-senal (la foto no cargó: Reintentar pide solo la foto).
  *
@@ -27,6 +29,8 @@ export type ModoVista = 'vacio' | 'listo' | 'procesando' | 'lento' | 'archivo' |
 export interface VistaPreviaProps {
   /** Foto preparada por el motor. Mientras carga la primera, null. */
   foto: FotoLista | null
+  /** La foto como <img>, ya en el HTML: se ve sin esperar el JS de la isla y hasta que el motor pinta la primera. */
+  fotoInicial?: Pick<FotoColor, 'image_url' | 'image_url_movil' | 'print_area'>
   /** "Camiseta negra" o "Camiseta negra, espalda". */
   etiqueta: string
   modo: ModoVista
@@ -61,6 +65,7 @@ const pct = (v: number) => `${v * 100}%`
 
 export function VistaPrevia({
   foto,
+  fotoInicial,
   etiqueta,
   modo,
   tecnica,
@@ -81,11 +86,13 @@ export function VistaPrevia({
   onSeguirSinVista,
 }: VistaPreviaProps) {
   const lienzo = useRef<HTMLCanvasElement>(null)
+  const marco = useRef<HTMLDivElement>(null)
   const escena = useRef<HTMLDivElement>(null)
   const [sel, setSel] = useState(seleccionado)
   const [arrastrando, setArrastrando] = useState(false)
+  const [enTope, setEnTope] = useState(false)
   const punteros = useRef(new Map<number, { x: number; y: number }>())
-  const inicio = useRef<{ l: Lugar; dist: number; x: number; y: number; manija: boolean } | null>(null)
+  const inicio = useRef<{ l: Lugar; dist: number; ang: number; x: number; y: number; manija: 'tamano' | 'giro' | null } | null>(null)
 
   const espera = modo === 'procesando' || modo === 'lento'
   const conDiseno = !!diseno && (modo === 'listo' || espera || modo === 'cargando')
@@ -98,6 +105,23 @@ export function VistaPrevia({
     const id = requestAnimationFrame(() => dibujar(c.getContext('2d')!, foto, conDiseno && !espera ? diseno! : null, l, tecnica, arrastrando))
     return () => cancelAnimationFrame(id)
   }, [foto, diseno, conDiseno, espera, l, tecnica, arrastrando])
+
+  /** Lo visible de la foto, que la vista previa recorta. Se mide al colocar y al mover: el recorte depende del layout. */
+  const ventana = () => {
+    const e = escena.current!.getBoundingClientRect()
+    const m = marco.current!.getBoundingClientRect()
+    return {
+      left: Math.max(0, (m.left - e.left) / e.width),
+      top: Math.max(0, (m.top - e.top) / e.height),
+      right: Math.min(1, (m.right - e.left) / e.width),
+      bottom: Math.min(1, (m.bottom - e.top) / e.height),
+    }
+  }
+
+  // Un diseño con otra proporción, otra foto o el tope del bordado pueden dejar la caja afuera: se vuelve a limitar.
+  useEffect(() => {
+    if (foto && diseno && escena.current) onLugar?.(limitar(l, diseno.width / diseno.height, foto.area, maxS, ventana()))
+  }, [foto, diseno, maxS])
 
   if (modo === 'sin-senal') {
     return (
@@ -122,20 +146,19 @@ export function VistaPrevia({
   const aspecto = area ? aspectoArea(area) : 1
   const ratio = diseno ? diseno.width / diseno.height : 1
   const caja = area && diseno ? cajaDiseno(area, l, ratio, aspecto) : null
-  const set = (n: Lugar) => onLugar?.(limitar(n, ratio, aspecto, maxS))
+  const set = (n: Lugar) => {
+    setEnTope(n.s > maxS + 1e-6)
+    onLugar?.(limitar(n, ratio, area!, maxS, ventana()))
+  }
   const tamano = `unos ${tamanoCm(anchoCm, l.s)} cm de ancho`
   const centrado = Math.abs(l.cx - 0.5) < 0.01
-  const bbox = area && {
-    left: Math.min(area.tl[0], area.bl[0]),
-    top: Math.min(area.tl[1], area.tr[1]),
-    right: Math.max(area.tr[0], area.br[0]),
-    bottom: Math.max(area.bl[1], area.br[1]),
-  }
-  const poligono = area && [area.tl, area.tr, area.br, area.bl].map(([x, y]) => `${x * ESCENA.ancho},${y * ESCENA.alto}`).join(' ')
+  const bbox = area && cajaArea(area)
   // Recorte centrado en el área de impresión, sin dejar franjas vacías arriba ni abajo. En % del alto real: la página
   // de escritorio estira la vista previa más allá de `alto`; si la estira más que la escena (125cqw), la escena crece a
   // lo alto y se recorta a los lados, centrada, en vez de dejar una franja vacía arriba.
-  const foco = bbox ? ((bbox.top + bbox.bottom) / 2) * 100 : 40
+  const areaFoco = area ?? fotoInicial?.print_area
+  const cajaFoco = areaFoco && cajaArea(areaFoco)
+  const foco = cajaFoco ? ((cajaFoco.top + cajaFoco.bottom) / 2) * 100 : 40
   const recorte = alto
     ? { top: `clamp(min(0px, 100% - 125cqw), calc(50% - ${foco * 1.25}cqw), 0px)`, height: 'max(100%, 125cqw)' }
     : { top: '0' }
@@ -146,7 +169,16 @@ export function VistaPrevia({
     const m = medidasArea(area!)
     return { w: (m.ancho * r.width) / ESCENA.ancho, h: (m.alto * r.height) / ESCENA.alto, r }
   }
-  const down = (e: PointerEvent, manija = false) => {
+  const r = l.r ?? 0
+  /** Ángulo en grados de la recta entre dos puntos de pantalla. */
+  const angulo = (a: { x: number; y: number }, b: { x: number; y: number }) => (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI
+  /** Centro del diseño en la pantalla (el giro no lo mueve). */
+  const centroPantalla = () => {
+    const { r: e } = escalaArea()
+    const [x, y] = enArea(area!, l.cx, l.cy)
+    return { x: e.left + x * e.width, y: e.top + y * e.height }
+  }
+  const down = (e: PointerEvent, manija: 'tamano' | 'giro' | null = null) => {
     e.stopPropagation()
     if (!sel && !manija) {
       setSel(true)
@@ -155,18 +187,31 @@ export function VistaPrevia({
     ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     const ps = [...punteros.current.values()]
-    inicio.current = { l, dist: ps.length > 1 ? Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) : 0, x: e.clientX, y: e.clientY, manija }
+    const dos = ps.length > 1
+    inicio.current = {
+      l,
+      dist: dos ? Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) : 0,
+      ang: dos ? angulo(ps[0], ps[1]) : manija === 'giro' ? angulo(centroPantalla(), { x: e.clientX, y: e.clientY }) : 0,
+      x: e.clientX,
+      y: e.clientY,
+      manija,
+    }
     setArrastrando(true)
   }
   const move = (e: PointerEvent) => {
     const i = inicio.current
     if (!i || !punteros.current.has(e.pointerId)) return
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
-    const { w, h, r } = escalaArea()
+    const { w, h } = escalaArea()
     const ps = [...punteros.current.values()]
-    if (ps.length > 1 && i.dist) set({ ...i.l, s: (i.l.s * Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y)) / i.dist })
-    else if (i.manija) set({ ...i.l, s: (2 * Math.abs(e.clientX - (r.left + enArea(area!, i.l.cx, i.l.cy)[0] * r.width))) / w })
-    else set({ ...i.l, cx: i.l.cx + (e.clientX - i.x) / w, cy: i.l.cy + (e.clientY - i.y) / h })
+    const r0 = i.l.r ?? 0
+    if (ps.length > 1 && i.dist) set({ ...i.l, s: (i.l.s * Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y)) / i.dist, r: enderezar(r0 + angulo(ps[0], ps[1]) - i.ang) })
+    else if (i.manija === 'giro') set({ ...i.l, r: enderezar(r0 + angulo(centroPantalla(), { x: e.clientX, y: e.clientY }) - i.ang) })
+    else if (i.manija) {
+      // Por distancia al centro, no por x: con el diseño girado la esquina no está a s/2 en horizontal.
+      const c = centroPantalla()
+      set({ ...i.l, s: (i.l.s * Math.hypot(e.clientX - c.x, e.clientY - c.y)) / Math.max(1, Math.hypot(i.x - c.x, i.y - c.y)) })
+    } else set({ ...i.l, cx: i.l.cx + (e.clientX - i.x) / w, cy: i.l.cy + (e.clientY - i.y) / h })
   }
   const up = (e: PointerEvent) => {
     punteros.current.delete(e.pointerId)
@@ -184,6 +229,8 @@ export function VistaPrevia({
       '+': { s: l.s + 0.06 },
       '=': { s: l.s + 0.06 },
       '-': { s: l.s - 0.06 },
+      r: { r: enderezar(r + 15) },
+      R: { r: enderezar(r - 15) },
     }
     if (k[e.key]) {
       e.preventDefault()
@@ -198,15 +245,22 @@ export function VistaPrevia({
 
   return (
     <div
+      ref={marco}
       className={`@container relative overflow-hidden bg-surface-2 font-body text-ink ${limpia ? 'h-full' : 'rounded-tile'}`}
       style={alto ? { height: alto } : { aspectRatio: '4 / 5' }}
       onPointerDown={() => setSel(false)}
     >
       <div
         ref={escena}
-        className={`absolute ${alto ? 'left-1/2 -translate-x-1/2' : 'inset-x-0'} aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' ? 'opacity-40 blur-[2px]' : ''}`}
+        className={`absolute ${alto ? 'left-1/2 -translate-x-1/2' : 'inset-x-0'} aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' && foto ? 'opacity-40 blur-[2px]' : ''}`}
         style={recorte}
       >
+        {!foto && fotoInicial && (
+          <picture>
+            <source media="(min-width: 896px)" srcSet={fotoInicial.image_url} />
+            <img src={fotoInicial.image_url_movil} alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
+          </picture>
+        )}
         <canvas
           ref={lienzo}
           width={ESCENA.ancho}
@@ -216,10 +270,9 @@ export function VistaPrevia({
           className="pz-fade absolute inset-0 h-full w-full"
         />
 
-        {area && bbox && (modo === 'vacio' || ajustando) && (
-          <svg viewBox={`0 0 ${ESCENA.ancho} ${ESCENA.alto}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-            <polygon points={poligono} fill="none" stroke="var(--color-accent)" strokeWidth="5" strokeDasharray="18 12" strokeLinejoin="round" />
-            {ajustando && (
+        {area && ajustando && arrastrando && centrado && (
+          <>
+            <svg viewBox={`0 0 ${ESCENA.ancho} ${ESCENA.alto}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
               <line
                 x1={enArea(area, 0.5, 0)[0] * ESCENA.ancho}
                 y1={enArea(area, 0.5, 0)[1] * ESCENA.alto}
@@ -230,13 +283,11 @@ export function VistaPrevia({
                 strokeWidth="2.5"
                 strokeDasharray="10 10"
               />
-            )}
-          </svg>
-        )}
-        {ajustando && bbox && centrado && (
-          <span className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent px-2 py-0.5 text-[12px] font-bold text-primary" style={{ left: pct(enArea(area!, 0.5, 0)[0]), top: pct(enArea(area!, 0.5, 0)[1]) }}>
-            Centrado
-          </span>
+            </svg>
+            <span className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent px-2 py-0.5 text-[12px] font-bold text-primary" style={{ left: pct(enArea(area, 0.5, 0)[0]), top: pct(enArea(area, 0.5, 0)[1]) }}>
+              Centrado
+            </span>
+          </>
         )}
 
         {modo === 'vacio' && bbox && (
@@ -263,23 +314,47 @@ export function VistaPrevia({
           <div
             role="group"
             tabIndex={0}
-            aria-label={`Tu diseño, ${tamano}. Arrástralo para moverlo; con el teclado, flechas para moverlo y más o menos para el tamaño.`}
+            aria-label={`Tu diseño, ${tamano}. Arrástralo para moverlo; con el teclado, flechas para moverlo, más o menos para el tamaño y R para girarlo.`}
             onPointerDown={(e) => down(e)}
             onPointerMove={move}
             onPointerUp={up}
             onPointerCancel={up}
             onKeyDown={tecla}
             onFocus={() => setSel(true)}
-            className={`absolute rounded-sm outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent ${ajustando ? 'cursor-move ring-[1.5px] ring-accent' : 'cursor-pointer'}`}
-            style={{ left: pct(caja.left), top: pct(caja.top), width: pct(caja.width), height: pct(caja.height), touchAction: ajustando ? 'none' : 'auto' }}
+            // Sin esto, arrastrar selecciona texto de la página y el siguiente arrastre arranca un drag nativo: el navegador cancela el puntero.
+            onDragStart={(e) => e.preventDefault()}
+            className={`absolute select-none rounded-sm outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent ${ajustando ? 'cursor-move ring-[1.5px] ring-accent' : 'cursor-pointer'}`}
+            style={{
+              left: pct(caja.left),
+              top: pct(caja.top),
+              width: pct(caja.width),
+              height: pct(caja.height),
+              transform: r ? `rotate(${r}deg)` : undefined,
+              touchAction: ajustando ? 'none' : 'auto',
+            }}
           >
+            {/* Agarre de 44 px en el centro, encima de las manijas: un diseño chico se mueve sin tener que atinarle. */}
+            <span aria-hidden="true" className="absolute left-1/2 top-1/2 z-10 size-11 -translate-x-1/2 -translate-y-1/2" />
             {ajustando && (
               <>
+                <span
+                  aria-hidden="true"
+                  onPointerDown={(e) => down(e, 'giro')}
+                  onPointerMove={move}
+                  onPointerUp={up}
+                  onPointerCancel={up}
+                  className="absolute -top-[60px] left-1/2 z-10 flex size-11 -translate-x-1/2 cursor-grab items-center justify-center"
+                  style={{ touchAction: 'none' }}
+                >
+                  <span className="flex size-6 items-center justify-center rounded-full border-2 border-accent bg-ink text-primary">
+                    <IconReintentar className="size-3.5" />
+                  </span>
+                </span>
                 {(['-left-[22px] -top-[22px]', '-right-[22px] -top-[22px]', '-left-[22px] -bottom-[22px]', '-right-[22px] -bottom-[22px]'] as const).map((p) => (
                   <span
                     key={p}
                     aria-hidden="true"
-                    onPointerDown={(e) => down(e, true)}
+                    onPointerDown={(e) => down(e, 'tamano')}
                     onPointerMove={move}
                     onPointerUp={up}
                     onPointerCancel={up}
@@ -289,9 +364,6 @@ export function VistaPrevia({
                     <span className="size-3 rounded-[3px] border-2 border-accent bg-ink" />
                   </span>
                 ))}
-                <span className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary/90 px-2.5 py-1 text-[12px] font-semibold text-ink">
-                  {tamano}
-                </span>
               </>
             )}
           </div>
@@ -328,7 +400,18 @@ export function VistaPrevia({
           </span>
         </div>
       )}
-      {pista && modo === 'listo' && conDiseno && !ajustando && !limpia && (
+      {/* Arriba, como los demás avisos: debajo del diseño lo tapaban los botones cuando el diseño estaba abajo. */}
+      {ajustando && !enTope && modo === 'listo' && (
+        <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
+          <span className="whitespace-nowrap rounded-full bg-primary/90 px-2.5 py-1 text-[12px] font-semibold text-ink">{tamano}</span>
+        </div>
+      )}
+      {enTope && maxS < S_MAX && modo === 'listo' && !limpia && (
+        <div role="status" className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-2">
+          <span className="pz-fade rounded-full bg-primary/90 px-3 py-1.5 text-center text-[13px] font-semibold">Bordado: hasta unos {tamanoCm(anchoCm, maxS)} cm de ancho</span>
+        </div>
+      )}
+      {pista && modo === 'listo' && conDiseno && !ajustando && !enTope && !limpia && (
         <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
           <span className="pz-fade rounded-full bg-primary/90 px-3 py-1.5 text-[13px] font-semibold">
             {escritorio ? 'Haz clic en tu diseño para moverlo o cambiar el tamaño' : 'Toca tu diseño para moverlo o cambiar el tamaño'}
@@ -349,6 +432,9 @@ export function VistaPrevia({
               </BotonFoto>
               <BotonFoto etiqueta="Hacer el diseño más grande" onClick={() => set({ ...l, s: l.s + 0.08 })}>
                 <IconMas />
+              </BotonFoto>
+              <BotonFoto etiqueta="Girar el diseño" onClick={() => set({ ...l, r: enderezar(r + 15) })}>
+                <IconReintentar />
               </BotonFoto>
               <BotonFoto etiqueta="Centrar el diseño" onClick={() => set({ ...l, cx: 0.5 })}>
                 <IconCentrar />

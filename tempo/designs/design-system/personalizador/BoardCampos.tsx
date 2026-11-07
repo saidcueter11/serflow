@@ -62,8 +62,7 @@ export function BoardCampos() {
           <Celular label='estado="procesando"'><CampoDiseno estado="procesando" nombre="logo-heroica.png" /></Celular>
           <Celular label='estado="baja"'><CampoDiseno estado="baja" nombre="logo-whatsapp.jpg" detalle="JPG · 48 × 48 px" miniatura={sol} /></Celular>
           <Celular label='estado="pesada"'><CampoDiseno estado="pesada" nombre="foto-equipo.jpg" detalle="JPG · 24 MB" /></Celular>
-          <Celular label='estado="archivo"'><CampoDiseno estado="archivo" nombre="logo-final.pdf" detalle="PDF · 2,4 MB" /></Celular>
-          <Celular label='estado="ayuda"'><CampoDiseno estado="ayuda" /></Celular>
+          <Celular label='rechazado'><CampoDiseno estado="ninguno" rechazado /></Celular>
           <Celular label="escritorio"><CampoDiseno estado="ninguno" escritorio /></Celular>
         </div>
       </Row>
@@ -76,7 +75,7 @@ export function BoardCampos() {
       </Row>
       <Row name="Tecnicas" description="Tarjetas con pista y muestra.">
         <div className="flex flex-wrap gap-8">
-          <Celular label="camiseta"><Tecnicas opciones={["estampado", "dtf", "bordado"]} elegida="estampado" /></Celular>
+          <Celular label="camiseta"><Tecnicas opciones={["estampado", "bordado"]} elegida="estampado" /></Celular>
           <Celular label="gorra"><Tecnicas opciones={["bordado", "estampado"]} elegida="bordado" /></Celular>
         </div>
       </Row>

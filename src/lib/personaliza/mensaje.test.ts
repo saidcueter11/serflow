@@ -42,16 +42,17 @@ describe('mensaje', () => {
     expect(mensaje({ ...base, sinFondo: true })).toContain('*Diseño:* te lo mando en el siguiente mensaje (sin el fondo), con la vista previa')
   })
 
-  it('archivo que no se muestra o pesado: lo manda como archivo, sin tamaño', () => {
-    for (const diseno of ['archivo', 'pesada'] as const) {
-      const m = mensaje({ ...base, diseno })
-      expect(m).toContain('*Diseño:* te mando el archivo en el siguiente mensaje')
-      expect(m).not.toContain('*Tamaño:*')
-    }
+  it('imagen pesada: la manda como archivo, sin tamaño', () => {
+    const m = mensaje({ ...base, diseno: 'pesada' })
+    expect(m).toContain('*Diseño:* te mando el archivo en el siguiente mensaje')
+    expect(m).not.toContain('*Tamaño:*')
   })
 
-  it('sin diseño o "No tengo diseño": pide ayuda', () => {
-    for (const diseno of ['ninguno', 'ayuda'] as const) expect(mensaje({ ...base, diseno })).toContain('*Diseño:* todavía no tengo, quiero que me ayuden')
+  it('sin diseño no hay línea de Diseño ni Tamaño', () => {
+    const m = mensaje({ ...base, diseno: 'ninguno' })
+    expect(m).not.toContain('*Diseño:*')
+    expect(m).not.toContain('*Tamaño:*')
+    expect(m).toContain('*Cantidad:* 2 a 5\n*Nota:*')
   })
 
   it('gorra, sin nota y nota de más de 300 caracteres', () => {
