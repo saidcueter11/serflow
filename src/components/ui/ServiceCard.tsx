@@ -24,7 +24,7 @@ export function ServiceCard({
   image?: { src: string; alt: string };
 }) {
   return (
-    <article className="group sf-foto reveal-up grid grid-cols-[112px_minmax(0,1fr)] items-start gap-x-4 @3xl:block">
+    <article className="group sf-foto grid grid-cols-[112px_minmax(0,1fr)] items-start gap-x-4 @3xl:block">
       {image ? (
         <div className="overflow-hidden rounded-tile">
           <img
@@ -34,7 +34,7 @@ export function ServiceCard({
             height={400}
             loading="lazy"
             decoding="async"
-            className="reveal-wipe aspect-[4/5] h-auto w-full bg-surface-2 object-cover @3xl:aspect-square"
+            className="aspect-[4/5] h-auto w-full bg-surface-2 object-cover @3xl:aspect-square"
           />
         </div>
       ) : (

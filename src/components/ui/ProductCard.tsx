@@ -45,7 +45,7 @@ export function ProductCard({
           height={500}
           loading="lazy"
           decoding="async"
-          className="fabric reveal-wipe aspect-[4/5] h-auto w-full bg-surface-2 object-cover"
+          className="fabric aspect-[4/5] h-auto w-full bg-surface-2 object-cover"
         />
       </div>
       <div className="sf-foto-texto flex flex-col items-start gap-1 pt-3">
