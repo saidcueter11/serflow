@@ -33,7 +33,7 @@ interface Elecciones {
   chatAbierto: boolean
 }
 
-/** Lo máximo que el mockup espera la foto grande: en Slow 4G llega en 1 a 2 s. */
+/** Lo máximo que el mockup espera la foto grande (unos 32 KB: en Slow 4G, 1 a 2 s calculados, sin medir). */
 const ESPERA_FOTO = 6000
 const lugarDe = (p: Prenda) => (p === 'gorra' ? LUGAR_GORRA : LUGAR_INICIAL)
 
