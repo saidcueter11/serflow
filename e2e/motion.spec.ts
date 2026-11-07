@@ -65,10 +65,14 @@ test('modal: the retired line is gone', async ({ page }) => {
   await expect(dialog(page).getByText('Te la hacemos igual')).toHaveCount(0)
 })
 
-test('modal: while the photo loads there is a shimmer with its shape, then the photo fades in', async ({ page }) => {
+test('modal: while the next photo loads there is a shimmer with its shape, then the photo fades in', async ({ page }) => {
   await openCategory(page)
-  const tile = tiles(page).nth(1)
-  const foto = await tile.evaluate((a: HTMLElement) => JSON.parse(a.dataset.foto!).fotos[0] as { src: string; srcSet: string; r: number })
+  // La de al lado: al abrir ya no hace falta, ahí está la miniatura debajo (e2e/efectos.spec.ts).
+  const tile = tiles(page).first()
+  const foto = await tile.evaluate((a: HTMLElement) => {
+    const de = (el: Element) => JSON.parse((el as HTMLElement).dataset.foto!).fotos as { src: string; srcSet: string; r: number }[]
+    return de(a)[1] ?? de(a.closest('li')!.nextElementSibling!.querySelector('a')!)[0]
+  })
   const urls = new Set([foto.src, ...foto.srcSet.split(',').map((c) => c.trim().split(' ')[0])].map((u) => new URL(u, page.url()).pathname))
   let soltar = () => {}
   const compuerta = new Promise<void>((r) => (soltar = r))
@@ -81,6 +85,10 @@ test('modal: while the photo loads there is a shimmer with its shape, then the p
   )
 
   await tile.click()
+  await expect(dialog(page)).toBeVisible()
+  // Que termine de crecer: la caja se mide quieta.
+  await marco(page).evaluate((m) => Promise.allSettled(m.getAnimations().map((a) => a.finished)))
+  await page.keyboard.press('ArrowRight')
   await expect(marco(page)).toHaveAttribute('data-cargando', '')
   await expect(marco(page).locator('.mx-brillo')).toBeVisible()
   await expect(dialog(page).locator('img.mx-foto')).toHaveCSS('opacity', '0')
@@ -150,20 +158,18 @@ test('scroll: cards fade in from below once, without moving the layout', async (
   expect(atadas).toBe(0)
 })
 
-test('catalog: changing category makes the first rows of the wall enter', async ({ page, isMobile }) => {
+test('catalog: arriving from another page makes the first rows of the wall enter', async ({ page, isMobile }) => {
   // A 1280x720 el banner llena la pantalla: el muro entra en pantalla solo con más alto.
   if (!isMobile) await page.setViewportSize({ width: 1280, height: 1000 })
-  await page.goto('/products')
+  await page.goto('/')
   await page.evaluate(() => {
     document.addEventListener('astro:after-swap', () => {
       const h = innerHeight
       ;(window as unknown as { entrando: number }).entrando = [...document.querySelectorAll('[data-fotos] > li.sf-espera')].filter((li) => li.getBoundingClientRect().top < h).length
     })
   })
-  const chip = page.getByRole('navigation', { name: 'Categorías' }).getByRole('link').nth(1)
-  const href = (await chip.getAttribute('href'))!
-  await chip.click()
-  await expect(page).toHaveURL(new RegExp(`${href}/?$`))
+  await irAlCatalogo(page, isMobile)
+  await expect(page).toHaveURL(/\/products\/?$/)
   await expect.poll(() => page.evaluate(() => (window as unknown as { entrando?: number }).entrando)).toBeGreaterThan(0)
   await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
 })

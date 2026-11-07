@@ -4,7 +4,8 @@ import { HeroCarousel } from "../../../../src/components/ui/HeroCarousel";
 import { Ticker } from "../../../../src/components/ui/Ticker";
 import { PromoBar } from "../../../../src/components/ui/PromoBar";
 import { Thread } from "../../../../src/components/ui/Thread";
-import { BoardHeroCarousel, BoardIntro, BoardThread, BoardTickerPromo } from "./boards";
+import { Palabras } from "../../../../src/components/ui/Palabras";
+import { BoardHeroCarousel, BoardIntro, BoardPalabras, BoardThread, BoardTickerPromo } from "./boards";
 
 export default function MotionCanvas() {
   return (
@@ -13,6 +14,7 @@ export default function MotionCanvas() {
       <Storyboard id="HeroCarousel" component={BoardHeroCarousel} layout={{ x: 1050, y: 0, width: 1300, height: 1200, intrinsicSizing: "root-element" }} />
       <Storyboard id="TickerPromoBar" name="Ticker y PromoBar" component={BoardTickerPromo} layout={{ x: 2400, y: 0, width: 1300, height: 1000, intrinsicSizing: "root-element" }} />
       <Storyboard id="Thread" component={BoardThread} layout={{ x: 3750, y: 0, width: 1000, height: 1300, intrinsicSizing: "root-element" }} />
+      <Storyboard id="Palabras" name="Palabras" component={BoardPalabras} layout={{ x: 4800, y: 0, width: 1000, height: 700, intrinsicSizing: "root-element" }} />
     </Canvas>
   );
 }
@@ -34,6 +36,16 @@ defineAsset(HeroCarousel, {
         className: "h-[420px]",
       },
     },
+  },
+});
+
+defineAsset(Palabras, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Titular palabra por palabra (PRI-287, efecto 3): cada palabra sube desde atrás de una línea, con un giro leve. Va dentro del h1 de la página; en su bajada, dentro de un p con pf-lead y sf-bajada, llega después y sin máscara. Solo el h1 y la bajada del primer pantallazo, una vez por página; no en títulos de sección (Section, pf-h2), que aparecen con el scroll. Solo texto plano: sin links ni negritas adentro. Sin JS, con reducir movimiento o con mala señal no anima.",
+  variants: {
+    Titular: { props: { text: "Bienvenido a Serflow" } },
+    Bajada: { props: { text: "Camisetas y gorras con tu logo, tu equipo o tu idea." } },
   },
 });
 

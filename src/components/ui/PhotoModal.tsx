@@ -35,7 +35,8 @@ const SIG = 'M9 6l6 6-6 6'
  * puede ser más ancha que la foto y un nombre muy largo pasa a otra línea). Flechas a los lados, contador arriba a la
  * izquierda y la X arriba a la derecha. Celular: pantalla completa, las orillas de la anterior y la siguiente son botones
  * y la franja va fija abajo. Mientras baja, el marco ya tiene la forma de la foto y un brillo; la foto entra en fundido
- * y al pasar de foto se desliza en el sentido de la flecha (PRI-287).
+ * y al pasar de foto se desliza en el sentido de la flecha (PRI-287). Al abrir, la foto crece desde su puesto en el muro y
+ * al cerrar vuelve a él, con la miniatura ya bajada debajo mientras llega la grande (PRI-287).
  * Markup estático y vacío (uno por página): lo llena y lo maneja src/scripts/photo-modal.ts con los datos de la foto
  * tocada (fotoAttrs). showModal() trae el foco atrapado, aria-modal y Esc; el script agrega flechas, deslizar, clic
  * afuera, la URL propia de cada foto y el foco de vuelta a la foto al cerrar. Estilos: .mx-* en tokens.css.

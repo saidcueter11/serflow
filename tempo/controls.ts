@@ -26,6 +26,7 @@ import { HeroCarousel } from "../src/components/ui/HeroCarousel";
 import { Ticker } from "../src/components/ui/Ticker";
 import { PromoBar } from "../src/components/ui/PromoBar";
 import { Thread } from "../src/components/ui/Thread";
+import { Palabras } from "../src/components/ui/Palabras";
 import { CategoryNav } from "../src/components/ui/CategoryNav";
 import { Masonry } from "../src/components/ui/Masonry";
 import { CategoryBanner } from "../src/components/ui/CategoryBanner";
@@ -173,6 +174,12 @@ defineControls(Thread, {
   width: { type: "number" },
   height: { type: "number" },
   viewport: { type: "number" },
+});
+
+// PRI-287: titular palabra por palabra.
+defineControls(Palabras, {
+  text: { type: "text" },
+  desde: { type: "number" },
 });
 
 // PRI-130: catálogo como galería de fotos.
