@@ -168,6 +168,34 @@ const malo = () => ({
   about_reasons: [{ title: 'x'.repeat(41), description: 'Título demasiado largo' }],
 })
 
+// PRI-438: catálogo fijo para el efecto 7 (e2e/efectos.spec.ts). Con el real, si las fotos nuevas de arriba de "Todo"
+// son todas de una categoría, al cambiar de pestaña ninguna foto viaja. Aquí "Todo" va intercalado (A1 B1 C1 A2...):
+// al tocar B, B1 sigue en pantalla en otro puesto y A1 y C1 se van. Una sola foto, para que la rejilla sea pareja, y
+// 60 en "Todo" (PAGE_SIZE): el muro más grande, el que mide el costo de layout.
+const catalogo = (p) => {
+  const categories = ['a', 'b', 'c'].map((slug, i) => ({ ...vacia, id: `e2e-cat-${slug}`, slug: `e2e-${slug}`, label: `Categoría ${slug.toUpperCase()}`, image_url: null, sort_order: i }))
+  const products = categories.flatMap((c) =>
+    Array.from({ length: 20 }, (_, i) => i + 1).map((n) => ({
+      id: `${c.slug}-${n}`,
+      legacy_id: n,
+      slug: `${c.slug}-${n}`,
+      name: `${c.label} ${n}`,
+      description: null,
+      category_id: c.id,
+      image_urls: [p[0]],
+      price: null,
+      stock: 0,
+      is_active: true,
+      sort_order: n,
+      // Viejas (nada va primero en "Todo") y la 1 la más reciente de su categoría.
+      created_at: `2026-01-${String(30 - n).padStart(2, '0')}T00:00:00Z`,
+      updated_at: '2026-01-30T00:00:00Z',
+      categories: { slug: c.slug, label: c.label },
+    })),
+  )
+  return { categories, products }
+}
+
 export const SCENARIOS = [
   // 0 vigentes: solo una vencida, que no debe salir. Y una categoría recién creada, sin fotos (PRI-130).
   { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia], medios: vacio },
@@ -195,4 +223,5 @@ export const SCENARIOS = [
       site_settings: [{ id: 1, instagram_url: 'https://www.instagram.com/e2e-quitada/', instagram_visible: false, tiktok_visible: false, facebook_visible: false }],
     }),
   },
+  { outDir: '.e2e-builds/rejilla', port: 4239, promos: () => [], medios: (p) => ({ ...vacio(), ...catalogo(p) }) },
 ]

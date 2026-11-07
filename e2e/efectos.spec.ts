@@ -305,6 +305,8 @@ test.describe('3 · titular palabra por palabra', () => {
 })
 
 test.describe('7 · rejilla que se reacomoda', () => {
+  // PRI-438: catálogo sembrado (e2e/promos/scenarios.mjs): con el real, qué foto viaja depende de lo que suba el admin.
+  test.use({ baseURL: 'http://localhost:4239' })
   // A 1280x720 el banner llena la pantalla: el muro entra en pantalla solo con más alto.
   test.beforeEach(async ({ page, isMobile }) => {
     if (!isMobile) await page.setViewportSize({ width: 1280, height: 1000 })
