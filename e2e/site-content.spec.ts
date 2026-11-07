@@ -5,6 +5,8 @@ const SITE = { vacio: 'http://localhost:4232', contenido: 'http://localhost:4235
 
 const WA_HOY = 'https://wa.me/573156481243?text=Hola!%20Quiero%20m%C3%A1s%20informaci%C3%B3n'
 
+const DESCRIPCION_DE_HOY = 'Serflow en Cartagena: camisetas y gorras con estampado, DTF y bordado. Ven al taller en el Mercado Bazurto o escríbenos por WhatsApp.'
+
 const jsonLdDe = async (page: Page) => JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!)
 
 // El contenido de hoy, escrito a mano: si alguien cambia un respaldo del código, esto se pone rojo.
@@ -12,6 +14,8 @@ async function expectContenidoDeHoy(page: Page) {
   await page.goto('/')
 
   await expect(page.getByRole('heading', { level: 1, name: 'Bienvenido a Serflow' })).toBeVisible()
+  await expect(page.locator('.pf-hero-texto .pf-pie')).toHaveText('Mercado Bazurto · Cartagena')
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', DESCRIPCION_DE_HOY)
   await expect(page.getByText('Camisetas y gorras con tu logo, tu equipo o tu idea. Estampado, DTF y bordado hechos en nuestro taller.')).toBeVisible()
   const hero = page.locator('.hero-carousel figure img')
   await expect(hero).toHaveCount(4)
@@ -65,7 +69,19 @@ async function expectContenidoDeHoy(page: Page) {
   expect(schema.telephone).toBe('+57 315 648 1243')
   expect(schema.address.streetAddress).toBe('Mercado Bazurto, C.C. Bazurtico, local 31')
   expect(schema.openingHoursSpecification).toHaveLength(2)
+  expect(schema.description).toBe(DESCRIPCION_DE_HOY)
 }
+
+// PRI-423: los escenarios siembran una foto de otro proyecto de Supabase en cada camino. Si el build intentara bajarla, ni
+// siquiera termina: ese host no existe. Aquí se comprueba que tampoco se publica un link a ella.
+test('a photo from another Supabase project is neither downloaded nor published', async ({ request }) => {
+  const paginas = [`${SITE.vacio}/products/e2e-vacia`, 'http://localhost:4233/promos/e2e-2x1-gorras', `${SITE.contenido}/`]
+  for (const url of paginas) {
+    const res = await request.get(url)
+    expect(res.ok(), url).toBe(true)
+    expect(await res.text(), url).not.toContain('e2e-proyecto-ajeno')
+  }
+})
 
 test.describe('contenido vacío', () => {
   test.use({ baseURL: SITE.vacio })
@@ -139,6 +155,28 @@ test.describe('contenido editado', () => {
     expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined()
     // Una dirección con </script> no cierra el JSON-LD: se sigue leyendo como JSON y dice lo mismo.
     expect((await jsonLdDe(page)).address.streetAddress).toBe('Calle de prueba 1 </script><script>window.__xss=1</script>')
+  })
+
+  test('hero label and search description: edited and escaped; the description stays on the home only', async ({ page }) => {
+    const XSS = '<img src=x onerror="window.__xss=1">Hola & <b>chao</b>'
+    await page.goto('/')
+    const etiqueta = page.locator('.pf-hero-texto .pf-pie')
+    await expect(etiqueta).toHaveText(XSS)
+    await expect(etiqueta.locator('img, b')).toHaveCount(0)
+    for (const meta of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+      await expect(page.locator(meta)).toHaveAttribute('content', `Descripción de prueba ${XSS}`)
+    }
+    expect((await jsonLdDe(page)).description).toBe(`Descripción de prueba ${XSS}`)
+    expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined()
+
+    // Con una palabra muy larga, la etiqueta se parte en vez de salirse de la pantalla.
+    await etiqueta.evaluate((el) => { el.lastChild!.textContent = 'W'.repeat(60) })
+    const caja = (await etiqueta.boundingBox())!
+    expect(caja.x + caja.width).toBeLessThanOrEqual(page.viewportSize()!.width)
+    expect(await etiqueta.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
+
+    await page.goto('/personaliza')
+    await expect(page.locator('meta[name="description"]')).not.toHaveAttribute('content', /Descripción de prueba/)
   })
 
   test('business data reaches every link built from it', async ({ page, request }) => {

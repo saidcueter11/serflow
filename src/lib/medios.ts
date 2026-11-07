@@ -1,6 +1,7 @@
 // Fotos y colores que el cliente administra desde serflow-admin (PRI-150, PRI-122), leídos al hacer el build.
 // Nada de lo que venga de la base puede tumbar el build: lo que no sirve se avisa en el log y se usa la foto del repo.
 import sharp from 'sharp'
+import { esUrlPermitida } from './fotos-host.mjs'
 import { supabase } from './supabase'
 import type { FilaColor } from './personaliza/base'
 
@@ -20,16 +21,6 @@ export const LIMITES = {
   tipos: ['image/jpeg', 'image/png', 'image/webp'],
 }
 
-/** Los mismos hosts que image.remotePatterns de astro.config.mjs: Astro no optimiza los demás. */
-export function esUrlPermitida(url: string): boolean {
-  try {
-    const u = new URL(url)
-    return u.protocol === 'https:' && u.hostname.endsWith('.supabase.co')
-  } catch {
-    return false
-  }
-}
-
 async function medir(url: string): Promise<{ width: number; height: number } | null> {
   const descartar = (motivo: string) => {
     console.warn(`[medios] ${url}: ${motivo}. Se usa el respaldo.`)
@@ -37,7 +28,8 @@ async function medir(url: string): Promise<{ width: number; height: number } | n
   }
   if (!esUrlPermitida(url)) return descartar('host no permitido')
   try {
-    // Sin redirecciones: la URL ya pasó esUrlPermitida y no puede llevar el build a otro host. Con tope: nunca lo cuelga.
+    // Solo esta descarga: Astro baja la foto otra vez al final del build, sin redirect ni timeout (astro/dist/assets/build/remote.js).
+    // Lo que la protege a ella es que el host sea el del proyecto propio y el sharp.block de astro.config.mjs.
     const res = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(20_000) })
     if (!res.ok) return descartar(`HTTP ${res.status}`)
     const tipo = res.headers.get('content-type')?.split(';')[0] ?? ''

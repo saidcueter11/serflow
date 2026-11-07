@@ -60,7 +60,8 @@ for (const s of SCENARIOS) {
   promos = s.promos(photos, new Date())
   categories = s.categories ?? []
   medios = s.medios?.(photos, REAL) ?? {}
-  await run(['build', '--outDir', s.outDir], { PUBLIC_SUPABASE_URL: proxyUrl })
+  // Las filas se leen por el proxy, pero las fotos siguen en el host real: el único del que el build puede bajarlas (PRI-423).
+  await run(['build', '--outDir', s.outDir], { PUBLIC_SUPABASE_URL: proxyUrl, PUBLIC_SUPABASE_FOTOS_URL: REAL })
 }
 proxy.close()
 

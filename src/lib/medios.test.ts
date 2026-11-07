@@ -13,7 +13,11 @@ vi.mock('./supabase', () => ({
   },
 }))
 
-const { esUrlPermitida, getGarmentColors, leerFotoRemota } = await import('./medios')
+vi.stubEnv('PUBLIC_SUPABASE_URL', 'https://x.supabase.co')
+vi.stubEnv('PUBLIC_SUPABASE_FOTOS_URL', '')
+
+const { getGarmentColors, leerFotoRemota } = await import('./medios')
+const { esUrlPermitida, hostDeFotos } = await import('./fotos-host.mjs')
 
 const jpeg = sharp({ create: { width: 800, height: 600, channels: 3, background: '#336699' } }).jpeg()
 let n = 0
@@ -25,11 +29,18 @@ const servir = (cuerpo: Buffer, { status = 200, tipo = 'image/jpeg' } = {}) =>
 afterEach(() => vi.unstubAllGlobals())
 
 describe('esUrlPermitida', () => {
-  it('solo https de *.supabase.co', () => {
-    expect(esUrlPermitida('https://abc.supabase.co/a.jpg')).toBe(true)
-    expect(esUrlPermitida('http://abc.supabase.co/a.jpg')).toBe(false)
-    expect(esUrlPermitida('https://abc.supabase.co.evil.com/a.jpg')).toBe(false)
+  it('solo https del proyecto propio, no cualquier *.supabase.co', () => {
+    expect(esUrlPermitida('https://x.supabase.co/a.jpg')).toBe(true)
+    expect(esUrlPermitida('http://x.supabase.co/a.jpg')).toBe(false)
+    expect(esUrlPermitida('https://abc.supabase.co/a.jpg')).toBe(false)
+    expect(esUrlPermitida('https://x.supabase.co.evil.com/a.jpg')).toBe(false)
     expect(esUrlPermitida('no es url')).toBe(false)
+  })
+
+  it('con la base detrás de un proxy, el host de las fotos es el real', () => {
+    expect(hostDeFotos({ PUBLIC_SUPABASE_URL: 'https://x.supabase.co' })).toBe('x.supabase.co')
+    expect(hostDeFotos({ PUBLIC_SUPABASE_URL: 'http://127.0.0.1:5000', PUBLIC_SUPABASE_FOTOS_URL: 'https://x.supabase.co' })).toBe('x.supabase.co')
+    expect(hostDeFotos({})).toBeUndefined()
   })
 })
 
@@ -60,6 +71,7 @@ describe('leerFotoRemota', () => {
     const pedir = vi.fn()
     vi.stubGlobal('fetch', pedir)
     expect(await leerFotoRemota('https://otro.com/a.jpg')).toBeNull()
+    expect(await leerFotoRemota('https://otro-proyecto.supabase.co/a.jpg')).toBeNull()
     expect(pedir).not.toHaveBeenCalled()
   })
 

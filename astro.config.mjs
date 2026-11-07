@@ -3,8 +3,14 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
+import sharp from 'sharp'
 import { loadEnv } from 'vite'
 import { loadBusinessOverrides } from './src/lib/business-overrides.mjs'
+import { hostDeFotos } from './src/lib/fotos-host.mjs'
+
+// PRI-150, PRI-421: el build solo decodifica JPEG, PNG y WebP. sharp 0.34.4 tiene avisos de RCE en los demás decodificadores
+// y mira los bytes, no el tipo declarado. El bloqueo es de todo el proceso, así que también cubre la optimización de Astro.
+sharp.block({ operation: ['VipsForeignLoadHeif', 'VipsForeignLoadSvg', 'VipsForeignLoadNsgif', 'VipsForeignLoadTiff', 'VipsForeignLoadVips'] })
 
 // PRI-413: datos del negocio editables. business.ts los lee también en la isla del personalizador, así que van inyectados
 // al compilar y no en una consulta por componente. Sin datos, se usan los valores del código. Si la lectura falla, el build
@@ -16,16 +22,14 @@ const business = await loadBusinessOverrides(env.PUBLIC_SUPABASE_URL, env.PUBLIC
   return {}
 })
 
+const fotosHost = hostDeFotos(env)
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://serflowctg.netlify.app/',
   image: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-      },
-    ],
+    // PRI-423: solo el proyecto propio. Un proyecto ajeno de Supabase podría responder distinto cuando Astro vuelve a bajar la foto.
+    remotePatterns: fotosHost ? [{ protocol: 'https', hostname: fotosHost }] : [],
   },
   prefetch: {
     // Touch has no hover: prefetch visible links so a tap doesn't wait on the network (PRI-120).

@@ -1,6 +1,9 @@
 // Promos sembradas para e2e/promos.spec.ts. Las fechas son relativas al build para que el test no caduque.
 const DAY = 24 * 60 * 60 * 1000
 
+// PRI-423: otro proyecto de Supabase. Ese host no existe: si un camino del build intentara bajar la foto, el build falla.
+export const FOTO_AJENA = 'https://e2e-proyecto-ajeno.supabase.co/storage/v1/object/public/product-images/ajena.jpg'
+
 const row = (over) => ({
   id: over.slug,
   description: null,
@@ -25,7 +28,7 @@ const gorras = (p, now) =>
     ends_at: new Date(now.getTime() + 30 * DAY).toISOString(),
     sort_order: 1,
     banner_url: p[0],
-    image_urls: [p[1], p[2], p[3], p[4]],
+    image_urls: [p[1], FOTO_AJENA, p[2], p[3], p[4]],
   })
 
 const equipos = (p) =>
@@ -44,7 +47,7 @@ const vacia = {
   id: '00000000-0000-4000-8000-000000000130',
   slug: 'e2e-vacia',
   label: 'Vacía de prueba',
-  image_url: null,
+  image_url: FOTO_AJENA,
   sort_order: 999,
   is_active: true,
   created_at: '2026-10-01T00:00:00Z',
@@ -93,7 +96,7 @@ const contenido = (p, base) => {
       },
     ],
     site_sections: [
-      { slug: 'hero', title: 'Hola Cartagena', description: 'Lema de prueba del hero.' },
+      { slug: 'hero', title: 'Hola Cartagena', description: 'Lema de prueba del hero.', eyebrow: XSS, seo_description: `Descripción de prueba ${XSS}` },
       { slug: 'personalizador', title: 'Hazla tú', description: 'Texto de prueba del personalizador.' },
       { slug: 'que-hacemos', title: XSS, description: 'Descripción de prueba de los servicios.' },
       // Sin descripción: esa sola usa el texto del código.
@@ -104,6 +107,7 @@ const contenido = (p, base) => {
     hero_slides: [
       { image_url: p[1], alt: 'Segunda', sort_order: 2 },
       { image_url: 'https://evil.example/x.jpg', alt: 'Dominio ajeno', sort_order: 0 },
+      { image_url: FOTO_AJENA, alt: 'Proyecto ajeno', sort_order: 0 },
       { image_url: rota, alt: 'No existe', sort_order: 1 },
       { image_url: p[0], alt: 'Primera', object_position: '50% 20%', sort_order: 1 },
     ],
@@ -148,7 +152,7 @@ const malo = () => ({
       hours: 'todos los días',
     },
   ],
-  site_sections: [{ slug: 'hero', title: 'x'.repeat(81), description: '   ' }],
+  site_sections: [{ slug: 'hero', title: 'x'.repeat(81), description: '   ', eyebrow: 'x'.repeat(61), seo_description: 'x'.repeat(161) }],
   hero_slides: [{ image_url: 'javascript:alert(1)' }, { image_url: 'https://evil.example/x.jpg' }],
   service_cards: [{ title: 'Una sola tarjeta', description: 'No llena la rejilla' }],
   about_reasons: [{ title: 'x'.repeat(41), description: 'Título demasiado largo' }],
