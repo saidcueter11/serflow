@@ -51,7 +51,9 @@ const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, 
 const JEAN = [38, 52, 96]
 const bloqueJean = (n: number) => png(n, (x, y) => (x > n / 5 && x < (4 * n) / 5 && y > n / 5 && y < (4 * n) / 5 ? [...JEAN, 255] : [0, 0, 0, 0]))
 /** Un bloque de color casi hasta el borde: pinta toda la caja del diseño. */
-const bloqueLleno = (n: number) => png(n, (x, y) => (x > 6 && x < n - 6 && y > 6 && y < n - 6 ? [210, 30, 40, 255] : [0, 0, 0, 0]))
+const BLANCO = [245, 245, 245]
+const bloqueBlanco = (n: number) => png(n, (x, y) => (x > n / 5 && x < (4 * n) / 5 && y > n / 5 && y < (4 * n) / 5 ? [...BLANCO, 255] : [0, 0, 0, 0]))
+const bloqueLleno =(n: number) => png(n, (x, y) => (x > 6 && x < n - 6 && y > 6 && y < n - 6 ? [210, 30, 40, 255] : [0, 0, 0, 0]))
 /** Una tira azul 1:5 sobre transparente, más alta que el recorte del celular. */
 const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 590 ? [30, 60, 180, 255] : [0, 0, 0, 0]), 600)
 
@@ -145,7 +147,7 @@ test.describe('/personaliza', () => {
 
   test('colores: solo los que tienen foto real, en camiseta y en gorra', async ({ page }) => {
     await abrir(page)
-    expect(await colores(page)).toEqual(['negra', 'blanca'])
+    expect(await colores(page)).toEqual(['negra', 'blanca', 'azul', 'gris', 'roja', 'verde'])
     await page.getByText('Gorra', { exact: true }).click()
     await expect(page.getByText('Gris', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Azul', { exact: true })).toHaveCount(0)
@@ -601,6 +603,40 @@ test.describe('/personaliza', () => {
       await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
       // La tela marca pliegues y trama, pero el azul no se vuelve negro (antes se alejaba 89 en camiseta y 77 en gorra; ahora, 31 y 23).
       await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(40)
+    })
+  }
+
+  // PRI-122: mockups de stock sin licencia todavía (PR en draft). Cada color trae su foto de frente y de espalda.
+  for (const [id, nombre] of [
+    ['azul', 'Azul'],
+    ['gris', 'Gris'],
+    ['roja', 'Roja'],
+    ['verde', 'Verde oliva'],
+  ]) {
+    test(`camiseta ${id}: pecho y espalda con su propia foto, y el estampado claro u oscuro conserva su color`, async ({ page, isMobile }, info) => {
+      await page.setViewportSize(isMobile ? { width: 390, height: 844 } : { width: 1280, height: 900 })
+      const prendas: string[] = []
+      page.on('response', (r) => {
+        const url = new URL(r.url()).pathname
+        if (/\/camiseta-[^/]*\.webp$/.test(url)) prendas.push(url)
+      })
+      await abrir(page)
+      await page.getByText(nombre, { exact: true }).click()
+      await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
+      const etiqueta = `Camiseta ${nombre.toLowerCase()}`
+      await expect(page.getByRole('img', { name: `${etiqueta} con tu diseño` })).toBeVisible()
+      await expect.poll(() => prendas.at(-1)).toMatch(new RegExp(`/camiseta-${id}\\.[^/]*\\.webp$`))
+      await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+      await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(40)
+      await info.attach(`${id}-pecho-${isMobile ? 390 : 1280}`, { body: await page.screenshot(), contentType: 'image/png' })
+
+      await page.getByText('Espalda', { exact: true }).click()
+      await expect(page.getByRole('img', { name: `${etiqueta}, espalda con tu diseño` })).toBeVisible()
+      await expect.poll(() => prendas.at(-1)).toMatch(new RegExp(`/camiseta-${id}-espalda\\.[^/]*\\.webp$`))
+      await subir(page, { name: 'blanco.png', mimeType: 'image/png', buffer: bloqueBlanco(400) })
+      await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+      await expect.poll(() => peorColorEnElDiseno(page, BLANCO)).toBeLessThan(40)
+      await info.attach(`${id}-espalda-${isMobile ? 390 : 1280}`, { body: await page.screenshot(), contentType: 'image/png' })
     })
   }
 

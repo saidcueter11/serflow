@@ -11,6 +11,10 @@
  * - gorra-negra: Giorgio Trovato, unsplash.com/photos/a6PIHHL7d4I
  * - gorra-blanca: personalgraphic.com, unsplash.com/photos/ozdzzeBu4Go
  *
+ * SIN LICENCIA TODAVÍA (PRI-122, PR en draft que no se mergea así): camiseta azul, gris, roja y verde (frente y
+ * espalda) son mockups de bancos de stock (Shutterstock, iStock, Freepik o similares). Said las cambia por las
+ * versiones con licencia antes de mergear. Áreas calibradas con el torso de cada foto = 50 cm.
+ *
  * Para cambiar una foto: reemplaza el archivo en src/assets/personalizador/ (4:5, 1080 × 1350) y recalibra aquí su area
  * (fracciones de la foto) y su print_width_cm (lo que mide esa área en la prenda real).
  */
@@ -20,6 +24,14 @@ import camisetaNegra from '../../assets/personalizador/camiseta-negra.jpg'
 import camisetaBlanca from '../../assets/personalizador/camiseta-blanca.jpg'
 import espaldaNegra from '../../assets/personalizador/camiseta-negra-espalda.jpg'
 import espaldaBlanca from '../../assets/personalizador/camiseta-blanca-espalda.jpg'
+import camisetaAzul from '../../assets/personalizador/camiseta-azul.jpg'
+import espaldaAzul from '../../assets/personalizador/camiseta-azul-espalda.jpg'
+import camisetaGris from '../../assets/personalizador/camiseta-gris.jpg'
+import espaldaGris from '../../assets/personalizador/camiseta-gris-espalda.jpg'
+import camisetaRoja from '../../assets/personalizador/camiseta-roja.jpg'
+import espaldaRoja from '../../assets/personalizador/camiseta-roja-espalda.jpg'
+import camisetaVerde from '../../assets/personalizador/camiseta-verde.jpg'
+import espaldaVerde from '../../assets/personalizador/camiseta-verde-espalda.jpg'
 import gorraNegra from '../../assets/personalizador/gorra-negra.jpg'
 import gorraBlanca from '../../assets/personalizador/gorra-blanca.jpg'
 
@@ -45,6 +57,34 @@ export const MUESTRA: Record<Prenda, ColorMuestra[]> = {
       name: 'Blanca',
       hex: '#f2f0ea',
       photos: [foto('frente', camisetaBlanca, rect(0.31, 0.28, 0.36, 0.35), 30), foto('espalda', espaldaBlanca, rect(0.353, 0.3, 0.294, 0.3), 35)],
+    },
+    {
+      id: 'azul',
+      garment: 'camiseta',
+      name: 'Azul',
+      hex: '#0b48ac',
+      photos: [foto('frente', camisetaAzul, rect(0.353, 0.243, 0.307, 0.294), 30), foto('espalda', espaldaAzul, rect(0.328, 0.201, 0.339, 0.326), 35)],
+    },
+    {
+      id: 'gris',
+      garment: 'camiseta',
+      name: 'Gris',
+      hex: '#b9b9b9',
+      photos: [foto('frente', camisetaGris, rect(0.344, 0.216, 0.32, 0.307), 30), foto('espalda', espaldaGris, rect(0.318, 0.184, 0.38, 0.365), 35)],
+    },
+    {
+      id: 'roja',
+      garment: 'camiseta',
+      name: 'Roja',
+      hex: '#f1052d',
+      photos: [foto('frente', camisetaRoja, rect(0.359, 0.258, 0.287, 0.275), 30), foto('espalda', espaldaRoja, rect(0.344, 0.246, 0.33, 0.317), 35)],
+    },
+    {
+      id: 'verde',
+      garment: 'camiseta',
+      name: 'Verde oliva',
+      hex: '#4d5d2e',
+      photos: [foto('frente', camisetaVerde, rect(0.345, 0.226, 0.312, 0.3), 30), foto('espalda', espaldaVerde, rect(0.318, 0.202, 0.363, 0.349), 35)],
     },
   ],
   gorra: [
