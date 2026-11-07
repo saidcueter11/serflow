@@ -60,9 +60,7 @@ test('hero carousel full-bleed with 4 photos, sections in the new order, folded 
 
   await expect(page.locator('.anim-ticker')).toHaveCount(0)
   await expect(page.locator('main').getByText('Nuevo', { exact: true })).toHaveCount(0)
-  // El personalizador sigue escondido hasta PRI-125: el botón no lleva a ningún lado.
-  await expect(page.getByRole('button', { name: 'Diseñar mi prenda' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Diseñar mi prenda' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Diseñar mi prenda' })).toHaveAttribute('href', '/personaliza')
   // Mapa plegado: el de Google no se pinta hasta tocarlo.
   await expect(page.locator('#visitanos details')).not.toHaveAttribute('open')
   await expect(page.locator('#visitanos').getByTitle('Mapa de Serflow en Cartagena')).toBeHidden()

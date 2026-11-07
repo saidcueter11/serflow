@@ -48,10 +48,11 @@ defineAsset(HojaEnvio, {
 defineAsset(CampoDiseno, {
   libraries: ["Design System"],
   usageInstructions:
-    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando hay fondo plano y los avisos de pesada, baja calidad o formato no mostrable. Acepta imágenes y PDF/AI/PSD.",
+    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando hay fondo plano, el aviso cuando el fondo no se puede quitar y los avisos de pesada, baja calidad o formato no mostrable. Acepta imágenes y PDF/AI/PSD.",
   variants: {
     Inicial: { props: { estado: "ninguno" } },
     "Con fondo plano": { props: { estado: "imagen", nombre: "logo-heroica.png", detalle: "PNG · 1200 × 1200 px", quitarFondo: true } },
+    "Fondo que no se puede quitar": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true } },
     "Baja calidad": { props: { estado: "baja", nombre: "logo-whatsapp.jpg", detalle: "JPG · 48 × 48 px" } },
     "Archivo PDF": { props: { estado: "archivo", nombre: "logo-final.pdf", detalle: "PDF · 2,4 MB" } },
     "No tengo diseño": { props: { estado: "ayuda" } },
@@ -63,13 +64,13 @@ defineAsset(Colores, {
   usageInstructions:
     "Colores de una prenda como radios (name=\"color\") con círculo de 44 px y nombre. La lista viene del admin y crece en grilla. Va dentro de un form que lee el onChange. No para filtros del catálogo (usa Chip).",
   variants: {
-    "4 colores": {
+    "Gorra, 4 colores": {
       props: {
         colores: [
           { id: "negra", name: "Negra", hex: "#1d1c1a" },
           { id: "blanca", name: "Blanca", hex: "#f2f0ea" },
           { id: "gris", name: "Gris", hex: "#8a8781" },
-          { id: "azul", name: "Azul", hex: "#2f56a3" },
+          { id: "azul", name: "Azul", hex: "#2340c8" },
         ],
         elegido: "negra",
       },
@@ -80,10 +81,10 @@ defineAsset(Colores, {
 defineAsset(Tecnicas, {
   libraries: ["Design System"],
   usageInstructions:
-    "Técnica de la prenda: tarjetas radio (name=\"tecnica\") con pista y muestra. Con una sola técnica (gorra: bordado) pinta una línea fija sin selector.",
+    "Técnica de la prenda: tarjetas radio (name=\"tecnica\") con pista y muestra. ",
   variants: {
     Camiseta: { props: { opciones: ["estampado", "dtf", "bordado"], elegida: "estampado" } },
-    Gorra: { props: { opciones: ["bordado"], elegida: "bordado" } },
+    Gorra: { props: { opciones: ["bordado", "estampado"], elegida: "bordado" } },
   },
 });
 

@@ -5,7 +5,7 @@ import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '.
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
 import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
-import { LUGAR_GORRA, LUGAR_INICIAL, aspectoArea, limitar, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
+import { LUGAR_GORRA, LUGAR_INICIAL, aspectoArea, escalaMax, limitar, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
 
@@ -86,6 +86,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const color = lista.find((c) => c.id === colorId) ?? lista[0]
   const fotoInfo = fotoDe(color, prenda, ubicacion) ?? fotoDe(lista[0], prenda, ubicacion)!
   const anchoCm = fotoInfo.print_width_cm
+  const maxS = escalaMax(prenda, tecnica, anchoCm)
 
   // Foto del color y la vista elegidos: solo se baja esa. Mientras llega, se ve la anterior atenuada.
   const fotos = useRef(new Map<string, FotoLista>())
@@ -122,10 +123,10 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const tratado = useMemo(() => (fuente ? prepararDiseno(fuente, tecnica) : null), [fuente, tecnica])
   const ratio = tratado ? tratado.width / tratado.height : 1
 
-  // Un diseño con otra proporción o un área nueva pueden dejar la caja afuera: se vuelve a limitar.
+  // Un diseño con otra proporción, un área nueva o el tope del bordado pueden dejar la caja afuera: se vuelve a limitar.
   useEffect(() => {
-    if (tratado) setLugar((l) => limitar(l, ratio, aspectoArea(fotoInfo.print_area)))
-  }, [ratio, fotoInfo.print_area, tratado])
+    if (tratado) setLugar((l) => limitar(l, ratio, aspectoArea(fotoInfo.print_area), maxS))
+  }, [ratio, fotoInfo.print_area, tratado, maxS])
 
   // Restaurar las elecciones de esta pestaña (y la pantalla C si volvió de WhatsApp tras una recarga).
   useEffect(() => {
@@ -354,6 +355,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
               diseno={tratado}
               lugar={lugar}
               onLugar={setLugar}
+              maxS={maxS}
               anchoCm={anchoCm}
               archivo={archivoVista ?? undefined}
               cargando={`Cargando la ${nombreColor.toLowerCase()}…`}
@@ -380,6 +382,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                 detalle={leido?.detalle}
                 miniatura={leido?.url}
                 quitarFondo={leido?.sinFondo && !procesando ? quitarFondo : undefined}
+                fondoFijo={leido?.fondoFijo}
                 escritorio={escritorio}
                 onArchivo={subir}
                 onQuitar={() => {
@@ -397,7 +400,12 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
               <Grupo legend="Color" valor={color.name} key={`c-${prenda}`}>
                 <Colores colores={lista} elegido={color.id} cargando={fotoEstado === 'cargando' ? color.id : undefined} />
               </Grupo>
-              <Grupo legend="Técnica" valor={def.tecnicas.length > 1 ? TECNICAS[tecnica].nombre : undefined} key={`t-${prenda}`}>
+              <Grupo
+                legend="Técnica"
+                valor={TECNICAS[tecnica].nombre}
+                nota={tecnica === 'bordado' && def.bordadoMaxCm ? `El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos ${def.bordadoMaxCm} cm de ancho.` : undefined}
+                key={`t-${prenda}`}
+              >
                 <Tecnicas opciones={def.tecnicas} elegida={tecnica} />
               </Grupo>
               <Grupo legend="Ubicación" key={`u-${prenda}`}>

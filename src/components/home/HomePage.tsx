@@ -104,8 +104,7 @@ export function HomePage({
                 ))}
               </ol>
               <div>
-                {/* Decisión de Said: el botón se ve pero no hace nada hasta que exista el personalizador (PRI-125). */}
-                <Button variant="whatsapp" icon={null} fullWidth>
+                <Button variant="whatsapp" href="/personaliza" icon={null} fullWidth>
                   Diseñar mi prenda
                 </Button>
               </div>

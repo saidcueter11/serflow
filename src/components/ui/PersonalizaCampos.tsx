@@ -85,6 +85,8 @@ export interface CampoDisenoProps {
   miniatura?: string
   /** Interruptor "Quitar el fondo": undefined = no hay fondo plano y no aparece. */
   quitarFondo?: boolean
+  /** El fondo no se puede quitar (no es plano ni transparente): se avisa. */
+  fondoFijo?: boolean
   escritorio?: boolean
   onArchivo?: (f: File) => void
   onQuitar?: () => void
@@ -96,7 +98,7 @@ export interface CampoDisenoProps {
  * Paso 1: subir el diseño. Un <label> con <input type="file"> (abre galería o cámara en el celular); en escritorio
  * también se puede soltar el archivo. Acepta imágenes y también PDF, AI y PSD (se reciben aunque no se muestren).
  */
-export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, escritorio = false, onArchivo, onQuitar, onAyuda, onQuitarFondo }: CampoDisenoProps) {
+export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, fondoFijo = false, escritorio = false, onArchivo, onQuitar, onAyuda, onQuitarFondo }: CampoDisenoProps) {
   const ayuda = estado === 'ayuda'
   const conArchivo = estado !== 'ninguno' && !ayuda
   const aviso = AVISOS[estado as EstadoDiseno]
@@ -123,6 +125,7 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, e
             <span className="text-[14px] text-muted">{escritorio ? 'PNG, JPG, PDF, AI o PSD' : 'Desde tu galería o la cámara'}</span>
           </label>
           <p className="-mt-1 text-[16px] leading-normal text-muted">Sube tu logo, un dibujo o una foto. Un PNG sin fondo se ve mejor.</p>
+          <p className="-mt-1 text-[16px] leading-normal text-muted">Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.</p>
         </>
       )}
 
@@ -163,6 +166,8 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, e
           />
         </label>
       )}
+
+      {fondoFijo && <Aviso titulo="Esta imagen conserva su fondo">Aquí solo podemos quitar fondos de un solo color.</Aviso>}
 
       {aviso && <Aviso titulo={aviso.titulo}>{aviso.texto}</Aviso>}
 
@@ -232,21 +237,8 @@ function Muestra({ t }: { t: Tecnica }) {
 
 /**
  * Técnica: tarjetas radio con nombre y pista (para elegir sin saber de técnicas).
- * Con una sola técnica posible (gorra) no hay selector: una línea fija que dice por qué.
  */
 export function Tecnicas({ opciones, elegida }: { opciones: Tecnica[]; elegida: Tecnica }) {
-  if (opciones.length === 1) {
-    const t = TECNICAS[opciones[0]]
-    return (
-      <div className="flex items-center gap-3 rounded-tile border border-line bg-surface p-3 font-body text-ink">
-        <Muestra t={opciones[0]} />
-        <div className="flex flex-col">
-          <span className="text-[15px] font-semibold">{t.nombre}</span>
-          <span className="text-[13px] text-muted">{t.pista}. En gorras bordamos, es lo que mejor queda.</span>
-        </div>
-      </div>
-    )
-  }
   return (
     <div className="grid gap-2 font-body text-ink">
       {opciones.map((id) => {
