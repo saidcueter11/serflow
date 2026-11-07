@@ -28,13 +28,16 @@ export function BoardChip() {
 
       <Row
         name="Estados"
-        description="Elegido: fondo dorado y texto oscuro (12.9:1). Sin elegir: surface con borde line y texto ink (14.9:1). Foco de teclado: anillo dorado."
+        description="Elegido: fondo dorado y texto oscuro (12.9:1). Sin elegir: surface con borde line y texto ink (14.9:1). Foco de teclado: anillo dorado. No disponible: al 40 %, sin foco ni clic, y con una nota al lado que diga por qué (la camiseta azul sin foto de espalda)."
       >
         <Demo label="sin elegir">
           <Chip name="estado-a" label="Estampado" />
         </Demo>
         <Demo label="elegido">
           <Chip name="estado-b" label="Estampado" selected />
+        </Demo>
+        <Demo label="no disponible">
+          <Chip name="estado-c" label="Espalda" disabled />
         </Demo>
       </Row>
 

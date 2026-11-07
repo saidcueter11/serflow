@@ -145,11 +145,60 @@ test.describe('/personaliza', () => {
 
   test('colores: solo los que tienen foto real, en camiseta y en gorra', async ({ page }) => {
     await abrir(page)
-    expect(await colores(page)).toEqual(['negra', 'blanca'])
+    expect(await colores(page)).toEqual(['negra', 'blanca', 'azul'])
     await page.getByText('Gorra', { exact: true }).click()
     await expect(page.getByText('Gris', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Azul', { exact: true })).toHaveCount(0)
     expect(await colores(page)).toEqual(['negra', 'blanca'])
+  })
+
+  // PRI-122: la primera foto del taller. Solo hay frente: sale con Pecho y la Espalda queda apagada, sin usar la de otro color.
+  test('camiseta azul: foto del taller, solo pecho y la espalda deshabilitada con su nota', async ({ page, isMobile }) => {
+    const ancho = isMobile ? 390 : 1280
+    await page.setViewportSize({ width: ancho, height: isMobile ? 844 : 900 })
+    const prendas: { url: string; bytes: number }[] = []
+    page.on('response', async (r) => {
+      if (/\/camiseta-azul[^/]*\.\w+$/.test(new URL(r.url()).pathname)) prendas.push({ url: new URL(r.url()).pathname, bytes: (await r.body()).length })
+    })
+    await abrir(page)
+    const espalda = page.getByRole('radio', { name: 'Espalda' })
+    const pecho = page.getByRole('radio', { name: 'Pecho' })
+    const NOTA = 'La camiseta azul todavía no tiene foto de espalda. Si la quieres ahí, cuéntanos en la nota.'
+
+    // Desde la espalda de la negra: al elegir azul vuelve al pecho.
+    await page.getByText('Espalda', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda' })).toBeVisible()
+    await page.getByText('Azul', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta azul' })).toBeVisible()
+    await expect(pecho).toBeChecked()
+    await expect(espalda).toBeDisabled()
+    await expect(page.getByText(NOTA)).toBeVisible()
+
+    // La misma optimización que las otras: WebP liviano, la de 720 px en celular.
+    await expect.poll(() => prendas.length).toBe(1)
+    expect(prendas[0].url).toMatch(/\/camiseta-azul\.[^/]*\.webp$/)
+    expect(prendas[0].bytes).toBeLessThanOrEqual(isMobile ? 40 * 1024 : 70 * 1024)
+
+    // Con el área calibrada, el diseño arranca con un tamaño razonable en cm sobre el pecho.
+    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+    const diseno = page.getByRole('group', { name: /Tu diseño, unos \d+ cm de ancho/ })
+    await expect(diseno).toBeVisible({ timeout: 15_000 })
+    const cm = Number((await diseno.getAttribute('aria-label'))!.match(/unos (\d+) cm/)![1])
+    expect(cm).toBeGreaterThanOrEqual(15)
+    expect(cm).toBeLessThanOrEqual(30)
+    await quieto(diseno)
+    await page.screenshot({ path: test.info().outputPath(`camiseta-azul-${ancho}.png`), fullPage: true })
+
+    await enviar(page).click()
+    const texto = await textoWa(page.getByRole('dialog', { name: 'Revisa y envía' }).getByRole('link', { name: 'Abrir chat con Serflow' }))
+    expect(texto).toContain('*Prenda:* Camiseta azul')
+    expect(texto).toContain('*Ubicación:* Pecho')
+    await page.getByRole('dialog', { name: 'Revisa y envía' }).getByRole('button', { name: 'Editar mi pedido' }).click()
+
+    // Los otros colores no cambian: la negra vuelve a dejar elegir la espalda.
+    await page.getByText('Negra', { exact: true }).click()
+    await expect(espalda).toBeEnabled()
+    await expect(page.getByText(NOTA)).toHaveCount(0)
   })
 
   test('flujo principal: logo sobre blanco, quita el fondo, cambia color y técnica y arma el mensaje de WhatsApp', async ({ page }) => {

@@ -73,6 +73,11 @@ export function fotoDe(color: ColorPrenda, prenda: Prenda, ubicacion: string): F
   return color.photos.find((f) => f.view === vista)
 }
 
+/** Las ubicaciones con foto en este color. Solo un color de muestra puede faltar en una vista (la camiseta azul, sin espalda). */
+export function ubicacionesDe(color: ColorPrenda, prenda: Prenda): Ubicacion[] {
+  return PRENDAS[prenda].ubicaciones.filter((u) => color.photos.some((f) => f.view === u.vista))
+}
+
 /** Un color sale solo si tiene foto en todas las vistas de su prenda (6.7). */
 export function colorCompleto(color: ColorPrenda): boolean {
   return PRENDAS[color.garment].ubicaciones.every((u) => color.photos.some((f) => f.view === u.vista))

@@ -86,6 +86,7 @@ export function BoardVistaPrevia() {
         <div className="flex flex-wrap gap-6">
           <Caso label="Estampado · blanca"><Vista modo="listo" color="blanca" /></Caso>
           <Caso label="Bordado · blanca"><Vista modo="listo" color="blanca" tecnica="bordado" /></Caso>
+          <Caso label="Estampado · azul (foto del taller)"><Vista modo="listo" color="azul" /></Caso>
           <Caso label="Espalda · negra"><Vista modo="listo" ubicacion="Espalda" /></Caso>
           <Caso label="Gorra · bordado"><Vista modo="listo" prenda="gorra" tecnica="bordado" /></Caso>
           <Caso label="Gorra blanca · estampado"><Vista modo="listo" prenda="gorra" color="blanca" /></Caso>

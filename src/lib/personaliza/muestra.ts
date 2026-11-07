@@ -2,8 +2,10 @@
  * Colores y fotos de MUESTRA del personalizador, con la forma de garment_colors + garment_photos (spec 6.7).
  * Es el respaldo: lo usa la prenda sin ningún color completo publicado desde el admin (src/lib/personaliza/base.ts).
  *
- * FOTOS REALES DE STOCK, NO DEL TALLER (las reemplazan las oficiales de PRI-125). Una foto por color y vista, sin teñir;
- * si falta una foto, ese color queda fuera. Licencias Pexels y Unsplash: uso comercial, sin atribución obligatoria.
+ * Una foto por color y vista, sin teñir. Negra y blanca son FOTOS DE STOCK, no del taller (las reemplazan las oficiales de
+ * PRI-125); licencias Pexels y Unsplash: uso comercial, sin atribución obligatoria.
+ * La azul es la primera foto oficial del taller (Said, 2026-11-07) y por ahora solo tiene frente: sale con Pecho y la
+ * Espalda queda deshabilitada (ubicacionesDe). Cuando llegue su espalda, se agrega aquí y listo.
  * - camiseta-negra: Hanna Pad, pexels.com/photo/8532616
  * - camiseta-negra-espalda: Angela Roma, pexels.com/photo/7319032
  * - camiseta-blanca: Avtar Singh, unsplash.com/photos/8ACmRoleM24
@@ -20,6 +22,7 @@ import camisetaNegra from '../../assets/personalizador/camiseta-negra.jpg'
 import camisetaBlanca from '../../assets/personalizador/camiseta-blanca.jpg'
 import espaldaNegra from '../../assets/personalizador/camiseta-negra-espalda.jpg'
 import espaldaBlanca from '../../assets/personalizador/camiseta-blanca-espalda.jpg'
+import camisetaAzul from '../../assets/personalizador/camiseta-azul.jpg'
 import gorraNegra from '../../assets/personalizador/gorra-negra.jpg'
 import gorraBlanca from '../../assets/personalizador/gorra-blanca.jpg'
 
@@ -46,6 +49,9 @@ export const MUESTRA: Record<Prenda, ColorMuestra[]> = {
       hex: '#f2f0ea',
       photos: [foto('frente', camisetaBlanca, rect(0.31, 0.28, 0.36, 0.35), 30), foto('espalda', espaldaBlanca, rect(0.353, 0.3, 0.294, 0.3), 35)],
     },
+    // El torso mide 0.50 del ancho de la foto (x 0.272 a 0.776) y es una camiseta de unos 50 cm: 1 cm = 0.01. El área de
+    // 30 cm arranca unos 10 cm bajo el cuello (y 0.10), centrada en el torso.
+    { id: 'azul', garment: 'camiseta', name: 'Azul', hex: '#0d45bf', photos: [foto('frente', camisetaAzul, rect(0.374, 0.18, 0.3, 0.29), 30)] },
   ],
   gorra: [
     // Esta foto está en 3/4: el área sigue el panel de la copa, y así el diseño se acuesta con la gorra (el motor ya usa 4 esquinas).

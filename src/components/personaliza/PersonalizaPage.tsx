@@ -4,7 +4,7 @@ import { HojaEnvio, type TipoEnvio } from '../ui/HojaEnvio'
 import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '../ui/PersonalizaCampos'
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
-import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
+import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, ubicacionesDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
 import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
@@ -63,7 +63,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const lista = colores[prenda]
   const [colorId, setColorId] = useState(lista[0].id)
   const [tecnica, setTecnica] = useState<Tecnica>(def.tecnicas[0])
-  const [ubicacion, setUbicacion] = useState(def.ubicaciones[0].nombre)
+  const [elegida, setUbicacion] = useState(def.ubicaciones[0].nombre)
   const [cantidad, setCantidad] = useState<Cantidad>('1')
   const [nota, setNota] = useState('')
   const [lugar, setLugar] = useState<Lugar>(LUGAR_INICIAL)
@@ -90,6 +90,9 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const escritorio = useEscritorio()
 
   const color = lista.find((c) => c.id === colorId) ?? lista[0]
+  // Un color sin foto de una vista (la camiseta azul, sin espalda) deshabilita esa ubicación y muestra la que sí tiene.
+  const conFoto = ubicacionesDe(color, prenda)
+  const ubicacion = conFoto.some((u) => u.nombre === elegida) ? elegida : conFoto[0].nombre
   const fotoInfo = fotoDe(color, prenda, ubicacion) ?? fotoDe(lista[0], prenda, ubicacion)!
   const anchoCm = fotoInfo.print_width_cm
   const maxS = escalaMax(prenda, tecnica, anchoCm)
@@ -422,11 +425,22 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
               >
                 <Tecnicas opciones={def.tecnicas} elegida={tecnica} />
               </Grupo>
-              <Grupo legend="Ubicación" key={`u-${prenda}`}>
+              <Grupo
+                legend="Ubicación"
+                nota={
+                  conFoto.length < def.ubicaciones.length
+                    ? `La ${nombreColor.toLowerCase()} todavía no tiene foto de ${def.ubicaciones
+                        .filter((u) => !conFoto.includes(u))
+                        .map((u) => u.nombre.toLowerCase())
+                        .join(' ni ')}. Si la quieres ahí, cuéntanos en la nota.`
+                    : undefined
+                }
+                key={`u-${prenda}-${conFoto.length}`}
+              >
                 {def.ubicaciones.length > 1 ? (
                   <div className="flex flex-wrap gap-2">
                     {def.ubicaciones.map((u) => (
-                      <Chip key={u.nombre} label={u.nombre} name="ubicacion" selected={u.nombre === ubicacion} />
+                      <Chip key={u.nombre} label={u.nombre} name="ubicacion" selected={u.nombre === ubicacion} disabled={!conFoto.includes(u)} />
                     ))}
                   </div>
                 ) : (
