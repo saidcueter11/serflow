@@ -118,20 +118,21 @@ test.describe('1 · foto que crece', () => {
     await tile.click()
     await expect(tile.locator('img')).toHaveCSS('opacity', '0')
 
-    const fin = await page.evaluate(() => {
+    // Todo en el mismo cuadro: si la fuente termina de cargar, la página se corre un par de px.
+    const fin = await tile.evaluate((a: HTMLAnchorElement) => {
       document.querySelector<HTMLElement>('dialog [data-mx="cerrar"]')!.click()
       const m = document.querySelector<HTMLElement>('dialog .mx-marco')!
       const anim = m.getAnimations().find((x) => (x as CSSAnimation).animationName === 'mx-vuelve')!
       anim.pause()
       anim.currentTime = Number(anim.effect!.getComputedTiming().endTime) - 1
       const r = m.getBoundingClientRect()
+      const t = a.getBoundingClientRect()
       anim.play()
-      return { abierto: (m.closest('dialog') as HTMLDialogElement).open, x: r.left + r.width / 2, y: r.top + r.height / 2 }
+      return { abierto: (m.closest('dialog') as HTMLDialogElement).open, dx: r.left + r.width / 2 - (t.left + t.width / 2), dy: r.top + r.height / 2 - (t.top + t.height / 2) }
     })
     expect(fin.abierto).toBe(true)
-    const box = (await tile.boundingBox())!
-    expect(Math.abs(fin.x - (box.x + box.width / 2))).toBeLessThan(2)
-    expect(Math.abs(fin.y - (box.y + box.height / 2))).toBeLessThan(2)
+    expect(Math.abs(fin.dx)).toBeLessThan(2)
+    expect(Math.abs(fin.dy)).toBeLessThan(2)
 
     await expect(dialog(page)).toBeHidden()
     await expect(page).toHaveURL(base)
