@@ -856,6 +856,22 @@ for (const nombre of ['Pixel 7', 'iPhone 13'] as const) {
       }
     })
 
+    test('pellizcar con un dedo sobre el diseño sin seleccionar lo escala', async ({ page }) => {
+      await abrir(page)
+      await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+      const diseno = page.getByRole('group', { name: /Tu diseño/ })
+      await quieto(diseno)
+      await expect(page.getByText(/^unos \d+ cm de ancho$/)).toHaveCount(0)
+      const vista = (await page.locator('.pf-pz-vista > div').boundingBox())!
+      const b = (await diseno.boundingBox())!
+      const y = b.y + b.height / 2
+      // Un dedo quieto dentro de la caja; el otro llega desde la prenda hasta el borde del diseño.
+      const quietoEn = { x: b.x + b.width * 0.25, y }
+      await gesto(page, [quietoEn, { x: vista.x + vista.width - 8, y }], [quietoEn, { x: b.x + b.width + 4, y }])
+      await expect.poll(async () => (await diseno.boundingBox())!.width).toBeLessThan(b.width * 0.8)
+      expect(await zoom(page)).toBe(1)
+    })
+
     test('un dedo que pasa por la foto sin ajustar hace scroll, y fuera de la prenda la página hace zoom', async ({ page }) => {
       await abrir(page)
       await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
