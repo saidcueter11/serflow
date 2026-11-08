@@ -4,6 +4,7 @@ import { HojaEnvio, type TipoEnvio } from '../ui/HojaEnvio'
 import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '../ui/PersonalizaCampos'
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
+import { quitarFondoIa, soporteIa, type FondoIa } from '../../lib/personaliza/fondo-ia'
 import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
 import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
@@ -73,6 +74,8 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const [lento, setLento] = useState(false)
   const [sinVista, setSinVista] = useState(false)
   const [quitarFondo, setQuitarFondo] = useState(true)
+  const [fondoIa, setFondoIa] = useState<FondoIa>({ fase: 'listo' })
+  const ia = useRef<AbortController | null>(null)
   const [tocado, setTocado] = useState(false)
   const [hoja, setHoja] = useState<null | 'envio' | 'vuelta'>(null)
   const [mock, setMock] = useState<{ url: string; archivo: File } | null>(null)
@@ -177,8 +180,32 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   }, [])
 
   const soltarDiseno = () => {
+    ia.current?.abort()
+    setFondoIa({ fase: 'listo' })
     if (leido?.url) URL.revokeObjectURL(leido.url)
     setLeido(null)
+  }
+
+  // PRI-436: el automático no pudo; el modelo corre en el navegador y su resultado es el sinFondo de siempre (el interruptor lo deshace).
+  async function quitarConIa() {
+    const d = leido
+    if (!d?.trabajo) return
+    const puede = soporteIa()
+    if (puede !== 'ok') return setFondoIa({ fase: 'error', motivo: puede })
+    const control = new AbortController()
+    ia.current = control
+    setFondoIa({ fase: 'bajando', pct: 0 })
+    try {
+      const sinFondo = await quitarFondoIa(d.trabajo, (pct) => setFondoIa(pct === null ? { fase: 'quitando' } : { fase: 'bajando', pct }), control.signal)
+      setLeido({ ...d, sinFondo, fondoFijo: false })
+      setQuitarFondo(true)
+      setFondoIa({ fase: 'listo' })
+    } catch (e) {
+      // Cancelado (por el botón o porque cambió el diseño): quien canceló ya dejó el estado como va.
+      if (control.signal.aborted) return
+      const m = (e as Error).message
+      setFondoIa({ fase: 'error', motivo: m === 'red' || m === 'memoria' ? m : 'fallo' })
+    }
   }
 
   async function subir(f: File) {
@@ -397,6 +424,12 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                 miniatura={leido?.url}
                 quitarFondo={leido?.sinFondo && !procesando ? quitarFondo : undefined}
                 fondoFijo={leido?.fondoFijo}
+                fondoIa={fondoIa}
+                onFondoIa={quitarConIa}
+                onCancelarFondoIa={() => {
+                  ia.current?.abort()
+                  setFondoIa({ fase: 'listo' })
+                }}
                 rechazado={rechazado}
                 escritorio={escritorio}
                 onArchivo={subir}
