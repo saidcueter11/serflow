@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { devices, expect, test } from '@playwright/test'
 import { ADDRESS } from '../src/lib/business'
 
 // PRI-413: fixed copy lives on the build with empty content tables, so a client edit can't turn these red.
@@ -41,6 +41,42 @@ test('with reduced motion the hero keeps its first photo and only its bar is ful
   await expect(bars.first()).toHaveCSS('transform', 'none')
   await expect(bars.nth(1)).toHaveCSS('transform', 'matrix(0, 0, 0, 1, 0, 0)')
 })
+
+// PRI-432: el carrusel se pausa con el mouse encima o con el foco del teclado, y sigue cuando se van.
+test('hero carousel pauses under the mouse and on keyboard focus', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'mouse and keyboard')
+  await page.goto('/')
+  const hero = page.locator('.hero-carousel')
+  const slide = hero.locator('.anim-slide').first()
+  await expect(slide).toHaveCSS('animation-play-state', 'running')
+  for (let i = 0; i < 20 && !(await hero.evaluate((h) => h.contains(document.activeElement))); i++) await page.keyboard.press('Tab')
+  await expect(slide).toHaveCSS('animation-play-state', 'paused')
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await expect(slide).toHaveCSS('animation-play-state', 'running')
+  await hero.hover()
+  await expect(slide).toHaveCSS('animation-play-state', 'paused')
+})
+
+// PRI-432: en el celular el :hover se queda pegado después de un toque; tocar el hero no detiene el carrusel.
+for (const nombre of ['Pixel 7', 'iPhone 13'] as const) {
+  test.describe(`hero carousel on ${nombre}`, () => {
+    const { defaultBrowserType: _, ...dispositivo } = devices[nombre]
+    test.use(dispositivo)
+
+    test('a tap on the hero after scrolling does not stop it', async ({ page }, info) => {
+      test.skip(info.project.name !== 'mobile', 'one run per device')
+      await page.goto('/')
+      const hero = page.locator('.hero-carousel')
+      const slide = hero.locator('.anim-slide').first()
+      await page.evaluate(() => scrollTo(0, 120))
+      await expect.poll(() => page.evaluate(() => scrollY)).toBe(120)
+      const box = (await hero.boundingBox())!
+      // Sobre la foto, lejos del texto y del botón.
+      await page.touchscreen.tap(box.x + box.width - 30, box.y + box.height * 0.45)
+      await expect(slide).toHaveCSS('animation-play-state', 'running')
+    })
+  })
+}
 
 // PRI-286: portada nueva. Hero a sangre en carrusel (las 4 fotos), Diseña la tuya arriba, sin ticker ni "Nuevo", y
 // Visítanos al final con el mapa plegado.

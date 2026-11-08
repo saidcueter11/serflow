@@ -1,6 +1,6 @@
 import { deflateSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { devices, expect, test, type Locator, type Page } from '@playwright/test'
 import { curvaGris, gorraDeCelular, logoEnPapel, logoSobreBlanco as logoReal } from './fixtures/imagenes-fondo'
 
 // PRI-122: /personaliza encendida con fotos de muestra (las oficiales llegan con PRI-125). Los archivos de prueba se arman
@@ -808,3 +808,73 @@ test.describe('/personaliza', () => {
     await page.unrouteAll({ behavior: 'ignoreErrors' })
   })
 })
+
+// PRI-434: en el celular, el pellizco con dos dedos sobre la prenda escala el diseño en vez de hacerle zoom a la página;
+// un dedo que pasa por la foto sin estar ajustando sigue haciendo scroll, y fuera de la prenda el zoom de la página sigue.
+type Punto = { x: number; y: number }
+/** Gesto táctil real (CDP): cada dedo va de `desde` a `hasta` en 10 pasos. */
+async function gesto(page: Page, desde: Punto[], hasta: Punto[]) {
+  const cdp = await page.context().newCDPSession(page)
+  const en = (t: number) => desde.map((d, i) => ({ id: i + 1, x: d.x + (hasta[i].x - d.x) * t, y: d.y + (hasta[i].y - d.y) * t }))
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: en(0) })
+  for (let k = 1; k <= 10; k++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: en(k / 10) })
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+  await cdp.detach()
+  // El zoom de la página se aplica en el cuadro siguiente.
+  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))))
+}
+const zoom = (page: Page) => page.evaluate(() => visualViewport!.scale)
+
+for (const nombre of ['Pixel 7', 'iPhone 13'] as const) {
+  test.describe(`/personaliza en ${nombre}`, () => {
+    const { defaultBrowserType: _, ...dispositivo } = devices[nombre]
+    test.use(dispositivo)
+    test.beforeEach(({}, info) => test.skip(info.project.name !== 'mobile', 'una corrida por dispositivo'))
+
+    test('pellizcar sobre la prenda escala el diseño, no la página', async ({ page }) => {
+      await abrir(page)
+      await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+      const diseno = page.getByRole('group', { name: /Tu diseño/ })
+      await quieto(diseno)
+      const vista = (await page.locator('.pf-pz-vista > div').boundingBox())!
+      const pellizcar = async () => {
+        const b = (await diseno.boundingBox())!
+        const y = b.y + b.height / 2
+        // Los dos dedos en la prenda, fuera de la caja del diseño, y se juntan sin entrar en ella.
+        await gesto(page, [{ x: vista.x + 8, y }, { x: vista.x + vista.width - 8, y }], [{ x: b.x - 4, y }, { x: b.x + b.width + 4, y }])
+        return b.width
+      }
+
+      // Sin seleccionar: la página no hace zoom.
+      await pellizcar()
+      expect(await zoom(page)).toBe(1)
+
+      // Seleccionado: el diseño se achica y la página sigue igual.
+      const b = (await diseno.boundingBox())!
+      await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2)
+      await expect(page.getByText(/^unos \d+ cm de ancho$/)).toBeVisible()
+      const antes = await pellizcar()
+      await expect.poll(async () => (await diseno.boundingBox())!.width).toBeLessThan(antes * 0.8)
+      expect(await zoom(page)).toBe(1)
+    })
+
+    test('un dedo que pasa por la foto sin ajustar hace scroll, y fuera de la prenda la página hace zoom', async ({ page }) => {
+      await abrir(page)
+      await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoSobreBlanco(800) })
+      const diseno = page.getByRole('group', { name: /Tu diseño/ })
+      await quieto(diseno)
+      const vista = (await page.locator('.pf-pz-vista > div').boundingBox())!
+      const x = vista.x + 12
+      const scroll = await page.evaluate(() => scrollY)
+      await gesto(page, [{ x, y: vista.y + vista.height - 10 }], [{ x, y: vista.y + 20 }])
+      await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(scroll + 100)
+
+      await page.evaluate(() => scrollTo(0, 0))
+      await expect.poll(() => page.evaluate(() => scrollY)).toBe(0)
+      const titulo = (await page.getByRole('heading', { name: 'Diseña tu prenda' }).boundingBox())!
+      const y = titulo.y + titulo.height / 2
+      await gesto(page, [{ x: 150, y }, { x: 200, y }], [{ x: 60, y }, { x: 290, y }])
+      await expect.poll(() => zoom(page)).toBeGreaterThan(1.2)
+    })
+  })
+}
