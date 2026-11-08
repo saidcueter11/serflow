@@ -221,6 +221,7 @@ test.describe('3 · titular palabra por palabra', () => {
     ['/products', 'Catálogo'],
     ['/promos', /^Promos/],
     ['/esta-pagina-no-existe', 'Esta página no existe'],
+    ['/personaliza', 'Diseña tu prenda'],
   ]
 
   for (const [path, nombre] of TITULOS) {
@@ -259,6 +260,33 @@ test.describe('3 · titular palabra por palabra', () => {
     expect(await retraso(bajada)).toBeGreaterThan(await retraso(titulo))
     const nombres = await page.locator('.hero-carousel figure img').first().evaluate((i) => i.getAnimations().map((a) => (a as CSSAnimation).animationName))
     expect(nombres).toContain('sf-asienta')
+  })
+
+  test('changing category: the new title rises, the subtitle (same text) does not animate again', async ({ page }) => {
+    await page.goto('/products')
+    await page.locator('.sf-bajada .sf-palabra > span').last().evaluate((s) => Promise.all(s.getAnimations().map((a) => a.finished)))
+    // En el cuadro del cambio: con la bajada animando de nuevo, sus palabras arrancan escondidas.
+    await page.evaluate(() => {
+      document.addEventListener(
+        'astro:after-swap',
+        () => {
+          ;(window as unknown as { cuadro: unknown }).cuadro = {
+            bajada: [...document.querySelectorAll('.sf-bajada .sf-palabra > span')].map((s) => getComputedStyle(s).opacity),
+            titulo: document.querySelector('h1 .sf-palabra > span')!.getAnimations().map((a) => a.playState),
+          }
+        },
+        { once: true },
+      )
+    })
+    const chip = chips(page).nth(1)
+    const href = (await chip.getAttribute('href'))!
+    await chip.click()
+    await expect(page).toHaveURL(new RegExp(`${href}/?$`))
+    const espera = await page.waitForFunction(() => (window as unknown as { cuadro?: { bajada: string[]; titulo: string[] } }).cuadro)
+    const { bajada, titulo } = (await espera.jsonValue())!
+    expect(titulo).toEqual(['running'])
+    expect(bajada.length).toBeGreaterThan(0)
+    for (const o of bajada) expect(o).toBe('1')
   })
 
   test('no other photo covers the home photo while it settles', async ({ page }) => {

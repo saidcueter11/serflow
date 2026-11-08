@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Chip } from '../ui/Chip'
+import { Palabras } from '../ui/Palabras'
 import { HojaEnvio, type TipoEnvio } from '../ui/HojaEnvio'
 import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '../ui/PersonalizaCampos'
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
@@ -397,8 +398,12 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
       <form key={version} onChange={cambiar} onSubmit={(e) => e.preventDefault()} aria-label="Arma tu pedido">
         <main className="pf-v pf-pz">
           <div className="pf-pz-titulo">
-            <h1 className="pf-display sf-entra">Diseña tu prenda</h1>
-            <p className="pf-lead">Arma tu pedido y nos llega por WhatsApp.</p>
+            <h1 className="pf-display">
+              <Palabras text="Diseña tu prenda" />
+            </h1>
+            <p className="pf-lead sf-bajada">
+              <Palabras text="Arma tu pedido y nos llega por WhatsApp." />
+            </p>
           </div>
 
           <div className="pf-pz-izq">

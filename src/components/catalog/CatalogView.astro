@@ -22,7 +22,8 @@ const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props
       </div>
       <div class="pf-cat-texto">
         <h1 class="pf-display"><Palabras text={view.href === TODO_HREF ? 'Catálogo' : view.label} /></h1>
-        <p class="pf-lead sf-bajada"><Palabras text={CATALOG_LEAD} /></p>
+        <!-- Es la misma en todas las categorías: se conserva para que no vuelva a animarse al cambiar (PRI-428). -->
+        <p class="pf-lead sf-bajada" transition:persist="catalog-bajada"><Palabras text={CATALOG_LEAD} /></p>
       </div>
     </div>
     <CatalogPage chips={chips} current={view.href} label={view.label} tiles={tiles} next={next} />
@@ -32,6 +33,8 @@ const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props
 
 <script>
   import '../../scripts/photo-modal'
+  // La bajada se conserva entre categorías, pero moverla reinicia su animación: ya vista, no vuelve a subir (PRI-428).
+  document.addEventListener('astro:before-swap', () => document.querySelector('.sf-bajada[data-astro-transition-persist]')?.setAttribute('data-vista', ''))
   // El banner persiste entre páginas del catálogo (transition:persist): aquí se desliza a la categoría de la página nueva.
   document.addEventListener('astro:page-load', () => {
     const main = document.querySelector<HTMLElement>('main[data-banner-index]')
