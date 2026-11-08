@@ -99,3 +99,14 @@ test.describe('categoría vacía', () => {
     await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' })).toBeVisible()
   })
 })
+
+test.describe('PRI-420: JSON-LD con datos del admin', () => {
+  test.use({ baseURL: 'http://localhost:4239' })
+
+  test('un "</script>" en el nombre de la categoría no cierra el JSON-LD ni inyecta HTML', async ({ page }) => {
+    await page.goto('/catalogo/e2e-c/e2e-c-1')
+    const ld = await page.locator('script[type="application/ld+json"]').textContent()
+    expect(JSON.parse(ld!).name).toContain('</script><script>window.inyectado = 1</script>')
+    expect(await page.evaluate(() => 'inyectado' in window)).toBe(false)
+  })
+})

@@ -88,6 +88,14 @@ describe('leerFotoRemota', () => {
     servir(await sharp({ create: { width: 7000, height: 7000, channels: 3, background: '#336699' } }).jpeg({ quality: 10 }).toBuffer())
     expect(await leerFotoRemota(url())).toBeNull()
   })
+
+  it('PRI-423: sin content-length deja de leer al pasar los 5 MB, no al timeout', async () => {
+    let leidos = 0
+    const sinFin = new ReadableStream({ pull: (c) => c.enqueue(new Uint8Array(1024 * 1024).fill(++leidos)) })
+    vi.stubGlobal('fetch', async () => new Response(sinFin, { headers: { 'content-type': 'image/jpeg' } }))
+    expect(await leerFotoRemota(url())).toBeNull()
+    expect(leidos).toBeLessThan(10)
+  }, 5_000)
 })
 
 describe('getGarmentColors', () => {

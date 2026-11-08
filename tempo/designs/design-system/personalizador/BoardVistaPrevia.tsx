@@ -17,7 +17,7 @@ function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "est
   const [foto, setFoto] = useState<FotoLista | null>(null);
   const [tratado, setTratado] = useState<HTMLCanvasElement | null>(null);
   const maxS = escalaMax(prenda, tecnica, info.print_width_cm);
-  const [lugar, setLugar] = useState(() => limitar(prenda === "gorra" ? LUGAR_GORRA : LUGAR_INICIAL, 1, info.print_area, maxS));
+  const [lugar, setLugar] = useState(() => limitar(prenda === "camiseta" ? LUGAR_INICIAL : LUGAR_GORRA, 1, info.print_area, maxS));
   useEffect(() => void cargarFoto(info.image_url, info.print_area, PRENDAS[prenda].curva).then(setFoto), [info.image_url]);
   useEffect(() => {
     if (!diseno) return;
@@ -35,7 +35,7 @@ function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "est
     <div className="w-[358px]">
       <VistaPrevia
         foto={modo === "sin-senal" ? null : foto}
-        etiqueta={`${nombre}${ub === "Espalda" ? ", espalda" : ""}`}
+        etiqueta={`${nombre}${{ frente: "", espalda: ", espalda", lado: ", de lado" }[info.view]}`}
         modo={modo}
         tecnica={tecnica}
         diseno={tratado}

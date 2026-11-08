@@ -57,12 +57,13 @@ export default function LabelsCanvas() {
 defineAsset(Chip, {
   libraries: ["Design System"],
   usageInstructions:
-    "Opción seleccionable dentro de un grupo de radios (talla, técnica, prenda): label + input radio nativo, funciona sin JS. Todos los chips de un grupo comparten name y van dentro de un fieldset con legend; selected marca el valor inicial. No para estados (usa StatusPill), ni para nombrar secciones (usa Eyebrow), ni para links de navegación o filtros que cambian la URL (usa un <a>).",
+    "Opción seleccionable dentro de un grupo de radios (talla, técnica, prenda): label + input radio nativo, funciona sin JS. Todos los chips de un grupo comparten name y van dentro de un fieldset con legend; selected marca el valor inicial; disabled apaga una opción que hoy no se puede elegir y siempre va con una nota que diga por qué. No para estados (usa StatusPill), ni para nombrar secciones (usa Eyebrow), ni para links de navegación o filtros que cambian la URL (usa un <a>).",
   variants: {
     "Talla elegida": { props: { name: "talla", label: "L", selected: true } },
     "Talla": { props: { name: "talla", label: "M" } },
     "Técnica": { props: { name: "tecnica", label: "Estampado" } },
     "Así está bien": { props: { name: "tecnica", label: "Así está bien", value: "ninguna", selected: true } },
+    "No disponible": { props: { name: "ubicacion", label: "Espalda", disabled: true } },
   },
 });
 

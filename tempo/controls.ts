@@ -53,6 +53,7 @@ defineControls(WhatsAppFab, {
 defineControls(Chip, {
   label: { type: "text" },
   selected: { type: "boolean" },
+  disabled: { type: "boolean" },
   name: false,
   value: false,
 });

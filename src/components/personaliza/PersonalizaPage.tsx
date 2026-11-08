@@ -5,7 +5,7 @@ import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '.
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
 import { quitarFondoIa, soporteIa, type FondoIa } from '../../lib/personaliza/fondo-ia'
-import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
+import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, tecnicasDe, ubicacionesDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
 import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
@@ -37,7 +37,7 @@ interface Elecciones {
 
 /** Lo máximo que el mockup espera la foto grande (unos 32 KB: en Slow 4G, 1 a 2 s calculados, sin medir). */
 const ESPERA_FOTO = 6000
-const lugarDe = (p: Prenda) => (p === 'gorra' ? LUGAR_GORRA : LUGAR_INICIAL)
+const lugarDe = (p: Prenda) => (p === 'camiseta' ? LUGAR_INICIAL : LUGAR_GORRA)
 
 function useEscritorio() {
   const [escritorio, setEscritorio] = useState(false)
@@ -64,8 +64,8 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const def = PRENDAS[prenda]
   const lista = colores[prenda]
   const [colorId, setColorId] = useState(lista[0].id)
-  const [tecnica, setTecnica] = useState<Tecnica>(def.tecnicas[0])
-  const [ubicacion, setUbicacion] = useState(def.ubicaciones[0].nombre)
+  const [tecnicaElegida, setTecnica] = useState<Tecnica>(def.tecnicas[0])
+  const [elegida, setUbicacion] = useState(def.ubicaciones[0].nombre)
   const [cantidad, setCantidad] = useState<Cantidad>('1')
   const [nota, setNota] = useState('')
   const [lugar, setLugar] = useState<Lugar>(LUGAR_INICIAL)
@@ -94,6 +94,14 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const escritorio = useEscritorio()
 
   const color = lista.find((c) => c.id === colorId) ?? lista[0]
+  // Una técnica sin dónde ir en este color no se ofrece; una ubicación sin foto, o que no es para la técnica elegida (la
+  // gorra acrílica), queda deshabilitada y se muestra la que sí sirve.
+  const ofrecidas = tecnicasDe(color, prenda)
+  const tecnica = ofrecidas.includes(tecnicaElegida) ? tecnicaElegida : ofrecidas[0]
+  const conFoto = ubicacionesDe(color, prenda, tecnica)
+  const sinFoto = def.ubicaciones.filter((u) => !color.photos.some((f) => f.view === u.vista))
+  const sinColores = (Object.keys(PRENDAS) as Prenda[]).filter((p) => !colores[p].length)
+  const ubicacion = conFoto.some((u) => u.nombre === elegida) ? elegida : conFoto[0].nombre
   const fotoInfo = fotoDe(color, prenda, ubicacion) ?? fotoDe(lista[0], prenda, ubicacion)!
   const anchoCm = fotoInfo.print_width_cm
   const maxS = escalaMax(prenda, tecnica, anchoCm)
@@ -146,7 +154,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   useEffect(() => {
     try {
       const g = JSON.parse(sessionStorage.getItem(CLAVE) ?? 'null') as Elecciones | null
-      if (g && PRENDAS[g.prenda]) {
+      if (g && PRENDAS[g.prenda] && colores[g.prenda].length) {
         const d = PRENDAS[g.prenda]
         setPrenda(g.prenda)
         if (colores[g.prenda].some((c) => c.id === g.colorId)) setColorId(g.colorId)
@@ -250,7 +258,11 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     const t = e.target as HTMLInputElement
     if (t.name === 'prenda') cambiarPrenda(t.value as Prenda)
     if (t.name === 'color') setColorId(t.value)
-    if (t.name === 'tecnica') setTecnica(t.value as Tecnica)
+    if (t.name === 'tecnica') {
+      setTecnica(t.value as Tecnica)
+      // En la gorra acrílica la técnica cambia de foto (frente o lado): el diseño vuelve a su lugar inicial, como al cambiar de ubicación.
+      if (!ubicacionesDe(color, prenda, t.value as Tecnica).some((u) => u.nombre === ubicacion)) setLugar(lugarDe(prenda))
+    }
     if (t.name === 'ubicacion') {
       setUbicacion(t.value)
       setLugar(lugarDe(prenda))
@@ -389,41 +401,49 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             <p className="pf-lead">Arma tu pedido y nos llega por WhatsApp.</p>
           </div>
 
-          <fieldset className="pf-pz-prenda">
-            <legend className="sr-only">Prenda</legend>
-            <div className="flex gap-2">
-              <Chip label="Camiseta" name="prenda" value="camiseta" selected={prenda === 'camiseta'} />
-              <Chip label="Gorra" name="prenda" value="gorra" selected={prenda === 'gorra'} />
-            </div>
-          </fieldset>
+          <div className="pf-pz-izq">
+            <fieldset className="pf-pz-prenda">
+              <legend className="sr-only">Prenda</legend>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(PRENDAS) as Prenda[]).map((p) => (
+                  <Chip key={p} label={PRENDAS[p].nombre} name="prenda" value={p} selected={prenda === p} disabled={!colores[p].length} />
+                ))}
+              </div>
+              {sinColores.length > 0 && (
+                <p className="mt-2 text-[13px] leading-snug text-muted">
+                  La {sinColores.map((p) => PRENDAS[p].nombre.toLowerCase()).join(' y la ')} todavía no tiene foto. Si la quieres, cuéntanos en la nota.
+                </p>
+              )}
+            </fieldset>
 
-          <div className="pf-pz-vista" ref={vista}>
-            <VistaPrevia
-              foto={foto}
-              fotoInicial={fotoInfo}
-              etiqueta={`${nombreColor}${ubicacion === 'Espalda' ? ', espalda' : ''}`}
-              modo={modo}
-              tecnica={tecnica}
-              diseno={tratado}
-              lugar={lugar}
-              onLugar={setLugar}
-              maxS={maxS}
-              anchoCm={anchoCm}
-              archivo={archivoVista ?? undefined}
-              cargando={`Cargando la ${nombreColor.toLowerCase()}…`}
-              alto={escritorio ? 500 : 320}
-              pista={!tocado}
-              escritorio={escritorio}
-              onArchivo={subir}
-              onReintentar={() => setIntento((i) => i + 1)}
-              onSeguirSinVista={() => {
-                // El archivo queda como tarjeta y va al chat; si termina de abrirse después, igual sigue sin vista previa.
-                if (procesando) setLeido({ estado: 'imagen', archivo: procesando, detalle: detalleArchivo(procesando) })
-                setSinVista(true)
-                setProcesando(null)
-                setLento(false)
-              }}
-            />
+            <div className="pf-pz-vista" ref={vista}>
+              <VistaPrevia
+                foto={foto}
+                fotoInicial={fotoInfo}
+                etiqueta={`${nombreColor}${{ frente: '', espalda: ', espalda', lado: ', de lado' }[fotoInfo.view]}`}
+                modo={modo}
+                tecnica={tecnica}
+                diseno={tratado}
+                lugar={lugar}
+                onLugar={setLugar}
+                maxS={maxS}
+                anchoCm={anchoCm}
+                archivo={archivoVista ?? undefined}
+                cargando={`Cargando la ${nombreColor.toLowerCase()}…`}
+                alto={escritorio ? 500 : 320}
+                pista={!tocado}
+                escritorio={escritorio}
+                onArchivo={subir}
+                onReintentar={() => setIntento((i) => i + 1)}
+                onSeguirSinVista={() => {
+                  // El archivo queda como tarjeta y va al chat; si termina de abrirse después, igual sigue sin vista previa.
+                  if (procesando) setLeido({ estado: 'imagen', archivo: procesando, detalle: detalleArchivo(procesando) })
+                  setSinVista(true)
+                  setProcesando(null)
+                  setLento(false)
+                }}
+              />
+            </div>
           </div>
 
           <div className="pf-pz-pasos">
@@ -462,15 +482,24 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                 legend="Técnica"
                 valor={TECNICAS[tecnica].nombre}
                 nota={tecnica === 'bordado' && def.bordadoMaxCm ? `El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos ${def.bordadoMaxCm} cm de ancho.` : undefined}
-                key={`t-${prenda}`}
+                key={`t-${prenda}-${ofrecidas.join()}`}
               >
-                <Tecnicas opciones={def.tecnicas} elegida={tecnica} />
+                <Tecnicas opciones={ofrecidas} elegida={tecnica} />
               </Grupo>
-              <Grupo legend="Ubicación" key={`u-${prenda}`}>
+              <Grupo
+                legend="Ubicación"
+                nota={[
+                  def.nota,
+                  sinFoto.length && `La ${nombreColor.toLowerCase()} todavía no tiene foto de ${sinFoto.map((u) => u.nombre.toLowerCase()).join(' ni ')}. Si la quieres ahí, cuéntanos en la nota.`,
+                ]
+                  .filter(Boolean)
+                  .join(' ') || undefined}
+                key={`u-${prenda}-${conFoto.map((u) => u.nombre).join()}`}
+              >
                 {def.ubicaciones.length > 1 ? (
                   <div className="flex flex-wrap gap-2">
                     {def.ubicaciones.map((u) => (
-                      <Chip key={u.nombre} label={u.nombre} name="ubicacion" selected={u.nombre === ubicacion} />
+                      <Chip key={u.nombre} label={u.nombre} name="ubicacion" selected={u.nombre === ubicacion} disabled={!conFoto.includes(u)} />
                     ))}
                   </div>
                 ) : (

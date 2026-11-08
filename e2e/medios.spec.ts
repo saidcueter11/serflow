@@ -56,7 +56,7 @@ test.describe('con fotos y colores publicados', () => {
     await expect(page.getByText('Sin espalda', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Foto rota', { exact: true })).toHaveCount(0)
 
-    await page.getByText('Gorra', { exact: true }).click()
+    await page.getByText('Gorra acrílica', { exact: true }).click()
     await expect(page.getByText('Negra', { exact: true })).toBeVisible()
     expect(await colores(page)).toContain('negra')
   })

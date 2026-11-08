@@ -21,6 +21,18 @@ export const LIMITES = {
   tipos: ['image/jpeg', 'image/png', 'image/webp'],
 }
 
+/** El cuerpo, o null en cuanto pasa del tope: sin content-length, un cuerpo que no termina no llena la memoria (PRI-423). */
+async function leerConTope(res: Response, tope: number) {
+  const partes: Uint8Array[] = []
+  let total = 0
+  // Salir del for await cancela la descarga.
+  for await (const parte of res.body ?? []) {
+    if ((total += parte.length) > tope) return null
+    partes.push(parte)
+  }
+  return Buffer.concat(partes)
+}
+
 async function medir(url: string): Promise<{ width: number; height: number } | null> {
   const descartar = (motivo: string) => {
     console.warn(`[medios] ${url}: ${motivo}. Se usa el respaldo.`)
@@ -28,15 +40,15 @@ async function medir(url: string): Promise<{ width: number; height: number } | n
   }
   if (!esUrlPermitida(url)) return descartar('host no permitido')
   try {
-    // Solo esta descarga: Astro baja la foto otra vez al final del build, sin redirect ni timeout (astro/dist/assets/build/remote.js).
-    // Lo que la protege a ella es que el host sea el del proyecto propio y el sharp.block de astro.config.mjs.
+    // Solo esta descarga: Astro baja la foto otra vez al final del build, sin timeout (astro/dist/assets/build/remote.js). Desde
+    // astro 7 sigue redirects solo hacia image.remotePatterns; la protegen eso, el host propio y el sharp.block de astro.config.mjs.
     const res = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(20_000) })
     if (!res.ok) return descartar(`HTTP ${res.status}`)
     const tipo = res.headers.get('content-type')?.split(';')[0] ?? ''
     if (!LIMITES.tipos.includes(tipo)) return descartar(`tipo ${tipo}`)
     if (Number(res.headers.get('content-length')) > LIMITES.bytes) return descartar('pesa más de 5 MB')
-    const datos = Buffer.from(await res.arrayBuffer())
-    if (datos.length > LIMITES.bytes) return descartar('pesa más de 5 MB')
+    const datos = await leerConTope(res, LIMITES.bytes)
+    if (!datos) return descartar('pesa más de 5 MB')
     const img = sharp(datos, { failOn: 'error', limitInputPixels: LIMITES.pixeles })
     const { width, height, orientation = 1 } = await img.metadata()
     // Decodifica de verdad: una foto cortada a la mitad pasa la lectura del encabezado y saldría medio gris.

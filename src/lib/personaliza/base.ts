@@ -34,20 +34,23 @@ export const POR_DEFECTO: Record<Prenda, Partial<Record<Vista, Pick<FotoColor, '
     frente: { print_area: rect(0.31, 0.27, 0.38, 0.36), print_width_cm: 30 },
     espalda: { print_area: rect(0.32, 0.29, 0.32, 0.32), print_width_cm: 35 },
   },
+  // Sin lado: garment_photos todavía no acepta esa vista (la gorra acrílica del admin sale sin estampado, que va a los lados).
   gorra: {
     frente: { print_area: rect(0.29, 0.42, 0.42, 0.24), print_width_cm: 12 },
   },
+  // La de malla aún no existe en el admin (garment_colors solo acepta camiseta y gorra).
+  'gorra-malla': {},
 }
 
-/** Las vistas que usa la prenda: una foto de otra vista no se procesa. */
-export const vistasDe = (prenda: Prenda): Vista[] => PRENDAS[prenda].ubicaciones.map((u) => u.vista)
+/** Las vistas que pide la prenda (sin las opcionales): una foto de otra vista no se procesa. */
+export const vistasDe = (prenda: Prenda): Vista[] => PRENDAS[prenda].ubicaciones.filter((u) => !u.opcional).map((u) => u.vista)
 
 /**
  * Las filas que vale la pena procesar, antes de bajar ninguna foto: las primeras MAX_COLORES de cada prenda. Un color sin
  * fila para todas sus vistas no ocupa cupo. Uno cuya foto resulte mala sí: su cupo queda vacío y no entra el siguiente.
  */
 export function recortarColores(filas: FilaColor[]): FilaColor[] {
-  const usados: Record<Prenda, number> = { camiseta: 0, gorra: 0 }
+  const usados: Record<Prenda, number> = { camiseta: 0, gorra: 0, 'gorra-malla': 0 }
   return filas.filter(({ garment, garment_photos }) => vistasDe(garment).every((v) => garment_photos.some((f) => f.view === v)) && usados[garment]++ < MAX_COLORES)
 }
 
@@ -67,7 +70,7 @@ function esArea(a: unknown): a is Area {
  * sus vistas (colorCompleto). Los cm y el área son opcionales: lo que falte, o no sirva, sale de POR_DEFECTO.
  */
 export function armarColores(filas: FilaColor[], urls: Map<string, FotoOptimizada>): Record<Prenda, ColorPrenda[]> {
-  const colores: Record<Prenda, ColorPrenda[]> = { camiseta: [], gorra: [] }
+  const colores: Record<Prenda, ColorPrenda[]> = { camiseta: [], gorra: [], 'gorra-malla': [] }
   for (const { garment_photos, ...color } of filas) {
     const photos: FotoColor[] = []
     for (const f of garment_photos) {
