@@ -18,7 +18,6 @@ export interface Product {
   category_id: string
   image_urls: string[]
   price: number | null
-  stock: number
   is_active: boolean
   sort_order: number
   created_at: string

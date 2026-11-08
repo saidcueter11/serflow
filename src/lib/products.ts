@@ -76,10 +76,14 @@ export async function getCategoriesWithCounts(): Promise<
 
 /* ── Products ────────────────────────────────────────────── */
 
+// PRI-424: la anon key no lee stock (migración ocultar_precio_stock): con select('*') la consulta falla. price sí: lo
+// muestra el modal de la foto (PRI-433).
+const COLUMNAS = 'id, legacy_id, slug, name, description, category_id, image_urls, price, is_active, sort_order, created_at, updated_at, categories!inner(slug, label)'
+
 export async function getProducts(): Promise<Product[]> {
   const { data, error } = await supabase
     .from('products')
-    .select('*, categories!inner(slug, label)')
+    .select<typeof COLUMNAS, Product>(COLUMNAS)
     .eq('is_active', true)
     .order('sort_order')
 
@@ -92,7 +96,7 @@ export async function getProductsByCategory(
 ): Promise<Product[]> {
   const { data, error } = await supabase
     .from('products')
-    .select('*, categories!inner(slug, label)')
+    .select<typeof COLUMNAS, Product>(COLUMNAS)
     .eq('categories.slug', categorySlug)
     .eq('is_active', true)
     .order('sort_order')
@@ -106,7 +110,7 @@ export async function getProductBySlug(
 ): Promise<Product | null> {
   const { data, error } = await supabase
     .from('products')
-    .select('*, categories!inner(slug, label)')
+    .select<typeof COLUMNAS, Product>(COLUMNAS)
     .eq('slug', slug)
     .single()
 
