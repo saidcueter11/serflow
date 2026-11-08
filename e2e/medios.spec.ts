@@ -2,7 +2,8 @@ import { expect, test, type Page } from '@playwright/test'
 import sharp from 'sharp'
 
 // PRI-150: fotos del sitio y colores del personalizador que publica el admin. El de 4232 no tiene nada publicado
-// (respaldo); el de e2e/promos/server.mjs en 4235 tiene filas sembradas (scenarios.mjs), buenas y rotas.
+// (respaldo; los colores, los de la migración de PRI-427); el de e2e/promos/server.mjs en 4235 tiene filas sembradas
+// (scenarios.mjs), buenas y rotas.
 const SEMBRADO = 'http://localhost:4235'
 
 const colores = (page: Page) => page.locator('input[name=color]').evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value))
@@ -49,16 +50,22 @@ test.describe('con fotos y colores publicados', () => {
     await expect(page.locator('img[src*="gorras-estante"]').first()).toBeAttached()
   })
 
-  test('el personalizador saca solo los colores completos; la prenda sin colores usa la muestra', async ({ page }) => {
+  test('el personalizador saca lo sembrado menos lo oculto y suma lo agregado; los incompletos no salen', async ({ page }) => {
     await abrirPersonaliza(page)
-    expect(await colores(page)).toEqual(['e2e-verde'])
+    // PRI-427: la fucsia de camiseta está oculta en el admin; la verde la agregó el cliente y va de última.
+    const camisetas = await colores(page)
+    expect(camisetas).toHaveLength(21)
+    expect(camisetas).not.toContain('fucsia')
+    expect(camisetas.slice(0, 2)).toEqual(['negra', 'blanca'])
+    expect(camisetas.at(-1)).toBe('e2e-verde')
     await expect(page.getByText('Verde', { exact: true })).toBeVisible()
     await expect(page.getByText('Sin espalda', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Foto rota', { exact: true })).toHaveCount(0)
 
+    // Ocultar un color de camiseta no toca el de gorra con el mismo nombre.
     await page.getByText('Gorra acrílica', { exact: true }).click()
-    await expect(page.getByText('Negra', { exact: true })).toBeVisible()
-    expect(await colores(page)).toContain('negra')
+    await expect(page.getByText('Fucsia', { exact: true })).toBeVisible()
+    expect(await colores(page)).toHaveLength(21)
   })
 
   test('las fotos de la base salen en dos anchos: cada pantalla baja solo la suya, y va de primera', async ({ page, request }) => {
@@ -81,6 +88,8 @@ test.describe('con fotos y colores publicados', () => {
 
   test('sin calibrar nada: el motor lee los píxeles de la foto de la base y el tamaño sale del valor por defecto', async ({ page }) => {
     await abrirPersonaliza(page)
+    // La que subió el cliente, sin área ni cm (las sembradas traen los suyos).
+    await page.getByText('Verde', { exact: true }).click()
     await page.locator('input[type=file]').first().setInputFiles({
       name: 'logo.png',
       mimeType: 'image/png',
