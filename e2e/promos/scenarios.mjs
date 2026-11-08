@@ -173,7 +173,9 @@ const malo = () => ({
 // al tocar B, B1 sigue en pantalla en otro puesto y A1 y C1 se van. Una sola foto, para que la rejilla sea pareja, y
 // 60 en "Todo" (PAGE_SIZE): el muro más grande, el que mide el costo de layout.
 const catalogo = (p) => {
-  const categories = ['a', 'b', 'c'].map((slug, i) => ({ ...vacia, id: `e2e-cat-${slug}`, slug: `e2e-${slug}`, label: `Categoría ${slug.toUpperCase()}`, image_url: null, sort_order: i }))
+  // PRI-420: la C trae un "</script>" en el nombre; su JSON-LD no debe cerrar la etiqueta (e2e/catalogo.spec.ts).
+  const label = (slug) => `Categoría ${slug.toUpperCase()}` + (slug === 'c' ? ' </script><script>window.inyectado = 1</script>' : '')
+  const categories = ['a', 'b', 'c'].map((slug, i) => ({ ...vacia, id: `e2e-cat-${slug}`, slug: `e2e-${slug}`, label: label(slug), image_url: null, sort_order: i }))
   const products = categories.flatMap((c) =>
     Array.from({ length: 20 }, (_, i) => i + 1).map((n) => ({
       id: `${c.slug}-${n}`,

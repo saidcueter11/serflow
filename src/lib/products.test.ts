@@ -19,6 +19,7 @@ const tables: Record<string, unknown[]> = {
 }
 
 // Chainable stand-in for the supabase query builder; resolves with the table rows.
+const selects: [string, string][] = []
 vi.mock('./supabase', () => ({
   supabase: {
     from: (table: string) => {
@@ -26,7 +27,8 @@ vi.mock('./supabase', () => ({
       const q: Record<string, unknown> = {
         then: (resolve: (r: typeof result) => unknown) => resolve(result),
       }
-      for (const m of ['select', 'eq', 'order']) q[m] = () => q
+      for (const m of ['eq', 'order', 'single']) q[m] = () => q
+      q.select = (cols: string) => (selects.push([table, cols]), q)
       return q
     },
   },
@@ -35,7 +37,7 @@ vi.mock('./supabase', () => ({
 vi.stubEnv('PUBLIC_SUPABASE_URL', 'https://x.supabase.co')
 vi.stubEnv('PUBLIC_SUPABASE_FOTOS_URL', '')
 
-const { getActivePromos, getCategories, getCategoriesWithCounts, getProducts } = await import('./products')
+const { getActivePromos, getCategories, getCategoriesWithCounts, getProductBySlug, getProducts, getProductsByCategory } = await import('./products')
 
 // PRI-423: inferRemoteSize e inferSize bajan cualquier URL sin mirar image.remotePatterns.
 describe('fotos de otro proyecto de Supabase', () => {
@@ -58,5 +60,15 @@ describe('getCategoriesWithCounts', () => {
       ['moda', 2],
       ['kids', 0],
     ])
+  })
+})
+
+// PRI-424: la anon key no puede leer price ni stock (migración ocultar_precio_stock); un select('*') fallaría.
+describe('columnas de products', () => {
+  it('el sitio no pide price ni stock, ni select *', async () => {
+    await Promise.all([getProducts(), getProductsByCategory('moda'), getProductBySlug('a'), getCategoriesWithCounts()])
+    const cols = selects.filter(([t]) => t === 'products').map(([, c]) => c)
+    expect(cols).toHaveLength(4)
+    for (const c of cols) expect(c.split('(')[0]).not.toMatch(/\*|\bprice\b|\bstock\b/)
   })
 })

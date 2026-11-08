@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { expect, test } from '@playwright/test'
 
 // PRI-426: el catálogo se sirve por URL pública; listar un bucket con la anon key no debe devolver nada.
-// E2E_STORAGE_LISTADO_CERRADO activa el listado: CI lee prod, que no cierra hasta que la migración se aplica al mergear.
+// PRI-430: corre siempre contra prod. Rojo = alguien reabrió el listado (o hay una policy de SELECT hecha a mano).
 const url = process.env.PUBLIC_SUPABASE_URL!
 const key = process.env.PUBLIC_SUPABASE_ANON_KEY!
 const headers = { apikey: key, Authorization: `Bearer ${key}` }
@@ -20,7 +20,6 @@ test('las fotos del catálogo cargan por URL pública, sin sesión', async ({ re
 
 for (const bucket of ['product-images', 'category-images', 'promo-images', 'site-media']) {
   test(`la anon key no lista ${bucket}`, async ({ request }) => {
-    test.skip(!process.env.E2E_STORAGE_LISTADO_CERRADO, 'Se activa cuando la migración de PRI-426 ya está en prod')
     const data = { prefix: '', limit: 100 }
     const res = await request.post(`${url}/storage/v1/object/list/${bucket}`, { headers, data })
     expect(await res.json()).toEqual([])
