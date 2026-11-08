@@ -214,7 +214,11 @@ test.describe('/personaliza', () => {
     await abrir(page)
     const malla = page.getByRole('radio', { name: MALLA })
     await expect(malla).toBeDisabled()
-    await expect(page.getByText('La gorra de malla todavía no tiene foto. Si la quieres, cuéntanos en la nota.')).toBeVisible()
+    const notaMalla = page.getByText('La gorra de malla todavía no tiene foto. Si la quieres, cuéntanos en la nota.')
+    await expect(notaMalla).toBeVisible()
+    // La vista previa empieza debajo de la nota, sin taparla (en escritorio iba a 60 px fijos de los chips).
+    const nota = (await notaMalla.boundingBox())!
+    expect(nota.y + nota.height).toBeLessThanOrEqual((await page.locator('.pf-pz-vista > div').boundingBox())!.y)
 
     await page.getByText(ACRILICA, { exact: true }).click()
     await expect(page.getByRole('img', { name: `${ACRILICA} negra` })).toBeVisible()

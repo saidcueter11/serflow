@@ -630,6 +630,7 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 /* El aire se mide hasta la mayúscula del título, como en las secciones de la portada. */
 .pf-pz-titulo > h1 { text-box: trim-start cap alphabetic; }
 .pf-pz-titulo > .pf-lead { margin-top: var(--pf-td); }
+.pf-pz-izq { display: contents; }
 .pf-pz-prenda { padding: 0 var(--pf-m) 12px; }
 .pf-pz-vista { padding: 8px var(--pf-m) 12px; }
 .pf-pz-pasos { display: flex; flex-direction: column; gap: 64px; padding: 28px var(--pf-m) 32px; }
@@ -641,9 +642,11 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 @container pf (min-width: 56rem) {
   .pf-pz { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto auto 1fr auto auto; column-gap: var(--pf-g); padding: 0 var(--pf-m) var(--pf-aire); }
   .pf-pz-titulo { grid-column: 1 / -1; padding-inline: 0; }
-  .pf-pz-prenda { grid-column: 1 / span 6; grid-row: 2; align-self: start; padding: 0; }
-  /* 16 debajo de los chips de prenda (44 de alto). Nunca más baja que el recorte de antes (500). */
-  .pf-pz-vista { grid-column: 1 / span 6; grid-row: 2 / 4; position: static; margin-top: 60px; padding: 0; }
+  /* Prenda y vista previa en una columna: la vista va 16 debajo de los chips, o de su nota si una prenda no tiene foto. */
+  .pf-pz-izq { display: flex; flex-direction: column; gap: 16px; grid-column: 1 / span 6; grid-row: 2 / 4; }
+  .pf-pz-prenda { padding: 0; }
+  /* Nunca más baja que el recorte de antes (500). */
+  .pf-pz-vista { flex: 1; position: static; padding: 0; }
   .pf-pz-vista > div { height: 100% !important; min-height: 500px; }
   .pf-pz-pasos { display: contents; }
   .pf-pz-pasos > section:nth-child(1) { grid-column: 8 / -1; grid-row: 2; }

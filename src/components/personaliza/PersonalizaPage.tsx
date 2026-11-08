@@ -401,47 +401,49 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             <p className="pf-lead">Arma tu pedido y nos llega por WhatsApp.</p>
           </div>
 
-          <fieldset className="pf-pz-prenda">
-            <legend className="sr-only">Prenda</legend>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(PRENDAS) as Prenda[]).map((p) => (
-                <Chip key={p} label={PRENDAS[p].nombre} name="prenda" value={p} selected={prenda === p} disabled={!colores[p].length} />
-              ))}
-            </div>
-            {sinColores.length > 0 && (
-              <p className="mt-2 text-[13px] leading-snug text-muted">
-                La {sinColores.map((p) => PRENDAS[p].nombre.toLowerCase()).join(' y la ')} todavía no tiene foto. Si la quieres, cuéntanos en la nota.
-              </p>
-            )}
-          </fieldset>
+          <div className="pf-pz-izq">
+            <fieldset className="pf-pz-prenda">
+              <legend className="sr-only">Prenda</legend>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(PRENDAS) as Prenda[]).map((p) => (
+                  <Chip key={p} label={PRENDAS[p].nombre} name="prenda" value={p} selected={prenda === p} disabled={!colores[p].length} />
+                ))}
+              </div>
+              {sinColores.length > 0 && (
+                <p className="mt-2 text-[13px] leading-snug text-muted">
+                  La {sinColores.map((p) => PRENDAS[p].nombre.toLowerCase()).join(' y la ')} todavía no tiene foto. Si la quieres, cuéntanos en la nota.
+                </p>
+              )}
+            </fieldset>
 
-          <div className="pf-pz-vista" ref={vista}>
-            <VistaPrevia
-              foto={foto}
-              fotoInicial={fotoInfo}
-              etiqueta={`${nombreColor}${{ frente: '', espalda: ', espalda', lado: ', de lado' }[fotoInfo.view]}`}
-              modo={modo}
-              tecnica={tecnica}
-              diseno={tratado}
-              lugar={lugar}
-              onLugar={setLugar}
-              maxS={maxS}
-              anchoCm={anchoCm}
-              archivo={archivoVista ?? undefined}
-              cargando={`Cargando la ${nombreColor.toLowerCase()}…`}
-              alto={escritorio ? 500 : 320}
-              pista={!tocado}
-              escritorio={escritorio}
-              onArchivo={subir}
-              onReintentar={() => setIntento((i) => i + 1)}
-              onSeguirSinVista={() => {
-                // El archivo queda como tarjeta y va al chat; si termina de abrirse después, igual sigue sin vista previa.
-                if (procesando) setLeido({ estado: 'imagen', archivo: procesando, detalle: detalleArchivo(procesando) })
-                setSinVista(true)
-                setProcesando(null)
-                setLento(false)
-              }}
-            />
+            <div className="pf-pz-vista" ref={vista}>
+              <VistaPrevia
+                foto={foto}
+                fotoInicial={fotoInfo}
+                etiqueta={`${nombreColor}${{ frente: '', espalda: ', espalda', lado: ', de lado' }[fotoInfo.view]}`}
+                modo={modo}
+                tecnica={tecnica}
+                diseno={tratado}
+                lugar={lugar}
+                onLugar={setLugar}
+                maxS={maxS}
+                anchoCm={anchoCm}
+                archivo={archivoVista ?? undefined}
+                cargando={`Cargando la ${nombreColor.toLowerCase()}…`}
+                alto={escritorio ? 500 : 320}
+                pista={!tocado}
+                escritorio={escritorio}
+                onArchivo={subir}
+                onReintentar={() => setIntento((i) => i + 1)}
+                onSeguirSinVista={() => {
+                  // El archivo queda como tarjeta y va al chat; si termina de abrirse después, igual sigue sin vista previa.
+                  if (procesando) setLeido({ estado: 'imagen', archivo: procesando, detalle: detalleArchivo(procesando) })
+                  setSinVista(true)
+                  setProcesando(null)
+                  setLento(false)
+                }}
+              />
+            </div>
           </div>
 
           <div className="pf-pz-pasos">
