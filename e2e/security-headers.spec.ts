@@ -47,7 +47,10 @@ test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promo
   await page.getByText('Toca para abrir el mapa').first().click()
   await expect(page.locator('iframe[title^="Mapa"]').first()).toBeVisible()
 
-  // Navegación con el ClientRouter (view transition), no recarga.
+  // Navegación con el ClientRouter (view transition), no recarga. PRI-123: el "Ver todo" de Disponible ahora puede no
+  // salir; en el celular, el catálogo queda en el menú.
+  const menu = page.getByLabel('Abrir menú')
+  if (await menu.isVisible()) await menu.click()
   await page.locator('a[href^="/products"]').filter({ visible: true }).first().click()
   await expect(page).toHaveURL(/\/products/)
   await page.locator('main a[data-foto]').first().click()

@@ -2,8 +2,12 @@ import { expect, test } from '@playwright/test'
 
 // Smoke of the public catalog against the real Supabase data baked into the build.
 // PRI-129: the home has no category grid anymore; it reaches the catalog through "Disponible ahora".
+// PRI-123: what is in "Disponible ahora" is up to the client, so the home tests use the build of 4232, with 4 real
+// products switched on (e2e/promos/scenarios.mjs).
+const HOME = 'http://localhost:4232/'
+
 test('home -> product opens its photo with the WhatsApp CTA, and Ver todo opens a category', async ({ page }) => {
-  await page.goto('/')
+  await page.goto(HOME)
   await expect(page.locator('#disponible-titulo')).toBeVisible()
   await expect(page.locator('#visitanos')).toBeVisible()
 
@@ -29,7 +33,7 @@ test('unknown route shows the 404 page', async ({ page }) => {
 // PRI-120: touch has no hover, so links must be prefetched before the tap or navigation waits on the network.
 // PRI-286: the products open in the modal (no navigation), so the link to check is the one to the catalog.
 test('the visible catalog link is prefetched before the tap', async ({ page }) => {
-  await page.goto('/')
+  await page.goto(HOME)
   const catalogLink = page.getByRole('link', { name: 'Ver todo →' })
   await catalogLink.scrollIntoViewIfNeeded()
   const href = (await catalogLink.getAttribute('href'))!.replace(/\/$/, '')

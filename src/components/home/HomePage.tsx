@@ -4,9 +4,9 @@ import { Section } from '../ui/Section'
 import { ServiceCard } from '../ui/ServiceCard'
 import { ProductCard } from '../ui/ProductCard'
 import { MapCard } from '../ui/MapCard'
-import { EmptyState } from '../ui/EmptyState'
 import { HeroCarousel, type Slide } from '../ui/HeroCarousel'
 import type { FotoModal } from '../ui/PhotoModal'
+import type { ProductColor } from '../../lib/types'
 import { PinIcon } from '../icons/PinIcon'
 import { WHATSAPP_URL } from '../../lib/business'
 import type { SectionSlug, SectionText } from '../../lib/site-content'
@@ -16,6 +16,8 @@ export interface HomeProduct {
   meta: string
   href: string
   image: { src: string; alt: string }
+  /** Colores disponibles (PRI-455). */
+  colores?: ProductColor[]
   /** Tocarla abre la foto en el modal, encima de la portada. */
   modal?: FotoModal
 }
@@ -167,26 +169,21 @@ export function HomePage({
           </div>
         </Section>
 
-        <Section
-          id="disponible"
-          title={sections.disponible?.title ?? 'Disponible ahora'}
-          description={sections.disponible?.description ?? 'Lo que hay en el taller esta semana.'}
-          action={products.length > 0 ? { label: 'Ver todo →', href: catalogHref } : undefined}
-        >
-          {products.length > 0 ? (
+        {/* PRI-123: sin prendas prendidas en el admin, la sección no sale (y Layout.astro quita su link de la nav). */}
+        {products.length > 0 && (
+          <Section
+            id="disponible"
+            title={sections.disponible?.title ?? 'Disponible ahora'}
+            description={sections.disponible?.description ?? 'Lo que hay en el taller esta semana.'}
+            action={{ label: 'Ver todo →', href: catalogHref }}
+          >
             <div className="pf-prendas" data-fotos>
               {products.map((p) => (
-                <ProductCard key={p.href} name={p.name} meta={p.meta} href={p.href} image={p.image} modal={p.modal} />
+                <ProductCard key={p.href} name={p.name} meta={p.meta} href={p.href} image={p.image} colores={p.colores} modal={p.modal} />
               ))}
             </div>
-          ) : (
-            <EmptyState
-              title="No hay prendas disponibles en este momento"
-              description="Lo que llega al taller se vende rápido. Escríbenos y te contamos qué hay hoy, o mándanos tu idea y la hacemos."
-              action={{ label: 'Escríbenos por WhatsApp', href: WHATSAPP_URL }}
-            />
-          )}
-        </Section>
+          </Section>
+        )}
 
         <section id="quienes-somos" aria-labelledby="quienes-somos-titulo" className="pf-sec pf-c">
           <div className="pf-grid">

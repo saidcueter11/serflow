@@ -12,19 +12,26 @@ if (!REAL || !KEY) throw new Error('Missing PUBLIC_SUPABASE_URL / PUBLIC_SUPABAS
 
 // Fotos de productos reales: así las promos sembradas pasan por la misma optimización de imágenes que en prod.
 // Sin el producto "prueba": su foto tiene datos personales y el repo es público (capturas de PR, PRI-159).
-const res = await fetch(`${REAL}/rest/v1/products?select=image_urls&is_active=eq.true&slug=neq.prueba&order=sort_order&limit=30`, {
+const res = await fetch(`${REAL}/rest/v1/products?select=id,image_urls&is_active=eq.true&slug=neq.prueba&order=sort_order&limit=30`, {
   headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
 })
-const photos = (await res.json()).flatMap((p) => p.image_urls)
+const reales = await res.json()
+const photos = reales.flatMap((p) => p.image_urls)
 if (photos.length < 6) throw new Error(`Need 6 product photos for the seeded promos, got ${photos.length}`)
+// PRI-123: productos reales con foto, para prenderlos en "Disponible ahora" sin escribir en la base.
+const conFoto = reales.filter((p) => p.image_urls.length).map((p) => p.id)
 
 let promos = []
 let categories = []
 // PRI-150: filas sembradas de las tablas del admin. Sin sembrar, van a la base real: vacías, o sin tabla antes de la migración.
 let medios = {}
+let disponibles = []
 const proxy = http.createServer(async (req, out) => {
   const tabla = req.url.split('?')[0].replace('/rest/v1/', '')
-  const sembrado = tabla === 'promos' ? promos : medios[tabla]
+  // PRI-123: la consulta de "Disponible ahora" (available_now=eq.true) nunca va a la base: lo que prendió el cliente
+  // no debe mover el E2E, y antes de la migración la columna no existe. Sin sembrar, no hay nada disponible.
+  const esDisponibles = tabla === 'products' && new URL(req.url, 'http://x').searchParams.get('available_now') === 'eq.true'
+  const sembrado = esDisponibles ? disponibles : tabla === 'promos' ? promos : medios[tabla]
   if (sembrado) {
     out.writeHead(200, { 'content-type': 'application/json' })
     out.end(JSON.stringify(sembrado))
@@ -60,6 +67,7 @@ for (const s of SCENARIOS) {
   promos = s.promos(photos, new Date())
   categories = s.categories ?? []
   medios = s.medios?.(photos, REAL) ?? {}
+  disponibles = (s.disponibles?.(conFoto) ?? []).map((id) => ({ id }))
   // Las filas se leen por el proxy, pero las fotos siguen en el host real: el único del que el build puede bajarlas (PRI-423).
   await run(['build', '--outDir', s.outDir], { PUBLIC_SUPABASE_URL: proxyUrl, PUBLIC_SUPABASE_FOTOS_URL: REAL })
 }

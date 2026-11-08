@@ -1,4 +1,6 @@
+import { coloresPorProducto } from './colores-producto'
 import { esUrlPermitida } from './fotos-host.mjs'
+import { filas } from './medios'
 import { supabase } from './supabase'
 import { livePromos } from './promos'
 import type { Category, Product, Promo } from './types'
@@ -81,15 +83,38 @@ export async function getCategoriesWithCounts(): Promise<
 const COLUMNAS = 'id, legacy_id, slug, name, description, category_id, image_urls, price, is_active, sort_order, created_at, updated_at, categories!inner(slug, label)'
 
 export async function getProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from('products')
-    .select<typeof COLUMNAS, Product>(COLUMNAS)
-    .eq('is_active', true)
-    .order('sort_order')
+  const [{ data, error }, colores] = await Promise.all([
+    supabase
+      .from('products')
+      .select<typeof COLUMNAS, Product>(COLUMNAS)
+      .eq('is_active', true)
+      .order('sort_order'),
+    // Consulta aparte y no embebida: antes de la migración (deploy preview) la tabla no existe y el catálogo sale igual.
+    supabase.from('product_colors').select('product_id, name, hex').order('sort_order'),
+  ])
 
   if (error) throw new Error(`Failed to fetch products: ${error.message}`)
-  return (data ?? []).map(conFotosPropias)
+  const porProducto = coloresPorProducto(filas('product_colors', colores as never))
+  return (data ?? []).map((p: Product) => ({ ...conFotosPropias(p), colors: porProducto.get(p.id) ?? [] }))
 }
+
+// PRI-123: lo que el cliente prendió en "Disponible ahora" (serflow-admin), en el orden del catálogo y solo lo que la
+// portada puede pintar. Consulta aparte: el CI y Netlify construyen antes de que el workflow aplique la migración, y
+// sin la columna (42703) no hay nada disponible. Una vez por build: la usan la portada y la nav de Layout.astro.
+let disponibles: Promise<Product[]> | undefined
+
+async function leerDisponibles(): Promise<Product[]> {
+  const [products, { data, error }] = await Promise.all([
+    getProducts(),
+    supabase.from('products').select('id').eq('is_active', true).eq('available_now', true),
+  ])
+  if (error?.code === '42703') return []
+  if (error) throw new Error(`Failed to fetch available products: ${error.message}`)
+  const ids = new Set((data ?? []).map((p: { id: string }) => p.id))
+  return products.filter((p) => ids.has(p.id) && p.image_urls.length > 0 && p.categories?.slug)
+}
+
+export const getDisponibles = () => (disponibles ??= leerDisponibles())
 
 export async function getProductsByCategory(
   categorySlug: string,
