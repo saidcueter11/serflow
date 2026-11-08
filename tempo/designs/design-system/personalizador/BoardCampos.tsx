@@ -95,7 +95,7 @@ export function BoardCampos() {
         <div className="flex flex-wrap gap-8">
           <Celular label="fija"><BarraEnvio resumen="Camiseta negra · Estampado · Pecho · 1 unidad" /></Celular>
           <Celular label="esperando"><BarraEnvio resumen="Camiseta negra · Estampado · Pecho · 1 unidad" esperando /></Celular>
-          <Celular label="escritorio · sin vista"><BarraEnvio resumen="Gorra negra · Bordado · Frente · 1 unidad" fija={false} conVista={false} /></Celular>
+          <Celular label="escritorio · sin vista"><BarraEnvio resumen="Gorra acrílica negra · Bordado · Centro del frente · 1 unidad" fija={false} conVista={false} /></Celular>
         </div>
       </Row>
     </PageFrame>
