@@ -22,7 +22,7 @@ export default function PersonalizadorCanvas() {
 }
 
 const PEDIDO =
-  "¡Hola, Serflow! Quiero cotizar esta prenda personalizada:\n\n*Prenda:* Gorra negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1\n\nArmado en la web de Serflow";
+  "¡Hola, Serflow! Quiero cotizar esta prenda personalizada:\n\n*Prenda:* Gorra acrílica negra\n*Técnica:* Bordado\n*Ubicación:* Centro del frente\n*Cantidad:* 1\n\nArmado en la web de Serflow";
 
 defineAsset(VistaPrevia, {
   libraries: ["Design System"],

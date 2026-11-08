@@ -19,7 +19,7 @@ describe('armarColores', () => {
     expect(lista).toEqual([])
   })
 
-  it('la gorra solo necesita el frente e ignora una foto de espalda', () => {
+  it('la gorra acrílica sale solo con el frente (el lado es opcional) e ignora una foto de espalda', () => {
     const { gorra } = armarColores([{ id: 'g', garment: 'gorra', name: 'Negra', hex: '#000000', garment_photos: [foto('frente', 'a'), foto('espalda', 'b')] }], urls('a', 'b'))
     expect(gorra[0].photos.map((p) => p.view)).toEqual(['frente'])
   })

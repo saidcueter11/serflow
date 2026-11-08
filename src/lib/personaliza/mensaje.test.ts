@@ -56,8 +56,8 @@ describe('mensaje', () => {
   })
 
   it('gorra, sin nota y nota de más de 300 caracteres', () => {
-    const gorra = mensaje({ ...base, prenda: 'gorra', color: 'Blanca', ubicacion: 'Frente', nota: '  ' })
-    expect(gorra).toContain('*Prenda:* Gorra blanca\n*Técnica:* Bordado\n*Ubicación:* Frente')
+    const gorra = mensaje({ ...base, prenda: 'gorra', color: 'Blanca', ubicacion: 'Centro del frente', nota: '  ' })
+    expect(gorra).toContain('*Prenda:* Gorra acrílica blanca\n*Técnica:* Bordado\n*Ubicación:* Centro del frente')
     expect(gorra).not.toContain('*Nota:*')
     expect(mensaje({ ...base, nota: 'x'.repeat(400) })).toContain(`*Nota:* ${'x'.repeat(300)}\n`)
   })
