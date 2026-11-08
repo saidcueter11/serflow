@@ -246,7 +246,7 @@ export const SCENARIOS = [
     medios: (p, base) => ({ ...medios(p, base), ...contenido(p, base) }),
     disponibles: cuatro,
   },
-  { outDir: '.e2e-builds/contenido-malo', port: 4236, promos: () => [], medios: malo },
+  { outDir: '.e2e-builds/contenido-malo', port: 4236, promos: () => [], medios: malo, disponibles: cuatro },
   // PRI-413: lo que deja la migración de siembra. Mismas promos y categorías que 4232, para comparar su HTML.
   {
     outDir: '.e2e-builds/sembrado',
