@@ -125,7 +125,9 @@ async function quieto(diseno: Locator) {
 /** Lo más que se aleja del color esperado una rejilla de 5 × 5 puntos dentro del diseño (9 × 9 px de la escena cada uno): el daño está en los pliegues, no en el centro. */
 /** La luz de una rejilla de 5 × 5 puntos dentro del diseño, relativa a su mediana: la forma de los pliegues que toma. */
 async function pliegues(page: Page) {
-  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  const d = await page.getByRole('group', { name: /Tu diseño/ }).boundingBox()
+  // Mientras llega la foto del color nuevo, el diseño no está: que el poll siga esperando.
+  if (!d) return [NaN]
   const luz = await page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement, d) => {
     const r = c.getBoundingClientRect()
     const x = c.getContext('2d')!
@@ -146,7 +148,8 @@ async function pliegues(page: Page) {
 }
 /** La luz de la tela justo debajo del diseño. */
 async function luzDebajo(page: Page) {
-  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  const d = await page.getByRole('group', { name: /Tu diseño/ }).boundingBox()
+  if (!d) return 0
   return page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement, d) => {
     const r = c.getBoundingClientRect()
     const p = c
@@ -723,6 +726,7 @@ test.describe('/personaliza', () => {
     await subir(page, { name: 'blanco.png', mimeType: 'image/png', buffer: bloqueBlanco(400) })
     await expect(page.getByRole('img', { name: 'Camiseta negra con tu diseño' })).toBeVisible()
     await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+    await expect.poll(async () => (await pliegues(page)).length).toBe(25)
     const enNegra = await pliegues(page)
     // La tela se marca en la tinta: no es un sticker plano.
     expect(Math.max(...enNegra) - Math.min(...enNegra)).toBeGreaterThan(0.04)
