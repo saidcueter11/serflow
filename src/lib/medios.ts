@@ -28,8 +28,8 @@ async function medir(url: string): Promise<{ width: number; height: number } | n
   }
   if (!esUrlPermitida(url)) return descartar('host no permitido')
   try {
-    // Solo esta descarga: Astro baja la foto otra vez al final del build, sin redirect ni timeout (astro/dist/assets/build/remote.js).
-    // Lo que la protege a ella es que el host sea el del proyecto propio y el sharp.block de astro.config.mjs.
+    // Solo esta descarga: Astro baja la foto otra vez al final del build, sin timeout (astro/dist/assets/build/remote.js). Desde
+    // astro 7 sigue redirects solo hacia image.remotePatterns; la protegen eso, el host propio y el sharp.block de astro.config.mjs.
     const res = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(20_000) })
     if (!res.ok) return descartar(`HTTP ${res.status}`)
     const tipo = res.headers.get('content-type')?.split(';')[0] ?? ''

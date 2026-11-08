@@ -13,7 +13,7 @@ import { hostDeFotos } from './src/lib/fotos-host.mjs'
 // Supabase: con la del final del build, uno que leyó los datos antes de publicar haría decir "Ya salió" al panel.
 const builtAt = new Date().toISOString()
 
-// PRI-150, PRI-421: el build solo decodifica JPEG, PNG y WebP. sharp 0.34.4 tiene avisos de RCE en los demás decodificadores
+// PRI-150, PRI-421: el build solo decodifica JPEG, PNG y WebP. sharp 0.34.4 tenía avisos de RCE en los demás decodificadores
 // y mira los bytes, no el tipo declarado. El bloqueo es de todo el proceso, así que también cubre la optimización de Astro.
 sharp.block({ operation: ['VipsForeignLoadHeif', 'VipsForeignLoadSvg', 'VipsForeignLoadNsgif', 'VipsForeignLoadTiff', 'VipsForeignLoadVips'] })
 

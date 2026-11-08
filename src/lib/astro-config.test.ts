@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
@@ -32,5 +33,16 @@ describe('astro.config.mjs', () => {
 
   it.each(Object.entries(bloqueadas))('sharp ya no decodifica %s, aunque venga disfrazado de foto', async (_, foto) => {
     await expect(sharp(foto).stats()).rejects.toThrow(/unsupported image format/)
+  })
+})
+
+// PRI-421: astro < 7.2.8 (GHSA-26w7-cxv4-gfx2) y sharp < 0.35.5 (GHSA-rgj7-g3m4-5g8c, GHSA-wq5f-xc86-pv6w) tienen avisos de RCE al decodificar.
+describe('dependencias que decodifican fotos en el build', () => {
+  const instalada = (pkg: string) => JSON.parse(readFileSync(`node_modules/${pkg}/package.json`, 'utf8')).version as string
+  const numeros = (v: string) => v.split('.').map(Number)
+  const alMenos = (v: string, min: string) => numeros(v).reduce((r, n, i) => r || n - numeros(min)[i], 0) >= 0
+
+  it.each([['astro', '7.2.8'], ['sharp', '0.35.5']])('%s >= %s', (pkg, min) => {
+    expect(alMenos(instalada(pkg), min), `${pkg} ${instalada(pkg)}`).toBe(true)
   })
 })
