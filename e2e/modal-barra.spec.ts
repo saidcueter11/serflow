@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
 
 // PRI-429: con la barra de scroll clásica (Windows) la foto del modal vuelve exactamente a su puesto. Archivo propio porque
-// quitar --hide-scrollbars (Playwright lo pone por defecto) cambia el navegador de todo el archivo.
+// quitar --hide-scrollbars (Playwright lo pone por defecto) cambia el navegador de todo el archivo. Una barra inyectada con
+// ::-webkit-scrollbar no sirve: Chrome no le guarda el hueco a la de la página cuando el modal le quita el scroll.
 test.use({ launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] } })
 test.skip(({ isMobile }) => isMobile, 'Phones use overlay scrollbars')
 
@@ -10,9 +11,10 @@ const centro = (c: Caja) => ({ x: c.x + c.w / 2, y: c.y + c.h / 2 })
 
 test('with a classic scrollbar the photo lands exactly on its place, with no jump when the modal closes', async ({ page }) => {
   await page.goto('/products')
-  // Una clásica de 15 px, como la de Windows.
-  await page.addStyleTag({ content: '::-webkit-scrollbar { width: 15px } ::-webkit-scrollbar-thumb { background: gray }' })
-  expect(await page.evaluate(() => innerWidth - document.documentElement.clientWidth)).toBe(15)
+  // La barra clásica de Chromium en Linux (CI), como la de Windows. En macOS es flotante y no ocupa ancho: no hay qué medir.
+  const barra = await page.evaluate(() => innerWidth - document.documentElement.clientWidth)
+  test.skip(barra === 0, 'Overlay scrollbars (macOS): run on Linux, as CI does')
+  expect(barra).toBe(15)
   const tiles = page.locator('main a[data-foto]')
   // La de la última columna de la primera fila: la que más se corría.
   const i = await tiles.evaluateAll((as) => {

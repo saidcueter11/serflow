@@ -182,6 +182,8 @@ a.sf-foto:active img { transform: scale(1.03); filter: none; transition-duration
   /* both y no backwards: soltar la animación al terminar recalcula el layout una vez por palabra (medido, PRI-287). */
   .sf-palabra > span { animation: sf-palabra var(--motion-palabra) var(--ease-premium) calc(var(--i) * var(--motion-palabra-escalon)) both; }
   .sf-bajada .sf-palabra > span { animation: sf-bajada var(--motion-bajada) var(--ease-premium) calc(var(--motion-bajada-tras) + var(--i) * var(--motion-bajada-escalon)) both; }
+  /* La del catálogo al cambiar de categoría: el mismo texto, ya visto (CatalogView.astro). */
+  .sf-bajada[data-vista] .sf-palabra > span { animation: none; }
   .hero-carousel figure:first-of-type img { animation: sf-zoom var(--zoom-duration, 24s) ease-out infinite alternate, sf-asienta var(--motion-asienta) var(--ease-premium); }
 }
 /* Lo que sigue al titular va por su cuenta: el pie quieto y el botón entra pronto, sin esperar a la bajada. */
