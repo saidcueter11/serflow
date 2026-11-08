@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl } from './catalog'
+import { fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl, precioCop } from './catalog'
 
 const NOW = new Date('2026-10-20T12:00:00Z')
 const ago = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000).toISOString()
@@ -50,5 +50,19 @@ describe('pedirUrl', () => {
     expect(text(pedirUrl('Moda', null, fotoHref('moda', 'gorra-dama')))).toBe(
       '¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\nhttps://serflowctg.netlify.app/catalogo/moda/gorra-dama',
     )
+  })
+})
+
+describe('precioCop', () => {
+  it('formats the admin price in Colombian pesos, without decimals', () => {
+    expect(precioCop(30000)).toBe('$30.000')
+    expect(precioCop(5000)).toBe('$5.000')
+    expect(precioCop(1250000.4)).toBe('$1.250.000')
+  })
+
+  it('has no price to show when the admin left it empty or at zero', () => {
+    expect(precioCop(null)).toBeNull()
+    expect(precioCop(0)).toBeNull()
+    expect(precioCop(-1)).toBeNull()
   })
 })

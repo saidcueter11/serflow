@@ -44,7 +44,9 @@ test('tapping a photo opens the modal: whole photo, counter, name and Pedir por 
   await expect(dialog(page)).toHaveAttribute('aria-modal', 'true')
   await expect(page).toHaveURL(new RegExp(`${photo}$`))
   await expect(dialog(page).getByText(`2 / ${count}`)).toBeVisible()
-  await expect(dialog(page).getByRole('heading', { level: 2 })).toHaveText(new RegExp(`^${label}( N\\.º \\d+)?$`))
+  // El nombre del admin, o el de la foto si no tiene (PRI-433; lo exacto lo prueba e2e/modal-celular.spec.ts).
+  const { titulo } = JSON.parse((await tile.getAttribute('data-foto'))!)
+  await expect(dialog(page).getByRole('heading', { level: 2 })).toHaveText(titulo)
   const img = dialog(page).locator('img.mx-foto')
   await expect(img).toHaveCSS('object-fit', 'contain')
   await expect(img).toHaveAttribute('alt', /, foto N\.º \d+$|^Foto de /)

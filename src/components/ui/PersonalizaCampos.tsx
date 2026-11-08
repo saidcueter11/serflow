@@ -3,6 +3,7 @@ import { Button } from './Button'
 import { Girador, IconArchivo, IconCerrar, IconCheck, IconInfo, IconSubir } from '../icons/PersonalizaIcons'
 import { ACEPTA } from '../../lib/personaliza/archivo'
 import { TECNICAS, type Tecnica } from '../../lib/personaliza/datos'
+import { MB_DESCARGA, type FondoIa, type MotivoIa } from '../../lib/personaliza/fondo-ia'
 import { NOTA_MAX, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 
 /*
@@ -45,16 +46,63 @@ export function Grupo({ legend, valor, children, nota }: { legend: string; valor
   )
 }
 
-/** Aviso que no bloquea: imagen pesada, pequeña, archivo que no abre o sin señal. Neutro: lo elegido sigue en pie. */
-export function Aviso({ titulo, children, icono }: { titulo: string; children: ReactNode; icono?: ReactNode }) {
+/** Aviso que no bloquea: imagen pesada, pequeña, archivo que no abre o sin señal. Neutro: lo elegido sigue en pie. accion va debajo del texto. */
+export function Aviso({ titulo, children, icono, accion }: { titulo: string; children: ReactNode; icono?: ReactNode; accion?: ReactNode }) {
   return (
     <div role="status" className="flex gap-3 rounded-tile border border-line bg-surface-2 p-3.5 font-body text-ink">
       {icono ?? <IconInfo className="mt-0.5 size-5 shrink-0 text-ink" />}
-      <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="text-[14px] font-semibold leading-snug">{titulo}</p>
         <p className="text-[14px] leading-snug text-muted">{children}</p>
+        {accion && <div className="mt-2">{accion}</div>}
       </div>
     </div>
+  )
+}
+
+const FONDO_IA_ERROR: Record<MotivoIa, string> = {
+  navegador: 'Este navegador no puede quitar este fondo. Tu imagen sigue como estaba; si la quieres sin fondo, cuéntanos en el chat.',
+  memoria: 'A tu celular no le alcanza la memoria para quitar este fondo. Tu imagen sigue como estaba; si la quieres sin fondo, cuéntanos en el chat.',
+  red: 'No pudimos descargar lo necesario. Revisa tu señal e inténtalo de nuevo.',
+  fallo: 'No pudimos quitar este fondo. Tu imagen sigue como estaba; inténtalo de nuevo o cuéntanos en el chat.',
+}
+
+/** Fondo que el automático no quita (PRI-436): botón para quitarlo con el modelo del navegador, progreso y cancelar. */
+function AvisoFondoIa({ ia, onQuitar, onCancelar }: { ia: FondoIa; onQuitar?: () => void; onCancelar?: () => void }) {
+  const corriendo = ia.fase === 'bajando' || ia.fase === 'quitando'
+  const reintenta = ia.fase === 'listo' || (ia.fase === 'error' && (ia.motivo === 'red' || ia.motivo === 'fallo'))
+  return (
+    <Aviso
+      titulo="Esta imagen conserva su fondo"
+      accion={
+        corriendo ? (
+          <div className="flex items-center gap-3">
+            <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+              {/* El texto cambia cada 1 %: el lector de pantalla lee la barra, no el aviso entero cada vez. */}
+              <span aria-hidden="true" className="flex items-center gap-1.5 text-[14px] font-semibold tabular-nums">
+                <Girador className="size-3.5" />
+                {ia.fase === 'bajando' ? `Preparando… ${ia.pct} %` : 'Quitando el fondo…'}
+              </span>
+              <progress
+                aria-label="Quitando el fondo"
+                value={ia.fase === 'bajando' ? ia.pct : undefined}
+                max={100}
+                className="h-1 w-full appearance-none overflow-hidden rounded-full bg-surface [&::-moz-progress-bar]:bg-accent [&::-webkit-progress-bar]:bg-surface [&::-webkit-progress-value]:bg-accent"
+              />
+            </span>
+            <Button variant="ghost" onClick={onCancelar}>
+              Cancelar
+            </Button>
+          </div>
+        ) : reintenta ? (
+          <Button variant="secondary" onClick={onQuitar}>
+            Quitar fondo
+          </Button>
+        ) : undefined
+      }
+    >
+      {ia.fase === 'error' ? FONDO_IA_ERROR[ia.motivo] : `Podemos quitarlo aquí mismo, sin subir tu foto a ningún lado. La primera vez descarga unos ${MB_DESCARGA} MB.`}
+    </Aviso>
   )
 }
 
@@ -84,21 +132,40 @@ export interface CampoDisenoProps {
   miniatura?: string
   /** Interruptor "Quitar el fondo": undefined = no hay un fondo que quitar y no aparece. */
   quitarFondo?: boolean
-  /** Una foto u otro fondo que no se puede quitar: se avisa. */
+  /** Una foto u otro fondo que el automático no quita: se avisa y se ofrece quitarlo con el modelo del navegador. */
   fondoFijo?: boolean
+  /** Cómo va ese quitado (PRI-436). */
+  fondoIa?: FondoIa
   /** El último archivo no se pudo abrir: otro formato, HEIC sin soporte o dañado. */
   rechazado?: boolean
   escritorio?: boolean
   onArchivo?: (f: File) => void
   onQuitar?: () => void
   onQuitarFondo?: (quitar: boolean) => void
+  onFondoIa?: () => void
+  onCancelarFondoIa?: () => void
 }
 
 /**
  * Paso 1: subir el diseño. Un <label> con <input type="file"> (abre galería o cámara en el celular); en escritorio
  * también se puede soltar el archivo. Solo imágenes: PNG, JPG y WEBP (el iPhone convierte sus HEIC a JPG al elegirlos).
  */
-export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, fondoFijo = false, rechazado = false, escritorio = false, onArchivo, onQuitar, onQuitarFondo }: CampoDisenoProps) {
+export function CampoDiseno({
+  estado,
+  nombre,
+  detalle,
+  miniatura,
+  quitarFondo,
+  fondoFijo = false,
+  fondoIa = { fase: 'listo' },
+  rechazado = false,
+  escritorio = false,
+  onArchivo,
+  onQuitar,
+  onQuitarFondo,
+  onFondoIa,
+  onCancelarFondoIa,
+}: CampoDisenoProps) {
   const conArchivo = estado !== 'ninguno'
   const aviso = AVISOS[estado as EstadoDiseno]
   const soltar = (e: DragEvent) => {
@@ -166,7 +233,7 @@ export function CampoDiseno({ estado, nombre, detalle, miniatura, quitarFondo, f
         </label>
       )}
 
-      {fondoFijo && <Aviso titulo="Esta imagen conserva su fondo">Aquí solo podemos quitar fondos de un solo color.</Aviso>}
+      {fondoFijo && <AvisoFondoIa ia={fondoIa} onQuitar={onFondoIa} onCancelar={onCancelarFondoIa} />}
 
       {aviso && <Aviso titulo={aviso.titulo}>{aviso.texto}</Aviso>}
 

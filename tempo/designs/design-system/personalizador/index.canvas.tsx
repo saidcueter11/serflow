@@ -27,7 +27,7 @@ const PEDIDO =
 defineAsset(VistaPrevia, {
   libraries: ["Design System"],
   usageInstructions:
-    "Solo en /personaliza: la prenda con el diseño del cliente, pintada por el motor canvas 2D (foto de cargarFoto, diseño de prepararDiseno). Fija arriba en celular (alto 320) y a la izquierda en escritorio (alto 500). Sin foto preparada solo muestra los estados cargando y sin-senal. No para fotos de productos del catálogo (usa PhotoSlot).",
+    "Solo en /personaliza: la prenda con el diseño del cliente, pintada por el motor canvas 2D (foto de cargarFoto, diseño de prepararDiseno). En celular (alto 320) baja con la página y, cuando se va por arriba, el botón Ver cómo queda (encima de la barra de Enviar) la trae de vuelta (PRI-435); en escritorio va a la izquierda (alto 500). Sin foto preparada solo muestra los estados cargando y sin-senal. No para fotos de productos del catálogo (usa PhotoSlot).",
   variants: {
     "Sin señal": { props: { foto: null, etiqueta: "Camiseta negra", modo: "sin-senal", tecnica: "estampado", lugar: { cx: 0.5, cy: 0.42, s: 0.62 }, anchoCm: 30, alto: 320 } },
     Cargando: { props: { foto: null, etiqueta: "Camiseta blanca", modo: "cargando", tecnica: "estampado", lugar: { cx: 0.5, cy: 0.42, s: 0.62 }, anchoCm: 30, cargando: "Cargando la camiseta blanca…", alto: 320 } },
@@ -48,11 +48,13 @@ defineAsset(HojaEnvio, {
 defineAsset(CampoDiseno, {
   libraries: ["Design System"],
   usageInstructions:
-    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando el fondo es claro (logo sobre blanco o en papel), el aviso cuando la imagen conserva su fondo (una foto) y los avisos de pesada, baja calidad o archivo que no abre. Solo imágenes: PNG, JPG y WEBP.",
+    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando el fondo es claro (logo sobre blanco o en papel), el aviso cuando la imagen conserva su fondo (una foto) con el botón Quitar fondo, que la recorta con un modelo en el navegador (PRI-436: progreso, Cancelar y errores), y los avisos de pesada, baja calidad o archivo que no abre. Solo imágenes: PNG, JPG y WEBP.",
   variants: {
     Inicial: { props: { estado: "ninguno" } },
     "Con fondo que se quita": { props: { estado: "imagen", nombre: "logo-heroica.png", detalle: "PNG · 1200 × 1200 px", quitarFondo: true } },
-    "Fondo que no se puede quitar": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true } },
+    "Fondo que el automático no quita": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true } },
+    "Quitando el fondo": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true, fondoIa: { fase: "bajando", pct: 40 } } },
+    "No se pudo quitar el fondo": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true, fondoIa: { fase: "error", motivo: "navegador" } } },
     "Baja calidad": { props: { estado: "baja", nombre: "logo-whatsapp.jpg", detalle: "JPG · 48 × 48 px" } },
     "Imagen pesada": { props: { estado: "pesada", nombre: "foto-equipo.jpg", detalle: "JPG · 24 MB" } },
     "Archivo que no abre": { props: { estado: "ninguno", rechazado: true } },

@@ -13,7 +13,8 @@ async function conCsp(page: Page) {
   await page.route(
     (url) => url.origin === origen,
     async (route) => {
-      if (route.request().resourceType() !== 'document') return route.fallback()
+      // Un worker lleva su propia CSP: la de su respuesta (PRI-436).
+      if (route.request().resourceType() !== 'document' && !route.request().url().includes('.worker')) return route.fallback()
       const response = await route.fetch()
       await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': csp! } })
     },
@@ -28,15 +29,16 @@ async function conCsp(page: Page) {
 
 test('netlify.toml declara los headers de seguridad', () => {
   expect(csp).toContain("frame-ancestors 'none'")
-  // Sin 'unsafe-inline' en script-src: es la barrera si algún día entra HTML sin escapar.
-  expect(csp?.match(/script-src [^;]+/)?.[0]).not.toContain('unsafe')
+  // Sin 'unsafe-inline' en script-src: es la barrera si algún día entra HTML sin escapar. Solo 'wasm-unsafe-eval' (PRI-436):
+  // compila WebAssembly y no habilita eval de JS.
+  expect(csp?.match(/script-src [^;]+/)?.[0].replace(" 'wasm-unsafe-eval'", '')).not.toContain('unsafe')
   expect(header('X-Frame-Options')).toBe('DENY')
   expect(header('Referrer-Policy')).toBe('strict-origin-when-cross-origin')
   expect(header('X-Content-Type-Options')).toBe('nosniff')
 })
 
 test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promos, personalizador', async ({ page }) => {
-  test.setTimeout(90_000)
+  test.setTimeout(150_000)
   const violaciones = await conCsp(page)
 
   await page.goto('/')
@@ -65,6 +67,11 @@ test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promo
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==', 'base64'),
   })
   await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible({ timeout: 15_000 })
+
+  // PRI-436: el worker baja el wasm y el modelo del propio sitio y compila WebAssembly ('wasm-unsafe-eval').
+  await page.locator('input[type=file]').first().setInputFiles({ name: 'gorra.jpg', mimeType: 'image/jpeg', buffer: readFileSync('src/assets/hat4.jpg') })
+  await page.getByRole('button', { name: 'Quitar fondo' }).click({ timeout: 15_000 })
+  await expect(page.getByRole('switch', { name: 'Quitar el fondo' })).toBeChecked({ timeout: 60_000 })
 
   expect(violaciones).toEqual([])
 })

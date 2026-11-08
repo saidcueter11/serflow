@@ -146,6 +146,7 @@ export function VistaPrevia({
   const aspecto = area ? aspectoArea(area) : 1
   const ratio = diseno ? diseno.width / diseno.height : 1
   const caja = area && diseno ? cajaDiseno(area, l, ratio, aspecto) : null
+  const movible = !!caja && conDiseno && !espera && modo !== 'cargando' && !limpia
   const set = (n: Lugar) => {
     setEnTope(n.s > maxS + 1e-6)
     onLugar?.(limitar(n, ratio, area!, maxS, ventana()))
@@ -180,10 +181,14 @@ export function VistaPrevia({
   }
   const down = (e: PointerEvent, manija: 'tamano' | 'giro' | null = null) => {
     e.stopPropagation()
-    if (!sel && !manija) {
+    // El primer toque solo selecciona; si ya hay un dedo en la prenda, este es el segundo de un pellizco (PRI-434).
+    if (!sel && !manija && !punteros.current.size) {
       setSel(true)
+      // Igual se anota el dedo: si llega un segundo, en la prenda o en el diseño, arranca el pellizco.
+      if (e.pointerType === 'touch') punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       return
     }
+    setSel(true)
     ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     const ps = [...punteros.current.values()]
@@ -199,9 +204,10 @@ export function VistaPrevia({
     setArrastrando(true)
   }
   const move = (e: PointerEvent) => {
-    const i = inicio.current
-    if (!i || !punteros.current.has(e.pointerId)) return
+    if (!punteros.current.has(e.pointerId)) return
     punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    const i = inicio.current
+    if (!i) return
     const { w, h } = escalaArea()
     const ps = [...punteros.current.values()]
     const r0 = i.l.r ?? 0
@@ -253,7 +259,18 @@ export function VistaPrevia({
       <div
         ref={escena}
         className={`absolute ${alto ? 'left-1/2 -translate-x-1/2' : 'inset-x-0'} aspect-[4/5] transition-opacity duration-(--motion-med) ${modo === 'cargando' && foto ? 'opacity-40 blur-[2px]' : ''}`}
-        style={recorte}
+        // PRI-434: con el diseño puesto, el pellizco sobre la prenda es para el diseño, no zoom de la página. Sin ajustar,
+        // un dedo sigue haciendo scroll; ajustando, la prenda es toda del diseño. Los dedos que caen fuera del diseño se
+        // anotan aquí: si llega un segundo, arranca el pellizco. Los del diseño y sus manijas llegan por burbuja.
+        style={{ ...recorte, touchAction: movible ? (ajustando ? 'none' : 'pan-y') : undefined }}
+        onPointerDown={(e) => {
+          if (!movible || e.pointerType !== 'touch') return
+          if (punteros.current.size) down(e)
+          else punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+        }}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
       >
         {!foto && fotoInicial && (
           <picture>
@@ -316,9 +333,6 @@ export function VistaPrevia({
             tabIndex={0}
             aria-label={`Tu diseño, ${tamano}. Arrástralo para moverlo; con el teclado, flechas para moverlo, más o menos para el tamaño y R para girarlo.`}
             onPointerDown={(e) => down(e)}
-            onPointerMove={move}
-            onPointerUp={up}
-            onPointerCancel={up}
             onKeyDown={tecla}
             onFocus={() => setSel(true)}
             // Sin esto, arrastrar selecciona texto de la página y el siguiente arrastre arranca un drag nativo: el navegador cancela el puntero.
@@ -340,9 +354,6 @@ export function VistaPrevia({
                 <span
                   aria-hidden="true"
                   onPointerDown={(e) => down(e, 'giro')}
-                  onPointerMove={move}
-                  onPointerUp={up}
-                  onPointerCancel={up}
                   className="absolute -top-[60px] left-1/2 z-10 flex size-11 -translate-x-1/2 cursor-grab items-center justify-center"
                   style={{ touchAction: 'none' }}
                 >
@@ -355,9 +366,6 @@ export function VistaPrevia({
                     key={p}
                     aria-hidden="true"
                     onPointerDown={(e) => down(e, 'tamano')}
-                    onPointerMove={move}
-                    onPointerUp={up}
-                    onPointerCancel={up}
                     className={`absolute ${p} flex size-11 cursor-nwse-resize items-center justify-center`}
                     style={{ touchAction: 'none' }}
                   >
