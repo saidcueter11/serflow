@@ -479,8 +479,8 @@ function imagen(src: string): Promise<HTMLImageElement> {
   })
 }
 
-/** Carga una foto de prenda (y su mapa de sombreado, a la vez) y la prepara. */
+/** Carga una foto de prenda (y su mapa de sombreado, a la vez) y la prepara. Si el mapa no llega, la tela sale de la foto. */
 export async function cargarFoto(src: string, area: Area, curva: number, sombra?: string): Promise<FotoLista> {
-  const [img, mapa] = await Promise.all([imagen(src), sombra ? imagen(sombra) : undefined])
+  const [img, mapa] = await Promise.all([imagen(src), sombra ? imagen(sombra).catch(() => undefined) : undefined])
   return prepararFoto(img, area, curva, mapa)
 }

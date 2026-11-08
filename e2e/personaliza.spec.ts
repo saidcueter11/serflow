@@ -738,6 +738,16 @@ test.describe('/personaliza', () => {
     await expect.poll(async () => Math.max(...(await pliegues(page)).map((l, i) => Math.abs(l - enNegra[i])))).toBeLessThan(0.03)
   })
 
+  test('si el mapa de sombreado no llega, la prenda y el diseño se ven igual (la tela sale de la foto)', async ({ page }) => {
+    await page.route(/\/sombra-[^/]*\.webp$/, (r) => r.abort())
+    await abrir(page)
+    await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
+    await expect(page.getByRole('img', { name: 'Camiseta negra con tu diseño' })).toBeVisible()
+    await expect(page.getByText(/No cargó la foto/)).toHaveCount(0)
+    await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+    await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(40)
+  })
+
   test('un diseño chico se agarra y se mueve desde el centro, sin que las manijas lo tapen', async ({ page }) => {
     await abrir(page)
     await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(400) })
