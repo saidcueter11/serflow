@@ -845,17 +845,15 @@ for (const nombre of ['Pixel 7', 'iPhone 13'] as const) {
         return b.width
       }
 
-      // Sin seleccionar: la página no hace zoom.
-      await pellizcar()
-      expect(await zoom(page)).toBe(1)
-
-      // Seleccionado: el diseño se achica y la página sigue igual.
-      const b = (await diseno.boundingBox())!
-      await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2)
-      await expect(page.getByText(/^unos \d+ cm de ancho$/)).toBeVisible()
-      const antes = await pellizcar()
-      await expect.poll(async () => (await diseno.boundingBox())!.width).toBeLessThan(antes * 0.8)
-      expect(await zoom(page)).toBe(1)
+      // Sin seleccionarlo antes y ya seleccionado: el diseño se achica y la página sigue igual.
+      const tamano = page.getByText(/^unos \d+ cm de ancho$/)
+      await expect(tamano).toHaveCount(0)
+      for (const _ of [0, 1]) {
+        const antes = await pellizcar()
+        await expect.poll(async () => (await diseno.boundingBox())!.width).toBeLessThan(antes * 0.8)
+        expect(await zoom(page)).toBe(1)
+        await expect(tamano).toBeVisible()
+      }
     })
 
     test('un dedo que pasa por la foto sin ajustar hace scroll, y fuera de la prenda la página hace zoom', async ({ page }) => {
