@@ -248,11 +248,14 @@ defineControls(CampoDiseno, {
   miniatura: { type: "text" },
   quitarFondo: { type: "boolean" },
   fondoFijo: { type: "boolean" },
+  fondoIa: { type: "object" },
   rechazado: { type: "boolean" },
   escritorio: { type: "boolean" },
   onArchivo: false,
   onQuitar: false,
   onQuitarFondo: false,
+  onFondoIa: false,
+  onCancelarFondoIa: false,
 });
 
 defineControls(Colores, {
@@ -296,4 +299,5 @@ defineControls(Aviso, {
   titulo: { type: "text" },
   children: { type: "text" },
   icono: false,
+  accion: false,
 });
