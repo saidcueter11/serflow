@@ -92,7 +92,6 @@
 @keyframes sf-draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
 @keyframes sf-follow { from { offset-distance: 0% } to { offset-distance: 100% } }
 @keyframes sf-glint { 0%, 100% { opacity: 0.1; transform: scale(0.6) } 50% { opacity: 0.45; transform: scale(1.2) } }
-@keyframes sf-entra { from { opacity: 0; transform: translateY(0.45em); clip-path: inset(0 0 100% 0) } to { opacity: 1; transform: none; clip-path: inset(-0.2em -0.2em -0.3em) } }
 @keyframes sf-sube { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
 @keyframes sf-funde { from { opacity: 0 } to { opacity: 1 } }
 
@@ -188,9 +187,6 @@ a.sf-foto:active img { transform: scale(1.03); filter: none; transition-duration
 /* Lo que sigue al titular va por su cuenta: el pie quieto y el botón entra pronto, sin esperar a la bajada. */
 .anim-enter:has(> h1 .sf-palabra) > * { animation-name: none; }
 .anim-enter:has(> h1 .sf-palabra) > div { animation: sf-sube var(--motion-entrada) var(--ease-premium) 460ms both; }
-/* Títulos que todavía no usan Palabras (/personaliza) y su bajada 200 ms después. */
-.sf-entra { animation: sf-entra var(--motion-entrada) var(--ease-premium) both; }
-.sf-entra + p { animation: sf-sube var(--motion-entrada) var(--ease-premium) 200ms both; }
 
 /* ---------- 4 · Enlace que se cose: costura dorada que se dibuja debajo al pasar, al enfocar o al tocar ---------- */
 
@@ -246,7 +242,7 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
 @media (prefers-reduced-motion: reduce) {
   .anim-enter > *, .stitch-title::after, .anim-ticker, .anim-ring, .anim-zoom, .thread-glint,
   .thread-reveal, .thread-needle, .anim-slide, .anim-bar,
-  .sf-palabra > span, .sf-entra, .sf-entra + p {
+  .sf-palabra > span {
     animation: none !important;
   }
   /* first-of-type y no first-child: el <style> del carrusel va antes de las fotos */

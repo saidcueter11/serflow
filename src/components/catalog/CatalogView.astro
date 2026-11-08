@@ -22,7 +22,8 @@ const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props
       </div>
       <div class="pf-cat-texto">
         <h1 class="pf-display"><Palabras text={view.href === TODO_HREF ? 'Catálogo' : view.label} /></h1>
-        <p class="pf-lead sf-bajada"><Palabras text={CATALOG_LEAD} /></p>
+        <!-- Es la misma en todas las categorías: se conserva para que no vuelva a animarse al cambiar (PRI-428). -->
+        <p class="pf-lead sf-bajada" transition:persist="catalog-bajada"><Palabras text={CATALOG_LEAD} /></p>
       </div>
     </div>
     <CatalogPage chips={chips} current={view.href} label={view.label} tiles={tiles} next={next} />
