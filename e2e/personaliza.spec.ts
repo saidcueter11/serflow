@@ -57,7 +57,8 @@ const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 59
 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
 const FONDO_FIJO = 'Esta imagen conserva su fondo'
-const FONDO_FIJO_TEXTO = 'Aquí solo podemos quitar fondos de un solo color.'
+/** PRI-436: ahora se ofrece quitarlo con el modelo del navegador (e2e/fondo-ia.spec.ts). */
+const FONDO_FIJO_TEXTO = 'Podemos quitarlo aquí mismo, sin subir tu foto a ningún lado.'
 const PISTA_BORDADO = 'El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos 10 cm de ancho.'
 const ERROR_ARCHIVO = 'No pudimos abrir este archivo'
 
