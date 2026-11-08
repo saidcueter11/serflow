@@ -475,6 +475,7 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
  * la franja fija abajo. Los puntos sobre la foto son las fotos de la prenda (PRI-433).
  */
 html:has(dialog.mx:modal) { overflow: hidden; }
+html[data-barra]:has(dialog.mx:modal) { scrollbar-gutter: stable; }
 dialog.mx {
   position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0;
   border: 0; background: transparent; color: var(--color-ink); container-type: size;

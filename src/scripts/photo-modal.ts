@@ -162,6 +162,8 @@ function abrir(a: HTMLAnchorElement, crecer = true) {
       marco.prepend(mini)
     }
     d.classList.toggle('mx-crece', !!T)
+    // Barra clásica (Windows): su hueco se queda mientras el modal le quita el scroll, así el muro no se corre (PRI-429).
+    document.documentElement.toggleAttribute('data-barra', innerWidth > document.documentElement.clientWidth)
     d.showModal()
     medirFranja(d)
     d.querySelector<HTMLElement>('[data-mx="cerrar"]')!.focus()
