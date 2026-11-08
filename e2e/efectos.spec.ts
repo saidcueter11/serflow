@@ -81,7 +81,8 @@ test.describe('1 · foto que crece', () => {
   })
 
   test('on Disponible ahora it grows from the photo, not from the whole card', async ({ page }) => {
-    await page.goto('/')
+    // PRI-123: 4232 has 4 real products switched on in "Disponible ahora" (e2e/promos/scenarios.mjs).
+    await page.goto('http://localhost:4232/')
     const card = page.locator('.pf-prendas a[data-foto]').first()
     await card.scrollIntoViewIfNeeded()
     const m = await card.evaluate(tocarYMedirSalida)

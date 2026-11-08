@@ -6,7 +6,7 @@ import { HomePage, type HomeProduct } from '../components/home/HomePage'
 import { PromoBar } from '../components/ui/PromoBar'
 import { heroSizes, type Slide } from '../components/ui/HeroCarousel'
 import { serviceCardSizes } from '../components/ui/ServiceCard'
-import { getActivePromos, getCategories, getProducts } from '../lib/products'
+import { getActivePromos, getCategories, getDisponibles } from '../lib/products'
 import { loadCatalog } from '../lib/catalog-view'
 import { PhotoModal } from '../components/ui/PhotoModal'
 import { fotoDeLugar, fotoRemota } from '../lib/medios-build'
@@ -25,10 +25,8 @@ import gorraBordada2 from '../assets/images/stock/gorra-bordada-2.jpg'
 // "Diseña la tuya": gorras personalizadas en el estante del taller (la de Mi Tierra Querida se repetía en Disponible ahora).
 import gorrasEstante from '../assets/images/stock/gorras-estante.jpg'
 
-const PRODUCT_COUNT = 4
-
 const [products, categories, promos, catalog, content] = await Promise.all([
-  getProducts(),
+  getDisponibles(),
   getCategories(),
   getActivePromos(),
   loadCatalog(),
@@ -36,10 +34,9 @@ const [products, categories, promos, catalog, content] = await Promise.all([
 ])
 
 // Cada prenda abre su foto en el modal (PRI-286), con la misma URL propia y el mismo mensaje que en el catálogo.
+// Todas las que el cliente prendió (PRI-123), sin tope: apagarlas es su forma de quitarlas.
 const homeProducts: HomeProduct[] = await Promise.all(
   products
-    .filter((p) => p.image_urls.length > 0 && p.categories?.slug)
-    .slice(0, PRODUCT_COUNT)
     .map(async (p) => {
       const item = catalog.groups.find((g) => g.slug === p.categories!.slug)?.items.find((it) => it.slug === p.slug)
       const img = await getImage({ src: p.image_urls[0], width: 480, height: 600, format: 'webp', quality: 75 })

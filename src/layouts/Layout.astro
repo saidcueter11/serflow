@@ -2,7 +2,8 @@
 import '../styles/global.css'
 import { ClientRouter } from 'astro:transitions'
 import { getImage } from 'astro:assets'
-import { Header } from '../components/ui/Header'
+import { Header, NAV_LINKS } from '../components/ui/Header'
+import { getDisponibles } from '../lib/products'
 import { Footer } from '../components/ui/Footer'
 import { WhatsAppFab } from '../components/ui/WhatsAppFab'
 import LogoImage from '../assets/LOGO SERFLOW.png'
@@ -26,6 +27,8 @@ const {
   hideFab,
 } = Astro.props
 
+// PRI-123: si "Disponible ahora" no sale en la portada, su link tampoco.
+const links = (await getDisponibles()).length > 0 ? NAV_LINKS : NAV_LINKS.filter((l) => l.href !== '/#disponible')
 const canonicalUrl = Astro.url.toString()
 const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
 ---
@@ -87,7 +90,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
     <div class="min-h-dvh h-full flex flex-col relative">
       <slot name="top" />
       <div class="sf-cabecera" transition:persist="cabecera">
-        <Header logoSrc={logo.src} />
+        <Header logoSrc={logo.src} links={links} />
       </div>
       <div id="main-content" tabindex="-1">
         <slot />
