@@ -57,7 +57,15 @@ async function toItem(p: Product, cat: { slug: string; label: string }): Promise
       img: { src: thumb.src, srcSet: thumb.srcSet.attribute, alt },
       label: cat.label,
       photos: p.image_urls.length,
-      modal: { titulo: fotoTitulo(cat.label, n), categoria: cat.label, alt, pedir: pedirUrl(cat.label, n, href), fotos, descripcion: p.description },
+      modal: {
+        titulo: fotoTitulo(cat.label, n),
+        categoria: cat.label,
+        alt,
+        pedir: pedirUrl(cat.label, n, href),
+        fotos,
+        descripcion: p.description,
+        ...(p.colors?.length && { colores: p.colors }),
+      },
     },
   }
 }

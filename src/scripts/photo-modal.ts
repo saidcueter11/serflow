@@ -1,4 +1,5 @@
 import type { FotoModal } from '../components/ui/PhotoModal'
+import { bordeMuestra, CLASES_COLORES } from '../lib/colores-producto'
 import { quieto } from './quieto'
 
 /*
@@ -40,6 +41,23 @@ function despedir(marco: HTMLElement, img: HTMLImageElement) {
   Promise.allSettled(sale.getAnimations().map((a) => a.finished)).then(() => sale.remove())
 }
 
+/** Los colores del producto (PRI-455), con el mismo markup que ColoresDisponibles. Sin colores la lista se esconde. */
+function pintarColores(ul: HTMLElement, colores: NonNullable<FotoModal['colores']>) {
+  ul.replaceChildren(
+    ...colores.map((c) => {
+      const li = document.createElement('li')
+      li.className = CLASES_COLORES.item
+      const punto = document.createElement('span')
+      punto.className = `${CLASES_COLORES.punto} ${bordeMuestra(c.hex)}`
+      punto.setAttribute('aria-hidden', 'true')
+      punto.style.background = c.hex
+      li.append(punto, c.name)
+      return li
+    }),
+  )
+  ul.hidden = !colores.length
+}
+
 /** dir: sentido de la flecha o del gesto; 0 al abrir (solo fundido). */
 function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
   const f = datos(e.lista[e.i])
@@ -66,6 +84,7 @@ function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
   const desc = d.querySelector<HTMLElement>('.mx-desc')!
   desc.textContent = f.descripcion ?? ''
   desc.hidden = !f.descripcion
+  pintarColores(d.querySelector<HTMLElement>('.mx-colores')!, f.colores ?? [])
   d.querySelector<HTMLAnchorElement>('.mx-pedir a')!.href = f.pedir
 
   // Sin dar la vuelta: en la primera o la última, ese lado no se pinta.

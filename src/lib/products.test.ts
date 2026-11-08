@@ -9,8 +9,13 @@ const tables: Record<string, unknown[]> = {
     { id: 'c2', slug: 'kids', image_url: AJENA },
   ],
   products: [
-    { category_id: 'c1', image_urls: [AJENA, PROPIA] },
-    { category_id: 'c1', image_urls: [AJENA] },
+    { id: 'p1', category_id: 'c1', image_urls: [AJENA, PROPIA] },
+    { id: 'p2', category_id: 'c1', image_urls: [AJENA] },
+  ],
+  product_colors: [
+    { product_id: 'p1', name: 'Negro', hex: '#111111' },
+    { product_id: 'p1', name: ' Blanco ', hex: '#ffffff' },
+    { product_id: 'p1', name: 'Malo', hex: 'red;background:url(x)' },
   ],
   promos: [
     { slug: 'a', banner_url: AJENA, image_urls: [PROPIA, AJENA], ends_at: null, created_at: '2026-10-01' },
@@ -18,11 +23,13 @@ const tables: Record<string, unknown[]> = {
   ],
 }
 
+const errors: Record<string, { code: string; message: string }> = {}
+
 // Chainable stand-in for the supabase query builder; resolves with the table rows.
 vi.mock('./supabase', () => ({
   supabase: {
     from: (table: string) => {
-      const result = { data: tables[table], error: null }
+      const result = table in errors ? { data: null, error: errors[table] } : { data: tables[table], error: null }
       const q: Record<string, unknown> = {
         then: (resolve: (r: typeof result) => unknown) => resolve(result),
       }
@@ -58,5 +65,36 @@ describe('getCategoriesWithCounts', () => {
       ['moda', 2],
       ['kids', 0],
     ])
+  })
+})
+
+// PRI-455
+describe('colores de los productos', () => {
+  it('cada producto trae los suyos, en orden y sin filas inválidas; sin colores, lista vacía', async () => {
+    expect((await getProducts()).map((p) => p.colors)).toEqual([
+      [
+        { name: 'Negro', hex: '#111111' },
+        { name: 'Blanco', hex: '#ffffff' },
+      ],
+      [],
+    ])
+  })
+
+  it('sin la tabla (antes de la migración) el catálogo sale igual, sin colores', async () => {
+    errors.product_colors = { code: 'PGRST205', message: 'no table' }
+    try {
+      expect((await getProducts()).map((p) => p.colors)).toEqual([[], []])
+    } finally {
+      delete errors.product_colors
+    }
+  })
+
+  it('otro error de la base tumba el build', async () => {
+    errors.product_colors = { code: '500', message: 'down' }
+    try {
+      await expect(getProducts()).rejects.toThrow('Failed to fetch product_colors: down')
+    } finally {
+      delete errors.product_colors
+    }
   })
 })

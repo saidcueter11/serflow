@@ -7,6 +7,7 @@ import { MapCard } from '../ui/MapCard'
 import { EmptyState } from '../ui/EmptyState'
 import { HeroCarousel, type Slide } from '../ui/HeroCarousel'
 import type { FotoModal } from '../ui/PhotoModal'
+import type { ProductColor } from '../../lib/types'
 import { PinIcon } from '../icons/PinIcon'
 import { WHATSAPP_URL } from '../../lib/business'
 import type { SectionSlug, SectionText } from '../../lib/site-content'
@@ -16,6 +17,8 @@ export interface HomeProduct {
   meta: string
   href: string
   image: { src: string; alt: string }
+  /** Colores disponibles (PRI-455). */
+  colores?: ProductColor[]
   /** Tocarla abre la foto en el modal, encima de la portada. */
   modal?: FotoModal
 }
@@ -176,7 +179,7 @@ export function HomePage({
           {products.length > 0 ? (
             <div className="pf-prendas" data-fotos>
               {products.map((p) => (
-                <ProductCard key={p.href} name={p.name} meta={p.meta} href={p.href} image={p.image} modal={p.modal} />
+                <ProductCard key={p.href} name={p.name} meta={p.meta} href={p.href} image={p.image} colores={p.colores} modal={p.modal} />
               ))}
             </div>
           ) : (

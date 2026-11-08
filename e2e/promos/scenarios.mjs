@@ -193,7 +193,12 @@ const catalogo = (p) => {
       categories: { slug: c.slug, label: c.label },
     })),
   )
-  return { categories, products }
+  // PRI-455: la primera prenda viene en dos colores (ya en el orden de sort_order, como los da la consulta); la segunda, en ninguno.
+  const product_colors = [
+    { product_id: 'e2e-a-1', name: 'Negro', hex: '#111111', sort_order: 0 },
+    { product_id: 'e2e-a-1', name: 'Azul rey', hex: '#1d3fa8', sort_order: 1 },
+  ]
+  return { categories, products, product_colors }
 }
 
 export const SCENARIOS = [

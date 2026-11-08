@@ -49,6 +49,7 @@ const homeProducts: HomeProduct[] = await Promise.all(
         meta: p.categories?.label ?? '',
         href: item?.tile.href ?? `/products/${p.categories!.slug}`,
         image: { src: img.src, alt: p.name },
+        colores: p.colors,
         modal: item?.tile.modal,
       }
     }),

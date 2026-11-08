@@ -9,6 +9,7 @@ import { Eyebrow } from "../src/components/ui/Eyebrow";
 import { StatusPill } from "../src/components/ui/StatusPill";
 import { ServiceCard } from "../src/components/ui/ServiceCard";
 import { ProductCard } from "../src/components/ui/ProductCard";
+import { ColoresDisponibles } from "../src/components/ui/ColoresDisponibles";
 import { WorkCard } from "../src/components/ui/WorkCard";
 import { PromoCard } from "../src/components/ui/PromoCard";
 import { PromoAfiche } from "../src/components/ui/PromoAfiche";
@@ -79,7 +80,12 @@ defineControls(ProductCard, {
   confirmedLabel: { type: "text" },
   href: { type: "text" },
   image: { type: "object" },
+  colores: { type: "object" },
   modal: false,
+});
+
+defineControls(ColoresDisponibles, {
+  colores: { type: "object" },
 });
 
 defineControls(WorkCard, {
