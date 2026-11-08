@@ -228,14 +228,24 @@ const modal = (p) => {
   }
 }
 
+// PRI-123: las 4 primeras prendas reales con foto, prendidas en "Disponible ahora" (lo que la portada mostraba antes).
+// Un escenario sin `disponibles` no tiene ninguna: la portada no muestra la sección.
+const cuatro = (ids) => ids.slice(0, 4)
+
 export const SCENARIOS = [
   // 0 vigentes: solo una vencida, que no debe salir. Y una categoría recién creada, sin fotos (PRI-130).
-  { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia], medios: vacio },
+  { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia], medios: vacio, disponibles: cuatro },
   { outDir: '.e2e-builds/promos-1', port: 4233, promos: (p, now) => [gorras(p, now)], medios: vacio },
   // Desordenadas a propósito: el sitio las ordena por sort_order.
   { outDir: '.e2e-builds/promos-3', port: 4234, promos: (p, now) => [ninos(p), vencida(now), equipos(p), gorras(p, now)], medios: vacio },
   // PRI-150 + PRI-413: lo que publica el admin, y (4236) datos inválidos.
-  { outDir: '.e2e-builds/medios', port: 4235, promos: () => [], medios: (p, base) => ({ ...medios(p, base), ...contenido(p, base) }) },
+  {
+    outDir: '.e2e-builds/medios',
+    port: 4235,
+    promos: () => [],
+    medios: (p, base) => ({ ...medios(p, base), ...contenido(p, base) }),
+    disponibles: cuatro,
+  },
   { outDir: '.e2e-builds/contenido-malo', port: 4236, promos: () => [], medios: malo },
   // PRI-413: lo que deja la migración de siembra. Mismas promos y categorías que 4232, para comparar su HTML.
   {
@@ -244,6 +254,7 @@ export const SCENARIOS = [
     promos: (p, now) => [vencida(now)],
     categories: [vacia],
     medios: () => ({ ...vacio(), ...filasDeLaSiembra() }),
+    disponibles: cuatro,
   },
   // PRI-413: el cliente quitó las tres redes, con enlaces guardados que no deben salir.
   {
@@ -256,5 +267,12 @@ export const SCENARIOS = [
     }),
   },
   { outDir: '.e2e-builds/rejilla', port: 4239, promos: () => [], medios: (p) => ({ ...vacio(), ...catalogo(p) }) },
-  { outDir: '.e2e-builds/modal', port: 4240, promos: () => [], medios: (p) => ({ ...vacio(), ...modal(p) }) },
+  // PRI-123: dos prendidas en "Disponible ahora" y una apagada (e2e/disponible.spec.ts).
+  {
+    outDir: '.e2e-builds/modal',
+    port: 4240,
+    promos: () => [],
+    medios: (p) => ({ ...vacio(), ...modal(p) }),
+    disponibles: () => [MODAL.completa.slug, MODAL.cero.slug],
+  },
 ]

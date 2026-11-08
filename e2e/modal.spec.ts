@@ -148,8 +148,9 @@ test('the photo URL opens the catalog with the modal open, with its own preview 
   await expect(page.locator(`main a[href="${photo}"]`)).toBeFocused()
 })
 
+// PRI-123: 4232 has 4 real products switched on in "Disponible ahora" (e2e/promos/scenarios.mjs).
 test('Disponible ahora opens the modal over the home and goes through those photos', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('http://localhost:4232/')
   const prendas = page.locator('#disponible a[data-foto]')
   const n = await prendas.count()
   expect(n).toBeGreaterThan(0)
