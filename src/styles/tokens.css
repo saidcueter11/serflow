@@ -473,7 +473,8 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
 /*
  * Modal de foto (PhotoModal + src/scripts/photo-modal.ts). Un <dialog> a pantalla completa que es contenedor de tamaño
  * (cqw / cqh). Escritorio: la foto entera (contain) centrada y debajo una franja de una fila del mismo ancho. Celular:
- * pantalla completa; contador y X arriba, la foto con las orillas de la anterior y la siguiente, la franja fija abajo.
+ * pantalla completa; contador con las flechas de prenda y X arriba, la foto con las orillas de la anterior y la siguiente,
+ * la franja fija abajo. Los puntos sobre la foto son las fotos de la prenda (PRI-433).
  */
 html:has(dialog.mx:modal) { overflow: hidden; }
 dialog.mx {
@@ -504,8 +505,12 @@ dialog.mx::backdrop { background: transparent; }
 .mx-ant { left: 24px; }
 .mx-sig { right: 24px; }
 
-.mx-barra { position: absolute; top: 20px; left: 24px; display: flex; align-items: center; height: 48px; }
-.mx-contador { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-muted); }
+.mx-barra { position: absolute; top: 20px; left: 24px; display: flex; align-items: center; gap: 4px; height: 48px; }
+.mx-contador { min-width: 4.5em; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; color: var(--color-muted); }
+/* Prenda anterior y siguiente (PRI-433): junto al contador, aparte de las fotos. En la primera o la última, apagada. */
+.mx-prod { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 9999px; border: 1px solid var(--color-line); color: var(--color-ink); transition: border-color var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out); }
+.mx-prod:hover:not(:disabled) { border-color: var(--color-muted); }
+.mx-prod:disabled { opacity: 0.3; }
 
 /* El marco tiene la forma de la foto desde antes de que baje (--mx-r = ancho / alto, photo-modal.ts): nada salta al llegar. */
 .mx-marco { position: relative; flex: none; aspect-ratio: var(--mx-r, 0.8); border-radius: var(--radius-tile); }
@@ -519,13 +524,21 @@ dialog.mx::backdrop { background: transparent; }
 @keyframes mx-sale { to { opacity: 0; transform: translateX(calc(var(--mx-dir, 0) * -32px)) } }
 .mx-foto.mx-entra { animation: mx-entra var(--motion-slow) var(--ease-premium); }
 .mx-saliente { position: absolute; left: 50%; top: 50%; translate: -50% -50%; object-fit: contain; border-radius: inherit; pointer-events: none; animation: mx-sale var(--motion-slow) var(--ease-premium) both; }
+/* Fotos de la misma prenda (PRI-433): un punto por foto sobre el borde de abajo, la actual en oro. */
+.mx-puntos { position: absolute; z-index: 1; bottom: 12px; left: 50%; translate: -50% 0; display: flex; gap: 6px; padding: 6px 8px; border-radius: 9999px; background: color-mix(in srgb, var(--color-primary) 70%, transparent); pointer-events: none; }
+.mx-puntos[hidden] { display: none; }
+.mx-puntos > span { width: 6px; height: 6px; border-radius: 9999px; background: var(--color-muted); transition: background-color var(--motion-fast) var(--ease-out), scale var(--motion-fast) var(--ease-out); }
+.mx-puntos > .mx-punto-actual { background: var(--color-accent); scale: 1.34; }
 
-/* Franja: categoría y nombre, y Pedir con su nota. */
+/* Franja: categoría, nombre, precio y descripción, y Pedir con su nota. */
 .mx-franja { display: flex; flex-direction: column; gap: 20px; }
 .mx-nombre { display: flex; flex-direction: column; gap: 4px; }
 .mx-cat { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
 .mx-titulo { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; overflow-wrap: anywhere; text-wrap: pretty; }
-.mx-desc { font-size: 14px; line-height: 1.5; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-precio { margin-top: 2px; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* La descripción del admin entera hasta 3 líneas (antes, una con puntos suspensivos). */
+.mx-desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; font-size: 14px; line-height: 1.5; color: var(--color-muted); overflow-wrap: anywhere; }
+.mx-precio[hidden], .mx-desc[hidden] { display: none; }
 .mx-pedir { display: flex; flex-direction: column; gap: 12px; }
 .mx-nota { font-size: 13px; line-height: 1.5; color: var(--color-muted); }
 
@@ -574,22 +587,26 @@ dialog.mx-sale .mx-velo { animation: mx-apaga var(--motion-vuelve) var(--ease-ou
   .mx-caja { display: flex; flex-direction: column; }
   .mx-x { top: 6px; right: 12px; width: 44px; height: 44px; }
   .mx-flecha { display: none; }
-  .mx-barra { position: static; flex: none; height: 56px; padding-inline: 20px; }
+  .mx-barra { position: static; flex: none; height: 56px; padding-inline: 12px; }
   .mx-centro, .mx-pieza, .mx-lado { display: contents; }
-  /* La foto ocupa el ancho menos 20 por lado; de la anterior y la siguiente se ven 12, y son botones. */
+  /* La foto ocupa el ancho menos 32 por lado; de la anterior y la siguiente se ven 24 (PRI-433: con 12 no se notaban), y
+     son botones. */
   .mx-pista { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; animation: sf-sube var(--motion-slow) var(--ease-premium) both; touch-action: pan-y; container-type: size; }
-  .mx-marco { width: min(100cqw - 40px, 100cqh * var(--mx-r, 0.8)); }
-  .mx-vecina { display: block; position: absolute; top: 50%; translate: 0 -50%; width: calc(100cqw - 40px); opacity: 0.45; }
+  .mx-marco { width: min(100cqw - 64px, 100cqh * var(--mx-r, 0.8)); }
+  .mx-vecina { display: block; position: absolute; top: 50%; translate: 0 -50%; width: calc(100cqw - 64px); opacity: 0.6; }
   .mx-vecina img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-tile); }
-  /* La orilla se ve de 12 pero se toca en 24. */
-  .mx-vecina::after { content: ''; position: absolute; top: 0; bottom: 0; width: 24px; }
-  .mx-vecina-ant::after { right: -12px; }
-  .mx-vecina-sig::after { left: -12px; }
+  /* La orilla se ve de 24 pero se toca en 32. */
+  .mx-vecina::after { content: ''; position: absolute; top: 0; bottom: 0; width: 32px; }
+  .mx-vecina-ant::after { right: -8px; }
+  .mx-vecina-sig::after { left: -8px; }
   .mx-vecina:focus-visible { opacity: 1; }
-  .mx-vecina-ant { right: calc(100cqw - 12px); }
-  .mx-vecina-sig { left: calc(100cqw - 12px); }
+  .mx-vecina-ant { right: calc(100cqw - 24px); }
+  .mx-vecina-sig { left: calc(100cqw - 24px); }
+  /* La primera vez (data-asoma, photo-modal.ts): cuando ya llegó la foto, la pista se corre y vuelve, y la siguiente se ve. */
+  dialog.mx .mx-pista[data-asoma] { animation: mx-asoma calc(var(--motion-crece) * 1.6) var(--ease-premium) var(--motion-crece) both; }
   .mx-franja { flex: none; gap: 16px; padding: 16px 20px max(20px, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-line); background: var(--color-primary); animation: sf-sube var(--motion-slow) var(--ease-premium) both; }
   .mx-titulo { font-size: 22px; }
+  .mx-precio { font-size: 16px; }
   .mx-pedir { gap: 8px; }
 }
 
@@ -597,21 +614,24 @@ dialog.mx-sale .mx-velo { animation: mx-apaga var(--motion-vuelve) var(--ease-ou
 dialog.mx-crece :is(.mx-pieza, .mx-pista) { animation: none; }
 dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow) var(--ease-premium) calc(var(--motion-crece) * 0.4) both; }
 
+@keyframes mx-asoma { 45% { transform: translateX(-48px) } }
+
 @media (prefers-reduced-motion: reduce) {
   .mx-velo, .mx-pieza, .mx-pista, .mx-franja, .mx-brillo, .mx-foto.mx-entra, .mx-saliente { animation: none !important; }
 }
 
 /* ---------- Personalizador (/personaliza, PRI-122): frame "Personalizador" del canvas portada-final ---------- */
 
-/* Celular: título de página interior, prenda, vista previa fija arriba al bajar y los 3 pasos; la barra de Enviar
-   va fija abajo (fuera de main). */
+/* Celular: título de página interior, prenda, vista previa y los 3 pasos; la barra de Enviar va fija abajo (fuera de
+   main). La vista previa baja con la página (PRI-435: fija arriba tapaba media pantalla); "Ver cómo queda", encima de la
+   barra, la trae de vuelta. */
 .pf-pz { display: grid; grid-template-columns: minmax(0, 1fr); }
 .pf-pz-titulo { padding: var(--pf-aire) var(--pf-m) var(--pf-tc); }
 /* El aire se mide hasta la mayúscula del título, como en las secciones de la portada. */
 .pf-pz-titulo > h1 { text-box: trim-start cap alphabetic; }
 .pf-pz-titulo > .pf-lead { margin-top: var(--pf-td); }
 .pf-pz-prenda { padding: 0 var(--pf-m) 12px; }
-.pf-pz-vista { position: sticky; top: 0; z-index: 20; padding: 8px var(--pf-m) 12px; background: var(--color-primary); }
+.pf-pz-vista { padding: 8px var(--pf-m) 12px; }
 .pf-pz-pasos { display: flex; flex-direction: column; gap: 64px; padding: 28px var(--pf-m) 32px; }
 .pf-pz-envio { display: none; }
 /* Desde el ancho de escritorio del personalizador (896, el mismo de su JS): vista previa en 6 columnas con la prenda

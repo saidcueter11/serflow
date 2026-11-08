@@ -17,6 +17,7 @@ export interface Product {
   description: string | null
   category_id: string
   image_urls: string[]
+  price: number | null
   is_active: boolean
   sort_order: number
   created_at: string
@@ -35,6 +36,7 @@ export interface Promo {
   description: string | null
   banner_url: string | null
   image_urls: string[]
+  price: number | null
   is_active: boolean
   /** Fin de la promo; null = sin fecha de cierre. */
   ends_at: string | null
