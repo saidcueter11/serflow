@@ -19,6 +19,10 @@ test('shows the name, price and whole description the admin set, and nothing bro
   await expect(desc).toBeVisible()
   // Entera: antes iba en una línea con puntos suspensivos.
   expect(await desc.evaluate((p) => p.scrollWidth <= p.clientWidth && p.scrollHeight <= p.clientHeight)).toBe(true)
+  // Con precio y descripción todo cabe en la pantalla: en escritorio la foto se achica para dejarle sitio a la franja.
+  const d = (await desc.boundingBox())!
+  expect(d.y + d.height).toBeLessThanOrEqual(page.viewportSize()!.height)
+  expect((await dialog(page).locator('img.mx-foto').boundingBox())!.y).toBeGreaterThanOrEqual(0)
   await expect(page).toHaveTitle(`${completa.name} — Serflow`)
 
   // Sin nombre, el de la foto; sin precio ni descripción, no queda hueco ni texto vacío.

@@ -88,6 +88,14 @@ function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
   if (sig) ponerFoto(d.querySelector<HTMLImageElement>('.mx-vecina-sig img')!, sig)
 
   history.replaceState(history.state, '', e.lista[e.i].getAttribute('href'))
+  medirFranja(d)
+}
+
+/** Escritorio: la foto deja el alto que ocupa la franja de verdad (con precio y descripción pasa de las 2 líneas de nombre
+ * que reserva tokens.css). Cerrado no mide nada: abrir() vuelve a medir después de showModal(). */
+function medirFranja(d: HTMLDialogElement) {
+  const alto = d.querySelector<HTMLElement>('.mx-lado .mx-franja')!.offsetHeight
+  d.querySelector<HTMLElement>('.mx-centro')!.style.setProperty('--mx-franja', `${Math.max(88, alto)}px`)
 }
 
 /** La foto de al lado: primero las del mismo producto, luego la foto siguiente de la lista. */
@@ -155,6 +163,7 @@ function abrir(a: HTMLAnchorElement, crecer = true) {
     }
     d.classList.toggle('mx-crece', !!T)
     d.showModal()
+    medirFranja(d)
     d.querySelector<HTMLElement>('[data-mx="cerrar"]')!.focus()
     if (!asomo && vecina(estado, 1) && !quieto()) {
       asomo = true
