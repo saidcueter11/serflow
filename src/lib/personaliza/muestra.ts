@@ -4,12 +4,15 @@
  *
  * Una foto por color y vista, sin teñir. Negra y blanca son FOTOS DE STOCK, no del taller (las reemplazan las oficiales de
  * PRI-125); licencias Pexels y Unsplash: uso comercial, sin atribución obligatoria.
- * La azul es la primera foto oficial del taller (Said, 2026-11-07) y por ahora solo tiene frente: sale con Pecho y la
- * Espalda queda deshabilitada (ubicacionesDe). Cuando llegue su espalda, se agrega aquí y listo.
+ * Los demás colores de camiseta (PRI-122, 2026-11-07) solo tienen foto de FRENTE: salen con Pecho y la Espalda queda
+ * deshabilitada (ubicacionesDe). Cuando llegue su espalda, se agrega aquí y listo. Pasaron por la herramienta recortar
+ * (fondo blanco, 1080 × 1350); licencia Pixabay: uso comercial, sin atribución obligatoria.
  * - camiseta-negra: Hanna Pad, pexels.com/photo/8532616
  * - camiseta-negra-espalda: Angela Roma, pexels.com/photo/7319032
  * - camiseta-blanca: Avtar Singh, unsplash.com/photos/8ACmRoleM24
  * - camiseta-blanca-espalda: Estefania Milazzo, pexels.com/photo/17858291
+ * - camiseta-roja: nattyjeff, pixabay.com/photos/blank-tshirt-male-fashion-top-1886008
+ * - camiseta-azul-cielo: matitadigitale, pixabay.com/photos/template-tee-shirt-mannequin-blue-2710535 (render 3D, no foto)
  * - gorra-negra: Giorgio Trovato, unsplash.com/photos/a6PIHHL7d4I
  * - gorra-blanca: personalgraphic.com, unsplash.com/photos/ozdzzeBu4Go
  *
@@ -22,7 +25,8 @@ import camisetaNegra from '../../assets/personalizador/camiseta-negra.jpg'
 import camisetaBlanca from '../../assets/personalizador/camiseta-blanca.jpg'
 import espaldaNegra from '../../assets/personalizador/camiseta-negra-espalda.jpg'
 import espaldaBlanca from '../../assets/personalizador/camiseta-blanca-espalda.jpg'
-import camisetaAzul from '../../assets/personalizador/camiseta-azul.jpg'
+import camisetaRoja from '../../assets/personalizador/camiseta-roja.jpg'
+import camisetaAzulCielo from '../../assets/personalizador/camiseta-azul-cielo.jpg'
 import gorraNegra from '../../assets/personalizador/gorra-negra.jpg'
 import gorraBlanca from '../../assets/personalizador/gorra-blanca.jpg'
 
@@ -49,9 +53,9 @@ export const MUESTRA: Record<Prenda, ColorMuestra[]> = {
       hex: '#f2f0ea',
       photos: [foto('frente', camisetaBlanca, rect(0.31, 0.28, 0.36, 0.35), 30), foto('espalda', espaldaBlanca, rect(0.353, 0.3, 0.294, 0.3), 35)],
     },
-    // El torso mide 0.50 del ancho de la foto (x 0.272 a 0.776) y es una camiseta de unos 50 cm: 1 cm = 0.01. El área de
-    // 30 cm arranca unos 10 cm bajo el cuello (y 0.10), centrada en el torso.
-    { id: 'azul', garment: 'camiseta', name: 'Azul', hex: '#0d45bf', photos: [foto('frente', camisetaAzul, rect(0.374, 0.18, 0.3, 0.29), 30)] },
+    // Solo frente. Área: el torso de cada foto mide unos 50 cm; 30 cm de ancho, centrada, unos 15 cm bajo el borde del cuello.
+    { id: 'roja', garment: 'camiseta', name: 'Roja', hex: '#f03f40', photos: [foto('frente', camisetaRoja, rect(0.354, 0.181, 0.294, 0.282), 30)] },
+    { id: 'azul-cielo', garment: 'camiseta', name: 'Azul cielo', hex: '#3d8ab4', photos: [foto('frente', camisetaAzulCielo, rect(0.363, 0.171, 0.271, 0.260), 30)] },
   ],
   gorra: [
     // Esta foto está en 3/4: el área sigue el panel de la copa, y así el diseño se acuesta con la gorra (el motor ya usa 4 esquinas).

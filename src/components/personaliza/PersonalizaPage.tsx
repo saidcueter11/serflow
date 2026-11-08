@@ -90,7 +90,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const escritorio = useEscritorio()
 
   const color = lista.find((c) => c.id === colorId) ?? lista[0]
-  // Un color sin foto de una vista (la camiseta azul, sin espalda) deshabilita esa ubicación y muestra la que sí tiene.
+  // Un color sin foto de una vista (las camisetas que solo tienen frente) deshabilita esa ubicación y muestra la que sí tiene.
   const conFoto = ubicacionesDe(color, prenda)
   const ubicacion = conFoto.some((u) => u.nombre === elegida) ? elegida : conFoto[0].nombre
   const fotoInfo = fotoDe(color, prenda, ubicacion) ?? fotoDe(lista[0], prenda, ubicacion)!
