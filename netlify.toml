@@ -9,10 +9,11 @@
 
 # PRI-152. Los sha256 son los scripts inline del build: 2 de src/layouts/Layout.astro y 2 de la isla de Astro en /personaliza
 # (cambian si se editan esos scripts o se sube Astro; e2e/security-headers.spec.ts falla si quedan desfasados).
+# PRI-436: 'wasm-unsafe-eval' deja compilar WebAssembly (el modelo que quita fondos en /personaliza); no habilita eval de JS.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'sha256-SVPxLeXJOh3YCCDPPYxIBBESzC+IS3fQTSqFKxVXDMw=' 'sha256-C3oBHUZ3YRCVsaDZh4vc5Xl7iUxu15mJjqu5vSuNaa4=' 'sha256-1BvDVWLr3QCC20uHhUDi27eDFVJpk1uMQJGIWKUks2I=' 'sha256-UIrFqcaitjA3OKa9mHKajg3N+0Y7tW9+y0o3QmMFeZQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self'; frame-src https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-SVPxLeXJOh3YCCDPPYxIBBESzC+IS3fQTSqFKxVXDMw=' 'sha256-C3oBHUZ3YRCVsaDZh4vc5Xl7iUxu15mJjqu5vSuNaa4=' 'sha256-1BvDVWLr3QCC20uHhUDi27eDFVJpk1uMQJGIWKUks2I=' 'sha256-UIrFqcaitjA3OKa9mHKajg3N+0Y7tW9+y0o3QmMFeZQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self'; frame-src https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"

@@ -2,7 +2,7 @@ import { getImage, inferRemoteSize } from 'astro:assets'
 import type { BannerSlide } from '../components/ui/CategoryBanner'
 import type { CategoryLink } from '../components/ui/CategoryNav'
 import type { MasonryTile } from '../components/ui/Masonry'
-import { TODO_HREF, fotoAlt, fotoHref, fotoTitulo, interleave, newestFirst, pageHref, pages, pedirUrl } from './catalog'
+import { TODO_HREF, fotoAlt, fotoHref, fotoTitulo, interleave, newestFirst, pageHref, pages, pedirUrl, precioCop } from './catalog'
 import { fotoDeLugar } from './medios-build'
 import { getCategories, getProducts } from './products'
 import type { Product } from './types'
@@ -57,7 +57,16 @@ async function toItem(p: Product, cat: { slug: string; label: string }): Promise
       img: { src: thumb.src, srcSet: thumb.srcSet.attribute, alt },
       label: cat.label,
       photos: p.image_urls.length,
-      modal: { titulo: fotoTitulo(cat.label, n), categoria: cat.label, alt, pedir: pedirUrl(cat.label, n, href), fotos, descripcion: p.description },
+      // PRI-433: lo que el admin le puso a la prenda. Sin nombre, el de la foto ("Beisbol N.º 26").
+      modal: {
+        titulo: p.name?.trim() || fotoTitulo(cat.label, n),
+        categoria: cat.label,
+        alt,
+        pedir: pedirUrl(cat.label, n, href),
+        fotos,
+        descripcion: p.description?.trim() || null,
+        precio: precioCop(p.price),
+      },
     },
   }
 }

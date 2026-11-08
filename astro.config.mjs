@@ -45,6 +45,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     define: { __SITE_BUSINESS__: JSON.stringify(business) },
+    // PRI-436: el worker que quita fondos es un módulo (onnxruntime-web es ESM).
+    worker: { format: 'es' },
   },
   server: {
     allowedHosts: true,
