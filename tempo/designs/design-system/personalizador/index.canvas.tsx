@@ -27,7 +27,7 @@ const PEDIDO =
 defineAsset(VistaPrevia, {
   libraries: ["Design System"],
   usageInstructions:
-    "Solo en /personaliza: la prenda con el diseño del cliente, pintada por el motor canvas 2D (foto de cargarFoto, diseño de prepararDiseno). Fija arriba en celular (alto 320) y a la izquierda en escritorio (alto 500). Sin foto preparada solo muestra los estados cargando y sin-senal. No para fotos de productos del catálogo (usa PhotoSlot).",
+    "Solo en /personaliza: la prenda con el diseño del cliente, pintada por el motor canvas 2D (foto de cargarFoto, diseño de prepararDiseno). En celular (alto 320) baja con la página y, cuando se va por arriba, el botón Ver cómo queda (encima de la barra de Enviar) la trae de vuelta (PRI-435); en escritorio va a la izquierda (alto 500). Sin foto preparada solo muestra los estados cargando y sin-senal. No para fotos de productos del catálogo (usa PhotoSlot).",
   variants: {
     "Sin señal": { props: { foto: null, etiqueta: "Camiseta negra", modo: "sin-senal", tecnica: "estampado", lugar: { cx: 0.5, cy: 0.42, s: 0.62 }, anchoCm: 30, alto: 320 } },
     Cargando: { props: { foto: null, etiqueta: "Camiseta blanca", modo: "cargando", tecnica: "estampado", lugar: { cx: 0.5, cy: 0.42, s: 0.62 }, anchoCm: 30, cargando: "Cargando la camiseta blanca…", alto: 320 } },

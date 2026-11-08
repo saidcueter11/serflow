@@ -8,6 +8,7 @@ import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, type Cantidad, type ColorPrenda,
 import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
+import { quieto } from '../../scripts/quieto'
 
 /*
  * /personaliza (PRI-122): pantalla A (personalizador), hoja B (Revisa y envía) y pantalla C (al volver de WhatsApp).
@@ -127,6 +128,16 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const estado: EstadoDiseno = leido ? leido.estado : 'ninguno'
   const fuente = leido?.trabajo && seMuestra(leido.estado) ? (quitarFondo && leido.sinFondo ? leido.sinFondo : leido.trabajo) : null
   const tratado = useMemo(() => (fuente ? prepararDiseno(fuente, tecnica) : null), [fuente, tecnica])
+
+  // PRI-435: en el celular la vista previa baja con la página. Cuando se va casi entera por arriba, "Ver cómo queda" la
+  // trae. El form se vuelve a montar con otra prenda (version): ahí se observa la vista nueva.
+  const vista = useRef<HTMLDivElement>(null)
+  const [lejos, setLejos] = useState(false)
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => setLejos(e.intersectionRatio < 0.25 && e.boundingClientRect.top < 0), { threshold: 0.25 })
+    io.observe(vista.current!)
+    return () => io.disconnect()
+  }, [version])
 
   // Restaurar las elecciones de esta pestaña (y la pantalla C si volvió de WhatsApp tras una recarga).
   useEffect(() => {
@@ -359,7 +370,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             </div>
           </fieldset>
 
-          <div className="pf-pz-vista">
+          <div className="pf-pz-vista" ref={vista}>
             <VistaPrevia
               foto={foto}
               fotoInicial={fotoInfo}
@@ -453,7 +464,19 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
             </div>
           </div>
         </main>
-        <div className="contents @4xl:hidden">
+        <div className="sticky bottom-0 z-30 @4xl:hidden">
+          {lejos && (
+            <button
+              type="button"
+              className="pz-sheet absolute bottom-full right-4 mb-3 flex h-11 items-center gap-2 rounded-full border border-line bg-surface pl-3 pr-4 text-[14px] font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              onClick={() => vista.current!.scrollIntoView({ behavior: quieto() ? 'auto' : 'smooth', block: 'start' })}
+            >
+              <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 19V5M5 12l7-7 7 7" />
+              </svg>
+              Ver cómo queda
+            </button>
+          )}
           <BarraEnvio resumen={resumen} esperando={!!procesando} conVista={conVista} onEnviar={enviar} />
         </div>
       </form>

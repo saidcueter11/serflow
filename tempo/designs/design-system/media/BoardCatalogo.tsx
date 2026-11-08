@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { CategoryBanner } from "../../../../src/components/ui/CategoryBanner";
 import { Masonry, type MasonryTile } from "../../../../src/components/ui/Masonry";
 import { PhotoModal, type FotoModal } from "../../../../src/components/ui/PhotoModal";
-import { fotoTitulo, pedirUrl } from "../../../../src/lib/catalog";
+import { fotoTitulo, pedirUrl, precioCop } from "../../../../src/lib/catalog";
 import { PageFrame, PageTitle, Row } from "../Chrome";
 // Fotos de ejemplo del catálogo de hoy (gorras sobre fondo gris, 3:4) y una de Unsplash que ya usa la portada.
 import estante from "../../../../src/assets/images/stock/gorras-estante.jpg";
@@ -45,7 +45,10 @@ const FOTO: FotoModal = {
   categoria: "Beisbol",
   alt: "Beisbol, foto N.º 46",
   pedir: pedirUrl("Beisbol", 46, "/catalogo/beisbol/beisbol-46"),
-  fotos: [{ src: BEISBOL[3] }],
+  fotos: [{ src: BEISBOL[3] }, { src: BEISBOL[2] }, { src: BEISBOL[4] }],
+  // PRI-433: lo que el admin le pone a la prenda (de prueba, no es un producto real).
+  descripcion: "Bordado al frente, correa ajustable y visera curva.",
+  precio: precioCop(45000),
 };
 
 /**
@@ -62,6 +65,13 @@ function Pantalla({ width, height }: { width: number; height: number }) {
     d.querySelector(".mx-contador")!.textContent = `4 / ${BEISBOL.length}`;
     d.querySelector(".mx-cat")!.textContent = FOTO.categoria;
     d.querySelector(".mx-titulo")!.textContent = FOTO.titulo;
+    const precio = d.querySelector<HTMLElement>(".mx-precio")!;
+    precio.textContent = FOTO.precio!;
+    precio.hidden = false;
+    const desc = d.querySelector<HTMLElement>(".mx-desc")!;
+    desc.textContent = FOTO.descripcion!;
+    desc.hidden = false;
+    d.querySelector(".mx-puntos")!.replaceChildren(...FOTO.fotos.map((_, k) => Object.assign(document.createElement("span"), { className: k === 0 ? "mx-punto-actual" : "" })));
     d.querySelector<HTMLAnchorElement>(".mx-pedir a")!.href = FOTO.pedir;
     d.setAttribute("open", "");
   }, []);
@@ -80,12 +90,12 @@ export function BoardPhotoModal() {
     <PageFrame family="fotos y mascota" width={1900}>
       <PageTitle
         title="PhotoModal"
-        description="La foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle. La foto entera (contain), la categoría y el nombre completo, y Pedir por WhatsApp con la URL propia de la foto. Flechas, ← →, deslizar (la foto se desliza con fundido), contador, Esc, la X o tocar afuera para cerrar; el foco vuelve a la foto. Mientras baja la foto: el marco con su forma y un brillo, y la foto entra en fundido; la anterior y la siguiente quedan precargadas."
+        description="La foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle. La foto entera (contain), la categoría, el nombre completo, el precio y la descripción si el admin los puso (PRI-433), y Pedir por WhatsApp con la URL propia de la foto. Flechas, ← →, deslizar (la foto se desliza con fundido), puntos sobre la foto para las fotos de la misma prenda y flechas junto al contador para saltar de prenda (PRI-433), Esc, la X o tocar afuera para cerrar; el foco vuelve a la foto. Mientras baja la foto: el marco con su forma y un brillo, y la foto entra en fundido; la anterior y la siguiente quedan precargadas."
       />
       <Row name="Desktop (1280)" description="La foto centrada y debajo una franja: nombre a la izquierda, Pedir a la derecha. Con una foto vertical la franja es más ancha que la foto; un nombre muy largo pasa a otra línea, nunca se corta.">
         <Pantalla width={1280} height={800} />
       </Row>
-      <Row name="Celular (390)" description="Pantalla completa: las orillas de la anterior y la siguiente son botones y Pedir va fijo abajo.">
+      <Row name="Celular (390)" description="Pantalla completa: las orillas de la anterior y la siguiente (24 px) son botones y Pedir va fijo abajo. La primera vez la foto se corre un poco hacia la siguiente.">
         <Pantalla width={390} height={844} />
       </Row>
     </PageFrame>
