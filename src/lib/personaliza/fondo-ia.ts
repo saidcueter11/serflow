@@ -8,8 +8,8 @@ export const LADO_IA = 320
 /** Bytes que baja el worker (sin comprimir): el wasm de onnxruntime-web y el modelo. fondo-ia.test.ts los compara con los archivos. */
 export const BYTES_WASM = 14_239_897
 export const BYTES_MODELO = 4_574_861
-/** Lo que se le dice al cliente antes de bajar: lo que pasa por la red con la compresión de Netlify (medido en el deploy preview). */
-export const MB_DESCARGA = 7
+/** Lo que se le dice al cliente antes de bajar: lo que pasa por la red con la compresión de Netlify (deploy preview de #59: wasm 3,2 MB con brotli + modelo 4,6 MB sin comprimir). */
+export const MB_DESCARGA = 8
 
 export type MotivoIa = 'navegador' | 'memoria' | 'red' | 'fallo'
 export type FondoIa = { fase: 'listo' } | { fase: 'bajando'; pct: number } | { fase: 'quitando' } | { fase: 'error'; motivo: MotivoIa }

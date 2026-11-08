@@ -54,11 +54,15 @@ export function BoardCampos() {
           </Celular>
         </div>
       </Row>
-      <Row name="CampoDiseno" description="Paso 1. Con un fondo claro (logo sobre blanco o en papel) aparece Quitar el fondo (encendido); una foto conserva el suyo. Los avisos no bloquean.">
+      <Row name="CampoDiseno" description="Paso 1. Con un fondo claro (logo sobre blanco o en papel) aparece Quitar el fondo (encendido); una foto conserva el suyo y puede quitarlo con el modelo del navegador (PRI-436). Los avisos no bloquean.">
         <div className="flex flex-wrap gap-8">
           <Celular label='estado="ninguno"'><CampoDiseno estado="ninguno" /></Celular>
           <Celular label='estado="imagen" · quitar fondo'><CampoDiseno estado="imagen" nombre="logo-heroica.png" detalle="PNG · 1200 × 1200 px" miniatura={sol} quitarFondo /></Celular>
           <Celular label='estado="imagen" · fondoFijo'><CampoDiseno estado="imagen" nombre="foto-equipo.jpg" detalle="JPG · 1600 × 1200 px" miniatura={sol} fondoFijo /></Celular>
+          <Celular label='fondoIa · bajando'><CampoDiseno estado="imagen" nombre="foto-equipo.jpg" detalle="JPG · 1600 × 1200 px" miniatura={sol} fondoFijo fondoIa={{ fase: "bajando", pct: 40 }} /></Celular>
+          <Celular label='fondoIa · quitando'><CampoDiseno estado="imagen" nombre="foto-equipo.jpg" detalle="JPG · 1600 × 1200 px" miniatura={sol} fondoFijo fondoIa={{ fase: "quitando" }} /></Celular>
+          <Celular label='fondoIa · error de red'><CampoDiseno estado="imagen" nombre="foto-equipo.jpg" detalle="JPG · 1600 × 1200 px" miniatura={sol} fondoFijo fondoIa={{ fase: "error", motivo: "red" }} /></Celular>
+          <Celular label='fondoIa · sin soporte'><CampoDiseno estado="imagen" nombre="foto-equipo.jpg" detalle="JPG · 1600 × 1200 px" miniatura={sol} fondoFijo fondoIa={{ fase: "error", motivo: "navegador" }} /></Celular>
           <Celular label='estado="procesando"'><CampoDiseno estado="procesando" nombre="logo-heroica.png" /></Celular>
           <Celular label='estado="baja"'><CampoDiseno estado="baja" nombre="logo-whatsapp.jpg" detalle="JPG · 48 × 48 px" miniatura={sol} /></Celular>
           <Celular label='estado="pesada"'><CampoDiseno estado="pesada" nombre="foto-equipo.jpg" detalle="JPG · 24 MB" /></Celular>

@@ -48,11 +48,13 @@ defineAsset(HojaEnvio, {
 defineAsset(CampoDiseno, {
   libraries: ["Design System"],
   usageInstructions:
-    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando el fondo es claro (logo sobre blanco o en papel), el aviso cuando la imagen conserva su fondo (una foto) y los avisos de pesada, baja calidad o archivo que no abre. Solo imágenes: PNG, JPG y WEBP.",
+    "Paso 1 del personalizador: subir el diseño (galería, cámara o soltar en escritorio), con el interruptor Quitar el fondo cuando el fondo es claro (logo sobre blanco o en papel), el aviso cuando la imagen conserva su fondo (una foto) con el botón Quitar fondo, que la recorta con un modelo en el navegador (PRI-436: progreso, Cancelar y errores), y los avisos de pesada, baja calidad o archivo que no abre. Solo imágenes: PNG, JPG y WEBP.",
   variants: {
     Inicial: { props: { estado: "ninguno" } },
     "Con fondo que se quita": { props: { estado: "imagen", nombre: "logo-heroica.png", detalle: "PNG · 1200 × 1200 px", quitarFondo: true } },
-    "Fondo que no se puede quitar": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true } },
+    "Fondo que el automático no quita": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true } },
+    "Quitando el fondo": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true, fondoIa: { fase: "bajando", pct: 40 } } },
+    "No se pudo quitar el fondo": { props: { estado: "imagen", nombre: "foto-equipo.jpg", detalle: "JPG · 1600 × 1200 px", fondoFijo: true, fondoIa: { fase: "error", motivo: "navegador" } } },
     "Baja calidad": { props: { estado: "baja", nombre: "logo-whatsapp.jpg", detalle: "JPG · 48 × 48 px" } },
     "Imagen pesada": { props: { estado: "pesada", nombre: "foto-equipo.jpg", detalle: "JPG · 24 MB" } },
     "Archivo que no abre": { props: { estado: "ninguno", rechazado: true } },
