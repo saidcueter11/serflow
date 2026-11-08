@@ -2,6 +2,7 @@ import { Canvas, Storyboard } from "tempo-sdk/canvas";
 import { defineAsset } from "tempo-sdk/assets";
 import { ServiceCard } from "../../../../src/components/ui/ServiceCard";
 import { ProductCard } from "../../../../src/components/ui/ProductCard";
+import { ColoresDisponibles } from "../../../../src/components/ui/ColoresDisponibles";
 import { WorkCard } from "../../../../src/components/ui/WorkCard";
 import { PromoCard } from "../../../../src/components/ui/PromoCard";
 import { PromoAfiche } from "../../../../src/components/ui/PromoAfiche";
@@ -79,7 +80,7 @@ defineAsset(ServiceCard, {
 defineAsset(ProductCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link; con modal (datos de la foto) abre PhotoModal encima de la página y recorre las de su lista (data-fotos). Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
+    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta, colores opcionales (ColoresDisponibles debajo de meta, PRI-455) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link; con modal (datos de la foto) abre PhotoModal encima de la página y recorre las de su lista (data-fotos). Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
   variants: {
     "Camiseta confirmada": {
       props: {
@@ -96,6 +97,36 @@ defineAsset(ProductCard, {
         meta: "Azul oscuro · talla única",
         image: { src: SAMPLE_CAP, alt: "Gorra azul oscuro de perfil" },
         href: "/products/gorras/gorra-trucker-azul",
+      },
+    },
+    "Con colores": {
+      props: {
+        name: "Camiseta básica",
+        meta: "Camisetas",
+        image: { src: SAMPLE_SHIRT, alt: "Camiseta lisa, vista de frente" },
+        href: "/catalogo/camisetas/camiseta-basica",
+        colores: [
+          { name: "Negro", hex: "#111111" },
+          { name: "Blanco", hex: "#f4f1e6" },
+          { name: "Azul rey", hex: "#1d3fa8" },
+        ],
+      },
+    },
+  },
+});
+
+defineAsset(ColoresDisponibles, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Colores en que viene un producto (PRI-455), como información: un círculo con la muestra y el nombre siempre visible al lado (nunca solo el color), en una lista con aria-label \"Colores disponibles\" que se parte en líneas. Va dentro de ProductCard (prop colores) y en PhotoModal (photo-modal.ts arma la misma lista con CLASES_COLORES). Sin colores no pinta nada. No es un selector: para elegir un color usa Colores (personalizador); para tallas o técnicas, Chip.",
+  variants: {
+    "Tres colores": {
+      props: {
+        colores: [
+          { name: "Negro", hex: "#111111" },
+          { name: "Blanco", hex: "#f4f1e6" },
+          { name: "Azul rey", hex: "#1d3fa8" },
+        ],
       },
     },
   },

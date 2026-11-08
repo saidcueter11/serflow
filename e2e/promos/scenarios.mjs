@@ -194,7 +194,12 @@ const catalogo = (p) => {
       categories: { slug: c.slug, label: c.label },
     })),
   )
-  return { categories, products }
+  // PRI-455: la primera prenda viene en dos colores (ya en el orden de sort_order, como los da la consulta); la segunda, en ninguno.
+  const product_colors = [
+    { product_id: 'e2e-a-1', name: 'Negro', hex: '#111111', sort_order: 0 },
+    { product_id: 'e2e-a-1', name: 'Azul rey', hex: '#1d3fa8', sort_order: 1 },
+  ]
+  return { categories, products, product_colors }
 }
 
 // PRI-433: lo que el admin le pone a una prenda (nombre, descripción, precio y varias fotos) y una sin nada de eso.
@@ -204,6 +209,12 @@ export const MODAL = {
   vacia: { slug: 'e2e-sin-datos', legacy_id: 7, name: '   ', description: null, price: null },
   // El nombre es texto del admin: va al <title> y al JSON-LD de la URL propia sin poder cerrar el <script>.
   cero: { slug: 'e2e-precio-cero', name: 'Precio en cero </script><script>window.__xss=1</script>', description: '  ', price: 0 },
+  colores: [
+    { name: 'Negro', hex: '#111111' },
+    { name: 'Blanco', hex: '#ffffff' },
+    { name: 'Azul rey', hex: '#1d3fa8' },
+    { name: 'Verde militar', hex: '#4b5320' },
+  ],
 }
 
 const modal = (p) => {
@@ -225,6 +236,8 @@ const modal = (p) => {
   return {
     categories: [c],
     products: [fila(MODAL.completa, [p[0], p[1], p[2]], '03'), fila(MODAL.vacia, [p[3]], '02'), fila(MODAL.cero, [p[4]], '01')],
+    // PRI-455: la completa también trae colores, para ver nombre, precio, colores y descripción juntos en la franja.
+    product_colors: MODAL.colores.map((c, i) => ({ product_id: MODAL.completa.slug, ...c, sort_order: i })),
   }
 }
 

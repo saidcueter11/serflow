@@ -1,3 +1,5 @@
+import { CLASES_COLORES } from '../../lib/colores-producto'
+import type { ProductColor } from '../../lib/types'
 import { Button } from './Button'
 
 /** Lo que el modal muestra de una foto del catálogo. Va en data-foto del link de la foto (fotoAttrs). */
@@ -13,6 +15,8 @@ export type FotoModal = {
   descripcion?: string | null
   /** Precio del admin ya formateado ("$30.000", precioCop); sin precio no se pinta. */
   precio?: string | null
+  /** Colores disponibles del producto (PRI-455); sin ellos no se pinta la lista. */
+  colores?: ProductColor[]
 }
 
 /**
@@ -32,7 +36,8 @@ const SIG = 'M9 6l6 6-6 6'
 
 /**
  * Foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle.
- * No es una tienda: la foto entera (contain), qué es, su descripción y precio si el admin los puso (PRI-433) y cómo pedirla. Escritorio: la foto centrada y debajo una franja
+ * No es una tienda: la foto entera (contain), qué es, su descripción y precio si el admin los puso (PRI-433), en qué
+ * colores viene si el admin los puso (PRI-455) y cómo pedirla. Escritorio: la foto centrada y debajo una franja
  * con la categoría y el nombre a la izquierda y "Pedir por WhatsApp" a la derecha; el nombre nunca se corta (la franja
  * puede ser más ancha que la foto y un nombre muy largo pasa a otra línea). Flechas a los lados, contador arriba a la
  * izquierda y la X arriba a la derecha. Dos ejes (PRI-433): las fotos de la misma prenda son puntos sobre la foto, y la
@@ -92,6 +97,7 @@ export function PhotoModal() {
                   <p className="mx-cat" />
                   <h2 id="mx-titulo" className="mx-titulo" />
                   <p className="mx-precio" hidden />
+                  <ul aria-label="Colores disponibles" className={`mx-colores ${CLASES_COLORES.lista}`} data-colores hidden />
                   <p className="mx-desc" hidden />
                 </div>
                 <div className="mx-pedir">

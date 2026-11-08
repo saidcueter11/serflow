@@ -22,11 +22,19 @@ export interface Product {
   sort_order: number
   created_at: string
   updated_at: string
+  /** Colores disponibles (product_colors, PRI-455), en orden. Vacío: el producto no muestra colores. */
+  colors?: ProductColor[]
   /** Joined from categories table */
   categories?: {
     slug: string
     label: string
   }
+}
+
+/** Un color en que viene un producto: nombre que se lee y muestra (#rrggbb). */
+export interface ProductColor {
+  name: string
+  hex: string
 }
 
 export interface Promo {

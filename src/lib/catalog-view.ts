@@ -66,6 +66,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }): Promise
         fotos,
         descripcion: p.description?.trim() || null,
         precio: precioCop(p.price),
+        ...(p.colors?.length && { colores: p.colors }),
       },
     },
   }

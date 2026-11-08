@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ColoresDisponibles } from "../../../../src/components/ui/ColoresDisponibles";
 import { ProductCard } from "../../../../src/components/ui/ProductCard";
 import { Code, PageFrame, PageTitle, Row } from "../Chrome";
 import { CAP_GREEN, CAP_NAVY, SHIRT_BLACK, SHIRT_RED, SHIRT_WHITE } from "./samples";
@@ -45,7 +46,7 @@ export function BoardProductCard() {
         description={
           <>
             Una prenda de "Disponible ahora". Props: <Code>name</Code>, <Code>meta</Code>, <Code>image</Code>,{" "}
-            <Code>href</Code> y <Code>confirmedLabel</Code> opcional. Toda la card es un solo <Code>{"<a>"}</Code>: un
+            <Code>href</Code>, <Code>confirmedLabel</Code> y <Code>colores</Code> opcionales. Toda la card es un solo <Code>{"<a>"}</Code>: un
             objetivo de toque grande, un foco de teclado. Las imágenes son siluetas marcadas como foto de ejemplo.
           </>
         }
@@ -72,6 +73,49 @@ export function BoardProductCard() {
               image={{ src: SHIRT_BLACK, alt: "Camiseta negra lisa, vista de frente (foto de ejemplo)" }}
               href="#"
             />
+          </Labeled>
+        </div>
+      </Row>
+
+      <Row
+        name="Con colores (PRI-455)"
+        description="colores es opcional: la lista ColoresDisponibles va debajo de meta, cada color con su círculo y su nombre visible (no solo el color). Los oscuros llevan borde claro para no perderse en el fondo. Sin colores no sale nada y la card queda como siempre. El modal (PhotoModal) muestra la misma lista debajo del nombre."
+      >
+        <div className="grid grid-cols-4 gap-4">
+          <Labeled label="colores (3)">
+            <ProductCard
+              name="Camiseta básica"
+              meta="Camisetas"
+              image={{ src: SHIRT_BLACK, alt: "Camiseta negra lisa, vista de frente (foto de ejemplo)" }}
+              href="#"
+              colores={[
+                { name: "Negro", hex: "#111111" },
+                { name: "Blanco", hex: "#f4f1e6" },
+                { name: "Azul rey", hex: "#1d3fa8" },
+              ]}
+            />
+          </Labeled>
+          <Labeled label="sin colores">
+            <ProductCard
+              name="Gorra trucker"
+              meta="Gorras"
+              image={{ src: CAP_NAVY, alt: "Gorra azul oscuro de perfil (foto de ejemplo)" }}
+              href="#"
+            />
+          </Labeled>
+          <Labeled label="ColoresDisponibles sola · muchos colores">
+            <div className="w-[200px]">
+              <ColoresDisponibles
+                colores={[
+                  { name: "Negro", hex: "#111111" },
+                  { name: "Blanco", hex: "#f4f1e6" },
+                  { name: "Gris cenizo", hex: "#8a8a85" },
+                  { name: "Vino tinto", hex: "#6b1f2a" },
+                  { name: "Verde militar", hex: "#4b5320" },
+                  { name: "Amarillo pollo", hex: "#f2c84b" },
+                ]}
+              />
+            </div>
           </Labeled>
         </div>
       </Row>

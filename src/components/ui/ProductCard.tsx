@@ -1,3 +1,5 @@
+import type { ProductColor } from '../../lib/types';
+import { ColoresDisponibles } from './ColoresDisponibles';
 import { fotoAttrs, type FotoModal } from './PhotoModal';
 
 /**
@@ -7,6 +9,7 @@ import { fotoAttrs, type FotoModal } from './PhotoModal';
  * a 375px la píldora parte "Confirmado hace 2 días" en dos líneas.
  * La card es fluida (w-full): el ancho lo pone la lista. Con modal, tocarla abre la foto en el modal (PhotoModal)
  * y recorre las de su lista (data-fotos); sin modal, el link navega.
+ * Con colores (PRI-455), la lista de ColoresDisponibles va debajo de meta.
  * Markup estático: Astro lo renderiza sin JS.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
@@ -19,6 +22,7 @@ export function ProductCard({
   image,
   href,
   confirmedLabel,
+  colores,
   modal,
 }: {
   name: string;
@@ -28,6 +32,8 @@ export function ProductCard({
   href: string;
   /** Cuándo se confirmó que hay stock, p. ej. "Confirmado hace 2 días". Omitir si no se sabe. */
   confirmedLabel?: string;
+  /** Colores disponibles (PRI-455): debajo de meta, con su nombre. Sin colores no sale nada. */
+  colores?: ProductColor[];
   /** Datos del modal de foto. */
   modal?: FotoModal;
 }) {
@@ -52,6 +58,7 @@ export function ProductCard({
         {confirmedLabel && <span className="text-[12px] font-semibold leading-tight text-accent">{confirmedLabel}</span>}
         <h3 className="font-display text-[16px] font-medium leading-tight @3xl:text-[20px]">{name}</h3>
         <p className="text-[14px] text-muted @3xl:text-[15px]">{meta}</p>
+        <ColoresDisponibles colores={colores} />
       </div>
     </a>
   );
