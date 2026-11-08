@@ -36,7 +36,6 @@ export interface Promo {
   description: string | null
   banner_url: string | null
   image_urls: string[]
-  price: number | null
   is_active: boolean
   /** Fin de la promo; null = sin fecha de cierre. */
   ends_at: string | null
