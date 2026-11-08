@@ -18,7 +18,7 @@ function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "est
   const [tratado, setTratado] = useState<HTMLCanvasElement | null>(null);
   const maxS = escalaMax(prenda, tecnica, info.print_width_cm);
   const [lugar, setLugar] = useState(() => limitar(prenda === "camiseta" ? LUGAR_INICIAL : LUGAR_GORRA, 1, info.print_area, maxS));
-  useEffect(() => void cargarFoto(info.image_url, info.print_area, PRENDAS[prenda].curva).then(setFoto), [info.image_url]);
+  useEffect(() => void cargarFoto(info.image_url, info.print_area, PRENDAS[prenda].curva, info.sombra_url).then(setFoto), [info.image_url]);
   useEffect(() => {
     if (!diseno) return;
     const img = new Image();

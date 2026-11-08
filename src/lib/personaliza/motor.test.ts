@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dentroDe, desenfocar, envolver } from './motor'
+import { MAPA_UNO, capasTela, dentroDe, desenfocar, envolver } from './motor'
 import type { Punto } from './datos'
 
 describe('desenfocar', () => {
@@ -43,5 +43,18 @@ describe('envolver', () => {
         antes = v
       }
     }
+  })
+})
+
+describe('capasTela', () => {
+  it('con el mapa de la base, la luz del pecho deja el diseño igual y un pliegue lo oscurece en proporción', () => {
+    expect(capasTela(MAPA_UNO, MAPA_UNO, MAPA_UNO)).toEqual([255, 0, 128])
+    const [sombra, luz] = capasTela(MAPA_UNO * 0.7, MAPA_UNO * 0.7, MAPA_UNO)
+    expect(sombra).toBeCloseTo(255 * 0.7)
+    expect(luz).toBe(0)
+  })
+  it('lo más claro que el pecho es luz, y la trama es lo fino que se aparta del entorno', () => {
+    expect(capasTela(MAPA_UNO + 20, MAPA_UNO + 20, MAPA_UNO)).toEqual([255, 64, 128])
+    expect(capasTela(MAPA_UNO + 4, MAPA_UNO, MAPA_UNO)[2]).toBe(128 + 4 * 4.5)
   })
 })

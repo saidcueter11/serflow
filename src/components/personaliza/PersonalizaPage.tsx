@@ -122,7 +122,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     }
     let vivo = true
     setFotoEstado('cargando')
-    cargarFoto(url, fotoInfo.print_area, def.curva).then(
+    cargarFoto(url, fotoInfo.print_area, def.curva, fotoInfo.sombra_url).then(
       (f) => {
         if (!vivo) return
         fotos.current.set(url, f)
@@ -323,7 +323,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
       // Con señal mala tampoco se espera para siempre: a los ESPERA_FOTO ms sale de la que ya está y Guardar se habilita.
       const grande =
         fotos.current.get(fotoInfo.image_url) ??
-        (await Promise.race([cargarFoto(fotoInfo.image_url, fotoInfo.print_area, def.curva).catch(() => foto), new Promise<FotoLista>((ok) => setTimeout(() => ok(foto), ESPERA_FOTO))]))
+        (await Promise.race([cargarFoto(fotoInfo.image_url, fotoInfo.print_area, def.curva, fotoInfo.sombra_url).catch(() => foto), new Promise<FotoLista>((ok) => setTimeout(() => ok(foto), ESPERA_FOTO))]))
       const blob = await mockup(grande, tratado, lugar, tecnica).catch(() => null)
       if (envio.current !== id) return
       setPreparando(false)

@@ -24,6 +24,8 @@ export interface FotoColor {
   image_url: string
   /** La misma foto más liviana, para celular (no es columna: la deriva quien optimiza). */
   image_url_movil: string
+  /** Mapa de sombreado de la base blanca de la foto (solo las teñidas de muestra.ts): el diseño toma sus pliegues. */
+  sombra_url?: string
   print_area: Area
   print_width_cm: number
 }
