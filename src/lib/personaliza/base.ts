@@ -16,10 +16,13 @@ export interface FilaColor {
   garment_photos: FilaFoto[]
 }
 
-export type FotoOptimizada = Pick<FotoColor, 'image_url' | 'image_url_movil'>
+export type FotoOptimizada = Pick<FotoColor, 'image_url' | 'image_url_movil' | 'sombra_url'>
 
-/** Por prenda: cada color son hasta 2 fotos más que procesar en cada build, cada una en 2 anchos. */
-export const MAX_COLORES = 12
+/**
+ * Por prenda: cada color son hasta 2 fotos más que procesar en cada build, cada una en 2 anchos. serflow-admin no deja
+ * prender uno más (MAX.colors, el mismo número): el sitio nunca recorta en silencio. Los 21 sembrados caben (PRI-427).
+ */
+export const MAX_COLORES = 30
 
 const rect = (x: number, y: number, w: number, h: number): Area => ({ tl: [x, y], tr: [x + w, y], br: [x + w, y + h], bl: [x, y + h] })
 

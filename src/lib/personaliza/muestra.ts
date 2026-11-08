@@ -1,6 +1,8 @@
 /*
  * Colores y fotos de MUESTRA del personalizador, con la forma de garment_colors + garment_photos (spec 6.7).
- * Es el respaldo: lo usa la prenda sin ningún color completo publicado desde el admin (src/lib/personaliza/base.ts).
+ * Desde PRI-427 son filas de la base (supabase/migrations/20261108154523_sembrar_colores.sql, que siembra.test.ts compara
+ * con este archivo) y el sitio solo lee la base: aquí quedan las fotos del repo a las que apuntan esas filas
+ * (repo:personalizador/<archivo>.jpg, fotoDelRepo) y MUESTRA, los mismos colores para el canvas del personalizador.
  *
  * Los 21 colores del taller salen TEÑIDOS de la foto blanca de cada prenda y vista (PRI-122, método aprobado por Said el
  * 2026-11-07; v3 el 2026-11-08): la herramienta tinte pinta solo la tela blanca con el hex del color (el tono del pecho de
@@ -83,25 +85,14 @@ const coloresDe = (garment: Prenda): ColorMuestra[] =>
 
 export const MUESTRA: Record<Prenda, ColorMuestra[]> = { camiseta: coloresDe('camiseta'), gorra: coloresDe('gorra'), 'gorra-malla': coloresDe('gorra-malla') }
 
-/**
- * Publica cada foto optimizada en el mismo dominio (el canvas solo lee píxeles de su propio origen), en dos anchos. Son
- * muchas, pero la página solo baja la del color y la vista elegidos, con su mapa de sombreado (540 px, el tamaño de los
- * mapas del motor; más calidad para que los degradés no hagan escalones).
- */
-export async function coloresMuestra(optimizar: (img: ImageMetadata, ancho: number, calidad?: number) => Promise<string>): Promise<Record<Prenda, ColorPrenda[]>> {
-  const pasar = (colores: ColorMuestra[]) =>
-    Promise.all(
-      colores.map(async ({ photos, ...c }) => ({
-        ...c,
-        photos: await Promise.all(
-          photos.map(async ({ image, sombra, ...f }) => ({
-            ...f,
-            image_url: await optimizar(image, 1080),
-            image_url_movil: await optimizar(image, 720),
-            ...(sombra && { sombra_url: await optimizar(sombra, 540, 85) }),
-          })),
-        ),
-      })),
-    )
-  return { camiseta: await pasar(MUESTRA.camiseta), gorra: await pasar(MUESTRA.gorra), 'gorra-malla': await pasar(MUESTRA['gorra-malla']) }
+/** La foto del repo de una referencia repo:personalizador/<archivo>.jpg de garment_photos; otra cosa, undefined. */
+export function fotoDelRepo(url: string): ImageMetadata | undefined {
+  const m = url.match(/^repo:personalizador\/([a-z0-9-]+)\.jpg$/)
+  return m ? archivo(m[1]) : undefined
+}
+
+/** El mapa de sombreado de la base blanca de una prenda y vista: solo sirve para sus fotos teñidas, las del repo. */
+export function sombraDe(garment: Prenda, view: Vista): ImageMetadata | undefined {
+  const vista = VISTAS[garment].find((v) => v.view === view)
+  return vista && SOMBRAS[`../../assets/personalizador/sombra-${garment}${vista.sufijo}.png`]
 }

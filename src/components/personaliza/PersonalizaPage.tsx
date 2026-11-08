@@ -60,7 +60,9 @@ function descargar(f: File) {
 }
 
 export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPrenda[]> }) {
-  const [prenda, setPrenda] = useState<Prenda>('camiseta')
+  // La primera prenda con colores (PRI-427: la página solo se arma si la base trae alguno).
+  const primera = (Object.keys(PRENDAS) as Prenda[]).find((p) => colores[p].length)!
+  const [prenda, setPrenda] = useState<Prenda>(primera)
   const def = PRENDAS[prenda]
   const lista = colores[prenda]
   const [colorId, setColorId] = useState(lista[0].id)
@@ -68,7 +70,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const [elegida, setUbicacion] = useState(def.ubicaciones[0].nombre)
   const [cantidad, setCantidad] = useState<Cantidad>('1')
   const [nota, setNota] = useState('')
-  const [lugar, setLugar] = useState<Lugar>(LUGAR_INICIAL)
+  const [lugar, setLugar] = useState<Lugar>(lugarDe(primera))
   const [leido, setLeido] = useState<DisenoLeido | null>(null)
   const [rechazado, setRechazado] = useState(false)
   const [procesando, setProcesando] = useState<File | null>(null)
@@ -378,7 +380,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     setRechazado(false)
     setNota('')
     setCantidad('1')
-    cambiarPrenda('camiseta')
+    cambiarPrenda(primera)
     setHoja(null)
     setVersion((v) => v + 1)
     try {
