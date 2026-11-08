@@ -20,7 +20,7 @@ const FADE = 1
  * Carrusel del hero: fotos que muestran el resultado (no decoración), a sangre, con fundido y zoom lento (PRI-286).
  * children va encima (el texto de bienvenida, con .pf-hero-texto). Las barras de avance (una por foto, la de la que se
  * ve se llena en sus 6 s) van en el margen de la rejilla: debajo del botón en el celular, abajo a la derecha en desktop.
- * Se pausa con el mouse o el foco; con "reducir movimiento" queda la primera foto y solo su barra llena (tokens.css).
+ * Se pausa con el mouse o el foco del teclado; en táctil no, porque el :hover se queda pegado tras un toque (PRI-432). Con "reducir movimiento" queda la primera foto y solo su barra llena (tokens.css).
  * CSS puro: las keyframes se generan para la cantidad de fotos. Markup estático, sin JS.
  * La primera foto carga eager (es el LCP); las demás lazy.
  *
@@ -38,7 +38,8 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
 @keyframes sf-bar-${n} { 0% { transform: scaleX(0) } ${show.toFixed(2)}% { transform: scaleX(1) } ${(show + 0.01).toFixed(2)}%, 100% { transform: scaleX(0) } }
 .anim-slide { animation: sf-slide-${n} ${cycle}s linear infinite both; animation-delay: var(--d); }
 .anim-bar { transform-origin: left; animation: sf-bar-${n} ${cycle}s linear infinite both; animation-delay: var(--d); }
-.hero-carousel:hover :is(.anim-slide, .anim-slide *, .anim-bar), .hero-carousel:focus-within :is(.anim-slide, .anim-slide *, .anim-bar) { animation-play-state: paused; }`
+@media (hover: hover) and (pointer: fine) { .hero-carousel:hover :is(.anim-slide, .anim-slide *, .anim-bar) { animation-play-state: paused; } }
+.hero-carousel:has(:focus-visible) :is(.anim-slide, .anim-slide *, .anim-bar) { animation-play-state: paused; }`
       : ''
   // La foto i se muestra en el segundo i*6; con delay negativo arrancan todas a la vez. Todas un fundido adelante: al
   // cargar, la última ya se fue y no tapa a la primera mientras esta se asienta (sf-asienta, tokens.css).
