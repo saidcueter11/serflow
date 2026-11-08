@@ -184,6 +184,8 @@ export function VistaPrevia({
     // El primer toque solo selecciona; si ya hay un dedo en la prenda, este es el segundo de un pellizco (PRI-434).
     if (!sel && !manija && !punteros.current.size) {
       setSel(true)
+      // Igual se anota el dedo: si llega un segundo, en la prenda o en el diseño, arranca el pellizco.
+      if (e.pointerType === 'touch') punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       return
     }
     setSel(true)
