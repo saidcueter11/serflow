@@ -65,9 +65,10 @@ for (const s of SCENARIOS) {
 }
 proxy.close()
 
-// Uno tras otro: cuando Playwright ve el último puerto, los anteriores ya responden.
+// Uno tras otro: cuando Playwright ve el último puerto, los anteriores ya responden. Desde astro 7 hay un solo preview
+// por proyecto (el de 4231); --ignore-lock deja correr estos a su lado.
 for (const s of SCENARIOS) {
-  spawn('npx', ['astro', 'preview', '--outDir', s.outDir, '--port', String(s.port)], { stdio: 'inherit' })
+  spawn('npx', ['astro', 'preview', '--ignore-lock', '--outDir', s.outDir, '--port', String(s.port)], { stdio: 'inherit' })
   while (!(await fetch(`http://localhost:${s.port}/`).then((r) => r.ok, () => false))) {
     await new Promise((ok) => setTimeout(ok, 300))
   }

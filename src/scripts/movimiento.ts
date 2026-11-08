@@ -10,7 +10,7 @@
  * Importa del router para que Astro lo publique como archivo y no inline: la CSP de PRI-152 solo deja scripts inline por
  * hash (e2e/motion.spec.ts lo vigila). Por lo mismo, slow-connection se conserva aquí y no en el script inline del Layout.
  */
-import { TRANSITION_AFTER_PREPARATION, TRANSITION_AFTER_SWAP, TRANSITION_BEFORE_PREPARATION, TRANSITION_BEFORE_SWAP, type TransitionBeforeSwapEvent } from 'astro:transitions/client'
+import type { TransitionBeforeSwapEvent } from 'astro:transitions/client'
 import { quieto } from './quieto'
 import { medir, reacomodar } from './reacomoda'
 
@@ -77,16 +77,16 @@ function armar(navego: boolean) {
 armar(false)
 
 const raiz = document.documentElement
-document.addEventListener(TRANSITION_BEFORE_PREPARATION, () => raiz.setAttribute('data-navegando', ''))
-document.addEventListener(TRANSITION_AFTER_PREPARATION, () => raiz.removeAttribute('data-navegando'))
+document.addEventListener('astro:before-preparation', () => raiz.setAttribute('data-navegando', ''))
+document.addEventListener('astro:after-preparation', () => raiz.removeAttribute('data-navegando'))
 // El router copia los atributos de <html> de la página nueva: la conexión lenta se mide una sola vez.
 let viaja = false
-document.addEventListener(TRANSITION_BEFORE_SWAP, (ev) => {
+document.addEventListener('astro:before-swap', (ev) => {
   const swap = ev as TransitionBeforeSwapEvent
   swap.newDocument.documentElement.classList.toggle('slow-connection', raiz.classList.contains('slow-connection'))
   viaja = medir(swap)
 })
-document.addEventListener(TRANSITION_AFTER_SWAP, () => {
+document.addEventListener('astro:after-swap', () => {
   document.querySelector('header details')?.removeAttribute('open')
   // armar primero: mide las fotos en su puesto, sin el punto de partida del viaje.
   armar(!viaja)

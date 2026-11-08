@@ -13,9 +13,10 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
   webServer: [
-    // Serves the static build from `npm run build` (needs PUBLIC_SUPABASE_* at build time).
+    // Serves the static build from `npm run build` (needs PUBLIC_SUPABASE_* at build time). Since astro 7, `astro preview`
+    // run by an agent goes to the background and exits, so Playwright sees it die; --ignore-lock keeps it in the foreground.
     {
-      command: 'npm run preview',
+      command: 'npm run preview -- --ignore-lock',
       url: 'http://localhost:4231',
       reuseExistingServer: !process.env.CI,
     },
