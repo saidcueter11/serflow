@@ -3,13 +3,12 @@
  * Es el respaldo: lo usa la prenda sin ningún color completo publicado desde el admin (src/lib/personaliza/base.ts).
  *
  * Los 21 colores del taller salen TEÑIDOS de la foto blanca de cada prenda y vista (PRI-122, método aprobado por Said el
- * 2026-11-07): la herramienta tinte toma el tono medio del pecho de la foto de referencia del color y pinta solo la tela
- * blanca, con sus sombras. Todos los colores de una prenda comparten así la misma foto, el mismo encuadre y la misma área.
- * La camiseta negra conserva su foto (de stock, otro encuadre: su área es propia).
+ * 2026-11-07; v3 el 2026-11-08): la herramienta tinte pinta solo la tela blanca con el hex del color (el tono del pecho de
+ * su foto de referencia), con borde suavizado y los pliegues de la base. Todos los colores de una prenda, la negra
+ * incluida, comparten así la misma foto, el mismo encuadre, la misma área y el mismo mapa de sombreado: sombra-<prenda>
+ * [-espalda].png, la luz de la base blanca relativa al pecho (200 = 1.0), con el que el motor integra el diseño a la tela.
  * Archivos: src/assets/personalizador/<prenda>-<color>[-espalda | -lado].jpg; un color sin la foto de una vista sale sin
  * esa ubicación (ubicacionesDe). Fotos base, licencias de uso comercial sin atribución obligatoria:
- * - camiseta-negra: Hanna Pad, pexels.com/photo/8532616
- * - camiseta-negra-espalda: Angela Roma, pexels.com/photo/7319032
  * - camiseta-blanca (base de frente): Avtar Singh, unsplash.com/photos/8ACmRoleM24
  * - camiseta-blanca-espalda (base de espalda): Estefania Milazzo, pexels.com/photo/17858291
  * - gorra-blanca (base de la acrílica, frente): personalgraphic.com, unsplash.com/photos/ozdzzeBu4Go
@@ -25,11 +24,12 @@ import type { Area, ColorPrenda, FotoColor, Prenda, Vista } from './datos'
 
 const rect = (x: number, y: number, w: number, h: number): Area => ({ tl: [x, y], tr: [x + w, y], br: [x + w, y + h], bl: [x, y + h] })
 
-type FotoMuestra = Omit<FotoColor, 'image_url' | 'image_url_movil'> & { image: ImageMetadata }
+type FotoMuestra = Omit<FotoColor, 'image_url' | 'image_url_movil' | 'sombra_url'> & { image: ImageMetadata; sombra?: ImageMetadata }
 type ColorMuestra = Omit<ColorPrenda, 'photos'> & { photos: FotoMuestra[] }
 
 const ARCHIVOS = import.meta.glob<ImageMetadata>('../../assets/personalizador/*.jpg', { eager: true, import: 'default' })
 const archivo = (nombre: string): ImageMetadata | undefined => ARCHIVOS[`../../assets/personalizador/${nombre}.jpg`]
+const SOMBRAS = import.meta.glob<ImageMetadata>('../../assets/personalizador/sombra-*.png', { eager: true, import: 'default' })
 
 /** Los colores del taller, en el orden del selector. hex: el tono de su referencia, el mismo con que se tiñó la foto. */
 const COLORES: [id: string, name: string, hex: string][] = [
@@ -68,40 +68,39 @@ const VISTAS: Record<Prenda, { view: Vista; sufijo: string; print_area: Area; pr
   'gorra-malla': [],
 }
 
-/** La negra de camiseta es otra foto: su propia área. */
-const PROPIAS: Partial<Record<string, FotoMuestra[]>> = {
-  'camiseta-negra': [
-    { view: 'frente', image: archivo('camiseta-negra')!, print_area: rect(0.3, 0.25, 0.4, 0.38), print_width_cm: 30 },
-    { view: 'espalda', image: archivo('camiseta-negra-espalda')!, print_area: rect(0.295, 0.27, 0.35, 0.34), print_width_cm: 35 },
-  ],
-}
-
 const coloresDe = (garment: Prenda): ColorMuestra[] =>
   COLORES.map(([id, name, hex]) => ({
     id,
     garment,
     name,
     hex,
-    photos:
-      PROPIAS[`${garment}-${id}`] ??
-      VISTAS[garment].flatMap(({ view, sufijo, ...area }) => {
-        const image = archivo(`${garment}-${id}${sufijo}`)
-        return image ? [{ view, image, ...area }] : []
-      }),
+    photos: VISTAS[garment].flatMap(({ view, sufijo, ...area }) => {
+      const image = archivo(`${garment}-${id}${sufijo}`)
+      const sombra = SOMBRAS[`../../assets/personalizador/sombra-${garment}${sufijo}.png`]
+      return image ? [{ view, image, sombra, ...area }] : []
+    }),
   })).filter((c) => c.photos.length)
 
 export const MUESTRA: Record<Prenda, ColorMuestra[]> = { camiseta: coloresDe('camiseta'), gorra: coloresDe('gorra'), 'gorra-malla': coloresDe('gorra-malla') }
 
 /**
  * Publica cada foto optimizada en el mismo dominio (el canvas solo lee píxeles de su propio origen), en dos anchos. Son
- * muchas, pero la página solo baja la del color y la vista elegidos.
+ * muchas, pero la página solo baja la del color y la vista elegidos, con su mapa de sombreado (540 px, el tamaño de los
+ * mapas del motor; más calidad para que los degradés no hagan escalones).
  */
-export async function coloresMuestra(optimizar: (img: ImageMetadata, ancho: number) => Promise<string>): Promise<Record<Prenda, ColorPrenda[]>> {
+export async function coloresMuestra(optimizar: (img: ImageMetadata, ancho: number, calidad?: number) => Promise<string>): Promise<Record<Prenda, ColorPrenda[]>> {
   const pasar = (colores: ColorMuestra[]) =>
     Promise.all(
       colores.map(async ({ photos, ...c }) => ({
         ...c,
-        photos: await Promise.all(photos.map(async ({ image, ...f }) => ({ ...f, image_url: await optimizar(image, 1080), image_url_movil: await optimizar(image, 720) }))),
+        photos: await Promise.all(
+          photos.map(async ({ image, sombra, ...f }) => ({
+            ...f,
+            image_url: await optimizar(image, 1080),
+            image_url_movil: await optimizar(image, 720),
+            ...(sombra && { sombra_url: await optimizar(sombra, 540, 85) }),
+          })),
+        ),
       })),
     )
   return { camiseta: await pasar(MUESTRA.camiseta), gorra: await pasar(MUESTRA.gorra), 'gorra-malla': await pasar(MUESTRA['gorra-malla']) }

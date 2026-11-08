@@ -27,6 +27,9 @@ export interface Malla {
   puntos: Punto[][]
 }
 
+/** Valor del mapa de sombreado para la luz del pecho (1.0): lo que es más claro, hasta 255, son las luces. */
+export const MAPA_UNO = 200
+
 export interface FotoLista {
   escena: HTMLCanvasElement
   area: Area
@@ -34,6 +37,8 @@ export interface FotoLista {
   luces: HTMLCanvasElement
   trama: HTMLCanvasElement
   oscura: boolean
+  /** La tela sale del mapa de sombreado de la base blanca: los mismos pliegues en cualquier color. */
+  integrada: boolean
   malla: Malla
   rapida: Malla
 }
@@ -120,8 +125,17 @@ function gris(w: number, h: number, fn: (i: number) => number): HTMLCanvasElemen
   return c
 }
 
-/** Se calcula una vez por foto y se guarda en memoria. */
-export function prepararFoto(img: HTMLImageElement, area: Area, curva: number): FotoLista {
+/** Sombras (multiplicar), luces (screen) y trama (overlay) de un píxel de la tela, con la luz de referencia ref. */
+export function capasTela(l1: number, l4: number, ref: number): [sombra: number, luz: number, trama: number] {
+  const wk = ref < 60 ? 9 : ref < 140 ? 6 : 4.5
+  return [Math.min(255, (255 * l1) / ref), Math.max(0, Math.min(255, (l1 - ref) * 3.2)), 128 + Math.max(-127, Math.min(127, (l1 - l4) * wk))]
+}
+
+/**
+ * Se calcula una vez por foto y se guarda en memoria. mapa: el de sombreado de la base blanca de la foto (sale con las
+ * teñidas, muestra.ts); sin él, la tela se lee de la propia foto (las del admin).
+ */
+export function prepararFoto(img: HTMLImageElement, area: Area, curva: number, mapa?: HTMLImageElement): FotoLista {
   const escena = lienzo(W, H)
   const ctx = escena.getContext('2d', { willReadFrequently: true })!
   const k = Math.max(W / img.naturalWidth, H / img.naturalHeight)
@@ -130,26 +144,29 @@ export function prepararFoto(img: HTMLImageElement, area: Area, curva: number): 
   // Luminancia de la tela a tres escalas: pliegues (desplazar), sombras y trama.
   const chica = lienzo(MAPA_W, MAPA_H)
   const cc = chica.getContext('2d', { willReadFrequently: true })!
-  cc.drawImage(escena, 0, 0, MAPA_W, MAPA_H)
+  cc.drawImage(mapa ?? escena, 0, 0, MAPA_W, MAPA_H)
   const L = luminancia(cc.getImageData(0, 0, MAPA_W, MAPA_H).data)
   const pliegues = desenfocar(L, MAPA_W, MAPA_H, 3, 3)
   const L1 = desenfocar(L, MAPA_W, MAPA_H, 1, 1)
   const L4 = desenfocar(L, MAPA_W, MAPA_H, 2, 2)
-  // Luz media solo con los píxeles dentro del área, que está sobre la tela (el admin no la configura).
-  const quad: Punto[] = [area.tl, area.tr, area.br, area.bl].map(([x, y]) => [x * MAPA_W, y * MAPA_H])
-  let suma = 0
-  let n = 0
-  for (let y = 0; y < MAPA_H; y++)
-    for (let x = 0; x < MAPA_W; x++)
-      if (dentroDe(quad, x, y)) {
-        suma += L1[y * MAPA_W + x]
-        n++
-      }
-  const ref = Math.max(8, suma / Math.max(1, n)) * 1.05
-  const wk = ref < 60 ? 9 : ref < 140 ? 6 : 4.5
-  const sombras = gris(MAPA_W, MAPA_H, (i) => Math.min(255, (255 * L1[i]) / ref))
-  const luces = gris(MAPA_W, MAPA_H, (i) => Math.max(0, Math.min(255, (L1[i] - ref) * 3.2)))
-  const trama = gris(MAPA_W, MAPA_H, (i) => 128 + Math.max(-127, Math.min(127, (L1[i] - L4[i]) * wk)))
+  // Luz media solo con los píxeles dentro del área, que está sobre la tela (el admin no la configura). El mapa ya viene
+  // relativo a la luz del pecho.
+  const luzMedia = () => {
+    const quad: Punto[] = [area.tl, area.tr, area.br, area.bl].map(([x, y]) => [x * MAPA_W, y * MAPA_H])
+    let suma = 0
+    let n = 0
+    for (let y = 0; y < MAPA_H; y++)
+      for (let x = 0; x < MAPA_W; x++)
+        if (dentroDe(quad, x, y)) {
+          suma += L1[y * MAPA_W + x]
+          n++
+        }
+    return Math.max(8, suma / Math.max(1, n)) * 1.05
+  }
+  const ref = mapa ? MAPA_UNO : luzMedia()
+  const sombras = gris(MAPA_W, MAPA_H, (i) => capasTela(L1[i], L4[i], ref)[0])
+  const luces = gris(MAPA_W, MAPA_H, (i) => capasTela(L1[i], L4[i], ref)[1])
+  const trama = gris(MAPA_W, MAPA_H, (i) => capasTela(L1[i], L4[i], ref)[2])
 
   const desplazar = ([px, py]: Punto): Punto => {
     const x = Math.round((px / W) * MAPA_W)
@@ -178,7 +195,7 @@ export function prepararFoto(img: HTMLImageElement, area: Area, curva: number): 
     return { n, i0, j0, puntos }
   }
 
-  return { escena, area, sombras, luces, trama, oscura: ref < 70, malla: malla(N, true), rapida: malla(N_RAPIDA, false) }
+  return { escena, area, sombras, luces, trama, oscura: !mapa && ref < 70, integrada: !!mapa, malla: malla(N, true), rapida: malla(N_RAPIDA, false) }
 }
 
 /** Bordado: pocos colores de hilo (k-means), relieve por distancia al borde, puntadas satinadas con dirección por color. */
@@ -331,8 +348,15 @@ function tri(ctx: CanvasRenderingContext2D, img: CanvasImageSource, s0: Punto, s
 // Sobre tela oscura el estampado lleva base blanca: la tinta tapa la tela. El mapa de sombras es la luz relativa a la
 // media, y en una tela negra esa media es tan baja que cualquier pliegue oscurece el diseño a la mitad: las partes
 // oscuras del diseño (unos jeans, unos zapatos) se volvían tela. Ahí la tela solo marca pliegues y trama, suave.
-const AJUSTE: Record<Tecnica, (oscura: boolean) => { sombras: number; luces: number; trama: number; alfa: number }> = {
-  estampado: (o) => (o ? { sombras: 0.35, luces: 0.12, trama: 0.5, alfa: 1 } : { sombras: 1, luces: 0.45, trama: 1, alfa: 0.93 }),
+// Con el mapa de la base blanca (integrada) la tela es la misma en todos los colores: la tinta toma todos sus pliegues,
+// unas luces suaves y una trama muy sutil, y deja ver un poco la tela (tinta a 0,9).
+const AJUSTE: Record<Tecnica, (foto: Pick<FotoLista, 'oscura' | 'integrada'>) => { sombras: number; luces: number; trama: number; alfa: number }> = {
+  estampado: ({ oscura, integrada }) =>
+    integrada
+      ? { sombras: 1, luces: 0.35, trama: 0.45, alfa: 0.9 }
+      : oscura
+        ? { sombras: 0.35, luces: 0.12, trama: 0.5, alfa: 1 }
+        : { sombras: 1, luces: 0.45, trama: 1, alfa: 0.93 },
   bordado: () => ({ sombras: 0.6, luces: 0.2, trama: 0.12, alfa: 1 }),
 }
 
@@ -406,7 +430,7 @@ export function dibujar(ctx: CanvasRenderingContext2D, foto: FotoLista, diseno: 
   const fx = forma.getContext('2d')!
   fx.clearRect(0, 0, W, H)
   fx.drawImage(capa, bx, by, bw, bh, bx, by, bw, bh)
-  const aj = AJUSTE[tecnica](foto.oscura)
+  const aj = AJUSTE[tecnica](foto)
   cx.save()
   cx.beginPath()
   cx.rect(bx, by, bw, bh)
@@ -446,18 +470,17 @@ export function mockup(foto: FotoLista, diseno: HTMLCanvasElement | null, lugar:
   return new Promise((ok, mal) => c.toBlob((b) => (b ? ok(b) : mal(new Error('sin mockup'))), 'image/jpeg', 0.85))
 }
 
-/** Carga una foto de prenda y la prepara. */
-export function cargarFoto(src: string, area: Area, curva: number): Promise<FotoLista> {
+function imagen(src: string): Promise<HTMLImageElement> {
   return new Promise((ok, mal) => {
     const img = new Image()
-    img.onload = () => {
-      try {
-        ok(prepararFoto(img, area, curva))
-      } catch (e) {
-        mal(e)
-      }
-    }
+    img.onload = () => ok(img)
     img.onerror = () => mal(new Error('sin señal'))
     img.src = src
   })
+}
+
+/** Carga una foto de prenda (y su mapa de sombreado, a la vez) y la prepara. */
+export async function cargarFoto(src: string, area: Area, curva: number, sombra?: string): Promise<FotoLista> {
+  const [img, mapa] = await Promise.all([imagen(src), sombra ? imagen(sombra) : undefined])
+  return prepararFoto(img, area, curva, mapa)
 }

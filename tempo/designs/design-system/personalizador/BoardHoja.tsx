@@ -25,7 +25,7 @@ function useMockup() {
       const t = document.createElement("canvas");
       t.width = t.height = 1024;
       t.getContext("2d")!.drawImage(img, 0, 0, 1024, 1024);
-      const foto = await cargarFoto(info.image_url, info.print_area, PRENDAS.camiseta.curva);
+      const foto = await cargarFoto(info.image_url, info.print_area, PRENDAS.camiseta.curva, info.sombra_url);
       setUrl(URL.createObjectURL(await mockup(foto, prepararDiseno(t, "estampado"), LUGAR_INICIAL, "estampado")));
     };
     img.src = sol;

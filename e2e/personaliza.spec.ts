@@ -51,6 +51,8 @@ const logoTransparente = (n: number) => png(n, (x, y) => (Math.hypot(x - n / 2, 
 const JEAN = [38, 52, 96]
 const bloqueJean = (n: number) => png(n, (x, y) => (x > n / 5 && x < (4 * n) / 5 && y > n / 5 && y < (4 * n) / 5 ? [...JEAN, 255] : [0, 0, 0, 0]))
 /** Un bloque de color casi hasta el borde: pinta toda la caja del diseño. */
+/** Un bloque blanco opaco sobre transparente: muestra solo la luz y los pliegues que toma la tinta. */
+const bloqueBlanco = (n: number) => png(n, (x, y) => (x > n / 8 && x < (7 * n) / 8 && y > n / 8 && y < (7 * n) / 8 ? [255, 255, 255, 255] : [0, 0, 0, 0]))
 const bloqueLleno = (n: number) => png(n, (x, y) => (x > 6 && x < n - 6 && y > 6 && y < n - 6 ? [210, 30, 40, 255] : [0, 0, 0, 0]))
 /** Una tira azul 1:5 sobre transparente, más alta que el recorte del celular. */
 const tiraAlta = () => png(120, (x, y) => (x > 10 && x < 110 && y > 10 && y < 590 ? [30, 60, 180, 255] : [0, 0, 0, 0]), 600)
@@ -121,6 +123,38 @@ async function quieto(diseno: Locator) {
 }
 
 /** Lo más que se aleja del color esperado una rejilla de 5 × 5 puntos dentro del diseño (9 × 9 px de la escena cada uno): el daño está en los pliegues, no en el centro. */
+/** La luz de una rejilla de 5 × 5 puntos dentro del diseño, relativa a su mediana: la forma de los pliegues que toma. */
+async function pliegues(page: Page) {
+  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  const luz = await page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement, d) => {
+    const r = c.getBoundingClientRect()
+    const x = c.getContext('2d')!
+    const out: number[] = []
+    for (const fy of [0.25, 0.375, 0.5, 0.625, 0.75])
+      for (const fx of [0.25, 0.375, 0.5, 0.625, 0.75]) {
+        const px = Math.round(((d.x + d.width * fx - r.left) / r.width) * c.width)
+        const py = Math.round(((d.y + d.height * fy - r.top) / r.height) * c.height)
+        const p = x.getImageData(px - 4, py - 4, 9, 9).data
+        let l = 0
+        for (let i = 0; i < p.length; i += 4) l += (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 81
+        out.push(l)
+      }
+    return out
+  }, d)
+  const mediana = [...luz].sort((a, b) => a - b)[12]
+  return luz.map((l) => l / mediana)
+}
+/** La luz de la tela justo debajo del diseño. */
+async function luzDebajo(page: Page) {
+  const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
+  return page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement, d) => {
+    const r = c.getBoundingClientRect()
+    const p = c
+      .getContext('2d')!
+      .getImageData(Math.round(((d.x + d.width / 2 - r.left) / r.width) * c.width), Math.round(((d.y + d.height + 12 - r.top) / r.height) * c.height), 1, 1).data
+    return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]
+  }, d)
+}
 async function peorColorEnElDiseno(page: Page, esperado: number[]) {
   const d = (await page.getByRole('group', { name: /Tu diseño/ }).boundingBox())!
   return page.locator('.pf-pz-vista canvas').evaluate(
@@ -677,6 +711,27 @@ test.describe('/personaliza', () => {
     await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
     // La tela marca pliegues y trama, pero el azul no se vuelve negro (antes se alejaba 89; ahora, 31).
     await expect.poll(() => peorColorEnElDiseno(page, JEAN)).toBeLessThan(40)
+  })
+
+  test('estampado integrado: el mapa de sombreado baja con la prenda y la tinta toma los mismos pliegues en cualquier color', async ({ page }) => {
+    const mapas: string[] = []
+    page.on('response', (r) => {
+      if (/\/sombra-camiseta[^/]*\.webp$/.test(new URL(r.url()).pathname)) mapas.push(new URL(r.url()).pathname)
+    })
+    await abrir(page)
+    await expect.poll(() => mapas.length).toBeGreaterThan(0)
+    await subir(page, { name: 'blanco.png', mimeType: 'image/png', buffer: bloqueBlanco(400) })
+    await expect(page.getByRole('img', { name: 'Camiseta negra con tu diseño' })).toBeVisible()
+    await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
+    const enNegra = await pliegues(page)
+    // La tela se marca en la tinta: no es un sticker plano.
+    expect(Math.max(...enNegra) - Math.min(...enNegra)).toBeGreaterThan(0.04)
+    await page.getByText('Amarilla', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta amarilla con tu diseño' })).toBeVisible()
+    // Ya pintó la amarilla: la tela justo debajo del diseño es clara.
+    await expect.poll(() => luzDebajo(page)).toBeGreaterThan(150)
+    // Mismos pliegues sobre la amarilla (solo cambia el poco de tela que deja ver la tinta).
+    await expect.poll(async () => Math.max(...(await pliegues(page)).map((l, i) => Math.abs(l - enNegra[i])))).toBeLessThan(0.03)
   })
 
   test('un diseño chico se agarra y se mueve desde el centro, sin que las manijas lo tapen', async ({ page }) => {
