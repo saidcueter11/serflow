@@ -196,6 +196,36 @@ const catalogo = (p) => {
   return { categories, products }
 }
 
+// PRI-433: lo que el admin le pone a una prenda (nombre, descripción, precio y varias fotos) y una sin nada de eso.
+export const MODAL = {
+  categoria: { slug: 'e2e-modal', label: 'Modal de prueba' },
+  completa: { slug: 'e2e-completa', name: 'Gorra de prueba con nombre', description: 'Descripción de prueba: bordado al frente, correa ajustable y visera curva.', price: 45000 },
+  vacia: { slug: 'e2e-sin-datos', legacy_id: 7, name: '   ', description: null, price: null },
+  cero: { slug: 'e2e-precio-cero', name: 'Precio en cero', description: '  ', price: 0 },
+}
+
+const modal = (p) => {
+  const c = { ...vacia, id: 'e2e-cat-modal', ...MODAL.categoria, image_url: null, sort_order: 0 }
+  const fila = (over, fotos, dia) => ({
+    id: over.slug,
+    legacy_id: null,
+    category_id: c.id,
+    image_urls: fotos,
+    stock: 0,
+    is_active: true,
+    sort_order: 0,
+    created_at: `2026-01-${dia}T00:00:00Z`,
+    updated_at: '2026-01-30T00:00:00Z',
+    categories: { slug: c.slug, label: c.label },
+    ...over,
+  })
+  // La más nueva primero en el muro: completa, vacía, cero.
+  return {
+    categories: [c],
+    products: [fila(MODAL.completa, [p[0], p[1], p[2]], '03'), fila(MODAL.vacia, [p[3]], '02'), fila(MODAL.cero, [p[4]], '01')],
+  }
+}
+
 export const SCENARIOS = [
   // 0 vigentes: solo una vencida, que no debe salir. Y una categoría recién creada, sin fotos (PRI-130).
   { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia], medios: vacio },
@@ -224,4 +254,5 @@ export const SCENARIOS = [
     }),
   },
   { outDir: '.e2e-builds/rejilla', port: 4239, promos: () => [], medios: (p) => ({ ...vacio(), ...catalogo(p) }) },
+  { outDir: '.e2e-builds/modal', port: 4240, promos: () => [], medios: (p) => ({ ...vacio(), ...modal(p) }) },
 ]

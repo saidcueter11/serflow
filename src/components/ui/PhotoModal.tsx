@@ -11,6 +11,8 @@ export type FotoModal = {
   /** Fotos del producto: la primera es la del muro. r = ancho / alto, reserva la forma mientras carga (si falta, 4:5). */
   fotos: { src: string; srcSet?: string; r?: number }[]
   descripcion?: string | null
+  /** Precio del admin ya formateado ("$30.000", precioCop); sin precio no se pinta. */
+  precio?: string | null
 }
 
 /**
@@ -30,11 +32,13 @@ const SIG = 'M9 6l6 6-6 6'
 
 /**
  * Foto abierta (PRI-286): un <dialog> encima del muro del catálogo o de Disponible ahora, en lugar de la página de detalle.
- * No es una tienda: la foto entera (contain), qué es y cómo pedirla. Escritorio: la foto centrada y debajo una franja
+ * No es una tienda: la foto entera (contain), qué es, su descripción y precio si el admin los puso (PRI-433) y cómo pedirla. Escritorio: la foto centrada y debajo una franja
  * con la categoría y el nombre a la izquierda y "Pedir por WhatsApp" a la derecha; el nombre nunca se corta (la franja
  * puede ser más ancha que la foto y un nombre muy largo pasa a otra línea). Flechas a los lados, contador arriba a la
- * izquierda y la X arriba a la derecha. Celular: pantalla completa, las orillas de la anterior y la siguiente son botones
- * y la franja va fija abajo. Mientras baja, el marco ya tiene la forma de la foto y un brillo; la foto entra en fundido
+ * izquierda y la X arriba a la derecha. Dos ejes (PRI-433): las fotos de la misma prenda son puntos sobre la foto, y la
+ * prenda anterior y la siguiente son las flechas junto al contador. Celular: pantalla completa, las orillas de la anterior
+ * y la siguiente son botones (se asoman 24 y la primera vez la foto se corre un poco para mostrarlas) y la franja va fija
+ * abajo. Mientras baja, el marco ya tiene la forma de la foto y un brillo; la foto entra en fundido
  * y al pasar de foto se desliza en el sentido de la flecha (PRI-287). Al abrir, la foto crece desde su puesto en el muro y
  * al cerrar vuelve a él, con la miniatura ya bajada debajo mientras llega la grande (PRI-287).
  * Markup estático y vacío (uno por página): lo llena y lo maneja src/scripts/photo-modal.ts con los datos de la foto
@@ -50,7 +54,13 @@ export function PhotoModal() {
       <div className="mx-velo" aria-hidden="true" />
       <div className="mx-caja">
         <div className="mx-barra">
+          <button type="button" className="mx-prod" aria-label="Prenda anterior" data-mx="prenda-ant">
+            <Icono d={ANT} />
+          </button>
           <p className="mx-contador" aria-live="polite" />
+          <button type="button" className="mx-prod" aria-label="Prenda siguiente" data-mx="prenda-sig">
+            <Icono d={SIG} />
+          </button>
         </div>
         <button type="button" className="mx-x" aria-label="Cerrar" data-mx="cerrar">
           <Icono d="M6 6l12 12M18 6L6 18" />
@@ -70,6 +80,7 @@ export function PhotoModal() {
               <div className="mx-marco">
                 <div className="mx-brillo pz-shimmer" aria-hidden="true" />
                 <img className="mx-foto" alt="" draggable={false} />
+                <div className="mx-puntos" aria-hidden="true" />
               </div>
               <button type="button" className="mx-vecina mx-vecina-sig" aria-label="Foto siguiente" data-mx="sig">
                 <img alt="" />
@@ -80,6 +91,7 @@ export function PhotoModal() {
                 <div className="mx-nombre">
                   <p className="mx-cat" />
                   <h2 id="mx-titulo" className="mx-titulo" />
+                  <p className="mx-precio" hidden />
                   <p className="mx-desc" hidden />
                 </div>
                 <div className="mx-pedir">

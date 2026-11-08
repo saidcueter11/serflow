@@ -1,7 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro'
 import CatalogView from '../../../components/catalog/CatalogView.astro'
-import { fotoTitulo } from '../../../lib/catalog'
 import { loadPages } from '../../../lib/catalog-view'
 
 // PRI-286: URL propia de cada foto. Es la página del muro de su categoría con el modal de esa foto abierto, con su
@@ -20,13 +19,15 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://serflowctg
 const url = `${siteUrl}${item.tile.href}`
 const ogImage = item.og ? new URL(item.og, `${siteUrl}/`).href : null
 const label = props.view.label
-const title = `${fotoTitulo(label, item.n)} — Serflow`
+// El nombre que muestra el modal (PRI-433): el del admin o, sin nombre, el de la foto.
+const nombre = item.tile.modal!.titulo
+const title = `${nombre} — Serflow`
 const description = `Un trabajo de ${label} hecho en el taller de Serflow, Cartagena. ¿Te gusta? Te hacemos una igual o con tu logo: pídela por WhatsApp.`
 // Sin precio ni offers: el sitio no muestra precios (el precio se conversa por WhatsApp).
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
-  name: fotoTitulo(label, item.n),
+  name: nombre,
   image: item.tile.modal!.fotos.map((p) => new URL(p.src, `${siteUrl}/`).href),
   description,
   category: label,

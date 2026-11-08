@@ -19,10 +19,10 @@ export default defineConfig({
       url: 'http://localhost:4231',
       reuseExistingServer: !process.env.CI,
     },
-    // PRI-131, PRI-150, PRI-413, PRI-438: extra builds with seeded data on 4232-4239. See e2e/promos/server.mjs.
+    // PRI-131, PRI-150, PRI-413, PRI-438, PRI-433: extra builds with seeded data on 4232-4240. See e2e/promos/server.mjs.
     {
       command: 'node e2e/promos/server.mjs',
-      url: 'http://localhost:4239',
+      url: 'http://localhost:4240',
       timeout: 20 * 60_000,
       reuseExistingServer: !process.env.CI,
     },

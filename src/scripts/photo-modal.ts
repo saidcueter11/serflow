@@ -13,12 +13,15 @@ import { quieto } from './quieto'
  * su puesto, con la miniatura ya bajada debajo de la grande (nada de esperar); al cerrar vuelve a la foto que esté abierta.
  * Las animaciones son CSS (mx-crece, tokens.css), con el punto de partida en variables. Reducir movimiento y mala señal las
  * apagan: abre y cierra de una.
+ * Dos ejes (PRI-433): los puntos sobre la foto son las fotos de la prenda; las flechas del contador saltan de prenda. La
+ * primera vez que se abre en la página, la pista se corre un poco (data-asoma, solo en el celular) para mostrar que hay más.
  */
 
 type Foto = FotoModal['fotos'][number]
 type Estado = { lista: HTMLAnchorElement[]; i: number; j: number; opener: HTMLAnchorElement; base: string; hueco: HTMLElement | null }
 let estado: Estado | null = null
 let deslizo = false
+let asomo = false
 
 const modal = () => document.querySelector<HTMLDialogElement>('dialog[data-photo-modal]')
 const datos = (a: HTMLAnchorElement): FotoModal => JSON.parse(a.dataset.foto!)
@@ -66,6 +69,14 @@ function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
   const desc = d.querySelector<HTMLElement>('.mx-desc')!
   desc.textContent = f.descripcion ?? ''
   desc.hidden = !f.descripcion
+  const precio = d.querySelector<HTMLElement>('.mx-precio')!
+  precio.textContent = f.precio ?? ''
+  precio.hidden = !f.precio
+  const puntos = d.querySelector<HTMLElement>('.mx-puntos')!
+  puntos.hidden = f.fotos.length < 2
+  puntos.replaceChildren(...f.fotos.map((_, k) => Object.assign(document.createElement('span'), { className: k === e.j ? 'mx-punto-actual' : '' })))
+  d.querySelector<HTMLButtonElement>('[data-mx="prenda-ant"]')!.disabled = e.i === 0
+  d.querySelector<HTMLButtonElement>('[data-mx="prenda-sig"]')!.disabled = e.i === e.lista.length - 1
   d.querySelector<HTMLAnchorElement>('.mx-pedir a')!.href = f.pedir
 
   // Sin dar la vuelta: en la primera o la última, ese lado no se pinta.
@@ -91,10 +102,12 @@ function vecina(e: Estado, dir: 1 | -1): Foto | null {
   return p ? datos(e.lista[p.i]).fotos[p.j] : null
 }
 
-function mover(dir: 1 | -1) {
+/** prenda: salta a la primera foto de la prenda de al lado, sin pasar por las demás fotos de esta. */
+function mover(dir: 1 | -1, prenda = false) {
   const d = modal()
   if (!d || !estado || d.classList.contains('mx-sale')) return
-  const p = paso(estado, dir)
+  const i = estado.i + dir
+  const p = prenda ? (i >= 0 && i < estado.lista.length ? { i, j: 0 } : null) : paso(estado, dir)
   if (!p) return
   Object.assign(estado, p)
   pintar(d, estado, dir)
@@ -143,6 +156,10 @@ function abrir(a: HTMLAnchorElement, crecer = true) {
     d.classList.toggle('mx-crece', !!T)
     d.showModal()
     d.querySelector<HTMLElement>('[data-mx="cerrar"]')!.focus()
+    if (!asomo && vecina(estado, 1) && !quieto()) {
+      asomo = true
+      d.querySelector<HTMLElement>('.mx-pista')!.dataset.asoma = ''
+    }
     if (T) {
       puntoDePartida(marco, T)
       marco.dataset.viaje = 'crece'
@@ -186,8 +203,10 @@ document.addEventListener('click', (ev) => {
   const accion = t.closest<HTMLElement>('[data-mx]')?.dataset.mx
   if (accion === 'ant') return mover(-1)
   if (accion === 'sig') return mover(1)
-  // Cerrar: la X o tocar afuera de la foto y la franja.
-  if (accion === 'cerrar' || !t.closest('.mx-foto, .mx-franja, .mx-pista, button, a')) cerrar(d)
+  if (accion === 'prenda-ant') return mover(-1, true)
+  if (accion === 'prenda-sig') return mover(1, true)
+  // Cerrar: la X o tocar afuera de la foto, la franja y la barra (sus flechas apagadas no deben cerrarlo).
+  if (accion === 'cerrar' || !t.closest('.mx-foto, .mx-franja, .mx-pista, .mx-barra, button, a')) cerrar(d)
 })
 
 // Esc: el <dialog> se cerraría solo; así vuelve a su puesto primero.
@@ -233,6 +252,7 @@ document.addEventListener(
     d.classList.remove('mx-crece', 'mx-sale')
     const marco = d.querySelector<HTMLElement>('.mx-marco')!
     delete marco.dataset.viaje
+    delete d.querySelector<HTMLElement>('.mx-pista')!.dataset.asoma
     marco.querySelector('.mx-mini')?.remove()
     ocupar(estado, null)
     history.replaceState(history.state, '', estado.base)

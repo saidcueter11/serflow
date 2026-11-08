@@ -2,8 +2,9 @@ import { whatsappUrl } from './business'
 import { SITE } from './promos'
 
 /*
- * Catálogo como galería de fotos (PRI-130, dirección 2 "Pinterest / Unsplash"). Nada depende del nombre ni de la
- * descripción del producto: cada foto se identifica con su categoría, su número (legacy_id, si tiene) y su link.
+ * Catálogo como galería de fotos (PRI-130, dirección 2 "Pinterest / Unsplash"). El muro no depende del nombre ni de la
+ * descripción del producto: cada foto se identifica con su categoría, su número (legacy_id, si tiene) y su link. El modal
+ * muestra el nombre, la descripción y el precio que ponga el admin, si los hay (PRI-433).
  * El sitio es estático: las fechas se calculan en el build, como la vigencia de las promos.
  */
 
@@ -56,6 +57,10 @@ export const fotoAlt = (label: string, n: number | null) => (n == null ? `Foto d
 
 /** Nombre de la foto en el modal y title de su página: "Beisbol N.º 26". */
 export const fotoTitulo = (label: string, n: number | null) => `${label}${numero(n)}`
+
+/** Precio del admin en pesos para el modal: "$30.000". Sin precio (null, 0 o negativo), null: no se pinta. */
+export const precioCop = (precio: number | null) =>
+  precio != null && precio > 0 ? `$${new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(precio)}` : null
 
 /** Mensaje de "Pedir por WhatsApp": categoría, número si lo hay y el link de la foto (WhatsApp muestra la vista previa). */
 export function pedirUrl(label: string, n: number | null, href: string): string {
