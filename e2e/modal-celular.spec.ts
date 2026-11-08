@@ -36,6 +36,13 @@ test('shows the name, price and whole description the admin set, and nothing bro
   await expect(dialog(page).getByRole('heading', { level: 2 })).toHaveText(MODAL.cero.name)
   await expect(dialog(page).locator('.mx-precio')).toBeHidden()
   await expect(dialog(page).locator('.mx-desc')).toBeHidden()
+
+  // Su URL propia: el nombre con "</script>" sale como texto en el título y en el JSON-LD, sin ejecutarse.
+  await page.goto(href(MODAL.cero.slug))
+  await expect(page).toHaveTitle(`${MODAL.cero.name} — Serflow`)
+  const ld = await page.locator('script[type="application/ld+json"]').evaluateAll((s) => s.map((e) => JSON.parse(e.textContent!)))
+  expect(ld.some((x) => x.name === MODAL.cero.name)).toBe(true)
+  expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined()
 })
 
 test('photos of the same item are dots on the photo; the arrows by the counter jump between items', async ({ page }) => {

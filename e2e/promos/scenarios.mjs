@@ -201,7 +201,8 @@ export const MODAL = {
   categoria: { slug: 'e2e-modal', label: 'Modal de prueba' },
   completa: { slug: 'e2e-completa', name: 'Gorra de prueba con nombre', description: 'Descripción de prueba: bordado al frente, correa ajustable y visera curva.', price: 45000 },
   vacia: { slug: 'e2e-sin-datos', legacy_id: 7, name: '   ', description: null, price: null },
-  cero: { slug: 'e2e-precio-cero', name: 'Precio en cero', description: '  ', price: 0 },
+  // El nombre es texto del admin: va al <title> y al JSON-LD de la URL propia sin poder cerrar el <script>.
+  cero: { slug: 'e2e-precio-cero', name: 'Precio en cero </script><script>window.__xss=1</script>', description: '  ', price: 0 },
 }
 
 const modal = (p) => {
