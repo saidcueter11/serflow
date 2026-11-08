@@ -66,6 +66,7 @@ describe('getCategoriesWithCounts', () => {
 // PRI-424: la anon key no puede leer price ni stock (migración ocultar_precio_stock); un select('*') fallaría.
 describe('columnas de products', () => {
   it('el sitio no pide price ni stock, ni select *', async () => {
+    selects.length = 0
     await Promise.all([getProducts(), getProductsByCategory('moda'), getProductBySlug('a'), getCategoriesWithCounts()])
     const cols = selects.filter(([t]) => t === 'products').map(([, c]) => c)
     expect(cols).toHaveLength(4)

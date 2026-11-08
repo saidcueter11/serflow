@@ -185,8 +185,6 @@ const catalogo = (p) => {
       description: null,
       category_id: c.id,
       image_urls: [p[0]],
-      price: null,
-      stock: 0,
       is_active: true,
       sort_order: n,
       // Viejas (nada va primero en "Todo") y la 1 la más reciente de su categoría.

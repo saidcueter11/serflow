@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro'
 import CatalogView from '../../../components/catalog/CatalogView.astro'
 import { fotoTitulo } from '../../../lib/catalog'
+import { jsonLd } from '../../../lib/business'
 import { loadPages } from '../../../lib/catalog-view'
 
 // PRI-286: URL propia de cada foto. Es la página del muro de su categoría con el modal de esa foto abierto, con su
@@ -46,7 +47,7 @@ const schema = {
     <meta property="og:image:alt" content={item.tile.img.alt} />
     <meta property="og:locale" content="es_CO" />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
-    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    <script type="application/ld+json" set:html={jsonLd(schema)} />
   </Fragment>
   <CatalogView {...props} abrir={item.tile.id} />
 </Layout>

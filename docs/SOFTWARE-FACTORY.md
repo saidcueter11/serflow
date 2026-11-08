@@ -43,7 +43,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
 - Storage: el `SELECT` sobre `storage.objects` va siempre `to authenticated`, nunca `to public`. Un bucket `public = true` sirve sus URLs sin esa policy, y con ella cualquiera lista los archivos con la anon key (PRI-426).
 - Nunca correr `npm run phase1:seed` (`scripts/seed-supabase.mjs`): escribe en prod con la service-role key.
 - Datos de prueba: no hay; los E2E usan el catálogo real y no deben depender de un producto específico (navegar por links, no por slugs fijos).
-- Convenciones: solo se muestra lo que tiene `is_active = true`; orden por `sort_order`; las URLs usan `slug` (`/products/<categoría>`, `/catalogo/<categoría>/<slug>`, `/promos/<slug>`); `products.price` existe (nullable) pero el sitio no muestra precios hoy.
+- Convenciones: solo se muestra lo que tiene `is_active = true`; orden por `sort_order`; las URLs usan `slug` (`/products/<categoría>`, `/catalogo/<categoría>/<slug>`, `/promos/<slug>`); `products.price` existe (nullable) pero el sitio no muestra precios hoy. La anon key no lee `price` ni `stock` (PRI-424: grant por columnas); una columna nueva de `products` que el sitio deba leer necesita su `grant select (<col>) ... to anon` en una migración, y el sitio nunca pide `select('*')` de `products`.
 
 ### Secretos
 - Nunca imprimir ni commitear `SUPABASE_SERVICE_ROLE_KEY` (solo existe para el seed; no está en CI ni Netlify como variable del sitio).
