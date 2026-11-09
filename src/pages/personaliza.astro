@@ -1,15 +1,14 @@
 ---
-import { getImage } from 'astro:assets'
 import Layout from '../layouts/Layout.astro'
 import { PersonalizaPage } from '../components/personaliza/PersonalizaPage'
+import { EmptyState } from '../components/ui/EmptyState'
+import { WHATSAPP_URL } from '../lib/business'
 import { coloresDeBase } from '../lib/medios-build'
-import { coloresMuestra } from '../lib/personaliza/muestra'
 
 // Las fotos se publican optimizadas en el mismo dominio: el motor de la vista previa necesita leer sus píxeles.
-const base = await coloresDeBase({ width: 1080, widthMovil: 720, quality: 70 })
-const muestra = await coloresMuestra(async (src, width, quality = 70) => (await getImage({ src, width, format: 'webp', quality })).src)
-// Lo que publica el admin (PRI-122); la prenda que aún no tenga ningún color completo sigue con la muestra.
-const colores = { camiseta: base.camiseta.length ? base.camiseta : muestra.camiseta, gorra: base.gorra.length ? base.gorra : muestra.gorra, 'gorra-malla': muestra['gorra-malla'] }
+// Solo lo que publica el admin (PRI-427): sin ningún color en la base, la página avisa en vez de romperse.
+const colores = await coloresDeBase({ width: 1080, widthMovil: 720, quality: 70 })
+const hayColores = Object.values(colores).some((lista) => lista.length)
 ---
 
 <Layout
@@ -17,5 +16,22 @@ const colores = { camiseta: base.camiseta.length ? base.camiseta : muestra.camis
   description="Sube tu diseño, míralo sobre la camiseta o la gorra y mándanos el pedido por WhatsApp."
   hideFab
 >
-  <PersonalizaPage client:load colores={colores} />
+  {
+    hayColores ? (
+      <PersonalizaPage client:load colores={colores} />
+    ) : (
+      <div class="pf bg-primary font-body text-ink">
+        <main class="pf-v">
+          <section class="pf-sec pf-c flex flex-col gap-6">
+            <h1 class="pf-display">Diseña tu prenda</h1>
+            <EmptyState
+              title="Estamos subiendo las prendas"
+              description="Por ahora no hay camisetas ni gorras para probar tu diseño aquí. Mándanoslo por WhatsApp y te contamos cómo queda."
+              action={{ label: 'Escríbenos por WhatsApp', href: WHATSAPP_URL }}
+            />
+          </section>
+        </main>
+      </div>
+    )
+  }
 </Layout>
