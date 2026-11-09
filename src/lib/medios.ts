@@ -96,5 +96,6 @@ export async function getGarmentColors(): Promise<FilaColor[]> {
     .select('id, garment, name, hex, garment_photos(view, image_url, print_area, print_width_cm)')
     .eq('is_active', true)
     .order('sort_order')
+    .order('id')
   return filas<FilaColor>('garment_colors', res as never)
 }
