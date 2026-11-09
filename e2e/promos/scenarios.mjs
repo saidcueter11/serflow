@@ -296,7 +296,14 @@ export const SCENARIOS = [
       site_settings: [{ id: 1, instagram_url: 'https://www.instagram.com/e2e-quitada/', instagram_visible: false, tiktok_visible: false, facebook_visible: false }],
     }),
   },
-  { outDir: '.e2e-builds/rejilla', port: 4239, promos: () => [], medios: (p) => ({ ...vacio(), ...catalogo(p) }) },
+  // PRI-455: e2e/colores.spec.ts lee las fichas de A 1 (con colores) y A 2 (sin) en "Disponible ahora" de la portada.
+  {
+    outDir: '.e2e-builds/rejilla',
+    port: 4239,
+    promos: () => [],
+    medios: (p) => ({ ...vacio(), ...catalogo(p) }),
+    disponibles: () => ['e2e-a-1', 'e2e-a-2'],
+  },
   // PRI-123: dos prendidas en "Disponible ahora" y una apagada (e2e/disponible.spec.ts).
   {
     outDir: '.e2e-builds/modal',
