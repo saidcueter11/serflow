@@ -1,5 +1,5 @@
 // Promos sembradas para e2e/promos.spec.ts. Las fechas son relativas al build para que el test no caduque.
-import { filasDeLaSiembra } from './sembrado.mjs'
+import { coloresDeLaSiembra, filasDeLaSiembra } from './sembrado.mjs'
 
 const DAY = 24 * 60 * 60 * 1000
 
@@ -67,6 +67,9 @@ const medios = (p, base) => {
       { slot: 'catalogo-todo', image_url: rota, alt: 'Foto que no existe' },
     ],
     garment_colors: [
+      // PRI-427: lo sembrado con la fucsia de camiseta oculta en el admin (la RLS no la entrega; el proxy tampoco) y, al
+      // final, los colores que agregó el cliente.
+      ...coloresDeLaSiembra().map((c) => (c.garment === 'camiseta' && c.name === 'Fucsia' ? { ...c, is_active: false } : c)),
       color('e2e-verde', 'Verde', [foto('frente', p[1]), foto('espalda', p[2])]),
       color('e2e-sin-espalda', 'Sin espalda', [foto('frente', p[3])]),
       color('e2e-foto-rota', 'Foto rota', [foto('frente', p[1]), foto('espalda', rota)]),
@@ -138,12 +141,26 @@ const vacio = () => ({
   service_cards: [],
   about_reasons: [],
   site_media: [],
-  garment_colors: [],
+  // PRI-427: los colores ya no tienen respaldo en el código: el contenido de hoy es el que siembra la migración.
+  garment_colors: coloresDeLaSiembra(),
 })
 
 // Todo inválido: el build pasa y el sitio queda igual que sin datos.
 const malo = () => ({
   ...vacio(),
+  // Ningún color sirve (referencia desconocida, foto de otro proyecto): /personaliza avisa en vez de romperse (PRI-427).
+  garment_colors: [
+    {
+      id: 'e2e-malo',
+      garment: 'camiseta',
+      name: 'Mala',
+      hex: '#000000',
+      garment_photos: [
+        { view: 'frente', image_url: 'repo:personalizador/no-existe.jpg', print_area: null, print_width_cm: null },
+        { view: 'espalda', image_url: FOTO_AJENA, print_area: null, print_width_cm: null },
+      ],
+    },
+  ],
   site_settings: [
     {
       id: 1,

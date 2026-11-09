@@ -33,8 +33,10 @@ const proxy = http.createServer(async (req, out) => {
   const esDisponibles = tabla === 'products' && new URL(req.url, 'http://x').searchParams.get('available_now') === 'eq.true'
   const sembrado = esDisponibles ? disponibles : tabla === 'promos' ? promos : medios[tabla]
   if (sembrado) {
+    // Como la RLS: una fila sembrada con is_active false no sale (PRI-427, un color oculto en el admin).
+    const activas = req.url.includes('is_active=eq.true') ? sembrado.filter((r) => r.is_active !== false) : sembrado
     out.writeHead(200, { 'content-type': 'application/json' })
-    out.end(JSON.stringify(sembrado))
+    out.end(JSON.stringify(activas))
     return
   }
   const headers = { ...req.headers }

@@ -7,6 +7,9 @@ const toml = readFileSync('netlify.toml', 'utf8')
 const header = (name: string) => toml.match(new RegExp(`^\\s*${name} = "(.+)"$`, 'm'))?.[1]
 const csp = header('Content-Security-Policy')
 
+// PRI-427: el personalizador sale de los colores de la base; el build con los sembrados lo tiene siempre encendido.
+test.use({ baseURL: 'http://localhost:4232' })
+
 /** Sirve el sitio con la CSP y devuelve las violaciones que van saliendo en la consola. */
 async function conCsp(page: Page) {
   const origen = new URL(test.info().project.use.baseURL!).origin
