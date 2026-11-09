@@ -12,7 +12,7 @@ if (!REAL || !KEY) throw new Error('Missing PUBLIC_SUPABASE_URL / PUBLIC_SUPABAS
 
 // Fotos de productos reales: así las promos sembradas pasan por la misma optimización de imágenes que en prod.
 // Sin el producto "prueba": su foto tiene datos personales y el repo es público (capturas de PR, PRI-159).
-const res = await fetch(`${REAL}/rest/v1/products?select=id,image_urls&is_active=eq.true&slug=neq.prueba&order=sort_order&limit=30`, {
+const res = await fetch(`${REAL}/rest/v1/products?select=id,image_urls&is_active=eq.true&slug=neq.prueba&order=sort_order,id&limit=30`, {
   headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
 })
 const reales = await res.json()

@@ -39,7 +39,9 @@ export const MAX_SERVICE_CARDS = 6
 export const MAX_REASONS = 6
 type Row = Record<string, unknown>
 
-const byOrder = (rows: Row[]) => [...rows].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
+// PRI-452: la base no devuelve las filas en orden; con el mismo sort_order desempata el id, igual en cada build.
+const byOrder = (rows: Row[]) =>
+  [...rows].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || String(a.id ?? '').localeCompare(String(b.id ?? '')))
 
 /** Encuadre de la foto para object-position: "50% 35%". */
 export function cleanPosition(value: unknown): string | undefined {

@@ -27,6 +27,7 @@ const errors: Record<string, { code: string; message: string }> = {}
 
 // Chainable stand-in for the supabase query builder; resolves with the table rows.
 const selects: [string, string][] = []
+const orders: string[][] = []
 vi.mock('./supabase', () => ({
   supabase: {
     from: (table: string) => {
@@ -34,7 +35,10 @@ vi.mock('./supabase', () => ({
       const q: Record<string, unknown> = {
         then: (resolve: (r: typeof result) => unknown) => resolve(result),
       }
-      for (const m of ['eq', 'order', 'single']) q[m] = () => q
+      const orden: string[] = []
+      orders.push(orden)
+      for (const m of ['eq', 'single']) q[m] = () => q
+      q.order = (col: string) => (orden.push(col), q)
       q.select = (cols: string) => (selects.push([table, cols]), q)
       return q
     },
@@ -109,5 +113,17 @@ describe('columnas de products', () => {
     const cols = selects.filter(([t]) => t === 'products').map(([, c]) => c)
     expect(cols).toHaveLength(4)
     for (const c of cols) expect(c.split('(')[0]).not.toMatch(/\*|\bstock\b/)
+  })
+})
+
+// PRI-452: dos categorías (o prendas) con el mismo sort_order salían en cualquier orden y el "Ver todo" de la portada
+// cambiaba de categoría entre builds. Todo orden por sort_order desempata por id.
+describe('orden estable', () => {
+  it('cada consulta por sort_order desempata por id', async () => {
+    orders.length = 0
+    await Promise.all([getCategories(), getProducts(), getProductsByCategory('moda'), getCategoriesWithCounts()])
+    const porOrden = orders.filter((o) => o.includes('sort_order'))
+    expect(porOrden.length).toBeGreaterThanOrEqual(5)
+    for (const o of porOrden) expect(o).toEqual(['sort_order', 'id'])
   })
 })
