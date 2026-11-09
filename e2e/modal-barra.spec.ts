@@ -28,6 +28,9 @@ test('with a classic scrollbar the photo lands exactly on its place, with no jum
     return { x: r.left, y: r.top, w: r.width, h: r.height }
   })
   await tile.scrollIntoViewIfNeeded()
+  // Al entrar en pantalla la foto del muro sube 16 px (sf-espera -> sf-aparece, movimiento.ts): medirla a mitad de camino
+  // corría la y de 4 a 15 px (PRI-469). Se mide cuando ya llegó.
+  await expect(tile.locator('..')).not.toHaveClass(/sf-espera|sf-aparece/)
   const antes = await medir()
   await tile.click()
   await expect(tile.locator('img')).toHaveCSS('opacity', '0')
