@@ -22,7 +22,7 @@ export default function PersonalizadorCanvas() {
 }
 
 const PEDIDO =
-  "¡Hola, Serflow! Quiero cotizar esta prenda personalizada:\n\n*Prenda:* Gorra acrílica negra\n*Técnica:* Bordado\n*Ubicación:* Centro del frente\n*Cantidad:* 1\n\nArmado en la web de Serflow";
+  "¡Hola, Serflow! Quiero cotizar esta prenda personalizada:\n\n*Prenda:* Gorra acrílica negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1\n\nArmado en la web de Serflow";
 
 defineAsset(VistaPrevia, {
   libraries: ["Design System"],
@@ -84,7 +84,7 @@ defineAsset(Tecnicas, {
     "Técnica de la prenda: tarjetas radio (name=\"tecnica\") con pista y muestra. ",
   variants: {
     Camiseta: { props: { opciones: ["estampado", "bordado"], elegida: "estampado" } },
-    Gorra: { props: { opciones: ["bordado", "estampado"], elegida: "bordado" } },
+    "Gorra de malla": { props: { opciones: ["bordado", "estampado"], elegida: "bordado" } },
   },
 });
 
@@ -93,9 +93,9 @@ defineAsset(BarraEnvio, {
   usageInstructions:
     "Envío del personalizador: en celular barra fija abajo (en /personaliza reemplaza al WhatsAppFab), en escritorio sin caja, debajo de la vista previa (fija=false). Abre la hoja Revisa y envía, no WhatsApp directo.",
   variants: {
-    Fija: { props: { resumen: "Camiseta negra · Estampado · Pecho · 1 unidad" } },
-    Esperando: { props: { resumen: "Camiseta negra · Estampado · Pecho · 1 unidad", esperando: true } },
-    Escritorio: { props: { resumen: "Camiseta negra · Estampado · Pecho · 1 unidad", fija: false } },
+    Fija: { props: { resumen: "Camiseta negra · Estampado · 1 unidad" } },
+    Esperando: { props: { resumen: "Camiseta negra · Estampado · 1 unidad", esperando: true } },
+    Escritorio: { props: { resumen: "Camiseta negra · Estampado · 1 unidad", fija: false } },
   },
 });
 

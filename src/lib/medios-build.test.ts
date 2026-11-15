@@ -48,12 +48,14 @@ describe('coloresDeBase', () => {
 
     expect(colores.gorra.map((c) => c.id)).toEqual(Array.from({ length: MAX }, (_, i) => `gorra-${i}`))
     expect(colores.camiseta).toHaveLength(MAX)
-    expect(pedidas).toHaveLength(MAX + MAX * 2)
+    // Solo el frente (PRI-522): la espalda de cada camiseta no se baja.
+    expect(pedidas).toHaveLength(MAX + MAX)
+    expect(pedidas.filter((u) => u.includes('-espalda'))).toEqual([])
     expect(pedidas).not.toContain(foto(MAX, 'frente'))
     expect(pedidas).not.toContain(foto(100 + MAX, 'frente'))
   })
 
-  it('las fotos sembradas salen del repo con el mapa de sombreado de su vista, sin bajar nada; una referencia desconocida no sale', async () => {
+  it('las fotos sembradas salen del repo con el mapa de sombreado de su prenda, sin bajar nada; la espalda y una referencia desconocida no salen', async () => {
     const pedidas: string[] = []
     vi.stubGlobal('fetch', async (url: string) => {
       pedidas.push(url)
@@ -73,12 +75,10 @@ describe('coloresDeBase', () => {
     const colores = await coloresDeBase({ width: 1080, widthMovil: 720 })
 
     expect(pedidas).toEqual([])
-    expect(colores.camiseta[0].photos).toMatchObject([
-      { view: 'frente', image_url: '/_astro/1080/camiseta-roja.jpg', image_url_movil: '/_astro/720/camiseta-roja.jpg', sombra_url: '/_astro/540/sombra-camiseta.png' },
-      { view: 'espalda', image_url: '/_astro/1080/camiseta-roja-espalda.jpg', sombra_url: '/_astro/540/sombra-camiseta-espalda.png' },
-    ])
+    expect(colores.camiseta[0].foto).toMatchObject({ image_url: '/_astro/1080/camiseta-roja.jpg', image_url_movil: '/_astro/720/camiseta-roja.jpg', sombra_url: '/_astro/540/sombra-camiseta.png' })
+    expect(JSON.stringify(colores)).not.toContain('espalda')
     expect(colores.gorra.map((c) => c.id)).toEqual(['gorra-roja'])
-    expect(colores.gorra[0].photos[0].sombra_url).toBe('/_astro/540/sombra-gorra.png')
+    expect(colores.gorra[0].foto.sombra_url).toBe('/_astro/540/sombra-gorra.png')
   })
 
   it('cada foto sale en sus dos anchos con una sola descarga, y una foto pequeña no se agranda', async () => {
@@ -92,7 +92,7 @@ describe('coloresDeBase', () => {
 
     const { gorra } = await coloresDeBase({ width: 1080, widthMovil: 720 })
 
-    expect(gorra[0].photos[0]).toMatchObject({ image_url: '/_astro/800/200-frente.jpg', image_url_movil: '/_astro/720/200-frente.jpg' })
+    expect(gorra[0].foto).toMatchObject({ image_url: '/_astro/800/200-frente.jpg', image_url_movil: '/_astro/720/200-frente.jpg' })
     expect(pedidas).toEqual([foto(200, 'frente')])
   })
 })

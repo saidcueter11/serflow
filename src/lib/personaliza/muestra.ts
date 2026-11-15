@@ -4,34 +4,35 @@
  * con este archivo) y el sitio solo lee la base: aquí quedan las fotos del repo a las que apuntan esas filas
  * (repo:personalizador/<archivo>.jpg, fotoDelRepo) y MUESTRA, los mismos colores para el canvas del personalizador.
  *
- * Los 21 colores del taller salen TEÑIDOS de la foto blanca de cada prenda y vista (PRI-122, método aprobado por Said el
+ * Los 21 colores del taller salen TEÑIDOS de la foto blanca de frente de cada prenda (PRI-122, método aprobado por Said el
  * 2026-11-07; v3 el 2026-11-08): la herramienta tinte pinta solo la tela blanca con el hex del color (el tono del pecho de
  * su foto de referencia), con borde suavizado y los pliegues de la base. Todos los colores de una prenda, la negra
- * incluida, comparten así la misma foto, el mismo encuadre, la misma área y el mismo mapa de sombreado: sombra-<prenda>
- * [-espalda].png, la luz de la base blanca relativa al pecho (200 = 1.0), con el que el motor integra el diseño a la tela.
- * Archivos: src/assets/personalizador/<prenda>-<color>[-espalda | -lado].jpg; un color sin la foto de una vista sale sin
- * esa ubicación (ubicacionesDe). Fotos base, licencias de uso comercial sin atribución obligatoria:
- * - camiseta-blanca (base de frente): Avtar Singh, unsplash.com/photos/8ACmRoleM24
- * - camiseta-blanca-espalda (base de espalda): Estefania Milazzo, pexels.com/photo/17858291
- * - gorra-blanca (base de la acrílica, frente): personalgraphic.com, unsplash.com/photos/ozdzzeBu4Go
+ * incluida, comparten así la misma foto, el mismo encuadre, la misma área y el mismo mapa de sombreado: sombra-<prenda>.png,
+ * la luz de la base blanca relativa al pecho (200 = 1.0), con el que el motor integra el diseño a la tela.
+ * Archivos: src/assets/personalizador/<prenda>-<color>.jpg. Fotos base, licencias de uso comercial sin atribución obligatoria:
+ * - camiseta-blanca: Avtar Singh, unsplash.com/photos/8ACmRoleM24
+ * - gorra-blanca (base de la acrílica): personalgraphic.com, unsplash.com/photos/ozdzzeBu4Go
  * Sin foto base libre todavía (PRI-122, 2026-11-08: Pexels y Pixabay solo traen gorras blancas puestas, con marca o de
- * color): la gorra acrílica de lado y la de malla. Hasta tenerlas, la acrílica sale sin Lado (y sin estampado, que solo va
- * a los lados) y la de malla, apagada. Al llegar: su foto blanca, teñirla y agregar su vista aquí.
+ * color): la gorra de malla, que sale apagada. Al llegar: su foto blanca, teñirla y agregarla aquí.
+ *
+ * El diseño va solo al frente (Said, PRI-522). Las fotos de espalda (camiseta-<color>-espalda.jpg, base de Estefania
+ * Milazzo, pexels.com/photo/17858291) y sombra-camiseta-espalda.png siguen en la carpeta pero ya no se importan: no
+ * entran al build ni bajan al navegador. Las filas sembradas que apuntan a ellas se ignoran (base.ts, fotoDeFrente).
  *
  * Para cambiar una foto base: reemplaza sus archivos (4:5, 1080 × 1350), vuelve a teñir y recalibra aquí su área
  * (fracciones de la foto) y sus cm (lo que mide esa área en la prenda real).
  */
 import type { ImageMetadata } from 'astro'
-import type { Area, ColorPrenda, FotoColor, Prenda, Vista } from './datos'
+import type { Area, ColorPrenda, FotoColor, Prenda } from './datos'
 
 const rect = (x: number, y: number, w: number, h: number): Area => ({ tl: [x, y], tr: [x + w, y], br: [x + w, y + h], bl: [x, y + h] })
 
 type FotoMuestra = Omit<FotoColor, 'image_url' | 'image_url_movil' | 'sombra_url'> & { image: ImageMetadata; sombra?: ImageMetadata }
-type ColorMuestra = Omit<ColorPrenda, 'photos'> & { photos: FotoMuestra[] }
+type ColorMuestra = Omit<ColorPrenda, 'foto'> & { foto: FotoMuestra }
 
-const ARCHIVOS = import.meta.glob<ImageMetadata>('../../assets/personalizador/*.jpg', { eager: true, import: 'default' })
+const ARCHIVOS = import.meta.glob<ImageMetadata>(['../../assets/personalizador/*.jpg', '!**/*-espalda.jpg'], { eager: true, import: 'default' })
 const archivo = (nombre: string): ImageMetadata | undefined => ARCHIVOS[`../../assets/personalizador/${nombre}.jpg`]
-const SOMBRAS = import.meta.glob<ImageMetadata>('../../assets/personalizador/sombra-*.png', { eager: true, import: 'default' })
+const SOMBRAS = import.meta.glob<ImageMetadata>(['../../assets/personalizador/sombra-*.png', '!**/*-espalda.png'], { eager: true, import: 'default' })
 
 /** Los colores del taller, en el orden del selector. hex: el tono de su referencia, el mismo con que se tiñó la foto. */
 const COLORES: [id: string, name: string, hex: string][] = [
@@ -58,30 +59,18 @@ const COLORES: [id: string, name: string, hex: string][] = [
   ['vino-tinto', 'Vino tinto', '#892a39'],
 ]
 
-/** Por prenda, cada vista de la foto base: sufijo del archivo, área y su ancho real en cm. */
-const VISTAS: Record<Prenda, { view: Vista; sufijo: string; print_area: Area; print_width_cm: number }[]> = {
-  camiseta: [
-    { view: 'frente', sufijo: '', print_area: rect(0.31, 0.28, 0.36, 0.35), print_width_cm: 30 },
-    { view: 'espalda', sufijo: '-espalda', print_area: rect(0.353, 0.3, 0.294, 0.3), print_width_cm: 35 },
-  ],
-  gorra: [
-    { view: 'frente', sufijo: '', print_area: rect(0.29, 0.42, 0.42, 0.24), print_width_cm: 12 },
-  ],
-  'gorra-malla': [],
+/** Por prenda, la foto base de frente: su área y el ancho real en cm. La de malla no tiene foto todavía. */
+const AREAS: Partial<Record<Prenda, Pick<FotoColor, 'print_area' | 'print_width_cm'>>> = {
+  camiseta: { print_area: rect(0.31, 0.28, 0.36, 0.35), print_width_cm: 30 },
+  gorra: { print_area: rect(0.29, 0.42, 0.42, 0.24), print_width_cm: 12 },
 }
 
 const coloresDe = (garment: Prenda): ColorMuestra[] =>
-  COLORES.map(([id, name, hex]) => ({
-    id,
-    garment,
-    name,
-    hex,
-    photos: VISTAS[garment].flatMap(({ view, sufijo, ...area }) => {
-      const image = archivo(`${garment}-${id}${sufijo}`)
-      const sombra = SOMBRAS[`../../assets/personalizador/sombra-${garment}${sufijo}.png`]
-      return image ? [{ view, image, sombra, ...area }] : []
-    }),
-  })).filter((c) => c.photos.length)
+  COLORES.flatMap(([id, name, hex]) => {
+    const image = archivo(`${garment}-${id}`)
+    const area = AREAS[garment]
+    return image && area ? [{ id, garment, name, hex, foto: { image, sombra: sombraDe(garment), ...area } }] : []
+  })
 
 export const MUESTRA: Record<Prenda, ColorMuestra[]> = { camiseta: coloresDe('camiseta'), gorra: coloresDe('gorra'), 'gorra-malla': coloresDe('gorra-malla') }
 
@@ -91,8 +80,7 @@ export function fotoDelRepo(url: string): ImageMetadata | undefined {
   return m ? archivo(m[1]) : undefined
 }
 
-/** El mapa de sombreado de la base blanca de una prenda y vista: solo sirve para sus fotos teñidas, las del repo. */
-export function sombraDe(garment: Prenda, view: Vista): ImageMetadata | undefined {
-  const vista = VISTAS[garment].find((v) => v.view === view)
-  return vista && SOMBRAS[`../../assets/personalizador/sombra-${garment}${vista.sufijo}.png`]
+/** El mapa de sombreado de la base blanca de una prenda: solo sirve para sus fotos teñidas, las del repo. */
+export function sombraDe(garment: Prenda): ImageMetadata | undefined {
+  return SOMBRAS[`../../assets/personalizador/sombra-${garment}.png`]
 }

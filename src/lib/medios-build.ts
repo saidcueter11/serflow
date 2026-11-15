@@ -1,7 +1,7 @@
 // La parte de medios.ts que necesita a Astro: las fotos de la base pasan por la misma optimización que las del repo.
 import type { ImageMetadata } from 'astro'
 import { getImage } from 'astro:assets'
-import { armarColores, recortarColores, vistasDe, type FotoOptimizada } from './personaliza/base'
+import { armarColores, fotoDeFrente, recortarColores, type FotoOptimizada } from './personaliza/base'
 import type { ColorPrenda, Prenda } from './personaliza/datos'
 import { getGarmentColors, getSiteMedia, leerFotoRemota, type Lugar } from './medios'
 import { fotoDelRepo, sombraDe } from './personaliza/muestra'
@@ -37,23 +37,21 @@ export async function fotoDeLugar(slot: Lugar, opciones: FotoOpciones) {
 
 /**
  * Colores de la base con sus fotos optimizadas, en dos anchos. Las sembradas (PRI-427) son del repo y llevan el mapa de
- * sombreado de su prenda y vista; las del admin, de Storage. Prenda sin ningún color completo: lista vacía.
+ * sombreado de su prenda; las del admin, de Storage. Prenda sin ningún color completo: lista vacía.
  */
 export async function coloresDeBase({ width, widthMovil, quality }: { width: number; widthMovil: number; quality?: number }): Promise<Record<Prenda, ColorPrenda[]>> {
   const filas = recortarColores(await getGarmentColors())
-  const pendientes = filas.flatMap((c) =>
-    c.garment_photos.filter((f) => vistasDe(c.garment).includes(f.view)).map((f) => ({ url: f.image_url, garment: c.garment, view: f.view })),
-  )
+  const pendientes = filas.map((c) => ({ url: fotoDeFrente(c)!.image_url, garment: c.garment }))
   const urls = new Map<string, FotoOptimizada>()
   const local = async (src: ImageMetadata, ancho: number, calidad = quality) => (await getImage({ src, width: ancho, format: 'webp', quality: calidad })).src
   // De a 4: validar 38 fotos reales tarda 26 s de una en una y 10 s así, y decodificar pesa en memoria como para soltarlas todas.
   for (let i = 0; i < pendientes.length; i += 4) {
     await Promise.all(
-      pendientes.slice(i, i + 4).map(async ({ url, garment, view }) => {
+      pendientes.slice(i, i + 4).map(async ({ url, garment }) => {
         const repo = fotoDelRepo(url)
         if (repo) {
           // 540 px es el tamaño de los mapas del motor; más calidad para que los degradés no hagan escalones.
-          const sombra = sombraDe(garment, view)
+          const sombra = sombraDe(garment)
           urls.set(url, { image_url: await local(repo, width), image_url_movil: await local(repo, widthMovil), ...(sombra && { sombra_url: await local(sombra, 540, 85) }) })
           return
         }

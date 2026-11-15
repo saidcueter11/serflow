@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { VistaPrevia, type ModoVista } from "../../../../src/components/ui/VistaPrevia";
-import { PRENDAS, fotoDe, type Prenda, type Tecnica } from "../../../../src/lib/personaliza/datos";
+import { PRENDAS, type Prenda, type Tecnica } from "../../../../src/lib/personaliza/datos";
 import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, limitar } from "../../../../src/lib/personaliza/lugar";
 import { cargarFoto, prepararDiseno, type FotoLista } from "../../../../src/lib/personaliza/motor";
 import { Code, PageFrame, PageTitle, Row } from "../Chrome";
@@ -8,12 +8,11 @@ import { COLORES } from "./colores";
 import sol from "./sol-heroica.svg";
 
 // Prop wrapper: prepara la foto y el diseño de muestra con el motor real y se los pasa a VistaPrevia.
-function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "estampado", modo, diseno = true, seleccionado, alto = 320 }: {
-  prenda?: Prenda; color?: string; ubicacion?: string; tecnica?: Tecnica; modo: ModoVista; diseno?: boolean; seleccionado?: boolean; alto?: number;
+function Vista({ prenda = "camiseta", color = "negra", tecnica = "estampado", modo, diseno = true, seleccionado, alto = 320 }: {
+  prenda?: Prenda; color?: string; tecnica?: Tecnica; modo: ModoVista; diseno?: boolean; seleccionado?: boolean; alto?: number;
 }) {
   const c = COLORES[prenda].find((x) => x.id === color)!;
-  const ub = ubicacion ?? PRENDAS[prenda].ubicaciones[0].nombre;
-  const info = fotoDe(c, prenda, ub)!;
+  const info = c.foto;
   const [foto, setFoto] = useState<FotoLista | null>(null);
   const [tratado, setTratado] = useState<HTMLCanvasElement | null>(null);
   const maxS = escalaMax(prenda, tecnica, info.print_width_cm);
@@ -35,7 +34,7 @@ function Vista({ prenda = "camiseta", color = "negra", ubicacion, tecnica = "est
     <div className="w-[358px]">
       <VistaPrevia
         foto={modo === "sin-senal" ? null : foto}
-        etiqueta={`${nombre}${{ frente: "", espalda: ", espalda", lado: ", de lado" }[info.view]}`}
+        etiqueta={nombre}
         modo={modo}
         tecnica={tecnica}
         diseno={tratado}
@@ -86,9 +85,8 @@ export function BoardVistaPrevia() {
         <div className="flex flex-wrap gap-6">
           <Caso label="Estampado · blanca"><Vista modo="listo" color="blanca" /></Caso>
           <Caso label="Bordado · blanca"><Vista modo="listo" color="blanca" tecnica="bordado" /></Caso>
-          <Caso label="Espalda · negra"><Vista modo="listo" ubicacion="Espalda" /></Caso>
           <Caso label="Gorra · bordado"><Vista modo="listo" prenda="gorra" tecnica="bordado" /></Caso>
-          <Caso label="Gorra blanca · estampado"><Vista modo="listo" prenda="gorra" color="blanca" /></Caso>
+          <Caso label="Gorra blanca · bordado"><Vista modo="listo" prenda="gorra" color="blanca" tecnica="bordado" /></Caso>
         </div>
       </Row>
       <Row name="Estados" description="Preparando hace esperar el envío como mucho 5 s; después, Seguir sin vista previa. Sin señal: Reintentar pide solo la foto.">

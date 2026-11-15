@@ -70,9 +70,11 @@ const medios = (p, base) => {
       // PRI-427: lo sembrado con la fucsia de camiseta oculta en el admin (la RLS no la entrega; el proxy tampoco) y, al
       // final, los colores que agregó el cliente.
       ...coloresDeLaSiembra().map((c) => (c.garment === 'camiseta' && c.name === 'Fucsia' ? { ...c, is_active: false } : c)),
+      // PRI-522: el diseño va solo al frente. La espalda de la verde no se procesa; un color con solo frente sale; uno con
+      // el frente roto no, aunque su espalda sirva.
       color('e2e-verde', 'Verde', [foto('frente', p[1]), foto('espalda', p[2])]),
-      color('e2e-sin-espalda', 'Sin espalda', [foto('frente', p[3])]),
-      color('e2e-foto-rota', 'Foto rota', [foto('frente', p[1]), foto('espalda', rota)]),
+      color('e2e-solo-frente', 'Solo frente', [foto('frente', p[3])]),
+      color('e2e-foto-rota', 'Foto rota', [foto('frente', rota), foto('espalda', p[2])]),
     ],
   }
 }

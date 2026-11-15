@@ -6,28 +6,27 @@ const camiseta = (id: string, garment_photos: FilaFoto[]): FilaColor => ({ id, g
 const urls = (...u: string[]) => new Map(u.map((x) => [x, { image_url: `/_astro/${x}`, image_url_movil: `/_astro/${x}-720` }]))
 
 describe('armarColores', () => {
-  it('saca el color solo si tiene todas las vistas de su prenda', () => {
+  it('el diseño va solo al frente (PRI-522): un color sale con su foto de frente, sin necesitar la de espalda', () => {
     const { camiseta: lista } = armarColores(
-      [camiseta('completa', [foto('frente', 'a'), foto('espalda', 'b')]), camiseta('sin-espalda', [foto('frente', 'c')])],
-      urls('a', 'b', 'c'),
+      [camiseta('con-espalda', [foto('frente', 'a'), foto('espalda', 'b')]), camiseta('solo-frente', [foto('frente', 'c')]), camiseta('solo-espalda', [foto('espalda', 'd')])],
+      urls('a', 'b', 'c', 'd'),
     )
-    expect(lista.map((c) => c.id)).toEqual(['completa'])
+    expect(lista.map((c) => c.id)).toEqual(['con-espalda', 'solo-frente'])
+    expect(lista[0].foto.image_url).toBe('/_astro/a')
   })
 
-  it('una foto que no sirvió deja incompleto a su color', () => {
-    const { camiseta: lista } = armarColores([camiseta('rota', [foto('frente', 'a'), foto('espalda', 'b')])], urls('a'))
+  it('una foto de frente que no sirvió deja fuera a su color, aunque la de espalda sí sirva', () => {
+    const { camiseta: lista } = armarColores([camiseta('rota', [foto('frente', 'a'), foto('espalda', 'b')])], urls('b'))
     expect(lista).toEqual([])
   })
 
-  it('la gorra acrílica sale solo con el frente (el lado es opcional) e ignora una foto de espalda', () => {
-    const { gorra } = armarColores([{ id: 'g', garment: 'gorra', name: 'Negra', hex: '#000000', garment_photos: [foto('frente', 'a'), foto('espalda', 'b')] }], urls('a', 'b'))
-    expect(gorra[0].photos.map((p) => p.view)).toEqual(['frente'])
-  })
-
-  it('sin área ni cm usa el valor por defecto de la prenda y la vista; el cliente no calibra nada', () => {
-    const { camiseta: lista } = armarColores([camiseta('c', [foto('frente', 'a'), foto('espalda', 'b')])], urls('a', 'b'))
-    expect(lista[0].photos[0]).toEqual({ view: 'frente', image_url: '/_astro/a', image_url_movil: '/_astro/a-720', ...POR_DEFECTO.camiseta.frente })
-    expect(lista[0].photos[1]).toEqual({ view: 'espalda', image_url: '/_astro/b', image_url_movil: '/_astro/b-720', ...POR_DEFECTO.camiseta.espalda })
+  it('sin área ni cm usa el valor por defecto de la prenda; el cliente no calibra nada', () => {
+    const { camiseta: lista, gorra } = armarColores(
+      [camiseta('c', [foto('frente', 'a')]), { id: 'g', garment: 'gorra', name: 'Negra', hex: '#000000', garment_photos: [foto('frente', 'a')] }],
+      urls('a'),
+    )
+    expect(lista[0].foto).toEqual({ image_url: '/_astro/a', image_url_movil: '/_astro/a-720', ...POR_DEFECTO.camiseta })
+    expect(gorra[0].foto).toMatchObject(POR_DEFECTO.gorra!)
   })
 
   it('respeta el área y los cm guardados, y descarta un área que rompería las cuentas', () => {
@@ -36,29 +35,28 @@ describe('armarColores', () => {
     const fuera = { tl: [0, 0], tr: [2, 0], br: [2, 1], bl: [0, 1] }
     const { camiseta: lista } = armarColores(
       [
-        camiseta('bien', [foto('frente', 'a', { print_area: area, print_width_cm: 40 }), foto('espalda', 'b', { print_area: invertida })]),
-        camiseta('fuera', [foto('frente', 'a', { print_area: fuera }), foto('espalda', 'b', { print_area: { tl: 'x' } })]),
+        camiseta('bien', [foto('frente', 'a', { print_area: area, print_width_cm: 40 })]),
+        camiseta('invertida', [foto('frente', 'a', { print_area: invertida })]),
+        camiseta('fuera', [foto('frente', 'a', { print_area: fuera })]),
+        camiseta('rara', [foto('frente', 'a', { print_area: { tl: 'x' } })]),
       ],
-      urls('a', 'b'),
+      urls('a'),
     )
-    expect(lista[0].photos[0]).toMatchObject({ print_area: area, print_width_cm: 40 })
-    expect(lista[0].photos[1].print_area).toEqual(POR_DEFECTO.camiseta.espalda!.print_area)
-    expect(lista[1].photos[0].print_area).toEqual(POR_DEFECTO.camiseta.frente!.print_area)
-    expect(lista[1].photos[1].print_area).toEqual(POR_DEFECTO.camiseta.espalda!.print_area)
+    expect(lista[0].foto).toMatchObject({ print_area: area, print_width_cm: 40 })
+    for (const c of lista.slice(1)) expect(c.foto.print_area).toEqual(POR_DEFECTO.camiseta!.print_area)
   })
-
 })
 
 describe('recortarColores', () => {
-  const completa = (id: string) => camiseta(id, [foto('frente', 'a'), foto('espalda', 'b')])
+  const completa = (id: string) => camiseta(id, [foto('frente', 'a')])
 
   it(`deja ${MAX_COLORES} colores por prenda, los primeros, antes de bajar ninguna foto`, () => {
     const filas = Array.from({ length: MAX_COLORES + 3 }, (_, i) => completa(`c${i}`))
     expect(recortarColores(filas)).toEqual(filas.slice(0, MAX_COLORES))
   })
 
-  it('un color sin fila para todas sus vistas no ocupa cupo', () => {
-    const filas = [camiseta('sin-espalda', [foto('frente', 'a')]), ...Array.from({ length: MAX_COLORES }, (_, i) => completa(`c${i}`))]
+  it('un color sin foto de frente no ocupa cupo', () => {
+    const filas = [camiseta('solo-espalda', [foto('espalda', 'a')]), ...Array.from({ length: MAX_COLORES }, (_, i) => completa(`c${i}`))]
     expect(recortarColores(filas)).toEqual(filas.slice(1))
   })
 

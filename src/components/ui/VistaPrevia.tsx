@@ -31,7 +31,7 @@ export interface VistaPreviaProps {
   foto: FotoLista | null
   /** La foto como <img>, ya en el HTML: se ve sin esperar el JS de la isla y hasta que el motor pinta la primera. */
   fotoInicial?: Pick<FotoColor, 'image_url' | 'image_url_movil' | 'print_area'>
-  /** "Camiseta negra" o "Camiseta negra, espalda". */
+  /** "Camiseta negra". */
   etiqueta: string
   modo: ModoVista
   tecnica: Tecnica
