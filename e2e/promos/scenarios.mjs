@@ -33,14 +33,24 @@ const gorras = (p, now) =>
     image_urls: [p[1], FOTO_AJENA, p[2], p[3], p[4]],
   })
 
-const equipos = (p) =>
+// PRI-524: días ISO (1 = lunes ... 7 = domingo) en Cartagena, relativos al build.
+const diaCartagena = (now) => ((new Date(now.getTime() - 5 * 3600e3).getUTCDay() + 6) % 7) + 1
+const otroDia = (now) => (diaCartagena(now) % 7) + 1
+
+// Sale hoy y otro día: con días, sigue saliendo el suyo.
+const equipos = (p, now) =>
   row({
+    weekdays: [diaCartagena(now), otroDia(now)],
     slug: 'e2e-camisetas-equipos',
     title: '10% en camisetas para equipos',
     description: 'Desde 10 camisetas con nombre y número.',
     sort_order: 2,
     image_urls: [p[2], p[3], p[4]],
   })
+
+// Primera en el orden y con portada: si saliera, sería la de la barra y la del hero.
+const otroDiaPromo = (p, now) =>
+  row({ slug: 'e2e-otro-dia', title: 'Promo de otro día', weekdays: [otroDia(now)], sort_order: 0, banner_url: p[5] })
 
 const ninos = (p) => row({ slug: 'e2e-gorras-ninos', title: 'Gorras para niños con su nombre', sort_order: 3, image_urls: [p[5]] })
 
@@ -267,7 +277,7 @@ export const SCENARIOS = [
   { outDir: '.e2e-builds/promos-0', port: 4232, promos: (p, now) => [vencida(now)], categories: [vacia], medios: vacio, disponibles: cuatro },
   { outDir: '.e2e-builds/promos-1', port: 4233, promos: (p, now) => [gorras(p, now)], medios: vacio },
   // Desordenadas a propósito: el sitio las ordena por sort_order.
-  { outDir: '.e2e-builds/promos-3', port: 4234, promos: (p, now) => [ninos(p), vencida(now), equipos(p), gorras(p, now)], medios: vacio },
+  { outDir: '.e2e-builds/promos-3', port: 4234, promos: (p, now) => [ninos(p), vencida(now), otroDiaPromo(p, now), equipos(p, now), gorras(p, now)], medios: vacio },
   // PRI-150 + PRI-413: lo que publica el admin, y (4236) datos inválidos.
   {
     outDir: '.e2e-builds/medios',
