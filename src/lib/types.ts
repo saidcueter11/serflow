@@ -47,6 +47,8 @@ export interface Promo {
   is_active: boolean
   /** Fin de la promo; null = sin fecha de cierre. */
   ends_at: string | null
+  /** Días en que sale (PRI-524): ISO, 1 = lunes ... 7 = domingo, en Cartagena. Vacío = todos. Falta antes de su migración. */
+  weekdays?: number[] | null
   sort_order: number
   created_at: string
   updated_at: string
