@@ -13,7 +13,7 @@ async function deslizarHastaElFinal(page: Page) {
   const alto = () => page.evaluate(() => document.documentElement.scrollHeight - innerHeight)
   expect(await alto(), 'la página cabe en la pantalla: el test no probaría nada').toBeGreaterThan(200)
   const bloqueo = await page.evaluate(() =>
-    [document.documentElement, document.body].map((el) => `${el.tagName}: overflow ${getComputedStyle(el).overflowY}, touch-action ${getComputedStyle(el).touchAction}`).join(' · '),
+    [document.documentElement, document.body].map((el) => `${el.tagName}: overflow ${getComputedStyle(el).overflowY}, touch-action ${getComputedStyle(el).touchAction}`).join(' | '),
   )
   await expect
     .poll(async () => {
@@ -21,7 +21,6 @@ async function deslizarHastaElFinal(page: Page) {
       return (await alto()) - (await page.evaluate(() => scrollY))
     }, { message: `no llega al final (${bloqueo})` })
     .toBeLessThanOrEqual(1)
-}
 }
 
 for (const nombre of ['iPhone 13', 'Pixel 7']) {
