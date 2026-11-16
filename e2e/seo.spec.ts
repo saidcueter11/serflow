@@ -31,7 +31,7 @@ function validar(ld: Record<string, any>, canonical: string): string[] {
       pide(ld.url === canonical, `url = canonical (${ld.url} != ${canonical})`)
       pide(o?.['@type'] === 'Offer' && o.priceCurrency === 'COP' && o.url === canonical, 'offers')
       pide(o?.price === undefined || (typeof o.price === 'number' && o.price > 0), 'offers.price')
-      pide(o?.availability === undefined || [`${SCHEMA}/InStock`, `${SCHEMA}/OutOfStock`].includes(o.availability), 'offers.availability')
+      pide(o?.availability === undefined || [`${SCHEMA}/InStock`, `${SCHEMA}/MadeToOrder`].includes(o.availability), 'offers.availability')
       break
     }
     case 'BreadcrumbList': {

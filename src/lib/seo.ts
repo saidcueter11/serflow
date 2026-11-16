@@ -27,6 +27,7 @@ export function breadcrumbSchema(migas: Miga[]) {
 
 /**
  * Oferta del producto (#4): pesos colombianos, el precio si el admin lo puso y si hay para llevar, nunca cuántos.
+ * Sin stock no es OutOfStock: Serflow la hace a pedido (MadeToOrder).
  * La url es la del canonical, con su "/" final.
  */
 export function offerSchema({ url, price, disponible }: { url: string; price: number | null; disponible: boolean | null }) {
@@ -35,7 +36,7 @@ export function offerSchema({ url, price, disponible }: { url: string; price: nu
     url,
     priceCurrency: 'COP',
     ...(price != null && price > 0 && { price }),
-    ...(disponible != null && { availability: `https://schema.org/${disponible ? 'InStock' : 'OutOfStock'}` }),
+    ...(disponible != null && { availability: `https://schema.org/${disponible ? 'InStock' : 'MadeToOrder'}` }),
     seller: { '@type': 'Organization', name: 'Serflow' },
   }
 }

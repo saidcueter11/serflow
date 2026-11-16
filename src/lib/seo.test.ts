@@ -14,7 +14,7 @@ describe('offerSchema', () => {
       price: 45000,
       availability: 'https://schema.org/InStock',
     })
-    expect(offerSchema({ url, price: null, disponible: false }).availability).toBe('https://schema.org/OutOfStock')
+    expect(offerSchema({ url, price: null, disponible: false }).availability).toBe('https://schema.org/MadeToOrder')
   })
 
   it('sin precio (null o 0) ni disponibilidad conocida, no los inventa', () => {
