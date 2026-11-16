@@ -315,7 +315,12 @@ export const SCENARIOS = [
     port: 4237,
     promos: (p, now) => [vencida(now)],
     categories: [vacia],
-    medios: () => ({ ...vacio(), ...filasDeLaSiembra() }),
+    medios: () => {
+      const siembra = filasDeLaSiembra()
+      // PRI-541: después de la siembra, Said cambió el WhatsApp desde el admin (2026-11-16); el código usa ese de respaldo.
+      siembra.site_settings = siembra.site_settings.map((s) => ({ ...s, whatsapp_number: '573145888710' }))
+      return { ...vacio(), ...siembra }
+    },
     disponibles: cuatro,
   },
   // PRI-413: el cliente quitó las tres redes, con enlaces guardados que no deben salir.
