@@ -41,7 +41,7 @@ export function PromoBar({ promos }: { promos: PromoLink[] }) {
           {promos.map((p, i) => (
             <span
               key={p.href}
-              className={`${n > 1 ? 'anim-promo' : ''} col-start-1 row-start-1 flex flex-col leading-snug`}
+              className={`${n > 1 ? 'anim-promo' : ''} col-start-1 row-start-1 flex flex-col justify-center leading-snug`}
               style={{ '--d': `${i === 0 ? 0 : i * SECONDS - n * SECONDS}s` } as CSSProperties}
             >
               <span className="line-clamp-2 text-[14px] font-semibold @4xl:text-[16px]">{p.title}</span>
