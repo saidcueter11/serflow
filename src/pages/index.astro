@@ -129,10 +129,12 @@ const heroSlides: Slide[] =
       )
 const promoWithCover = promos.find((p) => p.banner_url || p.image_urls[0])
 if (promoWithCover) {
-  const cover = promoWithCover.banner_url || promoWithCover.image_urls[0]
-  const img = await getImage({ src: cover, height: 900, format: 'webp', ...fotoHero })
-  if (heroSlides.length > 1) heroSlides.splice(heroSlides.length - 1, 1)
-  heroSlides.unshift({ src: img.src, srcSet: img.srcSet.attribute, sizes: heroSizes(proporcion(img)), alt: promoWithCover.title })
+  // PRI-528: como toda foto del admin, por fotoRemota: el srcset solo promete los anchos que la foto alcanza.
+  const foto = await fotoDeFila(promoWithCover.banner_url || promoWithCover.image_urls[0], fotoHero, heroSizes)
+  if (foto) {
+    if (heroSlides.length > 1) heroSlides.splice(heroSlides.length - 1, 1)
+    heroSlides.unshift({ ...foto, alt: promoWithCover.title })
+  }
 }
 // "Qué hacemos": tarjetas del admin (2 a 6). Una foto que no sirve deja la tarjeta con la muestra neutra de ServiceCard.
 const services = await Promise.all(
