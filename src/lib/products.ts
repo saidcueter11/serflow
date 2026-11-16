@@ -16,12 +16,16 @@ const conFotosPropias = <T extends { image_urls: string[] }>(fila: T): T => ({ .
 
 /* ── Categories ──────────────────────────────────────────── */
 
+// PRI-452: sort_order se repite (dos categorías en 0) y Postgres no garantiza el orden de los empates: el "Ver todo"
+// de la portada cambiaba de categoría entre builds. Todo orden por sort_order desempata por id.
+
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
     .select('*')
     .eq('is_active', true)
     .order('sort_order')
+    .order('id')
 
   if (error) throw new Error(`Failed to fetch categories: ${error.message}`)
   return (data ?? []).map((c: Category) => (c.image_url && !fotoPropia(c.image_url) ? { ...c, image_url: null } : c))
@@ -53,7 +57,8 @@ export async function getCategoriesWithCounts(): Promise<
       .from('categories')
       .select('*')
       .eq('is_active', true)
-      .order('sort_order'),
+      .order('sort_order')
+      .order('id'),
     supabase
       .from('products')
       .select('category_id')
@@ -88,9 +93,10 @@ export async function getProducts(): Promise<Product[]> {
       .from('products')
       .select<typeof COLUMNAS, Product>(COLUMNAS)
       .eq('is_active', true)
-      .order('sort_order'),
+      .order('sort_order')
+      .order('id'),
     // Consulta aparte y no embebida: antes de la migración (deploy preview) la tabla no existe y el catálogo sale igual.
-    supabase.from('product_colors').select('product_id, name, hex').order('sort_order'),
+    supabase.from('product_colors').select('product_id, name, hex').order('sort_order').order('id'),
   ])
 
   if (error) throw new Error(`Failed to fetch products: ${error.message}`)
@@ -125,6 +131,7 @@ export async function getProductsByCategory(
     .eq('categories.slug', categorySlug)
     .eq('is_active', true)
     .order('sort_order')
+    .order('id')
 
   if (error) throw new Error(`Failed to fetch products: ${error.message}`)
   return data ?? []
