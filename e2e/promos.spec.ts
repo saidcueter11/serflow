@@ -82,16 +82,26 @@ test.describe('3 promos vigentes y 1 vencida', () => {
     expect(res?.status()).toBe(404)
   })
 
-  // PRI-524: "Promo de otro día" va primera y con portada, pero solo sale mañana; equipos sale hoy y mañana.
-  test('a promo outside its weekdays is not in the bar, the hero, /promos nor has a page', async ({ page }) => {
+  // PRI-538: los días no ocultan la promo, se muestran. Equipos aplica martes a jueves (sale igual cualquier día del
+  // build) y niños solo un día que nunca es el del build; 2x1 aplica todos los días y no lleva etiqueta.
+  test('promos with weekdays show every day, labeled with their days', async ({ page }) => {
+    const dias = 'Disponible martes, miércoles y jueves'
+    const unDia = /^Disponible los (lunes|martes|miércoles|jueves|viernes|sábados|domingos)$/
     await page.goto('/')
-    await expect(page.locator('.promo-bar')).toBeVisible()
-    await expect(page.locator('.promo-bar')).not.toContainText('Promo de otro día')
-    await expect(page.locator('.hero-carousel img[alt="Promo de otro día"]')).toHaveCount(0)
+    await expect(page.locator('.promo-bar')).toContainText(dias)
+
     await page.goto('/promos')
-    await expect(page.locator('main section h2')).toHaveCount(3)
-    await expect(page.getByText('Promo de otro día')).toHaveCount(0)
-    expect((await page.goto('/promos/e2e-otro-dia'))?.status()).toBe(404)
+    const afiche = (name: string) => page.locator('main section').filter({ has: page.getByRole('heading', { level: 2, name }) })
+    await expect(afiche('10% en camisetas para equipos').getByText(dias, { exact: true })).toBeVisible()
+    await expect(afiche('Gorras para niños con su nombre').getByText(unDia)).toBeVisible()
+    await expect(afiche('2x1 en gorras bordadas').getByText(/^Disponible/)).toHaveCount(0)
+
+    await page.goto('/promos/e2e-camisetas-equipos')
+    await expect(page.locator('.pf-hero-texto').getByText(dias, { exact: true })).toBeVisible()
+    await page.goto('/promos/e2e-2x1-gorras')
+    await expect(page.locator('.pf-hero-texto').getByText(/^Disponible/)).toHaveCount(0)
+    await expect(page.locator('#otras-promos a').first().getByText(dias, { exact: true })).toBeVisible()
+    expect((await page.goto('/promos/e2e-gorras-ninos'))?.status()).toBe(200)
   })
 
   test('404 offers today\'s promos', async ({ page }) => {
