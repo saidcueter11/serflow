@@ -7,9 +7,13 @@ const PROMOS = {
   'sin fotos': 'http://localhost:4238/promos/e2e-sin-fotos',
 }
 
-// Desliza el dedo hacia arriba hasta el final, como en el teléfono (gesto táctil de Chromium, no window.scrollTo).
+// Desliza el dedo hacia arriba hasta el final, como en el teléfono (eventos táctiles, no window.scrollTo). Mismo gesto
+// que e2e/modal.spec.ts: Input.synthesizeScrollGesture no mueve la página en el Chromium headless de Linux (CI).
 async function deslizarHastaElFinal(page: Page) {
   const cdp = await page.context().newCDPSession(page)
+  const { height } = page.viewportSize()!
+  const x = 200
+  const [desde, hasta] = [height - 40, 60]
   const alto = () => page.evaluate(() => document.documentElement.scrollHeight - innerHeight)
   expect(await alto(), 'la página cabe en la pantalla: el test no probaría nada').toBeGreaterThan(200)
   const bloqueo = await page.evaluate(() =>
@@ -17,7 +21,9 @@ async function deslizarHastaElFinal(page: Page) {
   )
   await expect
     .poll(async () => {
-      await cdp.send('Input.synthesizeScrollGesture', { x: 200, y: 600, yDistance: -1500, speed: 3000, gestureSourceType: 'touch' })
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: desde }] })
+      for (let k = 1; k <= 10; k++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: desde + ((hasta - desde) * k) / 10 }] })
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
       return (await alto()) - (await page.evaluate(() => scrollY))
     }, { message: `no llega al final (${bloqueo})` })
     .toBeLessThanOrEqual(1)
