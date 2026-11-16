@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { SITE_URL } from './site.mjs'
 import { diaCartagena, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
 import type { Promo } from './types'
 
@@ -78,7 +79,7 @@ describe('promo helpers', () => {
 
   it('prefills the WhatsApp message with the promo name and link', () => {
     expect(promoMensaje({ title: '2x1 en gorras', slug: '2x1-gorras' })).toBe(
-      '¡Hola! Me interesa la promo "2x1 en gorras". https://serflowctg.netlify.app/promos/2x1-gorras',
+      `¡Hola! Me interesa la promo "2x1 en gorras". ${SITE_URL}/promos/2x1-gorras`,
     )
   })
 })

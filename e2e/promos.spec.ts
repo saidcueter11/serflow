@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
+import { SITE_URL } from '../src/lib/site.mjs'
 
 // PRI-131: promos sembradas por e2e/promos/server.mjs (ver scenarios.mjs). Cada escenario es un build aparte.
 const SITE = { 0: 'http://localhost:4232', 1: 'http://localhost:4233', 3: 'http://localhost:4234' }
@@ -42,7 +43,7 @@ test.describe('3 promos vigentes y 1 vencida', () => {
     if (isMobile) expect(foto.y).toBeLessThan(titulo.y)
     else expect(foto.x).toBeGreaterThan(titulo.x + titulo.width)
     expect(await waText(first.getByRole('link', { name: /Pedir por WhatsApp/ }))).toBe(
-      '¡Hola! Me interesa la promo "2x1 en gorras bordadas". https://serflowctg.netlify.app/promos/e2e-2x1-gorras',
+      `¡Hola! Me interesa la promo "2x1 en gorras bordadas". ${SITE_URL}/promos/e2e-2x1-gorras`,
     )
     await expect(first.getByText(/^Válida hasta el /)).toBeVisible()
     await first.getByRole('link', { name: /Ver las 5 fotos/ }).click()

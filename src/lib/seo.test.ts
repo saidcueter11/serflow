@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { SITE_URL } from './site.mjs'
 import { MAP_EMBED_URL } from './business'
 import { absoluta, breadcrumbSchema, geoDelMapa, offerSchema, rangoDePrecios } from './seo'
 import { lastmodPorRuta, lineasRedirect, rutaBase } from './seo-build.mjs'
 
-const url = 'https://serflowctg.netlify.app/catalogo/beisbol/beisbol-26/'
+const url = `${SITE_URL}/catalogo/beisbol/beisbol-26/`
 
 describe('offerSchema', () => {
   it('pesos, el precio del admin y si hay para llevar, sin el stock', () => {
@@ -28,8 +29,8 @@ describe('breadcrumbSchema', () => {
   it('posiciones desde 1, en orden', () => {
     const b = breadcrumbSchema([{ name: 'Inicio', url: absoluta('/') }, { name: 'Catálogo', url: absoluta('/catalogo/') }])
     expect(b.itemListElement).toEqual([
-      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://serflowctg.netlify.app/' },
-      { '@type': 'ListItem', position: 2, name: 'Catálogo', item: 'https://serflowctg.netlify.app/catalogo/' },
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'Catálogo', item: `${SITE_URL}/catalogo/` },
     ])
   })
 })
@@ -73,10 +74,10 @@ describe('lastmodPorRuta', () => {
   })
 
   it('las URLs del sitemap se buscan sin "/" final y las páginas /pagina/N como su categoría', () => {
-    expect(rutaBase('https://serflowctg.netlify.app/catalogo/beisbol/pagina/2/')).toBe('/catalogo/beisbol')
-    expect(rutaBase('https://serflowctg.netlify.app/catalogo/pagina/3/')).toBe('/catalogo')
-    expect(rutaBase('https://serflowctg.netlify.app/catalogo/beisbol/b-1/')).toBe('/catalogo/beisbol/b-1')
-    expect(rutaBase('https://serflowctg.netlify.app/')).toBe('/')
+    expect(rutaBase(`${SITE_URL}/catalogo/beisbol/pagina/2/`)).toBe('/catalogo/beisbol')
+    expect(rutaBase(`${SITE_URL}/catalogo/pagina/3/`)).toBe('/catalogo')
+    expect(rutaBase(`${SITE_URL}/catalogo/beisbol/b-1/`)).toBe('/catalogo/beisbol/b-1')
+    expect(rutaBase(`${SITE_URL}/`)).toBe('/')
   })
 })
 

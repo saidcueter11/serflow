@@ -7,7 +7,7 @@ Auditoría de partida: doc de Tempo "Software Factory Readiness Audit — serflo
 Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR Reviewer, Seguridad) antes de cada run y mandan sobre su prompt. Cambiar una regla = editar esta sección por PR. Hechos verificables, no aspiraciones: cada comando y ruta debe existir.
 
 ### Producto
-- Catálogo web público de **Serflow**, tienda de prendas personalizadas en Cartagena, Colombia. Prod: https://serflowctg.netlify.app/
+- Catálogo web público de **Serflow**, tienda de prendas personalizadas en Cartagena, Colombia. Prod: https://serflowctg.com/ (dominio en `src/lib/site.mjs`; `serflowctg.netlify.app` redirige ahí)
 - Usuarios: clientes que llegan sobre todo desde el celular, ven categorías y productos y piden por WhatsApp (`wa.me/573156481243`). No hay carrito, cuentas, pagos ni checkout: el CTA de cada producto abre WhatsApp con el link y la foto visible.
 - El contenido (categorías, productos, promos, imágenes) se administra en el repo hermano `saidcueter11/serflow-admin` (Next.js) contra la misma Supabase. Un feature que necesita datos nuevos suele ser un par de PRs: este repo + serflow-admin (ver PR #20 y serflow-admin#11). Los agentes de este proyecto solo tocan este repo; si hace falta el lado admin, lo dicen en el issue.
 - Principios: rápido en móvil, sitio estático (Astro SSG, se reconstruye en cada deploy), copy cercano en español de Colombia. Anti-patrones: agregar backend o lógica de servidor, librerías pesadas en el cliente, romper el flujo a WhatsApp.

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { SITE_URL } from './site.mjs'
 import { TODO_HREF, fotoAlt, fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl, precioCop } from './catalog'
 
 const NOW = new Date('2026-10-20T12:00:00Z')
@@ -55,13 +56,13 @@ describe('pedirUrl', () => {
 
   it('identifica la foto por categoría, número y link, sin el nombre', () => {
     expect(text(pedirUrl('Beisbol', 26, fotoHref('beisbol', 'beisbol-26')))).toBe(
-      '¡Hola! Me gustó esta de Beisbol (N.º 26). ¿Me hacen una así?\nhttps://serflowctg.netlify.app/catalogo/beisbol/beisbol-26',
+      `¡Hola! Me gustó esta de Beisbol (N.º 26). ¿Me hacen una así?\n${SITE_URL}/catalogo/beisbol/beisbol-26`,
     )
   })
 
   it('sin legacy_id (fotos nuevas del admin) el link basta', () => {
     expect(text(pedirUrl('Moda', null, fotoHref('moda', 'gorra-dama')))).toBe(
-      '¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\nhttps://serflowctg.netlify.app/catalogo/moda/gorra-dama',
+      `¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\n${SITE_URL}/catalogo/moda/gorra-dama`,
     )
   })
 })
