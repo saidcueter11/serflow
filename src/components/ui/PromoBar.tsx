@@ -1,11 +1,12 @@
 import type { CSSProperties } from 'react'
 
-export type PromoLink = { title: string; href: string }
+export type PromoLink = { title: string; href: string; /** diasPromo (PRI-538); null = todos los días. */ dias?: string | null }
 
 const SECONDS = 5
 
 /**
- * Barra dorada de promos, fija arriba de todo (encima del Header). Solo se pinta si hay promos vigentes.
+ * Barra dorada de promos, fija arriba de todo (encima del Header). Solo se pinta si hay promos vigentes. Cada título
+ * lleva debajo sus días si la promo aplica solo algunos (PRI-538).
  * Con una, se queda quieta y enlaza a su detalle. Con varias, toda la barra es un solo link a /promos ("Ver las N"
  * quieto a la derecha) y los títulos rotan cada 5 s (sube uno, entra el otro), en pausa con el mouse o el foco y
  * quietos con reducir movimiento; para el lector de pantalla el link dice "Ver las N promos de hoy" y los títulos
@@ -40,10 +41,11 @@ export function PromoBar({ promos }: { promos: PromoLink[] }) {
           {promos.map((p, i) => (
             <span
               key={p.href}
-              className={`${n > 1 ? 'anim-promo' : ''} col-start-1 row-start-1 line-clamp-2 text-[14px] font-semibold leading-snug @4xl:text-[16px]`}
+              className={`${n > 1 ? 'anim-promo' : ''} col-start-1 row-start-1 flex flex-col leading-snug`}
               style={{ '--d': `${i === 0 ? 0 : i * SECONDS - n * SECONDS}s` } as CSSProperties}
             >
-              {p.title}
+              <span className="line-clamp-2 text-[14px] font-semibold @4xl:text-[16px]">{p.title}</span>
+              {p.dias && <span className="text-[12px] font-medium @4xl:text-[13px]">{p.dias}</span>}
             </span>
           ))}
         </span>

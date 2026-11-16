@@ -14,6 +14,7 @@ import { ADDRESS, EMAIL, HOURS_EDITED, MAP_EMBED_URL, POSTAL_CODE, SOCIAL, WHATS
 import { TODO_HREF } from '../lib/catalog'
 import { OG_MARCA, absoluta, geoDelMapa, rangoDePrecios } from '../lib/seo'
 import { getSiteContent } from '../lib/site-content'
+import { diasPromo } from '../lib/promos'
 // Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
 // pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
 // 0y3DOYVP2bs, KL8EGoKDNcQ, kixK2sNVPyo
@@ -137,7 +138,7 @@ const services = await Promise.all(
   }),
 )
 
-const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}` }))
+const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}`, dias: diasPromo(p.weekdays) }))
 
 // "Ver todo" lleva a la primera categoría; desde ahí las pestañas llevan a las demás.
 const catalogHref = categories[0] ? `${TODO_HREF}/${categories[0].slug}` : '/'

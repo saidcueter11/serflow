@@ -6,11 +6,13 @@ import { fotoAttrs } from '../ui/PhotoModal'
 import { Palabras } from '../ui/Palabras'
 import { PromoCard } from '../ui/PromoCard'
 import { PromoGrid } from '../ui/PromoGrid'
+import { StatusPill } from '../ui/StatusPill'
 import { Section } from '../ui/Section'
 
 /**
  * /promos/[slug] (PRI-131; sistema medido de PRI-286): "Volver" en su fila y el hero de la portada con la foto de la
- * promo (vigencia, título, descripción y WhatsApp); luego Más fotos en una fila llena y Otras promos en tarjetas. La
+ * promo (vigencia, título, días si aplica solo algunos, descripción y WhatsApp); luego Más fotos en una fila llena y
+ * Otras promos en tarjetas. La
  * portada del hero y cada foto de Más fotos abren el modal de foto (PhotoModal, PRI-523) con todas las de la promo; la página lo monta.
  */
 export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: PromoView[] }) {
@@ -45,6 +47,11 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
             <h1 className="pf-display">
               <Palabras text={promo.title} />
             </h1>
+            {promo.dias && (
+              <p>
+                <StatusPill tone="accent">{promo.dias}</StatusPill>
+              </p>
+            )}
             {promo.description && (
               <p className="pf-lead sf-bajada">
                 <Palabras text={promo.description} />
