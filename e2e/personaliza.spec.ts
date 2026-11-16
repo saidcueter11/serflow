@@ -68,8 +68,6 @@ const TENIDOS: [string, string][] = [
 ]
 const ACRILICA = 'Gorra acrílica'
 const MALLA = 'Gorra de malla'
-const REGLA_ACRILICA = 'En la gorra acrílica el bordado va en el centro del frente y el estampado, a los lados.'
-const SIN_LADO = (color: string) => `La gorra acrílica ${color} todavía no tiene foto de lado. Si la quieres ahí, cuéntanos en la nota.`
 
 const AVISO_CALIDAD = 'Usa tu mejor imagen: si es de mala calidad, el resultado no puede hacer milagros.'
 const FONDO_FIJO = 'Esta imagen conserva su fondo'
@@ -204,9 +202,8 @@ test.describe('/personaliza', () => {
     expect(await colores(page)).toEqual(COLORES)
   })
 
-  // PRI-122: los colores teñidos tienen frente y espalda: la Espalda se habilita. Cada uno baja solo su foto, WebP liviana,
-  // al elegirlo, y un estampado oscuro conserva su color encima.
-  test('colores teñidos: cada uno se elige, con Pecho y Espalda, baja solo su foto y el estampado conserva su color', async ({ page, isMobile }) => {
+  // PRI-122: cada color teñido baja solo su foto, WebP liviana, al elegirlo, y un estampado oscuro conserva su color encima.
+  test('colores teñidos: cada uno se elige, baja solo su foto y el estampado conserva su color', async ({ page, isMobile }) => {
     const ancho = isMobile ? 390 : 1280
     await page.setViewportSize({ width: ancho, height: isMobile ? 844 : 900 })
     const prendas: { url: string; bytes: number }[] = []
@@ -218,36 +215,51 @@ test.describe('/personaliza', () => {
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible({ timeout: 15_000 })
     // Solo la del color de entrada: ningún teñido baja antes de elegirlo.
     expect(prendas.map((p) => p.url).filter((u) => TENIDOS.some(([id]) => u.includes(`/camiseta-${id}`)))).toEqual([])
-    const espalda = page.getByRole('radio', { name: 'Espalda' })
 
     for (const [id, nombre] of TENIDOS) {
       await page.getByText(nombre, { exact: true }).click()
       await expect(page.getByRole('img', { name: `Camiseta ${nombre.toLowerCase()} con tu diseño` })).toBeVisible()
-      await expect(page.getByRole('radio', { name: 'Pecho' })).toBeChecked()
-      await expect(espalda).toBeEnabled()
       // La misma optimización que las otras: WebP liviano, la de 720 px en celular.
       await expect.poll(() => prendas.find((p) => p.url.includes(`/camiseta-${id}.`))?.bytes, { message: id }).toBeLessThanOrEqual(isMobile ? 40 * 1024 : 70 * 1024)
       await page.getByRole('group', { name: /Tu diseño/ }).scrollIntoViewIfNeeded()
       await expect.poll(() => peorColorEnElDiseno(page, JEAN), { message: id }).toBeLessThan(40)
     }
-    await expect(page.getByText(/todavía no tiene foto de espalda/)).toHaveCount(0)
-
-    const [ultimoId, ultimo] = TENIDOS[TENIDOS.length - 1]
-    await page.getByText('Espalda', { exact: true }).click()
-    await expect(page.getByRole('img', { name: `Camiseta ${ultimo.toLowerCase()}, espalda con tu diseño` })).toBeVisible()
-    await expect.poll(() => prendas.some((p) => p.url.includes(`/camiseta-${ultimoId}-espalda.`))).toBe(true)
+    const ultimo = TENIDOS[TENIDOS.length - 1][1]
     await test.info().attach(`tenidos-${ancho}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
 
     await enviar(page).click()
     const texto = await textoWa(page.getByRole('dialog', { name: 'Revisa y envía' }).getByRole('link', { name: 'Abrir chat con Serflow' }))
     expect(texto).toContain(`*Prenda:* Camiseta ${ultimo.toLowerCase()}`)
-    expect(texto).toContain('*Ubicación:* Espalda')
+    expect(texto).toContain('*Ubicación:* Frente')
   })
 
-  // Reglas del taller (Said, PRI-122): en la acrílica el bordado va solo en el centro del frente y el estampado solo a los
-  // lados (unit tests en datos.test.ts). Sin foto libre de lado ni de la de malla todavía: el lado y la de malla quedan
-  // apagados con su nota, y la acrílica no ofrece estampado porque nunca va al frente.
-  test('gorras: la acrílica borda en el centro del frente y no estampa al frente; la de malla, apagada hasta tener foto', async ({ page }) => {
+  // PRI-522 (Said, 2026-11-15): el diseño va siempre al frente. No hay selector de ubicación en ninguna prenda, la vista
+  // previa es el frente, el mensaje lo dice y ninguna foto de espalda baja ni se anuncia en la página.
+  test('ubicación: el diseño va siempre al frente, sin selector, y ninguna foto de espalda baja', async ({ page }) => {
+    const espaldas: string[] = []
+    page.on('request', (r) => /-espalda[.-]/.test(new URL(r.url()).pathname) && espaldas.push(r.url()))
+    await abrir(page)
+    expect(await page.content()).not.toMatch(/-espalda[.-]/)
+    for (const prenda of ['Camiseta', ACRILICA]) {
+      await page.getByText(prenda, { exact: true }).click()
+      await expect(page.getByRole('img', { name: `${prenda} negra` })).toBeVisible()
+      await expect(page.getByRole('group', { name: 'Ubicación' })).toHaveCount(0)
+      await expect(page.locator('input[name=ubicacion]')).toHaveCount(0)
+      await expect(page.getByText(/Ubicación|Pecho|Espalda|a los lados/)).toHaveCount(0)
+      await test.info().attach(`solo-frente-${prenda}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+      await enviar(page).click()
+      const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
+      expect(await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain(`*Prenda:* ${prenda} negra\n*Técnica:* ${prenda === 'Camiseta' ? 'Estampado' : 'Bordado'}\n*Ubicación:* Frente\n`)
+      await hoja.getByRole('button', { name: 'Editar mi pedido' }).click()
+      await expect(hoja).toBeHidden()
+    }
+    expect(espaldas).toEqual([])
+  })
+
+  // Reglas del taller (Said, PRI-122): en la acrílica el bordado va en el centro del frente y el estampado solo a los lados.
+  // Con el diseño solo al frente (PRI-522), la acrílica ofrece solo bordado. Sin foto libre de la de malla todavía: queda
+  // apagada con su nota.
+  test('gorras: la acrílica solo borda, al frente; la de malla, apagada hasta tener foto', async ({ page }) => {
     await abrir(page)
     const malla = page.getByRole('radio', { name: MALLA })
     await expect(malla).toBeDisabled()
@@ -260,16 +272,13 @@ test.describe('/personaliza', () => {
     await page.getByText(ACRILICA, { exact: true }).click()
     await expect(page.getByRole('img', { name: `${ACRILICA} negra` })).toBeVisible()
     expect(await tecnicas(page)).toEqual(['bordado'])
-    await expect(page.getByRole('radio', { name: 'Centro del frente' })).toBeChecked()
-    await expect(page.getByRole('radio', { name: 'Lado' })).toBeDisabled()
-    await expect(page.getByText(`${REGLA_ACRILICA} ${SIN_LADO('negra')}`)).toBeVisible()
 
     await page.getByText('Azul rey', { exact: true }).click()
     await expect(page.getByRole('img', { name: `${ACRILICA} azul rey` })).toBeVisible()
-    await expect(page.getByText(`${REGLA_ACRILICA} ${SIN_LADO('azul rey')}`)).toBeVisible()
+    expect(await tecnicas(page)).toEqual(['bordado'])
     await test.info().attach('gorra-acrilica', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
     await enviar(page).click()
-    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain(`*Prenda:* ${ACRILICA} azul rey\n*Técnica:* Bordado\n*Ubicación:* Centro del frente`)
+    expect(await textoWa(page.getByRole('link', { name: 'Abrir chat con Serflow' }))).toContain(`*Prenda:* ${ACRILICA} azul rey\n*Técnica:* Bordado\n*Ubicación:* Frente`)
   })
 
   test('flujo principal: logo sobre blanco, quita el fondo, cambia color y técnica y arma el mensaje de WhatsApp', async ({ page }) => {
@@ -298,7 +307,7 @@ test.describe('/personaliza', () => {
         '',
         '*Prenda:* Camiseta blanca',
         '*Técnica:* Estampado',
-        '*Ubicación:* Pecho',
+        '*Ubicación:* Frente',
         '*Tamaño:* unos 21 cm de ancho',
         '*Cantidad:* 2 a 5',
         '*Diseño:* te lo mando en el siguiente mensaje (sin el fondo), con la vista previa',
@@ -332,7 +341,7 @@ test.describe('/personaliza', () => {
     await enviar(page).click()
     const hoja = page.getByRole('dialog', { name: 'Revisa y envía' })
     const texto = await textoWa(hoja.getByRole('link', { name: 'Abrir chat con Serflow' }))
-    expect(texto).toContain('*Prenda:* Gorra acrílica negra\n*Técnica:* Bordado\n*Ubicación:* Centro del frente\n*Cantidad:* 1')
+    expect(texto).toContain('*Prenda:* Gorra acrílica negra\n*Técnica:* Bordado\n*Ubicación:* Frente\n*Cantidad:* 1')
     expect(texto).not.toContain('*Diseño:*')
     expect(texto).not.toContain('quiero que me ayuden')
     expect(texto).not.toContain('*Tamaño:*')
@@ -348,10 +357,8 @@ test.describe('/personaliza', () => {
     await expect(page.getByText(PISTA_BORDADO)).toBeVisible()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
 
-    // No crece más que el tope, ni en la espalda, que tiene otra área.
+    // No crece más que el tope.
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
-    await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
-    await page.getByText('Espalda', { exact: true }).click()
     await expect(page.getByRole('group', { name: /Tu diseño, unos 10 cm de ancho/ })).toBeVisible()
 
     await enviar(page).click()
@@ -365,7 +372,7 @@ test.describe('/personaliza', () => {
     await page.getByText('Estampado', { exact: true }).click()
     await expect(page.getByText(PISTA_BORDADO)).toHaveCount(0)
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
-    await expect(page.getByRole('group', { name: /Tu diseño, unos 13 cm de ancho/ })).toBeVisible()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 12 cm de ancho/ })).toBeVisible()
   })
 
   test('fondo: aviso de calidad junto a la subida; quitar y restaurar; si no se puede quitar, lo dice', async ({ page }) => {
@@ -612,30 +619,6 @@ test.describe('/personaliza', () => {
     await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
   })
 
-  test('colocación: al cambiar de foto el diseño queda dentro de lo visible sin tocarlo', async ({ page }) => {
-    await abrir(page)
-    await page.getByText('Blanca', { exact: true }).click()
-    await page.getByText('Espalda', { exact: true }).click()
-    await expect(page.getByRole('img', { name: 'Camiseta blanca, espalda' })).toBeVisible()
-    await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
-    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(800) })
-
-    // Al borde de abajo a la derecha; la espalda negra tiene otra área y otro recorte.
-    const diseno = page.getByRole('group', { name: /Tu diseño/ })
-    await diseno.scrollIntoViewIfNeeded()
-    const d = (await diseno.boundingBox())!
-    const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
-    await page.mouse.click(c.x, c.y)
-    await page.mouse.move(c.x, c.y)
-    await page.mouse.down()
-    await page.mouse.move(c.x + 1500, c.y + 1500, { steps: 4 })
-    await page.mouse.up()
-
-    await page.getByText('Negra', { exact: true }).click()
-    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda con tu diseño' })).toBeVisible()
-    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
-  })
-
   test('la foto no salta cuando el motor reemplaza a la del HTML', async ({ page }) => {
     await page.route('**/*.js', (r) => r.abort())
     await page.goto('/personaliza')
@@ -659,7 +642,7 @@ test.describe('/personaliza', () => {
     await expect(aviso).toHaveCount(0)
   })
 
-  test('rendimiento: baja una sola foto liviana en WebP; las otras vistas, solo al pedirlas', async ({ page, isMobile }) => {
+  test('rendimiento: baja una sola foto liviana en WebP; la de otro color, solo al pedirla', async ({ page, isMobile }) => {
     const prendas: { url: string; bytes: number }[] = []
     page.on('response', async (r) => {
       if (/\/(camiseta|gorra)-[^/]*\.\w+$/.test(new URL(r.url()).pathname)) prendas.push({ url: new URL(r.url()).pathname, bytes: (await r.body()).length })
@@ -669,10 +652,10 @@ test.describe('/personaliza', () => {
     expect(prendas[0].url).toMatch(/\/camiseta-negra\.[^/]*\.webp$/)
     expect(prendas[0].bytes).toBeLessThanOrEqual(isMobile ? 40 * 1024 : 70 * 1024)
 
-    await page.getByText('Espalda', { exact: true }).click()
-    await expect(page.getByRole('img', { name: 'Camiseta negra, espalda' })).toBeVisible()
+    await page.getByText('Blanca', { exact: true }).click()
+    await expect(page.getByRole('img', { name: 'Camiseta blanca' })).toBeVisible()
     await expect.poll(() => prendas.length).toBe(2)
-    expect(prendas[1].url).toMatch(/\/camiseta-negra-espalda\.[^/]*\.webp$/)
+    expect(prendas[1].url).toMatch(/\/camiseta-blanca\.[^/]*\.webp$/)
   })
 
   test('mockup: en celular sale de la foto grande, que solo se baja al enviar', async ({ page, isMobile }) => {

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { HojaEnvio } from "../../../../src/components/ui/HojaEnvio";
-import { PRENDAS, fotoDe } from "../../../../src/lib/personaliza/datos";
+import { PRENDAS } from "../../../../src/lib/personaliza/datos";
 import { LUGAR_INICIAL } from "../../../../src/lib/personaliza/lugar";
 import { mensaje, type Pedido } from "../../../../src/lib/personaliza/mensaje";
 import { cargarFoto, mockup, prepararDiseno } from "../../../../src/lib/personaliza/motor";
@@ -8,7 +8,7 @@ import { Code, PageFrame, PageTitle } from "../Chrome";
 import { COLORES } from "./colores";
 import sol from "./sol-heroica.svg";
 
-const BASE: Pedido = { prenda: "camiseta", color: "Negra", tecnica: "estampado", ubicacion: "Pecho", cantidad: "2 a 5", diseno: "imagen", vistaPrevia: true, tamanoCm: 19, nota: "Tallas M y L" };
+const BASE: Pedido = { prenda: "camiseta", color: "Negra", tecnica: "estampado", cantidad: "2 a 5", diseno: "imagen", vistaPrevia: true, tamanoCm: 19, nota: "Tallas M y L" };
 const CON_IMAGEN = mensaje(BASE);
 const SIN_IMAGEN = mensaje({ ...BASE, diseno: "ninguno", vistaPrevia: false, nota: undefined });
 const ARCHIVO = mensaje({ ...BASE, diseno: "pesada", vistaPrevia: false });
@@ -19,7 +19,7 @@ function useMockup() {
   const [url, setUrl] = useState<string>();
   useEffect(() => {
     const c = COLORES.camiseta[0];
-    const info = fotoDe(c, "camiseta", "Pecho")!;
+    const info = c.foto;
     const img = new Image();
     img.onload = async () => {
       const t = document.createElement("canvas");

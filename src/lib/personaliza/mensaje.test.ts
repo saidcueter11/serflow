@@ -5,7 +5,6 @@ const base: Pedido = {
   prenda: 'camiseta',
   color: 'Negra',
   tecnica: 'bordado',
-  ubicacion: 'Pecho',
   cantidad: '2 a 5',
   diseno: 'imagen',
   vistaPrevia: true,
@@ -21,7 +20,7 @@ describe('mensaje', () => {
         '',
         '*Prenda:* Camiseta negra',
         '*Técnica:* Bordado',
-        '*Ubicación:* Pecho',
+        '*Ubicación:* Frente',
         '*Tamaño:* unos 19 cm de ancho',
         '*Cantidad:* 2 a 5',
         '*Diseño:* te lo mando en el siguiente mensaje, con la vista previa',
@@ -55,17 +54,17 @@ describe('mensaje', () => {
     expect(m).toContain('*Cantidad:* 2 a 5\n*Nota:*')
   })
 
-  it('gorra, sin nota y nota de más de 300 caracteres', () => {
-    const gorra = mensaje({ ...base, prenda: 'gorra', color: 'Blanca', ubicacion: 'Centro del frente', nota: '  ' })
-    expect(gorra).toContain('*Prenda:* Gorra acrílica blanca\n*Técnica:* Bordado\n*Ubicación:* Centro del frente')
+  it('gorra, sin nota y nota de más de 300 caracteres; el diseño va al frente en todas las prendas', () => {
+    const gorra = mensaje({ ...base, prenda: 'gorra', color: 'Blanca', nota: '  ' })
+    expect(gorra).toContain('*Prenda:* Gorra acrílica blanca\n*Técnica:* Bordado\n*Ubicación:* Frente')
     expect(gorra).not.toContain('*Nota:*')
     expect(mensaje({ ...base, nota: 'x'.repeat(400) })).toContain(`*Nota:* ${'x'.repeat(300)}\n`)
   })
 })
 
 describe('nombreMockup', () => {
-  it('serflow-<prenda>-<color>-<ubicación>.jpg, sin tildes', () => {
-    expect(nombreMockup('camiseta', 'Negra', 'Pecho')).toBe('serflow-camiseta-negra-pecho.jpg')
-    expect(nombreMockup('camiseta', 'Azul oscuro', 'Espalda')).toBe('serflow-camiseta-azul-oscuro-espalda.jpg')
+  it('serflow-<prenda>-<color>.jpg, sin tildes', () => {
+    expect(nombreMockup('camiseta', 'Negra')).toBe('serflow-camiseta-negra.jpg')
+    expect(nombreMockup('gorra', 'Azul oscuro')).toBe('serflow-gorra-acrilica-azul-oscuro.jpg')
   })
 })

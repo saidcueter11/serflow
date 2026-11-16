@@ -6,7 +6,7 @@ import { BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from '.
 import { VistaPrevia, type ModoVista } from '../ui/VistaPrevia'
 import { detalleArchivo, leerDiseno, type DisenoLeido } from '../../lib/personaliza/archivo'
 import { quitarFondoIa, soporteIa, type FondoIa } from '../../lib/personaliza/fondo-ia'
-import { CANTIDADES, PRENDAS, TECNICAS, fotoDe, tecnicasDe, ubicacionesDe, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
+import { CANTIDADES, PRENDAS, TECNICAS, type Cantidad, type ColorPrenda, type Prenda, type Tecnica } from '../../lib/personaliza/datos'
 import { LUGAR_GORRA, LUGAR_INICIAL, escalaMax, tamanoCm, type Lugar } from '../../lib/personaliza/lugar'
 import { mensaje, nombreMockup, seMuestra, type EstadoDiseno } from '../../lib/personaliza/mensaje'
 import { cargarFoto, mockup, prepararDiseno, type FotoLista } from '../../lib/personaliza/motor'
@@ -29,7 +29,6 @@ interface Elecciones {
   prenda: Prenda
   colorId: string
   tecnica: Tecnica
-  ubicacion: string
   cantidad: Cantidad
   nota: string
   lugar: Lugar
@@ -67,8 +66,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const def = PRENDAS[prenda]
   const lista = colores[prenda]
   const [colorId, setColorId] = useState(lista[0].id)
-  const [tecnicaElegida, setTecnica] = useState<Tecnica>(def.tecnicas[0])
-  const [elegida, setUbicacion] = useState(def.ubicaciones[0].nombre)
+  const [tecnica, setTecnica] = useState<Tecnica>(def.tecnicas[0])
   const [cantidad, setCantidad] = useState<Cantidad>('1')
   const [nota, setNota] = useState('')
   const [lugar, setLugar] = useState<Lugar>(lugarDe(primera))
@@ -97,19 +95,13 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   const escritorio = useEscritorio()
 
   const color = lista.find((c) => c.id === colorId) ?? lista[0]
-  // Una técnica sin dónde ir en este color no se ofrece; una ubicación sin foto, o que no es para la técnica elegida (la
-  // gorra acrílica), queda deshabilitada y se muestra la que sí sirve.
-  const ofrecidas = tecnicasDe(color, prenda)
-  const tecnica = ofrecidas.includes(tecnicaElegida) ? tecnicaElegida : ofrecidas[0]
-  const conFoto = ubicacionesDe(color, prenda, tecnica)
-  const sinFoto = def.ubicaciones.filter((u) => !color.photos.some((f) => f.view === u.vista))
   const sinColores = (Object.keys(PRENDAS) as Prenda[]).filter((p) => !colores[p].length)
-  const ubicacion = conFoto.some((u) => u.nombre === elegida) ? elegida : conFoto[0].nombre
-  const fotoInfo = fotoDe(color, prenda, ubicacion) ?? fotoDe(lista[0], prenda, ubicacion)!
+  // El diseño va siempre al frente (PRI-522): la única foto de cada color.
+  const fotoInfo = color.foto
   const anchoCm = fotoInfo.print_width_cm
   const maxS = escalaMax(prenda, tecnica, anchoCm)
 
-  // Foto del color y la vista elegidos: solo se baja esa. Mientras llega, se ve la anterior atenuada.
+  // Foto del color elegido: solo se baja esa. Mientras llega, se ve la anterior atenuada.
   const fotos = useRef(new Map<string, FotoLista>())
   const [foto, setFoto] = useState<FotoLista | null>(null)
   const [fotoEstado, setFotoEstado] = useState<'cargando' | 'lista' | 'error'>('cargando')
@@ -163,7 +155,6 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
         if (colores[g.prenda].some((c) => c.id === g.colorId)) setColorId(g.colorId)
         else setColorId(colores[g.prenda][0].id)
         setTecnica(d.tecnicas.includes(g.tecnica) ? g.tecnica : d.tecnicas[0])
-        setUbicacion(d.ubicaciones.some((u) => u.nombre === g.ubicacion) ? g.ubicacion : d.ubicaciones[0].nombre)
         if (CANTIDADES.includes(g.cantidad)) setCantidad(g.cantidad)
         setNota(String(g.nota ?? ''))
         if (g.lugar) setLugar(g.lugar)
@@ -179,7 +170,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
 
   const guardar = (extra?: Partial<Elecciones>) => {
     try {
-      const e: Elecciones = { prenda, colorId, tecnica, ubicacion, cantidad, nota, lugar, chatAbierto: chatAbierto.current, ...extra }
+      const e: Elecciones = { prenda, colorId, tecnica, cantidad, nota, lugar, chatAbierto: chatAbierto.current, ...extra }
       sessionStorage.setItem(CLAVE, JSON.stringify(e))
     } catch {
       // Igual que arriba: sin almacenamiento no se recuerda nada.
@@ -187,7 +178,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
   }
   useEffect(() => {
     if (restaurado) guardar()
-  }, [restaurado, prenda, colorId, tecnica, ubicacion, cantidad, nota, lugar])
+  }, [restaurado, prenda, colorId, tecnica, cantidad, nota, lugar])
 
   // Pantalla C: al volver a la página después de abrir el chat.
   useEffect(() => {
@@ -253,7 +244,6 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     setPrenda(n)
     setColorId(colores[n][0].id)
     setTecnica(PRENDAS[n].tecnicas[0])
-    setUbicacion(PRENDAS[n].ubicaciones[0].nombre)
     setLugar(lugarDe(n))
   }
 
@@ -261,15 +251,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     const t = e.target as HTMLInputElement
     if (t.name === 'prenda') cambiarPrenda(t.value as Prenda)
     if (t.name === 'color') setColorId(t.value)
-    if (t.name === 'tecnica') {
-      setTecnica(t.value as Tecnica)
-      // En la gorra acrílica la técnica cambia de foto (frente o lado): el diseño vuelve a su lugar inicial, como al cambiar de ubicación.
-      if (!ubicacionesDe(color, prenda, t.value as Tecnica).some((u) => u.nombre === ubicacion)) setLugar(lugarDe(prenda))
-    }
-    if (t.name === 'ubicacion') {
-      setUbicacion(t.value)
-      setLugar(lugarDe(prenda))
-    }
+    if (t.name === 'tecnica') setTecnica(t.value as Tecnica)
     if (t.name === 'cantidad') setCantidad(t.value as Cantidad)
   }
 
@@ -296,7 +278,6 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     prenda,
     color: color.name,
     tecnica,
-    ubicacion,
     cantidad,
     diseno: estado,
     vistaPrevia: vio,
@@ -305,7 +286,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
     nota,
   })
   const nombreColor = `${def.nombre} ${color.name.toLowerCase()}`
-  const resumen = [nombreColor, TECNICAS[tecnica].nombre, ubicacion, cantidad === '1' ? '1 unidad' : `${cantidad} unidades`].join(' · ')
+  const resumen = [nombreColor, TECNICAS[tecnica].nombre, cantidad === '1' ? '1 unidad' : `${cantidad} unidades`].join(' · ')
 
   const archivos = () => [...(leido ? [leido.archivo] : []), ...(tipo === 'imagen' && mock ? [mock.archivo] : [])]
 
@@ -330,7 +311,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
       if (envio.current !== id) return
       setPreparando(false)
       if (blob) {
-        m = new File([blob], nombreMockup(prenda, color.name, ubicacion), { type: 'image/jpeg' })
+        m = new File([blob], nombreMockup(prenda, color.name), { type: 'image/jpeg' })
         setMock({ url: URL.createObjectURL(blob), archivo: m })
       }
     }
@@ -427,7 +408,7 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
               <VistaPrevia
                 foto={foto}
                 fotoInicial={fotoInfo}
-                etiqueta={`${nombreColor}${{ frente: '', espalda: ', espalda', lado: ', de lado' }[fotoInfo.view]}`}
+                etiqueta={nombreColor}
                 modo={modo}
                 tecnica={tecnica}
                 diseno={tratado}
@@ -489,29 +470,9 @@ export function PersonalizaPage({ colores }: { colores: Record<Prenda, ColorPren
                 legend="Técnica"
                 valor={TECNICAS[tecnica].nombre}
                 nota={tecnica === 'bordado' && def.bordadoMaxCm ? `El bordado es para piezas pequeñas, como un logo o un nombre: hasta unos ${def.bordadoMaxCm} cm de ancho.` : undefined}
-                key={`t-${prenda}-${ofrecidas.join()}`}
+                key={`t-${prenda}`}
               >
-                <Tecnicas opciones={ofrecidas} elegida={tecnica} />
-              </Grupo>
-              <Grupo
-                legend="Ubicación"
-                nota={[
-                  def.nota,
-                  sinFoto.length && `La ${nombreColor.toLowerCase()} todavía no tiene foto de ${sinFoto.map((u) => u.nombre.toLowerCase()).join(' ni ')}. Si la quieres ahí, cuéntanos en la nota.`,
-                ]
-                  .filter(Boolean)
-                  .join(' ') || undefined}
-                key={`u-${prenda}-${conFoto.map((u) => u.nombre).join()}`}
-              >
-                {def.ubicaciones.length > 1 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {def.ubicaciones.map((u) => (
-                      <Chip key={u.nombre} label={u.nombre} name="ubicacion" selected={u.nombre === ubicacion} disabled={!conFoto.includes(u)} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[15px]">{def.ubicaciones[0].nombre}. Si la quieres en otro lado, cuéntanos en la nota.</p>
-                )}
+                <Tecnicas opciones={def.tecnicas} elegida={tecnica} />
               </Grupo>
               <Grupo legend="Cantidad" nota="Las tallas van en la nota o en el chat.">
                 <div className="flex flex-wrap gap-2">

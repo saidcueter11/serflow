@@ -1,4 +1,4 @@
-import { PRENDAS, TECNICAS, type Cantidad, type Prenda, type Tecnica } from './datos'
+import { PRENDAS, TECNICAS, UBICACION, type Cantidad, type Prenda, type Tecnica } from './datos'
 
 /** ninguno: no subió nada · imagen / baja: se ve en la vista previa (baja = menos de 500 px) · pesada: más de 20 MB o más de 50 MP. */
 export type EstadoDiseno = 'ninguno' | 'imagen' | 'baja' | 'pesada'
@@ -10,7 +10,6 @@ export interface Pedido {
   /** Nombre del color en femenino: "Negra". */
   color: string
   tecnica: Tecnica
-  ubicacion: string
   cantidad: Cantidad
   diseno: EstadoDiseno
   /** El cliente vio su diseño sobre la prenda (la foto cargó y no siguió sin vista previa). */
@@ -37,7 +36,7 @@ export function mensaje(p: Pedido): string {
     '',
     `*Prenda:* ${PRENDAS[p.prenda].nombre} ${p.color.toLowerCase()}`,
     `*Técnica:* ${TECNICAS[p.tecnica].nombre}`,
-    `*Ubicación:* ${p.ubicacion}`,
+    `*Ubicación:* ${UBICACION}`,
     ...(muestra && p.vistaPrevia && p.tamanoCm ? [`*Tamaño:* unos ${p.tamanoCm} cm de ancho`] : []),
     `*Cantidad:* ${p.cantidad}`,
     ...(diseno ? [`*Diseño:* ${diseno}`] : []),
@@ -55,6 +54,5 @@ const slug = (t: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-/** serflow-camiseta-negra-pecho.jpg */
-export const nombreMockup = (prenda: Prenda, color: string, ubicacion: string) =>
-  `serflow-${slug(`${PRENDAS[prenda].nombre} ${color} ${ubicacion}`)}.jpg`
+/** serflow-camiseta-negra.jpg */
+export const nombreMockup = (prenda: Prenda, color: string) => `serflow-${slug(`${PRENDAS[prenda].nombre} ${color}`)}.jpg`

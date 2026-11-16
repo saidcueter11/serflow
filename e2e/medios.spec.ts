@@ -50,16 +50,17 @@ test.describe('con fotos y colores publicados', () => {
     await expect(page.locator('img[src*="gorras-estante"]').first()).toBeAttached()
   })
 
-  test('el personalizador saca lo sembrado menos lo oculto y suma lo agregado; los incompletos no salen', async ({ page }) => {
+  test('el personalizador saca lo sembrado menos lo oculto y suma lo agregado; sin foto de frente que sirva no sale', async ({ page }) => {
     await abrirPersonaliza(page)
-    // PRI-427: la fucsia de camiseta está oculta en el admin; la verde la agregó el cliente y va de última.
+    // PRI-427: la fucsia de camiseta está oculta en el admin; la verde y la de solo frente las agregó el cliente y van de últimas.
+    // PRI-522: el diseño va solo al frente, así que un color sin espalda sale y uno con el frente roto no.
     const camisetas = await colores(page)
-    expect(camisetas).toHaveLength(21)
+    expect(camisetas).toHaveLength(22)
     expect(camisetas).not.toContain('fucsia')
     expect(camisetas.slice(0, 2)).toEqual(['negra', 'blanca'])
-    expect(camisetas.at(-1)).toBe('e2e-verde')
+    expect(camisetas.slice(-2)).toEqual(['e2e-verde', 'e2e-solo-frente'])
     await expect(page.getByText('Verde', { exact: true })).toBeVisible()
-    await expect(page.getByText('Sin espalda', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('Solo frente', { exact: true })).toBeVisible()
     await expect(page.getByText('Foto rota', { exact: true })).toHaveCount(0)
 
     // Ocultar un color de camiseta no toca el de gorra con el mismo nombre.
@@ -96,8 +97,6 @@ test.describe('con fotos y colores publicados', () => {
       // Un PNG de 1 × 1, rojo.
       buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==', 'base64'),
     })
-    await expect(page.getByRole('group', { name: /Tu diseño, unos \d+ cm de ancho/ })).toBeVisible()
-    await page.getByText('Espalda', { exact: true }).click()
     await expect(page.getByRole('group', { name: /Tu diseño, unos \d+ cm de ancho/ })).toBeVisible()
     await expect.poll(() => page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement) => c.toDataURL())).toMatch(/^data:image/)
   })

@@ -23,17 +23,15 @@ describe('siembra de colores', () => {
       expect(sembrados.length).toBeLessThanOrEqual(MAX_COLORES)
     })
 
-    it(`${garment}: cada foto existe en el repo, con el área y los cm de muestra.ts`, () => {
+    it(`${garment}: la foto de frente existe en el repo, con el área y los cm de muestra.ts`, () => {
       sembrados.forEach((c, i) => {
-        const muestra = MUESTRA[garment][i].photos
-        expect(c.garment_photos.map((f) => f.view)).toEqual(muestra.map((f) => f.view))
-        c.garment_photos.forEach((f, j) => {
-          expect(fotoDelRepo(f.image_url), f.image_url).toBeDefined()
-          expect(f.print_width_cm).toBe(muestra[j].print_width_cm)
-          for (const esquina of ['tl', 'tr', 'br', 'bl'] as const) {
-            f.print_area[esquina].forEach((n, k) => expect(n).toBeCloseTo(muestra[j].print_area[esquina][k], 6))
-          }
-        })
+        const muestra = MUESTRA[garment][i].foto
+        const f = c.garment_photos.find((f) => f.view === 'frente')!
+        expect(fotoDelRepo(f.image_url), f.image_url).toBeDefined()
+        expect(f.print_width_cm).toBe(muestra.print_width_cm)
+        for (const esquina of ['tl', 'tr', 'br', 'bl'] as const) {
+          f.print_area[esquina].forEach((n, k) => expect(n).toBeCloseTo(muestra.print_area[esquina][k], 6))
+        }
       })
     })
   }
@@ -41,6 +39,8 @@ describe('siembra de colores', () => {
   it('una referencia desconocida no es foto del repo', () => {
     expect(fotoDelRepo('repo:personalizador/no-existe.jpg')).toBeUndefined()
     expect(fotoDelRepo('repo:stock/gorra-bordada.jpg')).toBeUndefined()
+    // PRI-522: el diseño va solo al frente; las fotos de espalda sembradas ya no entran al build.
+    expect(fotoDelRepo('repo:personalizador/camiseta-negra-espalda.jpg')).toBeUndefined()
     expect(fotoDelRepo('https://x.supabase.co/storage/v1/object/public/site-media/camiseta-negra.jpg')).toBeUndefined()
   })
 })

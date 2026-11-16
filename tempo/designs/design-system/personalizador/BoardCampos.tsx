@@ -80,7 +80,7 @@ export function BoardCampos() {
       <Row name="Tecnicas" description="Tarjetas con pista y muestra.">
         <div className="flex flex-wrap gap-8">
           <Celular label="camiseta"><Tecnicas opciones={["estampado", "bordado"]} elegida="estampado" /></Celular>
-          <Celular label="gorra"><Tecnicas opciones={["bordado", "estampado"]} elegida="bordado" /></Celular>
+          <Celular label="gorra de malla"><Tecnicas opciones={["bordado", "estampado"]} elegida="bordado" /></Celular>
         </div>
       </Row>
       <Row name="Nota y Aviso" description="Nota opcional de 300 caracteres. Aviso neutro: no es un error.">
@@ -93,9 +93,9 @@ export function BoardCampos() {
       </Row>
       <Row name="BarraEnvio" description="Celular: barra fija abajo, reemplaza al WhatsAppFab. Escritorio: sin caja, debajo de la vista previa. Abre la hoja, no WhatsApp directo.">
         <div className="flex flex-wrap gap-8">
-          <Celular label="fija"><BarraEnvio resumen="Camiseta negra · Estampado · Pecho · 1 unidad" /></Celular>
-          <Celular label="esperando"><BarraEnvio resumen="Camiseta negra · Estampado · Pecho · 1 unidad" esperando /></Celular>
-          <Celular label="escritorio · sin vista"><BarraEnvio resumen="Gorra acrílica negra · Bordado · Centro del frente · 1 unidad" fija={false} conVista={false} /></Celular>
+          <Celular label="fija"><BarraEnvio resumen="Camiseta negra · Estampado · 1 unidad" /></Celular>
+          <Celular label="esperando"><BarraEnvio resumen="Camiseta negra · Estampado · 1 unidad" esperando /></Celular>
+          <Celular label="escritorio · sin vista"><BarraEnvio resumen="Gorra acrílica negra · Bordado · 1 unidad" fija={false} conVista={false} /></Celular>
         </div>
       </Row>
     </PageFrame>

@@ -63,7 +63,7 @@ defineAsset(Chip, {
     "Talla": { props: { name: "talla", label: "M" } },
     "Técnica": { props: { name: "tecnica", label: "Estampado" } },
     "Así está bien": { props: { name: "tecnica", label: "Así está bien", value: "ninguna", selected: true } },
-    "No disponible": { props: { name: "ubicacion", label: "Espalda", disabled: true } },
+    "No disponible": { props: { name: "prenda", label: "Gorra de malla", disabled: true } },
   },
 });
 
