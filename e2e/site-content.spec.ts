@@ -9,7 +9,7 @@ const SITE = {
   sinRedes: 'http://localhost:4238',
 }
 
-const WA_HOY = 'https://wa.me/573156481243?text=Hola!%20Quiero%20m%C3%A1s%20informaci%C3%B3n'
+const WA_HOY = 'https://wa.me/573145888710?text=Hola!%20Quiero%20m%C3%A1s%20informaci%C3%B3n'
 
 const DESCRIPCION_DE_HOY = 'Serflow en Cartagena: camisetas y gorras con estampado, DTF y bordado. Ven al taller en el Mercado Bazurto o escríbenos por WhatsApp.'
 
@@ -72,7 +72,7 @@ async function expectContenidoDeHoy(page: Page) {
   await expect(pie.getByLabel('Serflow en Facebook')).toHaveAttribute('href', 'https://www.facebook.com/people/Serflow/100054522471881/')
 
   const schema = await jsonLdDe(page)
-  expect(schema.telephone).toBe('+57 315 648 1243')
+  expect(schema.telephone).toBe('+57 314 588 8710')
   expect(schema.address.streetAddress).toBe('Mercado Bazurto, C.C. Bazurtico, local 31')
   expect(schema.openingHoursSpecification).toHaveLength(2)
   expect(schema.description).toBe(DESCRIPCION_DE_HOY)
@@ -98,7 +98,7 @@ test.describe('contenido vacío', () => {
 
   test('orders keep going to today’s number outside the home too', async ({ page }) => {
     await page.goto('/promos')
-    await expect(page.getByRole('link', { name: 'Pregunta por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/573156481243\?/)
+    await expect(page.getByRole('link', { name: 'Pregunta por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/573145888710\?/)
   })
 })
 
@@ -258,7 +258,7 @@ test.describe('contenido editado', () => {
     for (const path of ['/', '/promos', categoria!]) {
       const html = await (await request.get(path)).text()
       expect(html, path).toContain('573001112233')
-      expect(html, path).not.toContain('573156481243')
+      expect(html, path).not.toContain('573145888710')
     }
   })
 
@@ -275,7 +275,7 @@ test.describe('contenido editado', () => {
       const js = await (await page.request.get(url)).text()
       for (const m of js.matchAll(/["'](\.{1,2}\/[^"']+\.js)["']/g)) pendientes.push(new URL(m[1], new URL(url, page.url())).pathname)
       if (js.includes('573001112233')) return
-      expect(js, url).not.toContain('573156481243')
+      expect(js, url).not.toContain('573145888710')
     }
     throw new Error('The personalizer bundle does not carry the new number')
   })
