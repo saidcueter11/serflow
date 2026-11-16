@@ -46,7 +46,7 @@ test.describe('3 promos vigentes y 1 vencida', () => {
       `¡Hola! Me interesa la promo "2x1 en gorras bordadas". ${SITE_URL}/promos/e2e-2x1-gorras`,
     )
     await expect(first.getByText(/^Válida hasta el /)).toBeVisible()
-    await first.getByRole('link', { name: /Ver las 5 fotos/ }).click()
+    await first.getByRole('link', { name: /Ver las 4 fotos/ }).click()
     await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras\/?$/)
   })
 
@@ -128,7 +128,7 @@ test.describe('1 promo vigente', () => {
     await page.goto('/promos')
     await expect(page.getByText('1 promo activa')).toBeVisible()
     await expect(page.locator('main section')).toHaveCount(1)
-    await page.locator('main section').getByRole('link', { name: /Ver las 5 fotos/ }).click()
+    await page.locator('main section').getByRole('link', { name: /Ver las 4 fotos/ }).click()
     await expect(page.getByRole('heading', { level: 1, name: '2x1 en gorras bordadas' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Otras promos' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/')

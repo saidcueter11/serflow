@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SITE_URL } from './site.mjs'
-import { diaCartagena, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
+import { diaCartagena, hastaCorto, livePromos, promoMensaje, promoModal, promoPhotoUrls, validaHasta, type PromoView } from './promos'
 import type { Promo } from './types'
 
 const promo = (slug: string, over: Partial<Promo> = {}): Promo => ({
@@ -69,6 +69,15 @@ describe('promo helpers', () => {
   it('puts the banner first and skips empty photos', () => {
     expect(promoPhotoUrls({ banner_url: 'b.jpg', image_urls: ['1.jpg', '2.jpg'] })).toEqual(['b.jpg', '1.jpg', '2.jpg'])
     expect(promoPhotoUrls({ banner_url: null, image_urls: ['1.jpg'] })).toEqual(['1.jpg'])
+  })
+
+  // PRI-535: la portada (banner) es solo portada; la galería del modal son las fotos de producto.
+  it('leaves the banner out of the photo modal', () => {
+    const view = (over: Partial<PromoView>): PromoView => ({ slug: 'p', title: 'P', description: null, endsAt: null, photos: [], ...over })
+    const ph = (src: string) => ({ src, alt: src })
+    expect(promoModal(view({ cover: ph('b'), banner: true, photos: [ph('1'), ph('2')] }))?.fotos.map((f) => f.src)).toEqual(['1', '2'])
+    expect(promoModal(view({ cover: ph('1'), photos: [ph('2')] }))?.fotos.map((f) => f.src)).toEqual(['1', '2'])
+    expect(promoModal(view({ cover: ph('b'), banner: true }))).toBeUndefined()
   })
 
   it('writes the end date in Cartagena time', () => {

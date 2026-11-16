@@ -16,6 +16,8 @@ export type PromoView = {
   /** ends_at (ISO). null = sin fecha de cierre. */
   endsAt: string | null
   cover?: Photo
+  /** La portada es el banner_url (no una foto de producto): no entra a la galería del modal (PRI-535). */
+  banner?: boolean
   photos: Photo[]
 }
 
@@ -67,15 +69,16 @@ export function promoWhatsapp(promo: Pick<PromoView, 'title' | 'slug'>): string 
 }
 
 /**
- * Lo que el modal de foto (PhotoModal, PRI-523) muestra de una promo: todas sus fotos (la portada primero), el título,
- * la descripción y su WhatsApp. Las promos no tienen precio.
+ * Lo que el modal de foto (PhotoModal, PRI-523) muestra de una promo: sus fotos de producto (sin el banner, PRI-535), el
+ * título, la descripción y su WhatsApp. Las promos no tienen precio. Sin fotos de producto, undefined: no hay modal.
  */
-export function promoModal(promo: PromoView): FotoModal {
-  const fotos = [promo.cover, ...promo.photos].filter((f): f is Photo => !!f)
+export function promoModal(promo: PromoView): FotoModal | undefined {
+  const fotos = promo.banner ? promo.photos : [promo.cover, ...promo.photos].filter((f): f is Photo => !!f)
+  if (!fotos.length) return undefined
   return {
     titulo: promo.title,
     categoria: 'Promo',
-    alt: fotos[0]?.alt ?? promo.title,
+    alt: promo.title,
     pedir: promoWhatsapp(promo),
     fotos: fotos.map(({ src, r }) => ({ src, r })),
     descripcion: promo.description,

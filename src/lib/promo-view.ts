@@ -16,7 +16,7 @@ export async function toPromoViews(promos: Promo[]): Promise<PromoView[]> {
           }
         }),
       )
-      return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, cover: photos[0], photos: photos.slice(1) }
+      return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, cover: photos[0], banner: !!p.banner_url || undefined, photos: photos.slice(1) }
     }),
   )
 }

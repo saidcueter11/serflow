@@ -2,7 +2,8 @@ import { expect, test, type Page } from '@playwright/test'
 import { SITE_URL } from '../src/lib/site.mjs'
 
 // PRI-523: las fotos de las promos abren el mismo modal de foto que el catálogo (PhotoModal). Contra el build sembrado de
-// 3 promos (e2e/promos/scenarios.mjs): "2x1 en gorras bordadas" tiene portada y 4 fotos más que sirven (5 en total).
+// 3 promos (e2e/promos/scenarios.mjs): "2x1 en gorras bordadas" tiene portada (banner) y 4 fotos de producto que sirven.
+// El modal recorre solo las 4 de producto: la portada no se repite (PRI-535).
 test.use({ baseURL: 'http://localhost:4234' })
 
 const dialog = (page: Page) => page.getByRole('dialog')
@@ -15,20 +16,19 @@ test('detail: a photo of Más fotos opens the modal on that photo and walks the 
   await page.locator('#mas-fotos a').nth(1).click()
 
   await expect(dialog(page)).toBeVisible()
-  // La segunda de Más fotos es la tercera de la promo: la portada es la primera.
-  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 3 de 5')
+  // La segunda de Más fotos es la segunda del modal: el banner no cuenta (PRI-535).
+  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 2 de 4')
   await expect(dialog(page).getByRole('heading', { name: '2x1 en gorras bordadas' })).toBeVisible()
   await expect(dialog(page).getByText('Llevas dos gorras con el mismo bordado y pagas una.')).toBeVisible()
   await expect(dialog(page).locator('.mx-cat')).toHaveText('Promo')
   await expect(dialog(page).locator('.mx-precio')).toBeHidden()
   expect(await waText(page)).toBe(`¡Hola! Me interesa la promo "2x1 en gorras bordadas". ${SITE_URL}/promos/e2e-2x1-gorras`)
-  // Una sola promo en su página: sin contador de prendas; los puntos son sus 5 fotos.
+  // Una sola promo en su página: sin contador de prendas; los puntos son sus 4 fotos de producto.
   await expect(dialog(page).locator('.mx-barra')).toBeHidden()
-  await expect(dialog(page).locator('.mx-puntos span')).toHaveCount(5)
+  await expect(dialog(page).locator('.mx-puntos span')).toHaveCount(4)
 
   await page.keyboard.press('ArrowRight')
-  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 4 de 5')
-  await page.keyboard.press('ArrowLeft')
+  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 3 de 4')
   await page.keyboard.press('ArrowLeft')
   await page.keyboard.press('ArrowLeft')
   await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas')
@@ -38,7 +38,7 @@ test('detail: a photo of Más fotos opens the modal on that photo and walks the 
   await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras\/?$/)
 })
 
-test('detail: the hero photo opens the modal on the cover, and its WhatsApp button still goes to WhatsApp', async ({ page }) => {
+test('detail: the hero photo opens the modal on the first product photo, and its WhatsApp button still goes to WhatsApp', async ({ page }) => {
   await page.goto('/promos/e2e-2x1-gorras')
   // trial: el botón recibe el toque (el link de la foto no lo tapa), sin abrir WhatsApp.
   await page.locator('.pf-promo-hero').getByRole('link', { name: 'Pedir esta promo por WhatsApp' }).click({ trial: true })
@@ -47,10 +47,10 @@ test('detail: the hero photo opens the modal on the cover, and its WhatsApp butt
 
   await expect(dialog(page)).toBeVisible()
   await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas')
-  await expect(dialog(page).locator('.mx-puntos span')).toHaveCount(5)
+  await expect(dialog(page).locator('.mx-puntos span')).toHaveCount(4)
   await expect(dialog(page).locator('.mx-barra')).toBeHidden()
   await page.keyboard.press('ArrowRight')
-  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 2 de 5')
+  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 2 de 4')
 })
 
 test('/promos: the photo of a promo opens the modal and the arrows go to the next promo', async ({ page }) => {

@@ -359,6 +359,8 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
   .hero-barras { left: auto; right: var(--pf-m); bottom: 56px; }
   .hero-barras > span { width: 40px; }
   .pf-promo-hero .pf-hero-texto > h1 { max-width: 14ch; }
+  /* PRI-535: portada más angosta que el hero, entera a la derecha; el texto queda sobre el velo de la izquierda. */
+  .pf-promo-entera img { object-fit: contain; object-position: right center; }
 }
 
 /* ---------- Portada ---------- */

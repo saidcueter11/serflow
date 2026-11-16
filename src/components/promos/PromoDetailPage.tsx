@@ -19,6 +19,9 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
   // Hasta 4 por fila: 1 -> 21:9, 2 -> 4:3, 3 o 4 -> 1:1 (pf-mas-fotos en tokens.css).
   const n = Math.min(promo.photos.length, 4)
   const modal = promoModal(promo)
+  // PRI-535: en desktop el hero mide hasta 1920 x 720; una portada más angosta que 16:9 (cuadrada, vertical) a sangre se
+  // estira y solo deja ver una franja. Esa se muestra entera (pf-promo-entera en tokens.css).
+  const entera = (promo.cover?.r ?? Infinity) < 16 / 9
   return (
     <div className="pf font-body text-ink">
       <main className="pf-v">
@@ -30,9 +33,9 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
             {hayOtras ? 'Volver a las promos' : 'Volver al inicio'}
           </a>
         </div>
-        <HeroCarousel slides={promo.cover ? [promo.cover] : []} className="pf-hero pf-promo-hero">
-          {/* PRI-523: tocar la portada abre el modal en ella (la foto 1 de la promo); el texto deja pasar el toque. */}
-          {promo.cover && (
+        <HeroCarousel slides={promo.cover ? [promo.cover] : []} className={`pf-hero pf-promo-hero${entera ? ' pf-promo-entera' : ''}`}>
+          {/* PRI-523: tocar la portada abre el modal en la primera foto (PRI-535: el banner no entra); el texto deja pasar el toque. */}
+          {promo.cover && modal && (
             <a
               href={`/promos/${promo.slug}`}
               className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-accent"
@@ -62,11 +65,11 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
             <ul className="pf-mas-fotos" data-n={n} style={{ '--n': n } as CSSProperties}>
               {promo.photos.map((ph, i) => (
                 <li key={i}>
-                  {/* PRI-523: abre el modal de foto en esta foto (la portada es la 0) y recorre las de la promo. */}
+                  {/* PRI-523: abre el modal de foto en esta foto y recorre las de la promo (la portada es la 0 si no es el banner). */}
                   <a
                     href={`/promos/${promo.slug}`}
                     className="block rounded-tile focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    data-foto-j={i + (promo.cover ? 1 : 0)}
+                    data-foto-j={i + (promo.cover && !promo.banner ? 1 : 0)}
                     {...fotoAttrs(modal)}
                   >
                     <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" className="fabric" />
