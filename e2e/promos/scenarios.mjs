@@ -1,4 +1,5 @@
 // Promos sembradas para e2e/promos.spec.ts. Las fechas son relativas al build para que el test no caduque.
+import { readFileSync } from 'node:fs'
 import { coloresDeLaSiembra, filasDeLaSiembra } from './sembrado.mjs'
 
 const DAY = 24 * 60 * 60 * 1000
@@ -247,6 +248,16 @@ export const MODAL = {
   ],
 }
 
+// PRI-536: tres renombres reales de la migración de nombres (categoría, slug viejo y nuevo), leídos del archivo para que
+// el E2E pruebe justo lo que va a prod. Hasta aplicarla, el build real no los tiene: van como filas sembradas.
+export const RENOMBRADAS = [
+  ...readFileSync(new URL('../../supabase/migrations/20261116130000_nombres_productos.sql', import.meta.url), 'utf8').matchAll(
+    /^ {2}\('([a-z0-9-]+)', '([a-z0-9-]+)', '([a-z0-9-]+)'/gm,
+  ),
+]
+  .map(([, categoria, viejo, nuevo]) => ({ categoria, viejo, nuevo }))
+  .filter((r) => ['basketball-50', 'mi-tierra-querida-5', 'sombreros-94'].includes(r.viejo))
+
 const modal = (p) => {
   const c = { ...vacia, id: 'e2e-cat-modal', ...MODAL.categoria, image_url: null, sort_order: 0 }
   const fila = (over, fotos, dia) => ({
@@ -273,6 +284,8 @@ const modal = (p) => {
     product_slug_redirects: [
       { category_slug: c.slug, slug: MODAL.slugViejo, products: { slug: MODAL.completa.slug, categories: { slug: c.slug } } },
       { category_slug: 'x /* /evil 200', slug: 'y', products: { slug: MODAL.completa.slug, categories: { slug: c.slug } } },
+      // PRI-536: como las deja el trigger de PRI-525 al aplicar la migración (e2e/nombres-productos.spec.ts).
+      ...RENOMBRADAS.map((r) => ({ category_slug: r.categoria, slug: r.viejo, products: { slug: r.nuevo, categories: { slug: r.categoria } } })),
     ],
   }
 }
