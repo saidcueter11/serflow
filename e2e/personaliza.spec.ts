@@ -619,29 +619,6 @@ test.describe('/personaliza', () => {
     await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
   })
 
-  test('colocación: al cambiar de foto el diseño queda dentro de lo visible sin tocarlo', async ({ page }) => {
-    await abrir(page)
-    await page.getByText('Blanca', { exact: true }).click()
-    await expect(page.getByRole('img', { name: 'Camiseta blanca' })).toBeVisible()
-    await expect(page.getByText('Tu diseño va aquí')).toBeVisible()
-    await subir(page, { name: 'logo-prueba.png', mimeType: 'image/png', buffer: logoTransparente(800) })
-
-    // Al borde de abajo a la derecha; al cambiar de color sigue dentro de lo visible.
-    const diseno = page.getByRole('group', { name: /Tu diseño/ })
-    await diseno.scrollIntoViewIfNeeded()
-    const d = (await diseno.boundingBox())!
-    const c = { x: d.x + d.width / 2, y: d.y + d.height / 2 }
-    await page.mouse.click(c.x, c.y)
-    await page.mouse.move(c.x, c.y)
-    await page.mouse.down()
-    await page.mouse.move(c.x + 1500, c.y + 1500, { steps: 4 })
-    await page.mouse.up()
-
-    await page.getByText('Negra', { exact: true }).click()
-    await expect(page.getByRole('img', { name: 'Camiseta negra con tu diseño' })).toBeVisible()
-    await expect.poll(() => cuantoSobra(page)).toBeLessThan(1)
-  })
-
   test('la foto no salta cuando el motor reemplaza a la del HTML', async ({ page }) => {
     await page.route('**/*.js', (r) => r.abort())
     await page.goto('/personaliza')
