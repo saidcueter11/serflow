@@ -1,9 +1,11 @@
+import type { FotoModal } from '../components/ui/PhotoModal'
 import { whatsappUrl } from './business'
 import type { Promo } from './types'
 
 export const SITE = 'https://serflowctg.netlify.app'
 
-export type Photo = { src: string; alt: string }
+/** r = ancho / alto: el modal de foto reserva la forma mientras baja. */
+export type Photo = { src: string; alt: string; r?: number }
 
 /** Una promo lista para pintar: fotos ya optimizadas, la primera es la portada. */
 export type PromoView = {
@@ -61,4 +63,20 @@ export function promoMensaje(promo: Pick<PromoView, 'title' | 'slug'>): string {
 
 export function promoWhatsapp(promo: Pick<PromoView, 'title' | 'slug'>): string {
   return whatsappUrl(promoMensaje(promo))
+}
+
+/**
+ * Lo que el modal de foto (PhotoModal, PRI-523) muestra de una promo: todas sus fotos (la portada primero), el título,
+ * la descripción y su WhatsApp. Las promos no tienen precio.
+ */
+export function promoModal(promo: PromoView): FotoModal {
+  const fotos = [promo.cover, ...promo.photos].filter((f): f is Photo => !!f)
+  return {
+    titulo: promo.title,
+    categoria: 'Promo',
+    alt: fotos[0]?.alt ?? promo.title,
+    pedir: promoWhatsapp(promo),
+    fotos: fotos.map(({ src, r }) => ({ src, r })),
+    descripcion: promo.description,
+  }
 }

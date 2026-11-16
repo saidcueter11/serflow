@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react'
-import { promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
+import { promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
 import { Button } from '../ui/Button'
 import { HeroCarousel } from '../ui/HeroCarousel'
+import { fotoAttrs } from '../ui/PhotoModal'
 import { Palabras } from '../ui/Palabras'
 import { PromoCard } from '../ui/PromoCard'
 import { PromoGrid } from '../ui/PromoGrid'
@@ -9,13 +10,15 @@ import { Section } from '../ui/Section'
 
 /**
  * /promos/[slug] (PRI-131; sistema medido de PRI-286): "Volver" en su fila y el hero de la portada con la foto de la
- * promo (vigencia, título, descripción y WhatsApp); luego Más fotos en una fila llena y Otras promos en tarjetas.
+ * promo (vigencia, título, descripción y WhatsApp); luego Más fotos en una fila llena y Otras promos en tarjetas. La
+ * portada del hero y cada foto de Más fotos abren el modal de foto (PhotoModal, PRI-523) con todas las de la promo; la página lo monta.
  */
 export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: PromoView[] }) {
   const hasta = validaHasta(promo.endsAt)
   const hayOtras = otras.length > 0
   // Hasta 4 por fila: 1 -> 21:9, 2 -> 4:3, 3 o 4 -> 1:1 (pf-mas-fotos en tokens.css).
   const n = Math.min(promo.photos.length, 4)
+  const modal = promoModal(promo)
   return (
     <div className="pf font-body text-ink">
       <main className="pf-v">
@@ -28,6 +31,15 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
           </a>
         </div>
         <HeroCarousel slides={promo.cover ? [promo.cover] : []} className="pf-hero pf-promo-hero">
+          {/* PRI-523: tocar la portada abre el modal en ella (la foto 1 de la promo); el texto deja pasar el toque. */}
+          {promo.cover && (
+            <a
+              href={`/promos/${promo.slug}`}
+              className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-accent"
+              aria-label={`Ver las fotos de ${promo.title}`}
+              {...fotoAttrs(modal)}
+            />
+          )}
           <div className="pf-hero-texto anim-enter">
             {hasta && <span className="pf-pie">{hasta}</span>}
             <h1 className="pf-display">
@@ -50,7 +62,15 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
             <ul className="pf-mas-fotos" data-n={n} style={{ '--n': n } as CSSProperties}>
               {promo.photos.map((ph, i) => (
                 <li key={i}>
-                  <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" className="fabric" />
+                  {/* PRI-523: abre el modal de foto en esta foto (la portada es la 0) y recorre las de la promo. */}
+                  <a
+                    href={`/promos/${promo.slug}`}
+                    className="block rounded-tile focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    data-foto-j={i + (promo.cover ? 1 : 0)}
+                    {...fotoAttrs(modal)}
+                  >
+                    <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" className="fabric" />
+                  </a>
                 </li>
               ))}
             </ul>

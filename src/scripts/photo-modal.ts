@@ -82,6 +82,8 @@ function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
   ponerFoto(img, foto)
   img.alt = e.j === 0 ? f.alt : `${f.alt}, foto ${e.j + 1} de ${f.fotos.length}`
   d.querySelector('.mx-contador')!.textContent = `${e.i + 1} / ${e.lista.length}`
+  // Una sola prenda (la promo de su página): sin contador ni flechas de prenda, pero sin mover lo demás.
+  d.querySelector<HTMLElement>('.mx-barra')!.style.visibility = e.lista.length > 1 ? '' : 'hidden'
   d.querySelector('.mx-cat')!.textContent = f.categoria
   d.querySelector('.mx-titulo')!.textContent = f.titulo
   const desc = d.querySelector<HTMLElement>('.mx-desc')!
@@ -169,7 +171,8 @@ function abrir(a: HTMLAnchorElement, crecer = true) {
   const base = document.querySelector<HTMLElement>('main[data-base]')?.dataset.base ?? location.pathname + location.search
   const foto = a.querySelector('img')
   const T = crecer && foto && !quieto() ? cajaDe(foto) : null
-  estado = { lista, i: Math.max(0, lista.indexOf(a)), j: 0, opener: a, base, hueco: null }
+  // data-foto-j: la foto de la prenda con la que abre (Más fotos de una promo, PRI-523); sin él, la primera.
+  estado = { lista, i: Math.max(0, lista.indexOf(a)), j: Number(a.dataset.fotoJ) || 0, opener: a, base, hueco: null }
   pintar(d, estado)
   if (!d.open) {
     const marco = d.querySelector<HTMLElement>('.mx-marco')!

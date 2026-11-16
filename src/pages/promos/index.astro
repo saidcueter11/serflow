@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro'
+import { PhotoModal } from '../../components/ui/PhotoModal'
 import { PromosPage } from '../../components/promos/PromosPage'
 import { getActivePromos } from '../../lib/products'
 import { toPromoViews } from '../../lib/promo-view'
@@ -9,4 +10,9 @@ const promos = await toPromoViews(await getActivePromos())
 
 <Layout title="Promos de hoy — Serflow" description="Promos vigentes de Serflow en Cartagena: camisetas y gorras personalizadas a buen precio. Pídelas por WhatsApp.">
   <PromosPage promos={promos} />
+  <PhotoModal />
 </Layout>
+
+<script>
+  import '../../scripts/photo-modal'
+</script>

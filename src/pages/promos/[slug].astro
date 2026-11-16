@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro'
+import { PhotoModal } from '../../components/ui/PhotoModal'
 import { PromoDetailPage } from '../../components/promos/PromoDetailPage'
 import { getActivePromos } from '../../lib/products'
 import { toPromoViews } from '../../lib/promo-view'
@@ -26,4 +27,9 @@ const { promo, otras } = Astro.props
     {promo.cover && <link rel="preload" as="image" href={promo.cover.src} fetchpriority="high" />}
   </Fragment>
   <PromoDetailPage promo={promo} otras={otras} />
+  <PhotoModal />
 </Layout>
+
+<script>
+  import '../../scripts/photo-modal'
+</script>

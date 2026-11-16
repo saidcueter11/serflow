@@ -341,6 +341,9 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
 .hero-barras { position: absolute; left: var(--pf-m, 16px); bottom: 24px; display: flex; gap: 6px; }
 .hero-barras > span { width: 28px; background: color-mix(in srgb, var(--color-ink) 40%, transparent); }
 .pf-hero:has(.hero-barras) .pf-hero-texto { padding-bottom: 52px; }
+/* Detalle de promo (PRI-523): la portada abre el modal; el texto deja pasar el toque, el botón no. */
+.pf-promo-hero .pf-hero-texto { pointer-events: none; }
+.pf-promo-hero .pf-hero-texto a { pointer-events: auto; }
 @container pf (min-width: 48rem) {
   .pf-hero { height: 720px; }
   .pf-hero-texto { padding-bottom: 56px; gap: 20px; }

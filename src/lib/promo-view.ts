@@ -7,10 +7,14 @@ export async function toPromoViews(promos: Promo[]): Promise<PromoView[]> {
   return Promise.all(
     promos.map(async (p) => {
       const photos = await Promise.all(
-        promoPhotoUrls(p).map(async (src, i) => ({
-          src: (await getImage({ src, inferSize: true, width: 1200, format: 'webp', quality: 75 })).src,
-          alt: i === 0 ? p.title : `${p.title}, foto ${i + 1}`,
-        })),
+        promoPhotoUrls(p).map(async (src, i) => {
+          const img = await getImage({ src, inferSize: true, width: 1200, format: 'webp', quality: 75 })
+          return {
+            src: img.src,
+            alt: i === 0 ? p.title : `${p.title}, foto ${i + 1}`,
+            r: +(Number(img.attributes.width) / Number(img.attributes.height)).toFixed(3) || undefined,
+          }
+        }),
       )
       return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, cover: photos[0], photos: photos.slice(1) }
     }),

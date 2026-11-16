@@ -9,7 +9,8 @@ export function PromosPage({ promos }: { promos: PromoView[] }) {
   const n = promos.length
   return (
     <div className="pf font-body text-ink">
-      <main className="pf-v pf-c">
+      {/* data-fotos: el modal de foto (PRI-523) pasa de una promo a otra con las flechas de prenda. */}
+      <main className="pf-v pf-c" data-fotos>
         <div className="pf-pagina-titulo">
           {n > 0 && <p className="pf-pie">{n === 1 ? '1 promo activa' : `${n} promos activas`}</p>}
           <h1 className="pf-display">

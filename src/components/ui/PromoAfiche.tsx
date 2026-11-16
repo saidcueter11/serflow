@@ -1,11 +1,14 @@
-import { promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
+import { promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
 import { Button } from './Button'
+import { fotoAttrs } from './PhotoModal'
 
 /**
  * Una promo en /promos (PRI-286): cada promo es una sección de la rejilla, con el texto en 5 columnas y la foto 16:9 en
  * 6 desde la 7 (en el celular la foto va primero, 4:3). Vigencia, título, descripción completa, su propio botón de
  * WhatsApp con el mensaje de esa promo ya escrito y "Ver las N fotos" al detalle, en una fila desde @3xl. Excepción a
- * "un WhatsApp por sección": cada promo es su propia sección. Va dentro de una página .pf. Markup estático, sin JS.
+ * "un WhatsApp por sección": cada promo es su propia sección. La foto abre el modal de foto (PhotoModal, PRI-523) con
+ * las fotos de la promo; la página que la usa monta el modal y marca la lista (data-fotos). Va dentro de una página .pf.
+ * Markup estático.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
@@ -35,9 +38,13 @@ export function PromoAfiche({ promo }: { promo: PromoView }) {
         </div>
       </div>
       {promo.cover && (
-        <div className="pf-promo-foto sf-foto">
+        <a
+          href={`/promos/${promo.slug}`}
+          className="pf-promo-foto sf-foto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          {...fotoAttrs(promoModal(promo))}
+        >
           <img src={promo.cover.src} alt={promo.cover.alt} width={1200} height={800} loading="lazy" decoding="async" />
-        </div>
+        </a>
       )}
     </section>
   )
