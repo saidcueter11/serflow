@@ -81,6 +81,18 @@ test.describe('3 promos vigentes y 1 vencida', () => {
     expect(res?.status()).toBe(404)
   })
 
+  // PRI-524: "Promo de otro día" va primera y con portada, pero solo sale mañana; equipos sale hoy y mañana.
+  test('a promo outside its weekdays is not in the bar, the hero, /promos nor has a page', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('.promo-bar')).toBeVisible()
+    await expect(page.locator('.promo-bar')).not.toContainText('Promo de otro día')
+    await expect(page.locator('.hero-carousel img[alt="Promo de otro día"]')).toHaveCount(0)
+    await page.goto('/promos')
+    await expect(page.locator('main section h2')).toHaveCount(3)
+    await expect(page.getByText('Promo de otro día')).toHaveCount(0)
+    expect((await page.goto('/promos/e2e-otro-dia'))?.status()).toBe(404)
+  })
+
   test('404 offers today\'s promos', async ({ page }) => {
     const res = await page.goto('/no-existe')
     expect(res?.status()).toBe(404)

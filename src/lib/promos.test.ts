@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
+import { diaCartagena, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
 import type { Promo } from './types'
 
 const promo = (slug: string, over: Partial<Promo> = {}): Promo => ({
@@ -38,6 +38,22 @@ describe('livePromos', () => {
       promo('a', { sort_order: 0 }),
     ]
     expect(livePromos(rows, NOW).map((p) => p.slug)).toEqual(['a', 'b-vieja', 'b-nueva', 'c'])
+  })
+
+  it('keeps a promo with weekdays only on those days in Cartagena (PRI-524); no weekdays = every day', () => {
+    // Martes, miércoles y jueves. NOW es sábado 10 de octubre a mediodía en Cartagena.
+    const rows = [promo('mar-jue', { weekdays: [2, 3, 4] }), promo('sabados', { weekdays: [6] }), promo('todos', { weekdays: [] })]
+    expect(livePromos(rows, NOW).map((p) => p.slug)).toEqual(['sabados', 'todos'])
+    expect(livePromos(rows, new Date('2026-10-13T00:00:00-05:00')).map((p) => p.slug)).toEqual(['mar-jue', 'todos'])
+    // Jueves 23:59 en Cartagena ya es viernes en UTC: sigue saliendo hasta la medianoche de aquí.
+    expect(livePromos(rows, new Date('2026-10-15T23:59:00-05:00')).map((p) => p.slug)).toEqual(['mar-jue', 'todos'])
+    expect(livePromos(rows, new Date('2026-10-16T00:00:00-05:00')).map((p) => p.slug)).toEqual(['todos'])
+  })
+
+  it('diaCartagena: ISO weekday in Cartagena', () => {
+    expect(diaCartagena(new Date('2026-10-12T00:00:00-05:00'))).toBe(1)
+    expect(diaCartagena(new Date('2026-10-11T23:59:59-05:00'))).toBe(7)
+    expect(diaCartagena(new Date('2026-10-12T04:59:59Z'))).toBe(7)
   })
 
   it('tolerates rows from before the SQL (no ends_at or sort_order columns)', () => {

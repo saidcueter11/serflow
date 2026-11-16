@@ -16,14 +16,22 @@ export type PromoView = {
   photos: Photo[]
 }
 
+/** Día de la semana de `now` en Cartagena (UTC-5, sin horario de verano), ISO: 1 = lunes ... 7 = domingo. */
+export function diaCartagena(now: Date): number {
+  return ((new Date(now.getTime() - 5 * 3600e3).getUTCDay() + 6) % 7) + 1
+}
+
 /**
- * Promos que se publican: activas (ya filtradas en la consulta) y no vencidas en `now`, por sort_order.
- * El build filtra aunque RLS ya lo haga, por si la policy no se ha actualizado.
- * Tolera filas sin ends_at/sort_order (antes de correr supabase/migrations/20261010013709_promos_varias.sql).
+ * Promos que se publican: activas (ya filtradas en la consulta), no vencidas en `now` y de hoy si tienen días
+ * (PRI-524), por sort_order. El build filtra aunque RLS ya lo haga, por si la policy no se ha actualizado; el rebuild
+ * diario de las 00:05 de Cartagena (daily-rebuild.yml) cambia el día.
+ * Tolera filas sin ends_at/sort_order/weekdays (antes de sus migraciones).
  */
 export function livePromos(rows: Promo[], now: Date): Promo[] {
+  const hoy = diaCartagena(now)
   return rows
     .filter((p) => p.ends_at == null || new Date(p.ends_at) > now)
+    .filter((p) => !p.weekdays?.length || p.weekdays.includes(hoy))
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.created_at.localeCompare(b.created_at))
 }
 
