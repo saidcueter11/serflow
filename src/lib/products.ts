@@ -116,6 +116,17 @@ async function leerDisponibles(): Promise<Product[]> {
 
 export const getDisponibles = () => (disponibles ??= leerDisponibles())
 
+/**
+ * PRI-525: ids de los productos que hay para llevar ya, para la disponibilidad del JSON-LD: en_stock (stock > 0, la anon
+ * key no ve el número, PRI-424) o "Disponible ahora". null antes de la migración (42703): el JSON-LD va sin disponibilidad.
+ */
+export async function getEnStock(): Promise<Set<string> | null> {
+  const { data, error } = await supabase.from('products').select('id').eq('is_active', true).or('en_stock.eq.true,available_now.eq.true')
+  if (error?.code === '42703') return null
+  if (error) throw new Error(`Failed to fetch stock: ${error.message}`)
+  return new Set((data ?? []).map((p: { id: string }) => p.id))
+}
+
 export async function getProductsByCategory(
   categorySlug: string,
 ): Promise<Product[]> {

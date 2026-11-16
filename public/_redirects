@@ -1,4 +1,9 @@
+# PRI-525: el catálogo entero vive en /catalogo (antes las categorías estaban en /products). Las reglas van de la más
+# específica a la más general; al final, el build agrega un 301 por cada slug viejo de una foto (product_slug_redirects).
+/products/pagina/:n  /catalogo/pagina/:n/  301
+/products/:category/pagina/:n  /catalogo/:category/pagina/:n/  301
 # PRI-286: la foto se abre en un modal sobre el catálogo; su URL propia es /catalogo/<categoría>/<slug>.
-# Las fichas viejas que circulan por WhatsApp redirigen ahí. Netlify no aplica la regla donde hay un archivo:
-# /products/pagina/2 sigue igual.
-/products/:category/:slug  /catalogo/:category/:slug  301
+# Las fichas viejas que circulan por WhatsApp redirigen ahí. Netlify no aplica la regla donde hay un archivo.
+/products/:category/:slug  /catalogo/:category/:slug/  301
+/products/:category  /catalogo/:category/  301
+/products  /catalogo/  301

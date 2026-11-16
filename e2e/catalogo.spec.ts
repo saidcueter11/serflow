@@ -11,7 +11,7 @@ const chipLabel = (chip: Locator) => chip.evaluate((a) => a.firstChild!.textCont
 
 /** Abre la primera categoría con al menos 2 fotos y devuelve su nombre y su href. */
 async function openCategory(page: Page) {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   const all = chips(page)
   for (let i = 1; i < (await all.count()); i++) {
     const chip = all.nth(i)
@@ -26,7 +26,7 @@ async function openCategory(page: Page) {
 }
 
 test('wall: chips with counts and an even grid of 4:5 photos without text', async ({ page, isMobile }) => {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   // Sin eslogan: el h1 es el nombre de la vista ("Catálogo" en Todo), uno solo.
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Catálogo')
   await expect(page.getByText('Así quedan los trabajos')).toHaveCount(0)
@@ -53,7 +53,7 @@ test('wall: chips with counts and an even grid of 4:5 photos without text', asyn
 })
 
 test('banner arriba: full-bleed banner with the name on it, above the chips, slides to the chosen category', async ({ page }) => {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   const frame = page.locator('[data-banner-track]').locator('..')
   const nav = page.getByRole('navigation', { name: 'Categorías' })
   expect((await frame.boundingBox())!.y).toBeLessThan((await nav.boundingBox())!.y)
@@ -74,14 +74,14 @@ test('banner arriba: full-bleed banner with the name on it, above the chips, sli
 })
 
 test('hundreds of photos: blocks of 60 with a link to the next block', async ({ page }) => {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   const total = Number(await chips(page).first().locator('span').innerText())
   test.skip(total <= 60, `Only ${total} photos: a single block`)
   await expect(tiles(page)).toHaveCount(60)
   const more = page.getByRole('link', { name: `Ver ${Math.min(total - 60, 60)} más` })
-  await expect(more).toHaveAttribute('href', '/products/pagina/2')
+  await expect(more).toHaveAttribute('href', '/catalogo/pagina/2')
   await more.click()
-  await expect(page).toHaveURL(/\/products\/pagina\/2\/?$/)
+  await expect(page).toHaveURL(/\/catalogo\/pagina\/2\/?$/)
   await expect(tiles(page)).toHaveCount(Math.min(total - 60, 60))
 })
 
@@ -89,12 +89,12 @@ test.describe('categoría vacía', () => {
   test.use({ baseURL: EMPTY })
 
   test('shows the empty state with a way out, and the chip says 0', async ({ page }) => {
-    await page.goto('/products/e2e-vacia')
+    await page.goto('/catalogo/e2e-vacia')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Vacía de prueba')
     await expect(chips(page).filter({ hasText: 'Vacía de prueba' })).toHaveText(/Vacía de prueba\s*0/)
     await expect(page.getByText('Todavía no hay fotos de Vacía de prueba')).toBeVisible()
     await expect(tiles(page)).toHaveCount(0)
-    await expect(page.getByRole('link', { name: 'Ver lo más nuevo' })).toHaveAttribute('href', '/products')
+    await expect(page.getByRole('link', { name: 'Ver lo más nuevo' })).toHaveAttribute('href', '/catalogo')
     // Aquí el WhatsApp es el flotante.
     await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' })).toBeVisible()
   })

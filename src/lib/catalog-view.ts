@@ -4,7 +4,7 @@ import type { CategoryLink } from '../components/ui/CategoryNav'
 import type { MasonryTile } from '../components/ui/Masonry'
 import { TODO_HREF, fotoAlt, fotoHref, fotoTitulo, interleave, newestFirst, pageHref, pages, pedirUrl, precioCop } from './catalog'
 import { fotoDeLugar } from './medios-build'
-import { getCategories, getProducts } from './products'
+import { getCategories, getEnStock, getProducts } from './products'
 import type { Product } from './types'
 // Portada de "Todo" en el banner: la que publique el admin (lugar catalogo-todo, PRI-150) o esta foto de Unsplash
 // (gorras en un estante, horizontal: aguanta el recorte ancho del banner).
@@ -17,6 +17,9 @@ export type CatalogItem = {
   createdAt: string
   tile: MasonryTile
   og: string | null
+  /** Para el JSON-LD (PRI-525): precio del admin y si hay para llevar (null: no se sabe, va sin disponibilidad). */
+  price: number | null
+  disponible: boolean | null
 }
 
 export type CatalogGroup = {
@@ -24,14 +27,16 @@ export type CatalogGroup = {
   label: string
   href: string
   cover?: { src: string; srcSet?: string }
+  /** Portada de la categoría en JPEG para compartir (og:image, PRI-525). Sin portada del admin, la de la marca. */
+  og?: string
   items: CatalogItem[]
 }
 
 const opt = { format: 'webp', quality: 72 } as const
 
-async function toItem(p: Product, cat: { slug: string; label: string }): Promise<CatalogItem> {
+async function toItem(p: Product, cat: { slug: string; label: string }, enStock: Set<string> | null): Promise<CatalogItem> {
   const n = p.legacy_id
-  const alt = fotoAlt(cat.label, n)
+  const alt = fotoAlt(cat.label, n, p.name)
   const href = fotoHref(cat.slug, p.slug)
   // Una sola consulta de tamaño por foto: muro, modal y og la reusan.
   const sizes = await Promise.all(p.image_urls.map((src) => inferRemoteSize(src)))
@@ -51,6 +56,8 @@ async function toItem(p: Product, cat: { slug: string; label: string }): Promise
     n,
     createdAt: p.created_at,
     og: og.src,
+    price: p.price,
+    disponible: enStock && enStock.has(p.id),
     tile: {
       href,
       id: `f-${p.slug}`,
@@ -74,17 +81,23 @@ async function toItem(p: Product, cat: { slug: string; label: string }): Promise
 
 async function build() {
   const now = new Date()
-  const [categories, products] = await Promise.all([getCategories(), getProducts()])
+  const [categories, products, enStock] = await Promise.all([getCategories(), getProducts(), getEnStock()])
   const groups: CatalogGroup[] = await Promise.all(
     categories.map(async (c) => {
       const own = products.filter((p) => p.categories?.slug === c.slug && p.image_urls.length > 0)
-      const items = newestFirst(await Promise.all(own.map((p) => toItem(p, c))))
-      const cover = c.image_url ? await getImage({ src: c.image_url, inferSize: true, widths: [640, 960, 1280], ...opt }) : null
+      const items = newestFirst(await Promise.all(own.map((p) => toItem(p, c, enStock))))
+      const [cover, og] = c.image_url
+        ? await Promise.all([
+            getImage({ src: c.image_url, inferSize: true, widths: [640, 960, 1280], ...opt }),
+            getImage({ src: c.image_url, inferSize: true, width: 1200, format: 'jpg' }),
+          ])
+        : [null, null]
       return {
         slug: c.slug,
         label: c.label,
-        href: `/products/${c.slug}`,
+        href: `${TODO_HREF}/${c.slug}`,
         cover: cover ? { src: cover.src, srcSet: cover.srcSet.attribute } : undefined,
+        og: og?.src,
         items,
       }
     }),
@@ -106,6 +119,8 @@ export type CatalogPageProps = {
   slides: BannerSlide[]
   chips: CategoryLink[]
   view: { label: string; href: string }
+  /** og:image de la página (PRI-525): la portada de la categoría. */
+  og?: string
   page: number
   /** URL de esta página: la barra vuelve a ella al cerrar el modal. */
   base: string
@@ -137,6 +152,7 @@ async function buildPages() {
         slides,
         chips,
         view: { label: v.label, href: v.href },
+        og: 'og' in v ? v.og : undefined,
         page: i + 1,
         base: pageHref(v.href, i + 1),
         tiles: items.map((it) => it.tile),

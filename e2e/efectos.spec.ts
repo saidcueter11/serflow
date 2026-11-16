@@ -31,7 +31,7 @@ const vueltas = (page: Page) => page.evaluate(() => (window as unknown as { vuel
 
 /** Abre la primera categoría con al menos 3 fotos. */
 async function abrirCategoria(page: Page) {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   for (let i = 1; i < (await chips(page).count()); i++) {
     if (Number(await chips(page).nth(i).locator('span').innerText()) < 3) continue
     await page.goto((await chips(page).nth(i).getAttribute('href'))!)
@@ -105,7 +105,7 @@ test.describe('1 · foto que crece', () => {
 
   test('with the thumbnail not downloaded yet, the shimmer shows instead', async ({ page }) => {
     await page.route('**/*.webp', () => {})
-    await page.goto('/products', { waitUntil: 'commit' })
+    await page.goto('/catalogo', { waitUntil: 'commit' })
     await tiles(page).first().click()
     await expect(marco(page).locator('.mx-mini')).toHaveCount(0)
     await expect(marco(page).locator('.mx-brillo')).toBeVisible()
@@ -218,7 +218,7 @@ test.describe('3 · titular palabra por palabra', () => {
 
   const TITULOS: [string, string | RegExp][] = [
     ['/', 'Bienvenido a Serflow'],
-    ['/products', 'Catálogo'],
+    ['/catalogo', 'Catálogo'],
     ['/promos', /^Promos/],
     ['/esta-pagina-no-existe', 'Esta página no existe'],
     ['/personaliza', 'Diseña tu prenda'],
@@ -263,7 +263,7 @@ test.describe('3 · titular palabra por palabra', () => {
   })
 
   test('changing category: the new title rises, the subtitle (same text) does not animate again', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await page.locator('.sf-bajada .sf-palabra > span').last().evaluate((s) => Promise.all(s.getAnimations().map((a) => a.finished)))
     // En el cuadro del cambio: con la bajada animando de nuevo, sus palabras arrancan escondidas.
     await page.evaluate(() => {
@@ -323,7 +323,7 @@ test.describe('3 · titular palabra por palabra', () => {
     test.use({ javaScriptEnabled: false })
 
     test('the title does not animate, it is just there', async ({ page }) => {
-      for (const path of ['/', '/products']) {
+      for (const path of ['/', '/catalogo']) {
         await page.goto(path)
         await expect(page.locator('h1 .sf-palabra > span').first()).toHaveCSS('animation-name', 'none')
         await expect(page.locator('h1')).toBeVisible()
@@ -392,7 +392,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   const leer = <T>(page: Page, k: string) => page.evaluate((key) => (window as unknown as Record<string, T>)[key], k)
 
   test('changing category: the photos travel from their old place, without reloading the page', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await page.evaluate(() => document.fonts.ready)
     const chip = await pestanaConViaje(page)
     const href = (await chip.getAttribute('href'))!
@@ -423,7 +423,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('the photos that leave fade out on their old place and are gone', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     const chip = await pestanaConViaje(page)
     await espiarSwap(page)
     await chip.click()
@@ -432,7 +432,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('with the page scrolled, the photos that leave do not stay on top of the new title', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     const chip = await pestanaConViaje(page)
     await page.evaluate(() => {
       window.scrollTo({ top: 305, behavior: 'instant' })
@@ -447,7 +447,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('only what is on screen animates', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await espiarSwap(page)
     await (await pestanaConViaje(page)).click()
     await expect.poll(() => leer<Salida[] | undefined>(page, 'salida')).toBeTruthy()
@@ -459,7 +459,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('the modal goes through the new wall, not the photos that are leaving', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await (await pestanaConViaje(page)).click()
     await expect(page.locator('main[data-banner-index]')).not.toHaveAttribute('data-banner-index', '0')
     const n = await tiles(page).count()
@@ -470,12 +470,12 @@ test.describe('7 · rejilla que se reacomoda', () => {
   test('two tabs in a row and going back leave the wall whole', async ({ page }) => {
     const errores: string[] = []
     page.on('pageerror', (e) => errores.push(e.message))
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await chips(page).nth(1).click()
     await chips(page).nth(2).click()
     await expect(chips(page).nth(2)).toHaveAttribute('aria-current', 'page')
     await page.goBack()
-    // Con latencia el segundo toque cancela el primero y Atrás vuelve a /products: a dónde vuelve lo decide el historial.
+    // Con latencia el segundo toque cancela el primero y Atrás vuelve a /catalogo: a dónde vuelve lo decide el historial.
     await expect(chips(page).nth(2)).not.toHaveAttribute('aria-current', 'page')
     await expect(chips(page).and(page.locator('[aria-current="page"]'))).toHaveCount(1)
     await expect(page.locator('.sf-salen')).toHaveCount(0)
@@ -484,7 +484,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('with one tab already open before the next, Back returns to that tab', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await chips(page).nth(1).click()
     await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
     await chips(page).nth(2).click()
@@ -496,7 +496,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('below the fold the wall keeps its one-time reveal', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await chips(page).nth(0).scrollIntoViewIfNeeded()
     await (await pestanaConViaje(page)).click()
     await expect(page.locator('main[data-banner-index]')).not.toHaveAttribute('data-banner-index', '0')
@@ -505,7 +505,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
   })
 
   test('layout cost: a tap with the biggest wall stays within budget', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await page.evaluate(() => document.fonts.ready)
     const cdp = await page.context().newCDPSession(page)
     await cdp.send('Performance.enable')
@@ -522,7 +522,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
 
   test('reduced motion: the category changes with no photo traveling', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await chips(page).nth(1).click()
     await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
     await expect(page.locator('li.sf-viaja, li.sf-llega, .sf-salen')).toHaveCount(0)
@@ -530,7 +530,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
 
   test('slow connection: the category changes with no photo traveling', async ({ page }) => {
     await senalMala(page)
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await chips(page).nth(1).click()
     await expect(chips(page).nth(1)).toHaveAttribute('aria-current', 'page')
     await expect(page.locator('li.sf-viaja, li.sf-llega, .sf-salen, .sf-espera')).toHaveCount(0)
@@ -540,7 +540,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
     test.use({ javaScriptEnabled: false })
 
     test('the tabs are plain links and the wall is simply there', async ({ page }) => {
-      await page.goto('/products')
+      await page.goto('/catalogo')
       const href = (await chips(page).nth(1).getAttribute('href'))!
       await chips(page).nth(1).click()
       await expect(page).toHaveURL(new RegExp(`${href}/?$`))

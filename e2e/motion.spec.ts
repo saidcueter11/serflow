@@ -10,7 +10,7 @@ const pedir = (page: Page) => dialog(page).getByRole('link', { name: 'Pedir por 
 
 /** Abre la primera categoría con al menos 3 fotos. */
 async function openCategory(page: Page) {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   const chips = page.getByRole('navigation', { name: 'Categorías' }).getByRole('link')
   for (let i = 1; i < (await chips.count()); i++) {
     if (Number(await chips.nth(i).locator('span').innerText()) < 3) continue
@@ -39,7 +39,7 @@ async function expectFullName(page: Page, isMobile: boolean) {
 }
 
 test('modal: the name is never cut next to the button, also with a very long one', async ({ page, isMobile }) => {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   // El nombre más largo del catálogo.
   const larga = await tiles(page).evaluateAll((as) => {
     const largo = (a: Element) => JSON.parse((a as HTMLElement).dataset.foto!).titulo.length
@@ -169,7 +169,7 @@ test('catalog: arriving from another page makes the first rows of the wall enter
     })
   })
   await irAlCatalogo(page, isMobile)
-  await expect(page).toHaveURL(/\/products\/?$/)
+  await expect(page).toHaveURL(/\/catalogo\/?$/)
   await expect.poll(() => page.evaluate(() => (window as unknown as { entrando?: number }).entrando)).toBeGreaterThan(0)
   await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
 })
@@ -178,7 +178,7 @@ test('navigation: the header persists (and the mobile menu closes)', async ({ pa
   await page.goto('/')
   await page.getByRole('banner').evaluate((h: HTMLElement) => (h.dataset.marca = 'misma'))
   await irAlCatalogo(page, isMobile)
-  await expect(page).toHaveURL(/\/products\/?$/)
+  await expect(page).toHaveURL(/\/catalogo\/?$/)
   await expect(page.locator('header[data-marca="misma"]')).toHaveCount(1)
   if (isMobile) await expect(page.getByRole('banner').locator('details')).not.toHaveAttribute('open', '')
 })
@@ -189,20 +189,20 @@ test('navigation: a thin gold bar shows only while the page takes time to arrive
   await expect(barra).toHaveCSS('opacity', '0')
   let soltar = () => {}
   const compuerta = new Promise<void>((r) => (soltar = r))
-  await page.route(/\/products\/?$/, async (route) => {
+  await page.route(/\/catalogo\/?$/, async (route) => {
     await compuerta
     await route.continue()
   })
   await irAlCatalogo(page, isMobile)
   await expect(barra).toHaveCSS('opacity', '1')
   soltar()
-  await expect(page).toHaveURL(/\/products\/?$/)
+  await expect(page).toHaveURL(/\/catalogo\/?$/)
   await expect(barra).toHaveCSS('opacity', '0')
 })
 
 test('reduced motion: everything is visible right away and navigation does not animate', async ({ page, isMobile }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  for (const path of ['/', '/products', '/promos', '/personaliza']) {
+  for (const path of ['/', '/catalogo', '/promos', '/personaliza']) {
     await page.goto(path)
     await page.evaluate(() => document.fonts.ready)
     await expect(page.locator('.sf-espera')).toHaveCount(0)
@@ -222,7 +222,7 @@ test('reduced motion: everything is visible right away and navigation does not a
     })
   })
   await irAlCatalogo(page, isMobile)
-  await expect(page).toHaveURL(/\/products\/?$/)
+  await expect(page).toHaveURL(/\/catalogo\/?$/)
   await expect.poll(() => page.evaluate(() => (window as unknown as { animadas?: number }).animadas)).toBe(0)
 })
 
@@ -242,13 +242,13 @@ test('slow connection: nothing waits to appear, on load or after navigating', as
     })
   })
   await irAlCatalogo(page, isMobile)
-  await expect(page).toHaveURL(/\/products\/?$/)
+  await expect(page).toHaveURL(/\/catalogo\/?$/)
   await expect.poll(() => page.evaluate(() => (window as unknown as { esperando?: number }).esperando)).toBe(0)
   await expect(page.locator('html')).toHaveClass(/slow-connection/)
 })
 
 test('the motion script stays an external file: the CSP (PRI-152) only allows inline scripts by hash', async ({ page }) => {
-  for (const path of ['/', '/products']) {
+  for (const path of ['/', '/catalogo']) {
     await page.goto(path)
     await expect(page.locator('script[type="module"]:not([src])')).toHaveCount(0)
   }
@@ -258,7 +258,7 @@ test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
   test('nothing stays hidden', async ({ page }) => {
-    for (const path of ['/', '/products']) {
+    for (const path of ['/', '/catalogo']) {
       await page.goto(path)
       await expect(page.locator('.sf-espera')).toHaveCount(0)
       const tapados = await page

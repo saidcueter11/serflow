@@ -19,7 +19,7 @@ async function swipe(page: Page, x1: number, x2: number, y: number) {
 
 /** Abre la primera categoría con al menos 3 fotos y devuelve su nombre, su href y cuántas fotos tiene. */
 async function openCategory(page: Page) {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   const chips = page.getByRole('navigation', { name: 'Categorías' }).getByRole('link')
   for (let i = 1; i < (await chips.count()); i++) {
     const chip = chips.nth(i)

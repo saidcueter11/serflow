@@ -1,7 +1,8 @@
 import { whatsappUrl } from './business'
 import type { Promo } from './types'
+import { SITE_URL } from './site.mjs'
 
-export const SITE = 'https://serflowctg.netlify.app'
+export const SITE = SITE_URL
 
 export type Photo = { src: string; alt: string }
 

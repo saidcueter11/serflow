@@ -3,9 +3,12 @@ import Layout from '../../layouts/Layout.astro'
 import CatalogView from '../../components/catalog/CatalogView.astro'
 import { TODO_HREF } from '../../lib/catalog'
 import { loadPages } from '../../lib/catalog-view'
+import { jsonLd } from '../../lib/business'
+import { absoluta, breadcrumbSchema } from '../../lib/seo'
 
-// PRI-130: /products ("Todo") y /products/<categoría>, en bloques de 60 (/pagina/2...). Cada foto se abre en el modal;
-// su URL propia es /catalogo/<categoría>/<slug> (PRI-286).
+// PRI-130: /catalogo ("Todo") y /catalogo/<categoría>, en bloques de 60 (/pagina/2...). Cada foto se abre en el modal;
+// su URL propia es /catalogo/<categoría>/<slug> (PRI-286). PRI-525: antes vivían en /products, que redirige aquí con 301
+// (public/_redirects).
 export async function getStaticPaths() {
   return (await loadPages()).map(({ slug, props }) => ({
     params: { gallery: [slug, props.page > 1 ? `pagina/${props.page}` : ''].filter(Boolean).join('/') || undefined },
@@ -14,19 +17,24 @@ export async function getStaticPaths() {
 }
 
 const props = Astro.props
-const { view, page, slides, index } = props
+const { view, page, slides, index, og } = props
 const todo = view.href === TODO_HREF
 const title = `${todo ? 'Catálogo' : view.label}${page > 1 ? `, página ${page}` : ''} — Serflow`
 const description = todo
   ? 'Gorras y camisetas personalizadas de Serflow en Cartagena. Toca la que te guste y pídela por WhatsApp.'
   : `Explora la colección de ${view.label} en Serflow. Prendas personalizadas con atención por WhatsApp en Cartagena.`
 const banner = slides[index].image
+const migas = [
+  { name: 'Inicio', url: absoluta('/') },
+  { name: 'Catálogo', url: absoluta(`${TODO_HREF}/`) },
+  ...(todo ? [] : [{ name: view.label, url: absoluta(`${view.href}/`) }]),
+]
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} ogImage={og ? { src: og, alt: `${view.label} en Serflow` } : undefined}>
   <Fragment slot="head">
-    <meta property="og:locale" content="es_CO" />
     {banner && <link rel="preload" as="image" imagesrcset={banner.srcSet} imagesizes="100vw" fetchpriority="high" />}
+    <script type="application/ld+json" set:html={jsonLd(breadcrumbSchema(migas))} />
   </Fragment>
   <CatalogView {...props} />
 </Layout>

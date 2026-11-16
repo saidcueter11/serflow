@@ -1,9 +1,9 @@
 type Link = { label: string; href: string }
 
-// Con "/" delante para que funcionen desde cualquier página. Catálogo es /products (PRI-130); Visítanos lleva al
+// Con "/" delante para que funcionen desde cualquier página. Catálogo es /catalogo (PRI-130, PRI-525); Visítanos lleva al
 // mapa con dirección y horario.
 export const NAV_LINKS: Link[] = [
-  { label: 'Catálogo', href: '/products' },
+  { label: 'Catálogo', href: '/catalogo' },
   { label: 'Qué hacemos', href: '/#que-hacemos' },
   { label: 'Disponible ahora', href: '/#disponible' },
   { label: 'Visítanos', href: '/#visitanos' },

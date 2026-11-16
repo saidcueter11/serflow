@@ -81,7 +81,7 @@ async function expectContenidoDeHoy(page: Page) {
 // PRI-423: los escenarios siembran una foto de otro proyecto de Supabase en cada camino. Si el build intentara bajarla, ni
 // siquiera termina: ese host no existe. Aquí se comprueba que tampoco se publica un link a ella.
 test('a photo from another Supabase project is neither downloaded nor published', async ({ request }) => {
-  const paginas = [`${SITE.vacio}/products/e2e-vacia`, 'http://localhost:4233/promos/e2e-2x1-gorras', `${SITE.contenido}/`]
+  const paginas = [`${SITE.vacio}/catalogo/e2e-vacia`, 'http://localhost:4233/promos/e2e-2x1-gorras', `${SITE.contenido}/`]
   for (const url of paginas) {
     const res = await request.get(url)
     expect(res.ok(), url).toBe(true)
@@ -121,7 +121,7 @@ test.describe('contenido sembrado por la migración', () => {
   // Solo cambia el nombre de los .js con los datos del negocio: el bundle se hashea con la fila inyectada.
   const html = async (request: APIRequestContext, url: string) => (await (await request.get(url)).text()).replace(/\/_astro\/[^"'\s]+\.js/g, '/_astro/x.js')
 
-  for (const path of ['/', '/personaliza', '/promos', '/products/e2e-vacia']) {
+  for (const path of ['/', '/personaliza', '/promos', '/catalogo/e2e-vacia']) {
     test(`${path} is byte for byte the same with and without the seed`, async ({ request }) => {
       expect(await html(request, SITE.sembrado + path)).toBe(await html(request, SITE.vacio + path))
     })

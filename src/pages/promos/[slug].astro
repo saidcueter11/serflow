@@ -1,27 +1,34 @@
 ---
+import { getImage } from 'astro:assets'
 import Layout from '../../layouts/Layout.astro'
 import { PromoDetailPage } from '../../components/promos/PromoDetailPage'
 import { getActivePromos } from '../../lib/products'
 import { toPromoViews } from '../../lib/promo-view'
-import { promoMensaje, type PromoView } from '../../lib/promos'
+import { promoMensaje, promoPhotoUrls, type PromoView } from '../../lib/promos'
 
 export async function getStaticPaths() {
-  const promos = await toPromoViews(await getActivePromos())
-  return promos.map((promo) => ({
-    params: { slug: promo.slug },
-    props: { promo, otras: promos.filter((p) => p.slug !== promo.slug) },
-  }))
+  const activas = await getActivePromos()
+  const promos = await toPromoViews(activas)
+  return Promise.all(
+    promos.map(async (promo, i) => {
+      // PRI-525: su portada en JPEG para la vista previa al compartir (WhatsApp, Instagram).
+      const foto = promoPhotoUrls(activas[i])[0]
+      const og = foto ? (await getImage({ src: foto, inferSize: true, width: 1200, format: 'jpg' })).src : undefined
+      return { params: { slug: promo.slug }, props: { promo, otras: promos.filter((p) => p.slug !== promo.slug), og } }
+    }),
+  )
 }
 
 interface Props {
   promo: PromoView
   otras: PromoView[]
+  og?: string
 }
 
-const { promo, otras } = Astro.props
+const { promo, otras, og } = Astro.props
 ---
 
-<Layout title={`${promo.title} — Serflow`} description={promo.description ?? `Campaña ${promo.title} en Serflow Cartagena.`} whatsappText={promoMensaje(promo)}>
+<Layout title={`${promo.title} — Serflow`} description={promo.description ?? `Campaña ${promo.title} en Serflow Cartagena.`} whatsappText={promoMensaje(promo)} ogImage={og ? { src: og, alt: promo.title } : undefined}>
   <Fragment slot="head">
     {promo.cover && <link rel="preload" as="image" href={promo.cover.src} fetchpriority="high" />}
   </Fragment>

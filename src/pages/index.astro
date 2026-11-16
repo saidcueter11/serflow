@@ -10,7 +10,9 @@ import { getActivePromos, getCategories, getDisponibles } from '../lib/products'
 import { loadCatalog } from '../lib/catalog-view'
 import { PhotoModal } from '../components/ui/PhotoModal'
 import { fotoDeLugar, fotoRemota } from '../lib/medios-build'
-import { ADDRESS, EMAIL, HOURS_EDITED, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL, jsonLd } from '../lib/business'
+import { ADDRESS, EMAIL, HOURS_EDITED, MAP_EMBED_URL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL, jsonLd } from '../lib/business'
+import { TODO_HREF } from '../lib/catalog'
+import { OG_MARCA, absoluta, geoDelMapa, rangoDePrecios } from '../lib/seo'
 import { getSiteContent } from '../lib/site-content'
 // Fotos stock de Unsplash (licencia libre, sin atribución) que muestran el resultado, hasta que el admin
 // pueda subir las reales (PRI-150). unsplash.com/photos/8Ckj05B7LmM, GUdUmJua9cI, pyeUg7FylSw, O4QUJiQuQss,
@@ -44,8 +46,8 @@ const homeProducts: HomeProduct[] = await Promise.all(
         name: p.name,
         // Sin precio en la portada (pedido del reviewer, PRI-129): el precio se conversa por WhatsApp.
         meta: p.categories?.label ?? '',
-        href: item?.tile.href ?? `/products/${p.categories!.slug}`,
-        image: { src: img.src, alt: p.name },
+        href: item?.tile.href ?? `${TODO_HREF}/${p.categories!.slug}`,
+        image: { src: img.src, alt: item?.tile.img.alt ?? p.name },
         colores: p.colors,
         modal: item?.tile.modal,
       }
@@ -145,7 +147,7 @@ const services = await Promise.all(
 const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}` }))
 
 // "Ver todo" lleva a la primera categoría; desde ahí las pestañas llevan a las demás.
-const catalogHref = categories[0] ? `/products/${categories[0].slug}` : '/'
+const catalogHref = categories[0] ? `${TODO_HREF}/${categories[0].slug}` : '/'
 
 const homeDescription =
   content.sections.hero?.seoDescription ??
@@ -156,7 +158,9 @@ const localBusinessSchema = {
   '@type': 'ClothingStore',
   name: 'Serflow',
   description: homeDescription,
-  image: 'https://serflowctg.netlify.app/favicon.svg',
+  // PRI-525: el logo y la imagen de la marca (no hay foto propia del local en el repo).
+  image: absoluta(OG_MARCA.src),
+  logo: absoluta('/icon-512.png'),
   telephone: WHATSAPP_DISPLAY,
   email: EMAIL,
   address: {
@@ -173,15 +177,17 @@ const localBusinessSchema = {
         { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '08:00', closes: '18:00' },
         { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday'], opens: '08:00', closes: '14:00' },
       ],
+  // El pin del mapa de "Encuéntranos" (el embed del lugar Serflow en Google Maps, editable en site_settings).
+  geo: geoDelMapa(MAP_EMBED_URL),
+  priceRange: rangoDePrecios(catalog.groups.flatMap((g) => g.items.map((it) => it.price))),
   areaServed: 'Cartagena, Colombia',
-  url: 'https://serflowctg.netlify.app/',
+  url: absoluta('/'),
   sameAs: [WHATSAPP_URL, ...SOCIAL.map((s) => s.url)],
 }
 ---
 
 <Layout title="Serflow: camisetas y gorras personalizadas en Cartagena" description={homeDescription}>
   <Fragment slot="head">
-    <meta property="og:locale" content="es_CO" />
     <link rel="preload" as="image" href={heroSlides[0].src} imagesrcset={heroSlides[0].srcSet} imagesizes={heroSlides[0].sizes} fetchpriority="high" />
     <script type="application/ld+json" set:html={jsonLd(localBusinessSchema)} />
   </Fragment>

@@ -3,11 +3,13 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
-import { writeFile } from 'node:fs/promises'
+import { appendFile, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 import { loadEnv } from 'vite'
 import { loadBusinessOverrides } from './src/lib/business-overrides.mjs'
 import { hostDeFotos } from './src/lib/fotos-host.mjs'
+import { loadSeoBuild, rutaBase } from './src/lib/seo-build.mjs'
+import { SITE_URL } from './src/lib/site.mjs'
 
 // PRI-127: serflow-admin lee /build.json para saber si ya salió lo publicado. La hora se toma aquí, antes de leer
 // Supabase: con la del final del build, uno que leyó los datos antes de publicar haría decir "Ya salió" al panel.
@@ -29,9 +31,16 @@ const business = await loadBusinessOverrides(env.PUBLIC_SUPABASE_URL, env.PUBLIC
 
 const fotosHost = hostDeFotos(env)
 
+// PRI-525: lastmod del sitemap y 301 de las URLs viejas de las fotos. Mismo manejo que los datos del negocio.
+const seo = await loadSeoBuild(env.PUBLIC_SUPABASE_URL, env.PUBLIC_SUPABASE_ANON_KEY).catch((err) => {
+  if (process.argv.includes('build')) throw err
+  console.warn(`[seo] sin lastmod ni redirects de slugs: ${err.message}`)
+  return { lastmod: new Map(), redirects: [] }
+})
+
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://serflowctg.netlify.app/',
+  site: `${SITE_URL}/`,
   image: {
     // PRI-423: solo el proyecto propio. Un proyecto ajeno de Supabase podría responder distinto cuando Astro vuelve a bajar la foto.
     remotePatterns: fotosHost ? [{ protocol: 'https', hostname: fotosHost }] : [],
@@ -55,11 +64,20 @@ export default defineConfig({
 
   integrations: [
     react(),
-    sitemap(),
+    sitemap({
+      serialize: (item) => {
+        const lastmod = seo.lastmod.get(rutaBase(item.url))
+        return lastmod ? { ...item, lastmod } : item
+      },
+    }),
     {
       name: 'build-json',
       hooks: {
-        'astro:build:done': ({ dir }) => writeFile(new URL('build.json', dir), JSON.stringify({ builtAt })),
+        'astro:build:done': async ({ dir }) => {
+          await writeFile(new URL('build.json', dir), JSON.stringify({ builtAt }))
+          // PRI-525: un 301 por cada URL vieja de una foto (product_slug_redirects), después de las reglas de public/_redirects.
+          if (seo.redirects.length) await appendFile(new URL('_redirects', dir), `\n${seo.redirects.join('\n')}\n`)
+        },
       },
     },
   ]

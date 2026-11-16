@@ -7,6 +7,7 @@ import { getDisponibles } from '../lib/products'
 import { Footer } from '../components/ui/Footer'
 import { WhatsAppFab } from '../components/ui/WhatsAppFab'
 import LogoImage from '../assets/LOGO SERFLOW.png'
+import { OG_MARCA, absoluta } from '../lib/seo'
 
 interface Props {
   title: string
@@ -17,6 +18,9 @@ interface Props {
   /** Página escondida de los buscadores (p. ej. /personaliza hasta PRI-125). */
   /** Sin botón flotante: la página ya tiene su propio WhatsApp (visor del catálogo PRI-130, personalizador PRI-122). */
   hideFab?: boolean
+  /** Imagen al compartir (PRI-525): la foto propia de la página. Sin ella, la de la marca. */
+  ogImage?: { src: string; width?: number; height?: number; alt?: string }
+  ogType?: 'website' | 'product'
 }
 
 const {
@@ -25,11 +29,14 @@ const {
   hideFooter,
   whatsappText,
   hideFab,
+  ogImage = OG_MARCA,
+  ogType = 'website',
 } = Astro.props
 
 // PRI-123: si "Disponible ahora" no sale en la portada, su link tampoco.
 const links = (await getDisponibles()).length > 0 ? NAV_LINKS : NAV_LINKS.filter((l) => l.href !== '/#disponible')
 const canonicalUrl = Astro.url.toString()
+const og = { ...ogImage, url: absoluta(ogImage.src), type: ogImage.src.endsWith('.png') ? 'image/png' : 'image/jpeg' }
 const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
 ---
 
@@ -39,7 +46,10 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
     <ClientRouter />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#17160f" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link
@@ -50,15 +60,23 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="Serflow" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:image" content={og.url} />
+    <meta property="og:image:secure_url" content={og.url} />
+    <meta property="og:image:type" content={og.type} />
+    {og.width && <meta property="og:image:width" content={String(og.width)} />}
+    {og.height && <meta property="og:image:height" content={String(og.height)} />}
+    <meta property="og:image:alt" content={og.alt ?? title} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={og.url} />
 
     <title>{title}</title>
     <slot name="head" />
@@ -106,7 +124,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
         var PREFIX = 'serflow:scroll:'
         function categoryKey(path) {
           var clean = path.replace(/\/$/, '')
-          return /^\/products\/[^/]+$/.test(clean) ? clean : null
+          return /^\/catalogo\/[^/]+$/.test(clean) ? clean : null
         }
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
         document.addEventListener('astro:before-preparation', function () {
