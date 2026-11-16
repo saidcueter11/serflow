@@ -105,30 +105,14 @@ describe('lineasRedirect', () => {
 })
 
 describe('vigenciaPromo (PRI-532)', () => {
-  // Lunes 16 de noviembre de 2026, 23:30 en Cartagena = martes 04:30 UTC: el día que cuenta es el lunes de Cartagena.
-  const now = new Date('2026-11-17T04:30:00Z')
   const created_at = '2026-10-01T00:00:00Z'
 
-  it('sin días: desde que se creó hasta ends_at, y sin fin si no tiene', () => {
-    expect(vigenciaPromo({ created_at, ends_at: '2026-12-01T04:59:59.999Z' }, now)).toEqual({
+  it('desde que se creó hasta ends_at, y sin fin si no tiene', () => {
+    expect(vigenciaPromo({ created_at, ends_at: '2026-12-01T04:59:59.999Z' })).toEqual({
       validFrom: '2026-10-01T00:00:00.000Z',
       validThrough: '2026-12-01T04:59:59.999Z',
     })
-    expect(vigenciaPromo({ created_at, ends_at: null, weekdays: [] }, now)).toEqual({ validFrom: '2026-10-01T00:00:00.000Z' })
-  })
-
-  it('con días: solo hoy en Cartagena, de 00:00 a 23:59:59', () => {
-    expect(vigenciaPromo({ created_at, ends_at: null, weekdays: [1, 3] }, now)).toEqual({
-      validFrom: '2026-11-16T05:00:00.000Z',
-      validThrough: '2026-11-17T04:59:59.000Z',
-    })
-  })
-
-  it('con días, sin pasar de ends_at ni empezar antes de crearse', () => {
-    expect(vigenciaPromo({ created_at: '2026-11-16T15:00:00Z', ends_at: '2026-11-16T20:00:00Z', weekdays: [1] }, now)).toEqual({
-      validFrom: '2026-11-16T15:00:00.000Z',
-      validThrough: '2026-11-16T20:00:00.000Z',
-    })
+    expect(vigenciaPromo({ created_at, ends_at: null })).toEqual({ validFrom: '2026-10-01T00:00:00.000Z' })
   })
 })
 

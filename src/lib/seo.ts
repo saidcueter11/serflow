@@ -43,19 +43,10 @@ export function offerSchema({ url, price, disponible }: { url: string; price: nu
 
 /**
  * Vigencia de una promo (#9, PRI-532). No hay fecha de inicio: vale desde que se creó hasta ends_at (sin ends_at, sin fin).
- * Con días de la semana (PRI-524) la página solo existe el día que sale (el rebuild diario de las 00:05 la quita y la
- * pone), así que vale hoy, de 00:00 a 23:59:59 en Cartagena (UTC-5, sin horario de verano), sin pasar de ends_at.
+ * Los días de la semana no la cambian (PRI-538 los vuelve una etiqueta; Offer no tiene un campo de días que Google lea).
  */
-export function vigenciaPromo(
-  { created_at, ends_at, weekdays }: { created_at: string; ends_at: string | null; weekdays?: number[] | null },
-  now: Date,
-): { validFrom: string; validThrough?: string } {
-  const creada = new Date(created_at).getTime()
-  const fin = ends_at ? new Date(ends_at).getTime() : Infinity
-  if (!weekdays?.length) return { validFrom: new Date(creada).toISOString(), ...(ends_at && { validThrough: new Date(fin).toISOString() }) }
-  const cinco = 5 * 3600e3
-  const hoy = Math.floor((now.getTime() - cinco) / 86400e3) * 86400e3 + cinco
-  return { validFrom: new Date(Math.max(hoy, creada)).toISOString(), validThrough: new Date(Math.min(hoy + 86400e3 - 1000, fin)).toISOString() }
+export function vigenciaPromo({ created_at, ends_at }: { created_at: string; ends_at: string | null }): { validFrom: string; validThrough?: string } {
+  return { validFrom: new Date(created_at).toISOString(), ...(ends_at && { validThrough: new Date(ends_at).toISOString() }) }
 }
 
 /** La promo como Offer (#9): Google no acepta promociones marcadas como Event. La url es la del canonical. */

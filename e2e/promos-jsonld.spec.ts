@@ -32,11 +32,10 @@ test('a promo without weekdays is valid from its creation until ends_at, with it
   expect(new Date(o.validThrough).getTime()).toBeGreaterThan(Date.now() + 29 * DAY)
 })
 
-test('a promo with weekdays is valid today only, from 00:00 to 23:59:59 in Cartagena; without description or end, none', async ({ page, isMobile }) => {
+test('weekdays do not narrow the validity (PRI-538); without description or end, none', async ({ page, isMobile }) => {
   test.skip(isMobile, 'Same markup on both viewports')
   const o = await offer(page, 'e2e-camisetas-equipos')
-  expect(o.validFrom).toMatch(/T05:00:00\.000Z$/)
-  expect(new Date(o.validThrough).getTime() - new Date(o.validFrom).getTime()).toBe(DAY - 1000)
+  expect(o.validFrom).toBe('2026-10-01T00:00:00.000Z')
 
   const sinNada = await offer(page, 'e2e-gorras-ninos')
   expect(sinNada).not.toHaveProperty('description')

@@ -17,8 +17,8 @@ export async function getStaticPaths() {
       // PRI-525: su portada en JPEG para la vista previa al compartir (WhatsApp, Instagram).
       const foto = promoPhotoUrls(activas[i])[0]
       const og = foto ? (await getImage({ src: foto, inferSize: true, width: 1200, format: 'jpg' })).src : undefined
-      // PRI-532: su vigencia para el JSON-LD (Offer), con la hora del build.
-      const vigencia = vigenciaPromo(activas[i], new Date())
+      // PRI-532: su vigencia para el JSON-LD (Offer).
+      const vigencia = vigenciaPromo(activas[i])
       return { params: { slug: promo.slug }, props: { promo, otras: promos.filter((p) => p.slug !== promo.slug), og, vigencia } }
     }),
   )
