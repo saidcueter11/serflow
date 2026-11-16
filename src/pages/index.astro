@@ -102,7 +102,7 @@ async function fotoDelRepo() {
   return { src: img.src, srcSet: img.srcSet.attribute, alt: 'Gorras personalizadas en un estante del taller' }
 }
 
-// Carrusel del hero: 4 fotos del resultado. Si hay promo activa, su banner entra primero y sale la última foto.
+// Carrusel del hero: 4 fotos del resultado. Las promos van solo en la barra, nunca en el hero (PRI-526).
 const HERO = [
   { src: camisetas, alt: 'Dos personas con camisetas negras estampadas', position: '50% 35%' },
   { src: estampadoProceso, alt: 'Manos pasando el rasero sobre una plancha de estampado', position: '50% 50%' },
@@ -129,15 +129,6 @@ const heroSlides: Slide[] =
           return { ...rest, src: img.src, srcSet: img.srcSet.attribute, sizes: heroSizes(proporcion(img)) }
         }),
       )
-const promoWithCover = promos.find((p) => p.banner_url || p.image_urls[0])
-if (promoWithCover) {
-  // PRI-528: como toda foto del admin, por fotoRemota: el srcset solo promete los anchos que la foto alcanza.
-  const foto = await fotoDeFila(promoWithCover.banner_url || promoWithCover.image_urls[0], fotoHero, heroSizes)
-  if (foto) {
-    if (heroSlides.length > 1) heroSlides.splice(heroSlides.length - 1, 1)
-    heroSlides.unshift({ ...foto, alt: promoWithCover.title })
-  }
-}
 // "Qué hacemos": tarjetas del admin (2 a 6). Una foto que no sirve deja la tarjeta con la muestra neutra de ServiceCard.
 const services = await Promise.all(
   content.services.map(async ({ image_url, image_alt, ...card }) => {

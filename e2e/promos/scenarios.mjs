@@ -309,7 +309,8 @@ export const SCENARIOS = [
   {
     outDir: '.e2e-builds/sin-redes',
     port: 4238,
-    promos: () => [],
+    // PRI-526: una promo sin banner ni image_urls (e2e/promos-celular.spec.ts).
+    promos: () => [row({ slug: 'e2e-sin-fotos', title: 'Promo sin fotos de prueba', description: 'Solo texto, sin fotos.' })],
     medios: () => ({
       ...vacio(),
       site_settings: [{ id: 1, instagram_url: 'https://www.instagram.com/e2e-quitada/', instagram_visible: false, tiktok_visible: false, facebook_visible: false }],

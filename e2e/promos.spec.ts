@@ -113,6 +113,16 @@ test.describe('1 promo vigente', () => {
     await expect(bar).toContainText('2x1 en gorras bordadas')
   })
 
+  // PRI-526: la promo va en la barra, no en el hero (canvas portada-final, "con 2 promos activas"): su portada no
+  // reemplaza ninguna foto del carrusel.
+  test('home: the promo cover stays out of the hero', async ({ page }) => {
+    await page.goto('/')
+    const fotos = page.locator('.hero-carousel figure img')
+    await expect(fotos).toHaveCount(4)
+    await expect(page.locator('.hero-carousel img[alt="2x1 en gorras bordadas"]')).toHaveCount(0)
+    await expect(fotos.last()).toHaveAttribute('alt', 'Dos amigos con gorras personalizadas riéndose')
+  })
+
   test('/promos shows one poster and its detail goes back home', async ({ page }) => {
     await page.goto('/promos')
     await expect(page.getByText('1 promo activa')).toBeVisible()

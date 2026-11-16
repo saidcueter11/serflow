@@ -4,9 +4,9 @@ import { expect, test } from '@playwright/test'
 // foto horizontal se pinta más ancha que su caja; si `sizes` lo olvida, en celulares de 1x y 2x baja una más chica y se
 // ve blanda. Solo puede quedar por debajo si ya baja la más grande del srcset.
 // PRI-528: contra builds sembrados (e2e/promos/server.mjs), no el real: una foto que suba el cliente no pone rojo el CI.
-// Uno por cada origen de las fotos del hero: las del repo, el banner de una promo (960 px, menos que el srcset del hero)
-// y las que publica el admin.
-const BUILDS = { repo: 4232, promo: 4233, admin: 4235 }
+// Uno por cada origen de las fotos del hero: las del repo y las que publica el admin. El banner de una promo ya no
+// entra al hero (PRI-526).
+const BUILDS = { repo: 4232, admin: 4235 }
 for (const [origen, port] of Object.entries(BUILDS)) {
   for (const dpr of [1, 2, 3]) {
     test.describe(`${origen}: celular de 390 px a ${dpr}x`, () => {
