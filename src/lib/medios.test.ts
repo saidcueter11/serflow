@@ -2,12 +2,14 @@ import sharp from 'sharp'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const respuesta: { data: unknown; error: unknown } = { data: [], error: null }
+const orden: string[] = []
 
 vi.mock('./supabase', () => ({
   supabase: {
     from: () => {
       const q: Record<string, unknown> = { then: (resolve: (r: typeof respuesta) => unknown) => resolve(respuesta) }
-      for (const m of ['select', 'eq', 'order']) q[m] = () => q
+      for (const m of ['select', 'eq']) q[m] = () => q
+      q.order = (col: string) => (orden.push(col), q)
       return q
     },
   },
@@ -107,5 +109,12 @@ describe('getGarmentColors', () => {
   it('cualquier otro error sí tumba el build: no se publica con las fotos del repo por una falla pasajera', async () => {
     Object.assign(respuesta, { data: null, error: { code: 'XX000', message: 'boom' } })
     await expect(getGarmentColors()).rejects.toThrow('Failed to fetch garment_colors: boom')
+  })
+
+  it('mismo sort_order: desempata por id (PRI-452)', async () => {
+    Object.assign(respuesta, { data: [], error: null })
+    orden.length = 0
+    await getGarmentColors()
+    expect(orden).toEqual(['sort_order', 'id'])
   })
 })
