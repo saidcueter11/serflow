@@ -1,8 +1,9 @@
 import type { FotoModal } from '../components/ui/PhotoModal'
 import { whatsappUrl } from './business'
 import type { Promo } from './types'
+import { SITE_URL } from './site.mjs'
 
-export const SITE = 'https://serflowctg.netlify.app'
+export const SITE = SITE_URL
 
 /** r = ancho / alto: el modal de foto reserva la forma mientras baja. */
 export type Photo = { src: string; alt: string; r?: number }

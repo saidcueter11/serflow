@@ -7,7 +7,7 @@ import { TODO_HREF } from '../../lib/catalog'
 import type { CatalogPageProps } from '../../lib/catalog-view'
 
 // Una página del muro (PRI-130, PRI-286): banner a sangre con el nombre (h1) y la bajada, pestañas, muro y el modal de
-// foto. La usan /products/... y /catalogo/<categoría>/<slug> (abrir = id de la foto que se abre al cargar).
+// foto. La usan /catalogo/... y /catalogo/<categoría>/<slug> (abrir = id de la foto que se abre al cargar).
 type Props = CatalogPageProps & { abrir?: string }
 
 const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl, precioCop } from './catalog'
+import { TODO_HREF, fotoAlt, fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl, precioCop } from './catalog'
 
 const NOW = new Date('2026-10-20T12:00:00Z')
 const ago = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000).toISOString()
@@ -32,8 +32,21 @@ describe('pages', () => {
     const list = Array.from({ length: 130 }, (_, i) => i)
     expect(pages(list).map((p) => p.length)).toEqual([60, 60, 10])
     expect(pages([])).toEqual([[]])
-    expect(pageHref('/products/beisbol', 1)).toBe('/products/beisbol')
-    expect(pageHref('/products', 3)).toBe('/products/pagina/3')
+    expect(pageHref(`${TODO_HREF}/beisbol`, 1)).toBe('/catalogo/beisbol')
+    expect(pageHref(TODO_HREF, 3)).toBe('/catalogo/pagina/3')
+  })
+})
+
+describe('fotoAlt', () => {
+  it('nombre del admin y categoría (PRI-525)', () => {
+    expect(fotoAlt('Basketball', 50, 'Camiseta Lakers bordada')).toBe('Camiseta Lakers bordada, Basketball')
+    expect(fotoAlt('Dama', null, '  Gorra dama bordada ')).toBe('Gorra dama bordada')
+  })
+
+  it('sin nombre propio (vacío o el de fábrica), la categoría y el número', () => {
+    expect(fotoAlt('Beisbol', 26, 'Beisbol #26')).toBe('Beisbol, foto N.º 26')
+    expect(fotoAlt('Beisbol', 26, '   ')).toBe('Beisbol, foto N.º 26')
+    expect(fotoAlt('Moda', null)).toBe('Foto de Moda')
   })
 })
 

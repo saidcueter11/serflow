@@ -4,7 +4,7 @@ export type BannerSlide = { label: string; image?: { src: string; srcSet?: strin
  * Banner de categorías arriba del catálogo (PRI-130; a sangre en PRI-286): una lámina por categoría con su portada
  * (categories.image_url) y un velo abajo para el texto que la página pone encima (el nombre como h1 y la bajada, en el
  * margen de la rejilla: .pf-cat-texto). Sin "N productos": ya está en la pestaña. Muestra la de current; al cambiar de categoría la página la desliza hasta la nueva (data-banner-track, ver
- * src/pages/products/[...gallery].astro). Sin portada queda la trama. Solo la lámina actual carga su foto de una.
+ * src/pages/catalogo/[...gallery].astro). Sin portada queda la trama. Solo la lámina actual carga su foto de una.
  * Uno por página, solo en la galería del catálogo; no es el hero de la portada (HeroCarousel) ni una galería de fotos.
  * Markup estático: Astro lo renderiza sin JS.
  *

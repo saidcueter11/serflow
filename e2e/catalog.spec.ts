@@ -12,7 +12,7 @@ test('home -> product opens its photo with the WhatsApp CTA, and Ver todo opens 
   await expect(page.locator('#visitanos')).toBeVisible()
 
   const verTodo = page.getByRole('link', { name: 'Ver todo →' })
-  await expect(verTodo).toHaveAttribute('href', /^\/products\/[^/]+$/)
+  await expect(verTodo).toHaveAttribute('href', /^\/catalogo\/[^/]+$/)
 
   // PRI-286: la prenda se abre en el modal, encima de la portada.
   const productLink = page.locator('#disponible a[href^="/catalogo/"]').filter({ has: page.locator('h3') }).first()

@@ -54,8 +54,8 @@ test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promo
   // salir; en el celular, el catálogo queda en el menú.
   const menu = page.getByLabel('Abrir menú')
   if (await menu.isVisible()) await menu.click()
-  await page.locator('a[href^="/products"]').filter({ visible: true }).first().click()
-  await expect(page).toHaveURL(/\/products/)
+  await page.locator('a[href^="/catalogo"]').filter({ visible: true }).first().click()
+  await expect(page).toHaveURL(/\/catalogo/)
   await page.locator('main a[data-foto]').first().click()
   await expect(page.getByRole('dialog').getByRole('link', { name: 'Pedir por WhatsApp' })).toBeVisible()
   await page.keyboard.press('Escape')

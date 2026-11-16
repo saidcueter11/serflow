@@ -79,7 +79,7 @@ test('photos of the same item are dots on the photo; the arrows by the counter j
 
 test('phone: the next photo peeks in at the edge and the first opening nudges toward it', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'Las orillas y el asomo son del celular.')
-  await page.goto(`/products/${categoria.slug}`)
+  await page.goto(`/catalogo/${categoria.slug}`)
   await page.locator('main a[data-foto]').first().click()
   await expect(dialog(page)).toBeVisible()
 

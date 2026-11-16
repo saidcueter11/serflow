@@ -10,7 +10,7 @@ type Caja = { x: number; y: number; w: number; h: number }
 const centro = (c: Caja) => ({ x: c.x + c.w / 2, y: c.y + c.h / 2 })
 
 test('with a classic scrollbar the photo lands exactly on its place, with no jump when the modal closes', async ({ page }) => {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   // La barra clásica de Chromium en Linux (CI), como la de Windows. En macOS es flotante y no ocupa ancho: no hay qué medir.
   const barra = await page.evaluate(() => innerWidth - document.documentElement.clientWidth)
   test.skip(barra === 0, 'Overlay scrollbars (macOS): run on Linux, as CI does')

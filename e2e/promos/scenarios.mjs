@@ -232,6 +232,7 @@ const catalogo = (p) => {
 // PRI-433: lo que el admin le pone a una prenda (nombre, descripción, precio y varias fotos) y una sin nada de eso.
 export const MODAL = {
   categoria: { slug: 'e2e-modal', label: 'Modal de prueba' },
+  slugViejo: 'e2e-nombre-viejo',
   completa: { slug: 'e2e-completa', name: 'Gorra de prueba con nombre', description: 'Descripción de prueba: bordado al frente, correa ajustable y visera curva.', price: 45000 },
   vacia: { slug: 'e2e-sin-datos', legacy_id: 7, name: '   ', description: null, price: null },
   // El nombre es texto del admin: va al <title> y al JSON-LD de la URL propia sin poder cerrar el <script>.
@@ -265,6 +266,12 @@ const modal = (p) => {
     products: [fila(MODAL.completa, [p[0], p[1], p[2]], '03'), fila(MODAL.vacia, [p[3]], '02'), fila(MODAL.cero, [p[4]], '01')],
     // PRI-455: la completa también trae colores, para ver nombre, precio, colores y descripción juntos en la franja.
     product_colors: MODAL.colores.map((c, i) => ({ product_id: MODAL.completa.slug, ...c, sort_order: i })),
+    // PRI-525: la completa se llamaba distinto (su URL vieja redirige a la nueva) y una fila con texto que no es un slug,
+    // que no debe llegar a _redirects (e2e/redirects.spec.ts).
+    product_slug_redirects: [
+      { category_slug: c.slug, slug: MODAL.slugViejo, products: { slug: MODAL.completa.slug, categories: { slug: c.slug } } },
+      { category_slug: 'x /* /evil 200', slug: 'y', products: { slug: MODAL.completa.slug, categories: { slug: c.slug } } },
+    ],
   }
 }
 

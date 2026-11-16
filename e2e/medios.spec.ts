@@ -24,7 +24,7 @@ test.describe('sin nada publicado', () => {
     await expect(bloque).toHaveAttribute('src', /gorras-estante.*\.webp$/)
     await expect(bloque).toHaveAttribute('srcset', /640w.*1200w/)
 
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await expect(page.locator('img[src*="gorras-estante"]').first()).toBeAttached()
 
     await abrirPersonaliza(page)
@@ -46,7 +46,7 @@ test.describe('con fotos y colores publicados', () => {
   })
 
   test('una foto que ya no existe no tumba el build: ese lugar vuelve a la foto del repo', async ({ page }) => {
-    await page.goto('/products')
+    await page.goto('/catalogo')
     await expect(page.locator('img[src*="gorras-estante"]').first()).toBeAttached()
   })
 

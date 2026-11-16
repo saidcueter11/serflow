@@ -19,7 +19,7 @@ async function swipe(page: Page, x1: number, x2: number, y: number) {
 
 /** Abre la primera categoría con al menos 3 fotos y devuelve su nombre, su href y cuántas fotos tiene. */
 async function openCategory(page: Page) {
-  await page.goto('/products')
+  await page.goto('/catalogo')
   const chips = page.getByRole('navigation', { name: 'Categorías' }).getByRole('link')
   for (let i = 1; i < (await chips.count()); i++) {
     const chip = chips.nth(i)
@@ -141,7 +141,7 @@ test('the photo URL opens the catalog with the modal open, with its own preview 
   await expect(dialog(page)).toBeVisible()
   await expect(dialog(page).locator('img.mx-foto')).toHaveAttribute('alt', alt)
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /^https?:\/\//)
-  await expect(page.locator('meta[property="og:url"]').last()).toHaveAttribute('content', `${SITE}${photo}`)
+  await expect(page.locator('meta[property="og:url"]').last()).toHaveAttribute('content', `${SITE}${photo}/`)
 
   await page.keyboard.press('Escape')
   await expect(page).toHaveURL(new RegExp(`${href}/?$`))

@@ -8,8 +8,8 @@ import { SITE } from './promos'
  * El sitio es estático: las fechas se calculan en el build, como la vigencia de las promos.
  */
 
-/** "Todo" del catálogo. */
-export const TODO_HREF = '/products'
+/** "Todo" del catálogo. Las categorías cuelgan de aquí: /catalogo/<categoría> (PRI-525; antes /products, con 301). */
+export const TODO_HREF = '/catalogo'
 
 /** URL propia de una foto (PRI-286): abre el catálogo de su categoría con el modal de esa foto. Las viejas
  * /products/<categoría>/<slug> redirigen aquí con 301 (public/_redirects). */
@@ -52,8 +52,16 @@ export const pageHref = (base: string, page: number) => (page === 1 ? base : `${
 
 const numero = (n: number | null) => (n == null ? '' : ` N.º ${n}`)
 
-/** alt de la foto: "Beisbol, foto N.º 26". Sin número: "Foto de Moda". */
-export const fotoAlt = (label: string, n: number | null) => (n == null ? `Foto de ${label}` : `${label}, foto N.º ${n}`)
+/**
+ * alt de la foto (PRI-525): el nombre que le puso el admin y la categoría, "Camiseta Lakers bordada, Basketball". La técnica
+ * (bordada, estampada, DTF) viene en el nombre: la base no la guarda aparte. Sin nombre propio (vacío o el de fábrica,
+ * "Beisbol #26"): "Beisbol, foto N.º 26", o "Foto de Moda" sin número.
+ */
+export function fotoAlt(label: string, n: number | null, nombre?: string | null): string {
+  const propio = nombre?.trim()
+  if (!propio || /#\s*\d+$/.test(propio)) return n == null ? `Foto de ${label}` : `${label}, foto N.º ${n}`
+  return propio.toLowerCase().includes(label.toLowerCase()) ? propio : `${propio}, ${label}`
+}
 
 /** Nombre de la foto en el modal y title de su página: "Beisbol N.º 26". */
 export const fotoTitulo = (label: string, n: number | null) => `${label}${numero(n)}`
