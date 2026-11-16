@@ -1,8 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
+import { SITE_URL } from '../src/lib/site.mjs'
 
 // PRI-286: la foto se abre en un modal encima del catálogo (ya no hay página de detalle). Contra el catálogo real del
 // build: entra por las pestañas y las fotos, sin depender de un producto concreto.
-const SITE = 'https://serflowctg.netlify.app'
+const SITE = SITE_URL
 
 const tiles = (page: Page) => page.locator('main a[data-foto]')
 const dialog = (page: Page) => page.getByRole('dialog')

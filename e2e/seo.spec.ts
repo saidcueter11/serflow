@@ -57,6 +57,8 @@ async function revisar(page: Page, path: string) {
   const img = await page.request.get(new URL(og!).pathname)
   expect(img.status(), `${path} og:image ${og}`).toBe(200)
   expect(img.headers()['content-type']).toMatch(/^image\/(jpeg|png)/)
+  // PRI-531: canonical, og:url, JSON-LD y WhatsApp salen de SITE_URL; el dominio viejo no queda en ninguna página.
+  expect(await page.content(), `${path} dominio viejo`).not.toContain('netlify.app')
   // JSON-LD válido.
   const lds = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t))
   expect(lds.flatMap((ld) => validar(ld, canonical)), path).toEqual([])
@@ -100,6 +102,7 @@ test.describe('build real', () => {
 
     const robots = await (await request.get('/robots.txt')).text()
     expect(robots).toMatch(/^Sitemap: https:\/\/[^/]+\/sitemap-index\.xml$/m)
+    expect(sitemap + robots, 'dominio viejo').not.toContain('netlify.app')
 
     const manifest = await (await request.get('/site.webmanifest')).json()
     expect(manifest.name).toContain('Serflow')

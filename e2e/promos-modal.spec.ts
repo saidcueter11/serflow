@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { SITE_URL } from '../src/lib/site.mjs'
 
 // PRI-523: las fotos de las promos abren el mismo modal de foto que el catálogo (PhotoModal). Contra el build sembrado de
 // 3 promos (e2e/promos/scenarios.mjs): "2x1 en gorras bordadas" tiene portada y 4 fotos más que sirven (5 en total).
@@ -20,7 +21,7 @@ test('detail: a photo of Más fotos opens the modal on that photo and walks the 
   await expect(dialog(page).getByText('Llevas dos gorras con el mismo bordado y pagas una.')).toBeVisible()
   await expect(dialog(page).locator('.mx-cat')).toHaveText('Promo')
   await expect(dialog(page).locator('.mx-precio')).toBeHidden()
-  expect(await waText(page)).toBe('¡Hola! Me interesa la promo "2x1 en gorras bordadas". https://serflowctg.netlify.app/promos/e2e-2x1-gorras')
+  expect(await waText(page)).toBe(`¡Hola! Me interesa la promo "2x1 en gorras bordadas". ${SITE_URL}/promos/e2e-2x1-gorras`)
   // Una sola promo en su página: sin contador de prendas; los puntos son sus 5 fotos.
   await expect(dialog(page).locator('.mx-barra')).toBeHidden()
   await expect(dialog(page).locator('.mx-puntos span')).toHaveCount(5)
