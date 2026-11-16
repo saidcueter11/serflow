@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { SITE_URL } from './site.mjs'
 import { MAP_EMBED_URL } from './business'
-import { absoluta, breadcrumbSchema, geoDelMapa, offerSchema, rangoDePrecios } from './seo'
+import { absoluta, breadcrumbSchema, geoDelMapa, offerSchema, promoOfferSchema, rangoDePrecios, vigenciaPromo } from './seo'
 import { lastmodPorRuta, lineasRedirect, rutaBase } from './seo-build.mjs'
 
 const url = `${SITE_URL}/catalogo/beisbol/beisbol-26/`
@@ -101,5 +101,58 @@ describe('lineasRedirect', () => {
         fila('basketball', 'camiseta-lakers'),
       ]),
     ).toEqual([])
+  })
+})
+
+describe('vigenciaPromo (PRI-532)', () => {
+  // Lunes 16 de noviembre de 2026, 23:30 en Cartagena = martes 04:30 UTC: el día que cuenta es el lunes de Cartagena.
+  const now = new Date('2026-11-17T04:30:00Z')
+  const created_at = '2026-10-01T00:00:00Z'
+
+  it('sin días: desde que se creó hasta ends_at, y sin fin si no tiene', () => {
+    expect(vigenciaPromo({ created_at, ends_at: '2026-12-01T04:59:59.999Z' }, now)).toEqual({
+      validFrom: '2026-10-01T00:00:00.000Z',
+      validThrough: '2026-12-01T04:59:59.999Z',
+    })
+    expect(vigenciaPromo({ created_at, ends_at: null, weekdays: [] }, now)).toEqual({ validFrom: '2026-10-01T00:00:00.000Z' })
+  })
+
+  it('con días: solo hoy en Cartagena, de 00:00 a 23:59:59', () => {
+    expect(vigenciaPromo({ created_at, ends_at: null, weekdays: [1, 3] }, now)).toEqual({
+      validFrom: '2026-11-16T05:00:00.000Z',
+      validThrough: '2026-11-17T04:59:59.000Z',
+    })
+  })
+
+  it('con días, sin pasar de ends_at ni empezar antes de crearse', () => {
+    expect(vigenciaPromo({ created_at: '2026-11-16T15:00:00Z', ends_at: '2026-11-16T20:00:00Z', weekdays: [1] }, now)).toEqual({
+      validFrom: '2026-11-16T15:00:00.000Z',
+      validThrough: '2026-11-16T20:00:00.000Z',
+    })
+  })
+})
+
+describe('promoOfferSchema (PRI-532)', () => {
+  const base = { url: absoluta('/promos/2x1/'), name: '2x1 en gorras', validFrom: '2026-10-01T00:00:00.000Z' }
+
+  it('Offer con la url del canonical, vigencia y vendedor', () => {
+    expect(promoOfferSchema({ ...base, description: ' Dos por una. ', image: absoluta('/og.jpg'), validThrough: '2026-12-01T00:00:00.000Z' })).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'Offer',
+      name: '2x1 en gorras',
+      description: 'Dos por una.',
+      url: `${SITE_URL}/promos/2x1/`,
+      image: `${SITE_URL}/og.jpg`,
+      validFrom: '2026-10-01T00:00:00.000Z',
+      validThrough: '2026-12-01T00:00:00.000Z',
+      seller: { '@type': 'Organization', name: 'Serflow', url: `${SITE_URL}/` },
+    })
+  })
+
+  it('sin descripción, foto ni fin, no los inventa', () => {
+    const o = promoOfferSchema({ ...base, description: '  ' })
+    expect(o).not.toHaveProperty('description')
+    expect(o).not.toHaveProperty('image')
+    expect(o).not.toHaveProperty('validThrough')
   })
 })

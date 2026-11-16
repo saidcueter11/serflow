@@ -197,6 +197,13 @@ const malo = () => ({
   about_reasons: [{ title: 'x'.repeat(41), description: 'Título demasiado largo' }],
 })
 
+// PRI-532: el texto que el cliente le pone a la categoría A en el admin, con espacios de sobra y una etiqueta que debe
+// salir como texto. La B trae solo espacios (cuenta como vacío) y la C, nada.
+export const INTRO = {
+  seoTitle: 'Gorras de prueba bordadas en Cartagena',
+  intro: 'Texto de prueba de la categoría A: gorras bordadas <b>en relieve</b>, por unidad o al por mayor.',
+}
+
 // PRI-438: catálogo fijo para el efecto 7 (e2e/efectos.spec.ts). Con el real, si las fotos nuevas de arriba de "Todo"
 // son todas de una categoría, al cambiar de pestaña ninguna foto viaja. Aquí "Todo" va intercalado (A1 B1 C1 A2...):
 // al tocar B, B1 sigue en pantalla en otro puesto y A1 y C1 se van. Una sola foto, para que la rejilla sea pareja, y
@@ -204,7 +211,8 @@ const malo = () => ({
 const catalogo = (p) => {
   // PRI-420: la C trae un "</script>" en el nombre; su JSON-LD no debe cerrar la etiqueta (e2e/catalogo.spec.ts).
   const label = (slug) => `Categoría ${slug.toUpperCase()}` + (slug === 'c' ? ' </script><script>window.inyectado = 1</script>' : '')
-  const categories = ['a', 'b', 'c'].map((slug, i) => ({ ...vacia, id: `e2e-cat-${slug}`, slug: `e2e-${slug}`, label: label(slug), image_url: null, sort_order: i }))
+  const textos = { a: { seo_title: ` ${INTRO.seoTitle} `, intro: `  ${INTRO.intro}  ` }, b: { seo_title: '   ', intro: ' ' }, c: {} }
+  const categories = ['a', 'b', 'c'].map((slug, i) => ({ ...vacia, id: `e2e-cat-${slug}`, slug: `e2e-${slug}`, label: label(slug), image_url: null, sort_order: i, ...textos[slug] }))
   const products = categories.flatMap((c) =>
     Array.from({ length: 20 }, (_, i) => i + 1).map((n) => ({
       id: `${c.slug}-${n}`,

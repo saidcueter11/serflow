@@ -1,3 +1,7 @@
+# PRI-532: serflowctg.netlify.app respondía 200 con el mismo sitio que serflowctg.com (contenido duplicado). Una regla con
+# host solo calza ese host exacto: los deploy previews (deploy-preview-N--serflowctg.netlify.app) y los branch deploys
+# (<rama>--serflowctg.netlify.app) tienen otro y no la ven. Forzada (!): sin eso Netlify sirve el archivo que existe.
+https://serflowctg.netlify.app/*  https://serflowctg.com/:splat  301!
 # PRI-525: el catálogo entero vive en /catalogo (antes las categorías estaban en /products). Las reglas van de la más
 # específica a la más general; al final, el build agrega un 301 por cada slug viejo de una foto (product_slug_redirects).
 /products/pagina/:n  /catalogo/pagina/:n/  301

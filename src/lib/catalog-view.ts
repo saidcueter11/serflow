@@ -29,6 +29,9 @@ export type CatalogGroup = {
   cover?: { src: string; srcSet?: string }
   /** Portada de la categoría en JPEG para compartir (og:image, PRI-525). Sin portada del admin, la de la marca. */
   og?: string
+  /** Lo que el cliente escribió en el admin (PRI-532), sin espacios sobrantes; vacío = undefined. */
+  intro?: string
+  seoTitle?: string
   items: CatalogItem[]
 }
 
@@ -98,6 +101,8 @@ async function build() {
         href: `${TODO_HREF}/${c.slug}`,
         cover: cover ? { src: cover.src, srcSet: cover.srcSet.attribute } : undefined,
         og: og?.src,
+        intro: c.intro?.trim() || undefined,
+        seoTitle: c.seo_title?.trim() || undefined,
         items,
       }
     }),
@@ -118,7 +123,8 @@ export type CatalogPageProps = {
   index: number
   slides: BannerSlide[]
   chips: CategoryLink[]
-  view: { label: string; href: string }
+  /** intro y seoTitle (PRI-532): solo las categorías que los tengan. */
+  view: { label: string; href: string; intro?: string; seoTitle?: string }
   /** og:image de la página (PRI-525): la portada de la categoría. */
   og?: string
   page: number
@@ -151,7 +157,7 @@ async function buildPages() {
         index,
         slides,
         chips,
-        view: { label: v.label, href: v.href },
+        view: { label: v.label, href: v.href, intro: 'intro' in v ? v.intro : undefined, seoTitle: 'seoTitle' in v ? v.seoTitle : undefined },
         og: 'og' in v ? v.og : undefined,
         page: i + 1,
         base: pageHref(v.href, i + 1),
