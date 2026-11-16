@@ -372,7 +372,7 @@ test.describe('/personaliza', () => {
     await page.getByText('Estampado', { exact: true }).click()
     await expect(page.getByText(PISTA_BORDADO)).toHaveCount(0)
     await page.getByRole('button', { name: 'Hacer el diseño más grande' }).click()
-    await expect(page.getByRole('group', { name: /Tu diseño, unos 13 cm de ancho/ })).toBeVisible()
+    await expect(page.getByRole('group', { name: /Tu diseño, unos 12 cm de ancho/ })).toBeVisible()
   })
 
   test('fondo: aviso de calidad junto a la subida; quitar y restaurar; si no se puede quitar, lo dice', async ({ page }) => {

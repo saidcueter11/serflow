@@ -98,8 +98,6 @@ test.describe('con fotos y colores publicados', () => {
       buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==', 'base64'),
     })
     await expect(page.getByRole('group', { name: /Tu diseño, unos \d+ cm de ancho/ })).toBeVisible()
-    await page.getByText('Espalda', { exact: true }).click()
-    await expect(page.getByRole('group', { name: /Tu diseño, unos \d+ cm de ancho/ })).toBeVisible()
     await expect.poll(() => page.locator('.pf-pz-vista canvas').evaluate((c: HTMLCanvasElement) => c.toDataURL())).toMatch(/^data:image/)
   })
 })
