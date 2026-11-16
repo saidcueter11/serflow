@@ -67,6 +67,14 @@ describe('parseHeroSlides', () => {
     expect(parseHeroSlides(Array.from({ length: 9 }, (_, i) => ({ image_url: `${FOTO}?${i}`, sort_order: i })))).toHaveLength(6)
   })
 
+  // PRI-452: la base no devuelve las filas en orden; con el mismo sort_order desempata el id.
+  it('same sort_order: by id, whatever order the rows come in', () => {
+    const b = { id: 'b', image_url: `${FOTO}?b`, alt: 'B', sort_order: 0 }
+    const a = { id: 'a', image_url: `${FOTO}?a`, alt: 'A', sort_order: 0 }
+    expect(parseHeroSlides([b, a]).map((s) => s.alt)).toEqual(['A', 'B'])
+    expect(parseHeroSlides([a, b]).map((s) => s.alt)).toEqual(['A', 'B'])
+  })
+
   it('a slide without alt gets a generic one', () => {
     expect(parseHeroSlides([{ image_url: FOTO }])[0].alt).toBe('Trabajo de Serflow')
   })
