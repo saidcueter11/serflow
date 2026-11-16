@@ -10,8 +10,8 @@ import { Section } from '../ui/Section'
 
 /**
  * /promos/[slug] (PRI-131; sistema medido de PRI-286): "Volver" en su fila y el hero de la portada con la foto de la
- * promo (vigencia, título, descripción y WhatsApp); luego Más fotos en una fila llena y Otras promos en tarjetas. Cada
- * foto de Más fotos abre el modal de foto (PhotoModal, PRI-523) con todas las de la promo; la página lo monta.
+ * promo (vigencia, título, descripción y WhatsApp); luego Más fotos en una fila llena y Otras promos en tarjetas. La
+ * portada del hero y cada foto de Más fotos abren el modal de foto (PhotoModal, PRI-523) con todas las de la promo; la página lo monta.
  */
 export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: PromoView[] }) {
   const hasta = validaHasta(promo.endsAt)
@@ -31,6 +31,15 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
           </a>
         </div>
         <HeroCarousel slides={promo.cover ? [promo.cover] : []} className="pf-hero pf-promo-hero">
+          {/* PRI-523: tocar la portada abre el modal en ella (la foto 1 de la promo); el texto deja pasar el toque. */}
+          {promo.cover && (
+            <a
+              href={`/promos/${promo.slug}`}
+              className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-accent"
+              aria-label={`Ver las fotos de ${promo.title}`}
+              {...fotoAttrs(modal)}
+            />
+          )}
           <div className="pf-hero-texto anim-enter">
             {hasta && <span className="pf-pie">{hasta}</span>}
             <h1 className="pf-display">
