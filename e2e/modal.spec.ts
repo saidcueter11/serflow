@@ -141,7 +141,7 @@ test('the photo URL opens the catalog with the modal open, with its own preview 
   await expect(dialog(page)).toBeVisible()
   await expect(dialog(page).locator('img.mx-foto')).toHaveAttribute('alt', alt)
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /^https?:\/\//)
-  await expect(page.locator('meta[property="og:url"]').last()).toHaveAttribute('content', `${SITE}${photo}`)
+  await expect(page.locator('meta[property="og:url"]').last()).toHaveAttribute('content', `${SITE}${photo}/`)
 
   await page.keyboard.press('Escape')
   await expect(page).toHaveURL(new RegExp(`${href}/?$`))

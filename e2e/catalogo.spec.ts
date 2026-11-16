@@ -48,7 +48,8 @@ test('wall: chips with counts and an even grid of 4:5 photos without text', asyn
   await expect(first.locator('h2, h3, p')).toHaveCount(0)
   await expect(first.getByText('Nuevo')).toHaveCount(0)
   await expect(first.locator('svg path[d="M9 5l7 7-7 7"]')).toBeVisible()
-  await expect(first.locator('img')).toHaveAttribute('alt', /, foto N\.º \d+$|^Foto de /)
+  // PRI-525: el alt es el nombre del admin con la categoría, o "Beisbol, foto N.º 26" sin nombre propio. Nunca vacío.
+  await expect(first.locator('img')).toHaveAttribute('alt', /\S/)
   await expect(first.locator('img')).toHaveAttribute('loading', 'lazy')
 })
 
@@ -105,8 +106,10 @@ test.describe('PRI-420: JSON-LD con datos del admin', () => {
 
   test('un "</script>" en el nombre de la categoría no cierra el JSON-LD ni inyecta HTML', async ({ page }) => {
     await page.goto('/catalogo/e2e-c/e2e-c-1')
-    const ld = await page.locator('script[type="application/ld+json"]').textContent()
-    expect(JSON.parse(ld!).name).toContain('</script><script>window.inyectado = 1</script>')
+    // PRI-525: Product y BreadcrumbList; los dos llevan el nombre de la categoría y los dos tienen que seguir siendo JSON.
+    const lds = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t))
+    expect(lds.map((l) => l['@type'])).toEqual(['Product', 'BreadcrumbList'])
+    expect(lds[0].name).toContain('</script><script>window.inyectado = 1</script>')
     expect(await page.evaluate(() => 'inyectado' in window)).toBe(false)
   })
 })
