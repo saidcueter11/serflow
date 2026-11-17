@@ -17,6 +17,7 @@ export function CatalogPage({
   chips,
   current,
   label,
+  intro,
   tiles,
   next,
 }: {
@@ -25,6 +26,8 @@ export function CatalogPage({
   current: string
   /** Categoría actual, para el estado vacío. */
   label: string
+  /** Texto de la categoría del admin (PRI-532), arriba del muro. Sin texto no se pinta nada. */
+  intro?: string
   tiles: MasonryTile[]
   /** Siguiente bloque de fotos, si hay. */
   next?: { href: string; count: number }
@@ -34,6 +37,7 @@ export function CatalogPage({
       <div className="pf-c pf-cat-chips">
         <CategoryNav categories={chips} current={current} />
       </div>
+      {intro && <p className="pf-c pf-cat-intro">{intro}</p>}
       <div className="pf-c pf-cat-muro">
         {tiles.length === 0 ? (
           <EmptyState

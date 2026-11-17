@@ -3,6 +3,10 @@ export interface Category {
   slug: string
   label: string
   image_url: string | null
+  /** PRI-532: <title> de su página en el catálogo; vacío = el nombre. Falta antes de su migración. */
+  seo_title?: string | null
+  /** PRI-532: 1-2 frases arriba de las fotos y en la meta description; vacío = no sale. Falta antes de su migración. */
+  intro?: string | null
   sort_order: number
   is_active: boolean
   created_at: string

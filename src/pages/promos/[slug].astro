@@ -6,6 +6,8 @@ import { PromoDetailPage } from '../../components/promos/PromoDetailPage'
 import { getActivePromos } from '../../lib/products'
 import { toPromoViews } from '../../lib/promo-view'
 import { promoMensaje, promoPhotoUrls, type PromoView } from '../../lib/promos'
+import { jsonLd } from '../../lib/business'
+import { absoluta, promoOfferSchema, vigenciaPromo } from '../../lib/seo'
 
 export async function getStaticPaths() {
   const activas = await getActivePromos()
@@ -15,7 +17,9 @@ export async function getStaticPaths() {
       // PRI-525: su portada en JPEG para la vista previa al compartir (WhatsApp, Instagram).
       const foto = promoPhotoUrls(activas[i])[0]
       const og = foto ? (await getImage({ src: foto, inferSize: true, width: 1200, format: 'jpg' })).src : undefined
-      return { params: { slug: promo.slug }, props: { promo, otras: promos.filter((p) => p.slug !== promo.slug), og } }
+      // PRI-532: su vigencia para el JSON-LD (Offer).
+      const vigencia = vigenciaPromo(activas[i])
+      return { params: { slug: promo.slug }, props: { promo, otras: promos.filter((p) => p.slug !== promo.slug), og, vigencia } }
     }),
   )
 }
@@ -24,14 +28,17 @@ interface Props {
   promo: PromoView
   otras: PromoView[]
   og?: string
+  vigencia: ReturnType<typeof vigenciaPromo>
 }
 
-const { promo, otras, og } = Astro.props
+const { promo, otras, og, vigencia } = Astro.props
+const offer = promoOfferSchema({ url: Astro.url.href, name: promo.title, description: promo.description, image: og && absoluta(og), ...vigencia })
 ---
 
 <Layout title={`${promo.title} — Serflow`} description={promo.description ?? `Campaña ${promo.title} en Serflow Cartagena.`} whatsappText={promoMensaje(promo)} ogImage={og ? { src: og, alt: promo.title } : undefined}>
   <Fragment slot="head">
     {promo.cover && <link rel="preload" as="image" href={promo.cover.src} fetchpriority="high" />}
+    <script type="application/ld+json" set:html={jsonLd(offer)} />
   </Fragment>
   <PromoDetailPage promo={promo} otras={otras} />
   <PhotoModal />
