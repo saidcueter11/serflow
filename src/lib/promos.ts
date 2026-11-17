@@ -5,7 +5,10 @@ import { SITE_URL } from './site.mjs'
 
 export const SITE = SITE_URL
 
-/** r = ancho / alto: el modal de foto reserva la forma mientras baja. */
+/**
+ * r = ancho / alto: el modal de foto reserva la forma mientras baja. banner: la portada es el banner_url (no una foto
+ * de producto) y no entra a la galería del modal (PRI-535).
+ */
 export type Photo = { src: string; alt: string; r?: number; banner?: boolean }
 
 /** Una promo lista para pintar: fotos ya optimizadas, la primera es la portada. */
@@ -15,7 +18,6 @@ export type PromoView = {
   description: string | null
   /** ends_at (ISO). null = sin fecha de cierre. */
   endsAt: string | null
-  /** Con banner: true es el banner_url (no una foto de producto) y no entra a la galería del modal (PRI-535). */
   cover?: Photo
   photos: Photo[]
 }
