@@ -1,5 +1,5 @@
 import { getImage } from 'astro:assets'
-import { promoPhotoUrls, type PromoView } from './promos'
+import { diasPromo, promoPhotoUrls, type PromoView } from './promos'
 import type { Promo } from './types'
 
 /** Filas de Supabase -> PromoView con las fotos optimizadas en el build (webp, 1200 px). */
@@ -16,7 +16,7 @@ export async function toPromoViews(promos: Promo[]): Promise<PromoView[]> {
           }
         }),
       )
-      return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, cover: photos[0], photos: photos.slice(1) }
+      return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, dias: diasPromo(p.weekdays), cover: photos[0], photos: photos.slice(1) }
     }),
   )
 }

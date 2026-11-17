@@ -11,6 +11,7 @@ const GORRAS: PromoView = {
   title: "2x1 en gorras bordadas",
   description: "Llevas dos gorras con el mismo bordado y pagas una. Aplica para bordados de hasta 10 cm.",
   endsAt: "2026-10-11T23:59:00-05:00",
+  dias: null,
   cover: { src: CAP_NAVY, alt: "Gorra azul oscuro bordada (foto de ejemplo)" },
   photos: [
     { src: CAP_GREEN, alt: "Gorra verde bordada (foto de ejemplo)" },
@@ -22,6 +23,7 @@ const EQUIPOS: PromoView = {
   title: "10% en camisetas para equipos de fútbol",
   description: "Desde 10 camisetas con nombre y número. Estampado o DTF, en el color de tu equipo.",
   endsAt: "2026-10-31T23:59:00-05:00",
+  dias: "Disponible martes, miércoles y jueves",
   cover: { src: SHIRT_WHITE, alt: "Camiseta blanca estampada (foto de ejemplo)" },
   photos: [{ src: SHIRT_BLACK, alt: "Camiseta negra estampada (foto de ejemplo)" }],
 };
@@ -30,6 +32,7 @@ const NINOS: PromoView = {
   title: "Gorras para niños con su nombre bordado",
   description: "El nombre va gratis en cualquier gorra infantil de la vitrina.",
   endsAt: null,
+  dias: null,
   cover: { src: CAP_GREEN, alt: "Gorra infantil verde (foto de ejemplo)" },
   photos: [],
 };

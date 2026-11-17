@@ -1,10 +1,12 @@
 import { promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
 import { Button } from './Button'
+import { StatusPill } from './StatusPill'
 import { fotoAttrs } from './PhotoModal'
 
 /**
  * Una promo en /promos (PRI-286): cada promo es una sección de la rejilla, con el texto en 5 columnas y la foto 16:9 en
- * 6 desde la 7 (en el celular la foto va primero, 4:3). Vigencia, título, descripción completa, su propio botón de
+ * 6 desde la 7 (en el celular la foto va primero, 4:3). Vigencia, título, días si aplica solo algunos (StatusPill,
+ * PRI-538), descripción completa, su propio botón de
  * WhatsApp con el mensaje de esa promo ya escrito y "Ver las N fotos" al detalle, en una fila desde @3xl. Excepción a
  * "un WhatsApp por sección": cada promo es su propia sección. La foto abre el modal de foto (PhotoModal, PRI-523) con
  * las fotos de la promo; la página que la usa monta el modal y marca la lista (data-fotos). Va dentro de una página .pf.
@@ -25,6 +27,11 @@ export function PromoAfiche({ promo }: { promo: PromoView }) {
           <h2 id={id} className="pf-h2">
             {promo.title}
           </h2>
+          {promo.dias && (
+            <p className="mt-(--pf-td)">
+              <StatusPill tone="accent">{promo.dias}</StatusPill>
+            </p>
+          )}
           {promo.description && <p className="pf-lead">{promo.description}</p>}
         </div>
         <div className="pf-promo-botones">

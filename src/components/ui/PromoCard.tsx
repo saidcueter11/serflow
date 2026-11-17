@@ -1,12 +1,14 @@
 import { hastaCorto, type PromoView } from '../../lib/promos'
+import { StatusPill } from './StatusPill'
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /**
  * Una promo en "Otras promos" del detalle y en la 404 cuando hay promos vigentes (PRI-286): se lee como promo y no como
  * otra foto. Tarjeta horizontal con caja (superficie, borde, radio): la foto a todo el alto a la izquierda (112 px;
- * 200 desde 30rem de tarjeta, cuando sale también la descripción) y a la derecha la vigencia (etiqueta oro), el título
- * y "Ver promo" con forma de botón al fondo, así en una fila todas cierran igual. Toda la card es un link al detalle.
+ * 200 desde 30rem de tarjeta, cuando sale también la descripción) y a la derecha la vigencia (etiqueta oro), el título,
+ * los días si aplica solo algunos (StatusPill, PRI-538) y "Ver promo" con forma de botón al fondo, así en una fila
+ * todas cierran igual. Toda la card es un link al detalle.
  * Sin endsAt no hay vigencia (en una fila de desktop el título baja a la línea de los vecinos); sin foto, no hay foto.
  * Fluida: el ancho lo pone PromoGrid. Markup estático, sin JS.
  *
@@ -37,9 +39,14 @@ export function PromoCard({ promo, headingLevel = 2 }: { promo: PromoView; headi
         )}
         <div className="flex flex-col items-start p-4 @3xl/pf:p-6">
           {hasta && <span className="text-[13px] font-semibold uppercase leading-4 tracking-[.14em] text-accent">{hasta}</span>}
-          <H className={`mb-4 font-display text-[18px] font-medium leading-tight @[30rem]:mb-0 @3xl/pf:text-[22px] ${hasta ? 'mt-2' : '@3xl/pf:mt-6'}`}>
+          <H className={`${promo.dias ? 'mb-2' : 'mb-4'} font-display text-[18px] font-medium leading-tight @[30rem]:mb-0 @3xl/pf:text-[22px] ${hasta ? 'mt-2' : '@3xl/pf:mt-6'}`}>
             {promo.title}
           </H>
+          {promo.dias && (
+            <span className="mb-4 @[30rem]:mb-0 @[30rem]:mt-2">
+              <StatusPill tone="accent">{promo.dias}</StatusPill>
+            </span>
+          )}
           {promo.description && <p className="mb-6 mt-2 hidden max-w-[44ch] text-[16px] leading-normal text-muted @[30rem]:block">{promo.description}</p>}
           <span className="mt-auto inline-flex min-h-11 items-center rounded-full border border-line px-5 text-[16px] font-semibold transition-colors duration-(--motion-med) group-hover:border-ink group-focus-visible:border-ink">
             Ver promo →
