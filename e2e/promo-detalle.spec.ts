@@ -22,6 +22,14 @@ for (const ancho of [1280, 1920]) {
     await page.goto('/promos/e2e-2x1-gorras')
     await expect(portada(page)).toHaveJSProperty('complete', true)
     expect(await parteVisible(page)).toBeGreaterThan(0.99)
+    // Centrada en la mitad derecha, no pegada al borde con un hueco al centro (P2 de la revisión en 1920).
+    // Medido en la maqueta (offset*), no en pantalla: el zoom lento del hero escala la foto.
+    const { izq, centro } = await portada(page).evaluate((img: HTMLImageElement) => {
+      const w = img.parentElement!.clientWidth
+      return { izq: img.offsetLeft / w, centro: (img.offsetLeft + img.offsetWidth / 2) / w }
+    })
+    expect(izq).toBeGreaterThanOrEqual(0.5)
+    expect(centro).toBeCloseTo(0.75, 2)
   })
 }
 

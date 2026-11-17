@@ -35,6 +35,8 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
         </div>
         <HeroCarousel slides={promo.cover ? [promo.cover] : []} className={`pf-hero pf-promo-hero${entera ? ' pf-promo-entera' : ''}`}>
           {/* PRI-523: tocar la portada abre el modal en la primera foto (PRI-535: el banner no entra); el texto deja pasar el toque. */}
+          {/* PRI-535: el resto del hero lo llena la misma portada, desenfocada y oscura (solo desktop, tokens.css). */}
+          {entera && <img src={promo.cover!.src} alt="" aria-hidden="true" className="pf-promo-fondo" />}
           {promo.cover && modal && (
             <a
               href={`/promos/${promo.slug}`}
