@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SITE_URL } from './site.mjs'
-import { diaCartagena, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
+import { diasPromo, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
 import type { Promo } from './types'
 
 const promo = (slug: string, over: Partial<Promo> = {}): Promo => ({
@@ -41,20 +41,12 @@ describe('livePromos', () => {
     expect(livePromos(rows, NOW).map((p) => p.slug)).toEqual(['a', 'b-vieja', 'b-nueva', 'c'])
   })
 
-  it('keeps a promo with weekdays only on those days in Cartagena (PRI-524); no weekdays = every day', () => {
-    // Martes, miércoles y jueves. NOW es sábado 10 de octubre a mediodía en Cartagena.
+  it('keeps a promo with weekdays every day: the days are a label, not a filter (PRI-538)', () => {
     const rows = [promo('mar-jue', { weekdays: [2, 3, 4] }), promo('sabados', { weekdays: [6] }), promo('todos', { weekdays: [] })]
-    expect(livePromos(rows, NOW).map((p) => p.slug)).toEqual(['sabados', 'todos'])
-    expect(livePromos(rows, new Date('2026-10-13T00:00:00-05:00')).map((p) => p.slug)).toEqual(['mar-jue', 'todos'])
-    // Jueves 23:59 en Cartagena ya es viernes en UTC: sigue saliendo hasta la medianoche de aquí.
-    expect(livePromos(rows, new Date('2026-10-15T23:59:00-05:00')).map((p) => p.slug)).toEqual(['mar-jue', 'todos'])
-    expect(livePromos(rows, new Date('2026-10-16T00:00:00-05:00')).map((p) => p.slug)).toEqual(['todos'])
-  })
-
-  it('diaCartagena: ISO weekday in Cartagena', () => {
-    expect(diaCartagena(new Date('2026-10-12T00:00:00-05:00'))).toBe(1)
-    expect(diaCartagena(new Date('2026-10-11T23:59:59-05:00'))).toBe(7)
-    expect(diaCartagena(new Date('2026-10-12T04:59:59Z'))).toBe(7)
+    // Del lunes 12 al domingo 18 de octubre en Cartagena: las tres salen todos los días.
+    for (let d = 12; d <= 18; d++) {
+      expect(livePromos(rows, new Date(`2026-10-${d}T12:00:00-05:00`)).map((p) => p.slug)).toEqual(['mar-jue', 'sabados', 'todos'])
+    }
   })
 
   it('tolerates rows from before the SQL (no ends_at or sort_order columns)', () => {
@@ -81,5 +73,41 @@ describe('promo helpers', () => {
     expect(promoMensaje({ title: '2x1 en gorras', slug: '2x1-gorras' })).toBe(
       `¡Hola! Me interesa la promo "2x1 en gorras". ${SITE_URL}/promos/2x1-gorras`,
     )
+  })
+})
+
+describe('diasPromo (PRI-538)', () => {
+  it('one day, in plural', () => {
+    expect(diasPromo([2])).toBe('Disponible los martes')
+    expect(diasPromo([6])).toBe('Disponible los sábados')
+    expect(diasPromo([7])).toBe('Disponible los domingos')
+  })
+
+  it('several loose days, Monday first, with "y"', () => {
+    expect(diasPromo([4, 2, 3])).toBe('Disponible martes, miércoles y jueves')
+    expect(diasPromo([1, 5])).toBe('Disponible lunes y viernes')
+    expect(diasPromo([1, 6, 7])).toBe('Disponible lunes, sábado y domingo')
+  })
+
+  it('a run of 4 or more days in a row is a range', () => {
+    expect(diasPromo([1, 2, 3, 4, 5])).toBe('Disponible de lunes a viernes')
+    expect(diasPromo([1, 2, 3, 4, 5, 6])).toBe('Disponible de lunes a sábado')
+    expect(diasPromo([1, 2, 3, 4, 6])).toBe('Disponible de lunes a jueves y sábado')
+    expect(diasPromo([1, 3, 4, 5, 6])).toBe('Disponible lunes y de miércoles a sábado')
+  })
+
+  it('weekend', () => {
+    expect(diasPromo([7, 6])).toBe('Disponible fines de semana')
+  })
+
+  it('every day or none: no label', () => {
+    expect(diasPromo([1, 2, 3, 4, 5, 6, 7])).toBeNull()
+    expect(diasPromo([])).toBeNull()
+    expect(diasPromo(null)).toBeNull()
+    expect(diasPromo(undefined)).toBeNull()
+  })
+
+  it('ignores repeated and out-of-range days', () => {
+    expect(diasPromo([2, 2, 3, 0, 8])).toBe('Disponible martes y miércoles')
   })
 })

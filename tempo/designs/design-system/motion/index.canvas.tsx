@@ -61,9 +61,10 @@ defineAsset(Ticker, {
 defineAsset(PromoBar, {
   libraries: ["Design System"],
   usageInstructions:
-    "Barra dorada de promos arriba de todo (slot top de Layout.astro), con las promos vigentes del admin (getActivePromos). Con una se queda quieta y enlaza a /promos/<slug>; con varias, toda la barra es un link a /promos y los títulos rotan cada 5 s. Sin promos no se pinta. No la pongas dentro del contenido ni la uses para avisos que no sean promos.",
+    "Barra dorada de promos arriba de todo (slot top de Layout.astro), con las promos vigentes del admin (getActivePromos). Con una se queda quieta y enlaza a /promos/<slug>; con varias, toda la barra es un link a /promos y los títulos rotan cada 5 s. Cada título lleva debajo sus días (dias, de diasPromo) si la promo aplica solo algunos (PRI-538). Sin promos no se pinta. No la pongas dentro del contenido ni la uses para avisos que no sean promos.",
   variants: {
     "Una promo": { props: { promos: [{ title: "2x1 en gorras bordadas este fin de semana", href: "/promos/2x1-gorras" }] } },
+    "Una promo con días": { props: { promos: [{ title: "10% en camisetas para equipos de fútbol", href: "/promos/equipos", dias: "Disponible martes, miércoles y jueves" }] } },
     "Dos promos": {
       props: {
         promos: [

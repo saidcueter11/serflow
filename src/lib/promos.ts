@@ -18,27 +18,44 @@ export type PromoView = {
   description: string | null
   /** ends_at (ISO). null = sin fecha de cierre. */
   endsAt: string | null
+  /** "Disponible martes, miércoles y jueves" (diasPromo). null = todos los días, sin etiqueta. */
+  dias: string | null
   cover?: Photo
   photos: Photo[]
 }
 
-/** Día de la semana de `now` en Cartagena (UTC-5, sin horario de verano), ISO: 1 = lunes ... 7 = domingo. */
-export function diaCartagena(now: Date): number {
-  return ((new Date(now.getTime() - 5 * 3600e3).getUTCDay() + 6) % 7) + 1
-}
-
 /**
- * Promos que se publican: activas (ya filtradas en la consulta), no vencidas en `now` y de hoy si tienen días
- * (PRI-524), por sort_order. El build filtra aunque RLS ya lo haga, por si la policy no se ha actualizado; el rebuild
- * diario de las 00:05 de Cartagena (daily-rebuild.yml) cambia el día.
- * Tolera filas sin ends_at/sort_order/weekdays (antes de sus migraciones).
+ * Promos que se publican: activas (ya filtradas en la consulta) y no vencidas en `now`, por sort_order. Los días de la
+ * semana no las ocultan (PRI-538): solo se muestran con diasPromo.
+ * El build filtra aunque RLS ya lo haga, por si la policy no se ha actualizado.
+ * Tolera filas sin ends_at/sort_order (antes de correr supabase/migrations/20261010013709_promos_varias.sql).
  */
 export function livePromos(rows: Promo[], now: Date): Promo[] {
-  const hoy = diaCartagena(now)
   return rows
     .filter((p) => p.ends_at == null || new Date(p.ends_at) > now)
-    .filter((p) => !p.weekdays?.length || p.weekdays.includes(hoy))
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.created_at.localeCompare(b.created_at))
+}
+
+const DIAS = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']
+const Y = new Intl.ListFormat('es-CO', { type: 'conjunction' })
+
+/**
+ * Los días de la promo como etiqueta (PRI-538): "Disponible martes, miércoles y jueves", "Disponible de lunes a viernes",
+ * "Disponible fines de semana", "Disponible los sábados". Un tramo seguido de 4 días o más va como rango (Said escribió
+ * "martes, miércoles y jueves" sueltos). Todos o ninguno: null, sin etiqueta. Días ISO, 1 = lunes ... 7 = domingo.
+ */
+export function diasPromo(weekdays: readonly number[] | null | undefined): string | null {
+  const d = [...new Set(weekdays ?? [])].filter((n) => n >= 1 && n <= 7).sort((a, b) => a - b)
+  if (d.length === 0 || d.length === 7) return null
+  if (d.join() === '6,7') return 'Disponible fines de semana'
+  if (d.length === 1) return `Disponible los ${DIAS[d[0] - 1]}${d[0] >= 6 ? 's' : ''}`
+  const partes: string[] = []
+  for (let i = 0, j = 0; i < d.length; i = ++j) {
+    while (d[j + 1] === d[j] + 1) j++
+    if (j - i >= 3) partes.push(`de ${DIAS[d[i] - 1]} a ${DIAS[d[j] - 1]}`)
+    else partes.push(...d.slice(i, j + 1).map((n) => DIAS[n - 1]))
+  }
+  return `Disponible ${Y.format(partes)}`
 }
 
 /** Fotos de la promo en orden: el banner (si hay) y luego las demás. */

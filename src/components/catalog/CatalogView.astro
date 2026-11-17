@@ -26,7 +26,7 @@ const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props
         <p class="pf-lead sf-bajada" transition:persist="catalog-bajada"><Palabras text={CATALOG_LEAD} /></p>
       </div>
     </div>
-    <CatalogPage chips={chips} current={view.href} label={view.label} tiles={tiles} next={next} />
+    <CatalogPage chips={chips} current={view.href} label={view.label} intro={view.intro} tiles={tiles} next={next} />
   </main>
 </div>
 <PhotoModal />

@@ -10,7 +10,7 @@ import type { BusinessOverrides } from './business-overrides.mjs'
 declare const __SITE_BUSINESS__: BusinessOverrides | undefined
 const override: BusinessOverrides = typeof __SITE_BUSINESS__ === 'undefined' ? {} : __SITE_BUSINESS__
 
-export const WHATSAPP_NUMBER = override.whatsappNumber ?? '573156481243'
+export const WHATSAPP_NUMBER = override.whatsappNumber ?? '573145888710'
 export const WHATSAPP_DISPLAY = `+57 ${WHATSAPP_NUMBER.slice(2, 5)} ${WHATSAPP_NUMBER.slice(5, 8)} ${WHATSAPP_NUMBER.slice(8)}`
 export const WHATSAPP_DEFAULT_TEXT = 'Hola! Quiero más información'
 export const EMAIL = override.email ?? 'distribuidoraelmayorista@hotmail.com'

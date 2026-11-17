@@ -3,6 +3,10 @@ export interface Category {
   slug: string
   label: string
   image_url: string | null
+  /** PRI-532: <title> de su página en el catálogo; vacío = el nombre. Falta antes de su migración. */
+  seo_title?: string | null
+  /** PRI-532: 1-2 frases arriba de las fotos y en la meta description; vacío = no sale. Falta antes de su migración. */
+  intro?: string | null
   sort_order: number
   is_active: boolean
   created_at: string
@@ -47,7 +51,7 @@ export interface Promo {
   is_active: boolean
   /** Fin de la promo; null = sin fecha de cierre. */
   ends_at: string | null
-  /** Días en que sale (PRI-524): ISO, 1 = lunes ... 7 = domingo, en Cartagena. Vacío = todos. Falta antes de su migración. */
+  /** Días en que aplica (PRI-524): ISO, 1 = lunes ... 7 = domingo. Se muestran, no ocultan la promo (PRI-538). Vacío = todos. */
   weekdays?: number[] | null
   sort_order: number
   created_at: string

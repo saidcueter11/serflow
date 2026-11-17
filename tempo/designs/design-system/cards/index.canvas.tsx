@@ -158,6 +158,7 @@ const SAMPLE_PROMO = {
   title: "2x1 en gorras bordadas",
   description: "Llevas dos gorras con el mismo bordado y pagas una. Aplica para bordados de hasta 10 cm.",
   endsAt: "2026-10-11T23:59:00-05:00",
+  dias: null,
   cover: { src: SAMPLE_CAP, alt: "Gorra azul oscuro bordada (foto de ejemplo)" },
   photos: [{ src: SAMPLE_SHIRT, alt: "Camiseta blanca (foto de ejemplo)" }],
 };
@@ -166,27 +167,32 @@ const SAMPLE_PROMO_2 = {
   title: "10% en camisetas para equipos de fútbol",
   description: null,
   endsAt: null,
+  dias: null,
   cover: { src: SAMPLE_SHIRT, alt: "Camiseta blanca lisa (foto de ejemplo)" },
   photos: [],
 };
+// PRI-538: los días de la promo se muestran, no la ocultan.
+const SAMPLE_PROMO_DIAS = { ...SAMPLE_PROMO, dias: "Disponible martes, miércoles y jueves" };
 
 defineAsset(PromoCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una promo vigente como link a su detalle (/promos/<slug>): \"Otras promos\" del detalle y la 404 con promos. Tarjeta horizontal con caja (PRI-286): foto a todo el alto a la izquierda (112 px; 200 y la descripción desde 30rem de tarjeta), vigencia en oro, título y Ver promo con forma de botón al fondo. Recibe un PromoView de src/lib/promos.ts (toPromoViews en el build). headingLevel 3 dentro de una Section. Siempre dentro de PromoGrid, nunca con ancho fijo. Para /promos, donde cada promo se pide directo, usa PromoAfiche; para una prenda, ProductCard.",
+    "Una promo vigente como link a su detalle (/promos/<slug>): \"Otras promos\" del detalle y la 404 con promos. Tarjeta horizontal con caja (PRI-286): foto a todo el alto a la izquierda (112 px; 200 y la descripción desde 30rem de tarjeta), vigencia en oro, título, sus días si aplica solo algunos (StatusPill accent, PRI-538) y Ver promo con forma de botón al fondo. Recibe un PromoView de src/lib/promos.ts (toPromoViews en el build). headingLevel 3 dentro de una Section. Siempre dentro de PromoGrid, nunca con ancho fijo. Para /promos, donde cada promo se pide directo, usa PromoAfiche; para una prenda, ProductCard.",
   variants: {
     "Con fecha": { props: { promo: SAMPLE_PROMO } },
     "Sin fecha ni descripción": { props: { promo: SAMPLE_PROMO_2 } },
+    "Con días": { props: { promo: SAMPLE_PROMO_DIAS } },
   },
 });
 
 defineAsset(PromoAfiche, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una promo en /promos (PRI-286): su propia sección de la rejilla, texto en 5 columnas y foto 16:9 en 6 desde la 7 (en el celular la foto primero), con su propio botón de WhatsApp (mensaje prellenado con el nombre y el link de la promo, vía whatsappUrl) y \"Ver las N fotos\" al detalle. Excepción documentada a \"un WhatsApp por sección\": cada promo es su propia sección. Va directo en el main de una página .pf, una debajo de otra. Fuera de /promos usa PromoCard.",
+    "Una promo en /promos (PRI-286): su propia sección de la rejilla, texto en 5 columnas y foto 16:9 en 6 desde la 7 (en el celular la foto primero), con sus días si aplica solo algunos (StatusPill accent, PRI-538), su propio botón de WhatsApp (mensaje prellenado con el nombre y el link de la promo, vía whatsappUrl) y \"Ver las N fotos\" al detalle. Excepción documentada a \"un WhatsApp por sección\": cada promo es su propia sección. Va directo en el main de una página .pf, una debajo de otra. Fuera de /promos usa PromoCard.",
   variants: {
     "Con fecha": { props: { promo: SAMPLE_PROMO } },
     "Sin fecha ni descripción": { props: { promo: SAMPLE_PROMO_2 } },
+    "Con días": { props: { promo: SAMPLE_PROMO_DIAS } },
   },
 });
 

@@ -41,6 +41,29 @@ export function offerSchema({ url, price, disponible }: { url: string; price: nu
   }
 }
 
+/**
+ * Vigencia de una promo (#9, PRI-532). No hay fecha de inicio: vale desde que se creó hasta ends_at (sin ends_at, sin fin).
+ * Los días de la semana no la cambian (PRI-538 los vuelve una etiqueta; Offer no tiene un campo de días que Google lea).
+ */
+export function vigenciaPromo({ created_at, ends_at }: { created_at: string; ends_at: string | null }): { validFrom: string; validThrough?: string } {
+  return { validFrom: new Date(created_at).toISOString(), ...(ends_at && { validThrough: new Date(ends_at).toISOString() }) }
+}
+
+/** La promo como Offer (#9): Google no acepta promociones marcadas como Event. La url es la del canonical. */
+export function promoOfferSchema(p: { url: string; name: string; description: string | null; image?: string; validFrom: string; validThrough?: string }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Offer',
+    name: p.name,
+    ...(p.description?.trim() && { description: p.description.trim() }),
+    url: p.url,
+    ...(p.image && { image: p.image }),
+    validFrom: p.validFrom,
+    ...(p.validThrough && { validThrough: p.validThrough }),
+    seller: { '@type': 'Organization', name: 'Serflow', url: absoluta('/') },
+  }
+}
+
 /** Coordenadas del pin del mapa (#7): el embed de Google las lleva como !2d<longitud>!3d<latitud>. */
 export function geoDelMapa(embedUrl: string) {
   const m = embedUrl.match(/!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/)

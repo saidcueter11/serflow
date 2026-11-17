@@ -42,6 +42,28 @@ test('old /products links redirect with a 301 to /catalogo, and the photo opens 
   }
 })
 
+// PRI-532: serflowctg.netlify.app duplicaba el sitio. La regla de dominio de public/_redirects es forzada (aplica aunque
+// exista el archivo) y solo calza ese host: los deploy previews y los branch deploys tienen otro y siguen sirviendo.
+test('serflowctg.netlify.app redirects with a 301 to serflowctg.com keeping the path; previews and branch deploys do not', async ({ request, isMobile }) => {
+  test.skip(isMobile, 'Same redirect on both viewports')
+  const { origin, close } = await netlify('dist')
+  const pedir = (host: string, path: string) => request.get(`${origin}${path}`, { headers: { host }, maxRedirects: 0 })
+  try {
+    for (const path of ['/', '/catalogo/', '/promos/', '/products/beisbol', '/no-existe']) {
+      const res = await pedir('serflowctg.netlify.app', path)
+      expect(res.status(), path).toBe(301)
+      expect(res.headers().location, path).toBe(`https://serflowctg.com${path}`)
+    }
+    for (const host of ['deploy-preview-80--serflowctg.netlify.app', 'feat-pri-532--serflowctg.netlify.app', 'serflowctg.com']) {
+      expect((await pedir(host, '/catalogo/')).status(), host).toBe(200)
+      // Las demás reglas siguen igual en esos hosts.
+      expect((await pedir(host, '/products')).headers().location, host).toBe('/catalogo/')
+    }
+  } finally {
+    close()
+  }
+})
+
 test.describe('slug viejo (build sembrado del modal)', () => {
   test.use({ baseURL: 'http://localhost:4240' })
 

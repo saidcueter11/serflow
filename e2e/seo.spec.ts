@@ -34,6 +34,15 @@ function validar(ld: Record<string, any>, canonical: string): string[] {
       pide(o?.availability === undefined || [`${SCHEMA}/InStock`, `${SCHEMA}/MadeToOrder`].includes(o.availability), 'offers.availability')
       break
     }
+    // PRI-532: una promo (#9 de la auditoría).
+    case 'Offer':
+      pide(ld.name, 'name')
+      pide(ld.url === canonical, `url = canonical (${ld.url} != ${canonical})`)
+      pide(ld.image === undefined || absoluta(ld.image), 'image')
+      pide(!isNaN(Date.parse(ld.validFrom)), 'validFrom')
+      pide(ld.validThrough === undefined || Date.parse(ld.validThrough) > Date.parse(ld.validFrom), 'validThrough')
+      pide(ld.seller?.['@type'] === 'Organization' && ld.seller.name === 'Serflow', 'seller')
+      break
     case 'BreadcrumbList': {
       const items = ld.itemListElement ?? []
       pide(items.length >= 2, 'itemListElement')

@@ -25,7 +25,7 @@ jobs:
   dry-run:
     # PRs de forks no reciben secrets: el job no corre ahí.
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +40,7 @@ jobs:
 
   apply:
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '"ubuntu-latest"') }}
     # SUPABASE_DB_URL vive en este environment, limitado a master: una rama no puede leerlo.
     environment: production
     steps:
