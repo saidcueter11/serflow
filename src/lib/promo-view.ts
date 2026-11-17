@@ -13,10 +13,12 @@ export async function toPromoViews(promos: Promo[]): Promise<PromoView[]> {
             src: img.src,
             alt: i === 0 ? p.title : `${p.title}, foto ${i + 1}`,
             r: +(Number(img.attributes.width) / Number(img.attributes.height)).toFixed(3) || undefined,
+            // PRI-535: la portada que es el banner_url no entra a la galería del modal (promoModal).
+            banner: (i === 0 && !!p.banner_url) || undefined,
           }
         }),
       )
-      return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, cover: photos[0], banner: !!p.banner_url || undefined, photos: photos.slice(1) }
+      return { slug: p.slug, title: p.title, description: p.description ?? null, endsAt: p.ends_at ?? null, cover: photos[0], photos: photos.slice(1) }
     }),
   )
 }

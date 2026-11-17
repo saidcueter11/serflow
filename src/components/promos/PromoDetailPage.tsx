@@ -69,7 +69,7 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
                   <a
                     href={`/promos/${promo.slug}`}
                     className="block rounded-tile focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    data-foto-j={i + (promo.cover && !promo.banner ? 1 : 0)}
+                    data-foto-j={i + (promo.cover && !promo.cover.banner ? 1 : 0)}
                     {...fotoAttrs(modal)}
                   >
                     <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" className="fabric" />
