@@ -46,11 +46,13 @@ test('tapping a photo opens the modal: whole photo, counter, name and Pedir por 
   await expect(page).toHaveURL(new RegExp(`${photo}$`))
   await expect(dialog(page).getByText(`2 / ${count}`)).toBeVisible()
   // El nombre del admin, o el de la foto si no tiene (PRI-433; lo exacto lo prueba e2e/modal-celular.spec.ts).
-  const { titulo } = JSON.parse((await tile.getAttribute('data-foto'))!)
+  const { titulo, alt } = JSON.parse((await tile.getAttribute('data-foto'))!)
   await expect(dialog(page).getByRole('heading', { level: 2 })).toHaveText(titulo)
   const img = dialog(page).locator('img.mx-foto')
   await expect(img).toHaveCSS('object-fit', 'contain')
-  await expect(img).toHaveAttribute('alt', /, foto N\.º \d+$|^Foto de /)
+  // PRI-542: el alt de la foto de origen (lo exacto lo prueba fotoAlt en src/lib/catalog.test.ts), nunca vacío.
+  expect(alt).toMatch(/\S/)
+  await expect(img).toHaveAttribute('alt', alt)
   expect(await waText(page)).toMatch(new RegExp(`^¡Hola! Me gustó esta de ${label}( \\(N\\.º \\d+\\))?\\. ¿Me hacen una así\\?\\n${SITE}${photo}$`))
 
   // 1280: la info va debajo de la foto, en una fila (nombre a la izquierda, Pedir a la derecha).
