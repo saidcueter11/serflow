@@ -7,7 +7,9 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    # Por defecto en GitHub (ubuntu-latest). Con la variable CI_RUNS_ON='["self-hosted","macOS"]' corre en el Mac
+    # de Said (como finanzas-app #696, facturación de Actions bloqueada 16-nov). Borrar la variable vuelve a GitHub.
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -26,6 +26,7 @@ Las leen los agentes de Tempo (Producto, Diseño, Feature Builder, Bug Fixer, PR
   - `npm test` (Vitest, specs `src/**/*.test.ts`)
   - `npm run build && npm run e2e` (Playwright contra `astro preview` en http://localhost:4231). El build necesita `.env` con `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY` (ver `.env.example`); el build tarda ~2 min por el procesamiento de imágenes.
 - CI (GitHub Actions), `ci` y `e2e` son gate para mergear:
+  - Dónde corre: `ubuntu-latest` por defecto; con la variable del repo `CI_RUNS_ON=["self-hosted","macOS"]` todos los jobs corren en el Mac de Said (runner `said-mac-serflow`). Borrar la variable vuelve a GitHub.
   - `.github/workflows/ci.yml`, job `ci`: `npm run check` + `npm test`. Corre en PR y en push a `master`.
   - `.github/workflows/e2e.yml`, job `e2e`: build + `npm run e2e`. Corre en PR. Reporte en el artifact `playwright-report`.
   - `.github/workflows/supabase-migrations.yml`: job `dry-run` en PRs que tocan `supabase/` (lista las migraciones que se aplicarían en prod, con un rol de solo lectura; no corre en PRs de forks) y job `apply` en push a `master` (`supabase db push`, environment `production`).
