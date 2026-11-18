@@ -71,34 +71,34 @@ const Falta = ({ n, titulo, hoy, proto, nota }: { n: number; titulo: string; hoy
 export function FaltaEnElDS() {
   return (
     <Hoja eyebrow="Para que Said decida" titulo="Falta en el DS">
-      <p>Diferencias con el prototipo que el design system de hoy no cubre. En el canvas va la pieza actual, sin variantes nuevas.</p>
+      <p>Diferencias con el prototipo que el design system no cubría. La 2, 3, 4 y 6 se resolvieron en el paso 3 con cambios compatibles; la 1 la decide Said.</p>
       <Falta
         n={1}
         titulo={'ProductCard en "Más de <categoría>"'}
         hoy="foto 4:5 y nombre de 16 px (20 px en escritorio)."
         proto="foto 3:4 y nombre de 14 px."
-        nota="Se usa la de hoy. Said decide si hace falta una proporción 3:4."
+        nota="Se usa la de hoy (4:5) hasta que Said decida si hace falta una proporción 3:4."
       />
       <Falta
         n={2}
         titulo="ProductCard pide meta"
         hoy={<>meta es obligatorio; aquí va vacío y deja un párrafo sin texto debajo del nombre.</>}
         proto="solo el nombre."
-        nota="Arreglo compatible posible: meta opcional (no se tocó src/)."
+        nota="Resuelto en el paso 3 (PRI-529): meta es opcional y sin él no queda párrafo vacío."
       />
       <Falta
         n={3}
         titulo="ColoresDisponibles"
         hoy="lista compacta: punto de 14 px y nombre de 13 px en gris."
         proto="píldoras de 36 px con borde, punto de 20 px y nombre de 14 px en blanco."
-        nota="Se usa la de hoy, la misma del modal y de ProductCard."
+        nota='Resuelto en el paso 3: variante="pildoras" para la ficha; la compacta del modal y de ProductCard no cambia.'
       />
       <Falta
         n={4}
         titulo={'"Ver todo" (Button ghost)'}
         hoy="texto blanco con la costura al pasar."
         proto="texto en oro claro."
-        nota="Se usa ghost, que es el link 'Ver todo' del sistema."
+        nota="Resuelto en el paso 3: Button ghost con oro (text-secondary). Sin oro sigue en tinta."
       />
       <Falta
         n={5}
@@ -112,7 +112,7 @@ export function FaltaEnElDS() {
         titulo="Sombra del panel de la Lupa"
         hoy="la sombra usa el color del fondo de la página (primary al 60 %), así que no se ve."
         proto="sombra negra al 60 % que despega el panel de la información."
-        nota="Viene de la pieza del DS (.lupa en tokens.css), no del canvas. Said decide si se corrige en un PR del DS."
+        nota="Resuelto en el paso 3: .lupa en tokens.css lleva la sombra negra al 60 %."
       />
     </Hoja>
   );

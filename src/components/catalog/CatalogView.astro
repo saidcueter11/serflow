@@ -7,14 +7,14 @@ import { TODO_HREF } from '../../lib/catalog'
 import type { CatalogPageProps } from '../../lib/catalog-view'
 
 // Una página del muro (PRI-130, PRI-286): banner a sangre con el nombre (h1) y la bajada, pestañas, muro y el modal de
-// foto. La usan /catalogo/... y /catalogo/<categoría>/<slug> (abrir = id de la foto que se abre al cargar).
-type Props = CatalogPageProps & { abrir?: string }
+// foto. La usa /catalogo/... (la URL de cada foto es su ficha, PRI-529).
+type Props = CatalogPageProps
 
-const { index, slides, chips, view, base, tiles, next, abrir } = Astro.props
+const { index, slides, chips, view, base, tiles, next } = Astro.props
 ---
 
 <div class="pf font-body text-ink">
-  <main class="pf-v" data-banner-index={index} data-base={base} data-abrir={abrir}>
+  <main class="pf-v" data-banner-index={index} data-base={base}>
     <div class="pf-cat-banner">
       <!-- Se conserva entre categorías para que la lámina se deslice a la nueva. -->
       <div transition:persist="catalog-banner">

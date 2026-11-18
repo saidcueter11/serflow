@@ -32,8 +32,9 @@ test('un producto sin colores no muestra nada, ni en la ficha ni en el modal', a
   await expect(colores(dialog)).toBeHidden()
 })
 
-test('la URL propia de la foto abre el modal con sus colores; al pasar a una sin colores se van', async ({ page }) => {
-  await page.goto('/catalogo/e2e-a/e2e-a-1')
+test('el modal del muro muestra sus colores; al pasar a una sin colores se van', async ({ page }) => {
+  await page.goto('/catalogo/e2e-a/')
+  await page.locator('main a[href="/catalogo/e2e-a/e2e-a-1"]').click()
   const dialog = page.getByRole('dialog')
   await expect(colores(dialog).getByRole('listitem')).toHaveText(['Negro', 'Azul rey'])
 
@@ -47,7 +48,8 @@ test.describe('con precio y descripción (catálogo del modal, puerto 4240)', ()
   test.use({ baseURL: 'http://localhost:4240' })
 
   test('los colores caben en la franja junto al precio y la descripción, y Pedir sigue a la vista', async ({ page }) => {
-    await page.goto(`/catalogo/${MODAL.categoria.slug}/${MODAL.completa.slug}`)
+    await page.goto(`/catalogo/${MODAL.categoria.slug}/`)
+    await page.locator(`main a[href="/catalogo/${MODAL.categoria.slug}/${MODAL.completa.slug}"]`).click()
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByRole('heading', { level: 2 })).toHaveText(MODAL.completa.name)
     await expect(dialog.getByText('$45.000', { exact: true })).toBeVisible()

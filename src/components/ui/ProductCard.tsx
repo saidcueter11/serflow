@@ -7,9 +7,10 @@ import { fotoAttrs, type FotoModal } from './PhotoModal';
  * debajo (PRI-286). La foto se acerca al pasar y el texto sube (sf-foto / sf-foto-texto, tokens.css).
  * confirmedLabel va como texto dorado y no como StatusPill: en el grid de 2 columnas
  * a 375px la píldora parte "Confirmado hace 2 días" en dos líneas.
- * La card es fluida (w-full): el ancho lo pone la lista. Con modal, tocarla abre la foto en el modal (PhotoModal)
+ * La card es fluida (w-full): el ancho lo pone la lista; un nombre con una palabra larga se parte (wrap-anywhere) en vez
+ * de ensanchar la columna y la página. Con modal, tocarla abre la foto en el modal (PhotoModal)
  * y recorre las de su lista (data-fotos); sin modal, el link navega.
- * Con colores (PRI-455), la lista de ColoresDisponibles va debajo de meta.
+ * Con colores (PRI-455), la lista de ColoresDisponibles va debajo de meta. meta es opcional (PRI-529).
  * Markup estático: Astro lo renderiza sin JS.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
@@ -26,8 +27,8 @@ export function ProductCard({
   modal,
 }: {
   name: string;
-  /** Color y tallas, p. ej. "Blanca · S a XL". */
-  meta: string;
+  /** Color y tallas, p. ej. "Blanca · S a XL". Sin meta, solo el nombre ("Más de <categoría>" de la ficha). */
+  meta?: string;
   image: { src: string; alt: string };
   href: string;
   /** Cuándo se confirmó que hay stock, p. ej. "Confirmado hace 2 días". Omitir si no se sabe. */
@@ -56,8 +57,8 @@ export function ProductCard({
       </div>
       <div className="sf-foto-texto flex flex-col items-start gap-1 pt-3">
         {confirmedLabel && <span className="text-[12px] font-semibold leading-tight text-accent">{confirmedLabel}</span>}
-        <h3 className="font-display text-[16px] font-medium leading-tight @3xl:text-[20px]">{name}</h3>
-        <p className="text-[14px] text-muted @3xl:text-[15px]">{meta}</p>
+        <h3 className="font-display text-[16px] font-medium leading-tight wrap-anywhere @3xl:text-[20px]">{name}</h3>
+        {meta && <p className="text-[14px] text-muted @3xl:text-[15px]">{meta}</p>}
         <ColoresDisponibles colores={colores} />
       </div>
     </a>

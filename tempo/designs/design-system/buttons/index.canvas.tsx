@@ -57,7 +57,7 @@ export default function ButtonsCanvas() {
 defineAsset(Button, {
   libraries: ["Design System"],
   usageInstructions:
-    "Acciones de la web. variant whatsapp = la acción principal que abre WhatsApp (dorado con sombra de presión): máximo uno por sección visible, siempre con href de whatsappUrl() y external. secondary = acción de apoyo al lado del whatsapp (Cómo llegar, Personalizar esta). ghost = link de baja énfasis tipo 'Ver todo →'. No usar para listas de navegación del header ni para enlaces dentro de párrafos; no restilizar con className (no lo acepta).",
+    "Acciones de la web. variant whatsapp = la acción principal que abre WhatsApp (dorado con sombra de presión): máximo uno por sección visible, siempre con href de whatsappUrl() y external. secondary = acción de apoyo al lado del whatsapp (Cómo llegar, Personalizar esta). ghost = link de baja énfasis tipo 'Ver todo →' (en tinta; con oro, en oro claro, como 'Ver todo' de \"Más de <categoría>\" en la ficha de producto, PRI-529). No usar para listas de navegación del header ni para enlaces dentro de párrafos; no restilizar con className (no lo acepta).",
   variants: {
     "WhatsApp principal": {
       props: {
@@ -81,6 +81,9 @@ defineAsset(Button, {
     },
     "Ghost ver todo": {
       props: { variant: "ghost", children: "Ver todo →", href: "/products/mi-tierra-querida" },
+    },
+    "Ghost oro (ficha)": {
+      props: { variant: "ghost", children: "Ver todo", href: "/catalogo/dama", oro: true },
     },
   },
 });

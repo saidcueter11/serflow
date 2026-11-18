@@ -13,6 +13,8 @@ interface Props {
   fullWidth?: boolean
   /** Abre en otra pestaña (los links de WhatsApp lo son). */
   external?: boolean
+  /** Solo ghost: el texto en oro claro (text-secondary) en vez de tinta, p. ej. "Ver todo" de la ficha (PRI-529). */
+  oro?: boolean
   /** Solo dentro de una isla de React (el personalizador); en páginas estáticas no hay JS que lo ejecute. */
   onClick?: () => void
 }
@@ -25,8 +27,8 @@ const VARIANT: Record<Variant, string> = {
   whatsapp:
     'sf-brillo min-h-12 px-6 text-[16px] @3xl:min-h-[52px] @3xl:px-7 bg-accent text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.28)]',
   secondary: 'sf-brillo sf-brillo-suave min-h-12 px-6 text-[16px] @3xl:min-h-[52px] @3xl:px-7 border border-line text-ink',
-  // Enlace en tinta: la costura dorada se dibuja debajo al pasar, enfocar o tocar.
-  ghost: 'sf-costura min-h-11 text-[14px] text-ink',
+  // Enlace en tinta (u oro claro con oro): la costura dorada se dibuja debajo al pasar, enfocar o tocar.
+  ghost: 'sf-costura min-h-11 text-[14px]',
 }
 
 /**
@@ -37,8 +39,9 @@ const VARIANT: Record<Variant, string> = {
  * The canvas for this component is at tempo/designs/design-system/buttons/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
  */
-export function Button({ variant, children, href, icon, fullWidth = false, external = false, onClick }: Props) {
-  const className = `${BASE} ${VARIANT[variant]} ${fullWidth ? 'w-full' : ''}`
+export function Button({ variant, children, href, icon, fullWidth = false, external = false, oro = false, onClick }: Props) {
+  const tinta = variant === 'ghost' ? (oro ? 'text-secondary' : 'text-ink') : ''
+  const className = `${BASE} ${VARIANT[variant]} ${tinta} ${fullWidth ? 'w-full' : ''}`
   const shownIcon = icon === undefined && variant === 'whatsapp' ? <WhatsAppIcon className="size-5" /> : icon
 
   if (href) {

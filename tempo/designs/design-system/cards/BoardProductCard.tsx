@@ -45,8 +45,8 @@ export function BoardProductCard() {
         title="ProductCard"
         description={
           <>
-            Una prenda de "Disponible ahora". Props: <Code>name</Code>, <Code>meta</Code>, <Code>image</Code>,{" "}
-            <Code>href</Code>, <Code>confirmedLabel</Code> y <Code>colores</Code> opcionales. Toda la card es un solo <Code>{"<a>"}</Code>: un
+            Una prenda de "Disponible ahora". Props: <Code>name</Code>, <Code>image</Code>, <Code>href</Code>;{" "}
+            <Code>meta</Code>, <Code>confirmedLabel</Code> y <Code>colores</Code> opcionales. Toda la card es un solo <Code>{"<a>"}</Code>: un
             objetivo de toque grande, un foco de teclado. Las imágenes son siluetas marcadas como foto de ejemplo.
           </>
         }
@@ -113,6 +113,30 @@ export function BoardProductCard() {
                   { name: "Vino tinto", hex: "#6b1f2a" },
                   { name: "Verde militar", hex: "#4b5320" },
                   { name: "Amarillo pollo", hex: "#f2c84b" },
+                ]}
+              />
+            </div>
+          </Labeled>
+        </div>
+      </Row>
+
+      <Row
+        name="Ficha de producto (PRI-529)"
+        description='meta es opcional: sin meta la card es solo foto y nombre ("Más de <categoría>" de la ficha), sin párrafo vacío. ColoresDisponibles tiene la variante pildoras para la ficha: píldoras de 36 px con borde, punto de 20 px y nombre de 14 px en tinta. La compacta (modal y ProductCard) no cambia.'
+      >
+        <div className="grid grid-cols-4 gap-4">
+          <Labeled label="sin meta">
+            <ProductCard name="Gorra trucker" image={{ src: CAP_NAVY, alt: "" }} href="#" />
+          </Labeled>
+          <Labeled label='ColoresDisponibles variante="pildoras"'>
+            <div className="w-[360px]">
+              <ColoresDisponibles
+                variante="pildoras"
+                colores={[
+                  { name: "Negra", hex: "#1d1c1a" },
+                  { name: "Blanca", hex: "#f2f0ea" },
+                  { name: "Amarillo pollo", hex: "#d0c98b" },
+                  { name: "Amarilla", hex: "#fdea01" },
                 ]}
               />
             </div>

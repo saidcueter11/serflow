@@ -187,7 +187,7 @@ defineAsset(GaleriaProducto, {
 defineAsset(Lupa, {
   libraries: ["Design System"],
   usageInstructions:
-    "Panel de la lupa al lado de la ficha de producto (PRI-529): vacío hasta que el mouse pasa por la foto de GaleriaProducto; entonces muestra esa zona 2,5 veces más grande, tapando la columna de la información (va dentro de ella, relative; --lupa-inset lo corre). Pide la versión zoom de la foto solo al pasar el mouse. En el celular la lupa es Mantén para acercar sobre la foto, sin panel. Lo maneja src/scripts/lupa.ts. Uno por página, solo junto a GaleriaProducto; no es un visor (VisorFotos) ni sirve para el muro.",
+    "Panel de la lupa al lado de la ficha de producto (PRI-529): vacío hasta que el mouse pasa por la foto de GaleriaProducto; entonces muestra esa zona 2,5 veces más grande, tapando la columna de la información (va dentro de ella, relative; --lupa-inset lo corre), con sombra negra al 60 %. Pide la versión zoom de la foto solo al pasar el mouse. En el celular la lupa es Mantén para acercar sobre la foto, sin panel. Lo maneja src/scripts/lupa.ts. Uno por página, solo junto a GaleriaProducto; no es un visor (VisorFotos) ni sirve para el muro.",
   variants: {
     Default: { props: {} },
   },

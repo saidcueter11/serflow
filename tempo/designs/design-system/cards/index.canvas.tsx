@@ -80,7 +80,7 @@ defineAsset(ServiceCard, {
 defineAsset(ProductCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta, colores opcionales (ColoresDisponibles debajo de meta, PRI-455) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link; con modal (datos de la foto) abre PhotoModal encima de la página y recorre las de su lista (data-fotos). Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
+    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta opcional (sin meta, solo el nombre: 'Más de <categoría>' de la ficha, PRI-529), colores opcionales (ColoresDisponibles debajo de meta, PRI-455) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link; con modal (datos de la foto) abre PhotoModal encima de la página y recorre las de su lista (data-fotos). Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
   variants: {
     "Camiseta confirmada": {
       props: {
@@ -112,13 +112,20 @@ defineAsset(ProductCard, {
         ],
       },
     },
+    "Solo nombre (Más de la ficha)": {
+      props: {
+        name: "Gorra plana turquesa con avispón",
+        image: { src: SAMPLE_CAP, alt: "" },
+        href: "/catalogo/basketball/gorra-plana-turquesa-avispon/",
+      },
+    },
   },
 });
 
 defineAsset(ColoresDisponibles, {
   libraries: ["Design System"],
   usageInstructions:
-    "Colores en que viene un producto (PRI-455), como información: un círculo con la muestra y el nombre siempre visible al lado (nunca solo el color), en una lista con aria-label \"Colores disponibles\" que se parte en líneas. Va dentro de ProductCard (prop colores) y en PhotoModal (photo-modal.ts arma la misma lista con CLASES_COLORES). Sin colores no pinta nada. No es un selector: para elegir un color usa Colores (personalizador); para tallas o técnicas, Chip.",
+    "Colores en que viene un producto (PRI-455), como información: un círculo con la muestra y el nombre siempre visible al lado (nunca solo el color), en una lista con aria-label \"Colores disponibles\" que se parte en líneas. Va dentro de ProductCard (prop colores) y en PhotoModal (photo-modal.ts arma la misma lista con CLASES_COLORES), en la variante compacta. variante=\"pildoras\" (píldoras de 36 px con borde) es solo para la ficha de producto (PRI-529). Sin colores no pinta nada. No es un selector: para elegir un color usa Colores (personalizador); para tallas o técnicas, Chip.",
   variants: {
     "Tres colores": {
       props: {
@@ -126,6 +133,17 @@ defineAsset(ColoresDisponibles, {
           { name: "Negro", hex: "#111111" },
           { name: "Blanco", hex: "#f4f1e6" },
           { name: "Azul rey", hex: "#1d3fa8" },
+        ],
+      },
+    },
+    "Píldoras (ficha)": {
+      props: {
+        variante: "pildoras",
+        colores: [
+          { name: "Negra", hex: "#1d1c1a" },
+          { name: "Blanca", hex: "#f2f0ea" },
+          { name: "Amarillo pollo", hex: "#d0c98b" },
+          { name: "Amarilla", hex: "#fdea01" },
         ],
       },
     },

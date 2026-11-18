@@ -1,0 +1,113 @@
+import AxeBuilder from '@axe-core/playwright'
+import { expect, test, type Page } from '@playwright/test'
+import { MODAL } from './promos/scenarios.mjs'
+
+// PRI-529: /catalogo/<categoría>/<slug>/ es la ficha propia del producto (antes, el muro con el modal abierto). Contra el
+// catálogo sembrado de 4240 (e2e/promos/scenarios.mjs): una prenda con 3 fotos, nombre, precio, colores y descripción;
+// una sin nombre ni precio y una con precio en cero.
+test.use({ baseURL: 'http://localhost:4240' })
+
+const { categoria, completa } = MODAL
+const ficha = (slug: string) => `/catalogo/${categoria.slug}/${slug}/`
+const foto = (page: Page) => page.getByRole('button', { name: `Ampliar: ${completa.name}, ${categoria.label}, foto 1 de 3` })
+const visor = (page: Page) => page.getByRole('dialog', { name: `${completa.name}, fotos` })
+/** Sin scroll de lado: si la página se ensancha, la BarraPedir del celular queda fuera de la pantalla. */
+const sinScrollDeLado = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)
+
+test('the product page shows name, price, colors and description, with a single WhatsApp button', async ({ page, isMobile }) => {
+  await page.goto(ficha(completa.slug))
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(completa.name)
+  await expect(page).toHaveTitle(`${completa.name} — Serflow`)
+  await expect(page.getByText('$45.000', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Viene en 4 colores' })).toBeVisible()
+  await expect(page.getByRole('list', { name: 'Colores disponibles' }).getByRole('listitem')).toHaveText(MODAL.colores.map((c) => c.name))
+  await expect(page.getByText(completa.description)).toBeVisible()
+  // Es la página, no el muro con el modal.
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: categoria.label }).first()).toHaveAttribute('href', `/catalogo/${categoria.slug}`)
+
+  // Un solo WhatsApp por pantalla: el botón (escritorio) o la barra fija (celular), sin el flotante.
+  const pedir = page.getByRole('link', { name: 'Pedir por WhatsApp' })
+  await expect(pedir.filter({ visible: true })).toHaveCount(1)
+  expect(await sinScrollDeLado(page)).toBe(true)
+  if (isMobile) await expect(pedir.filter({ visible: true })).toBeInViewport()
+  await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' })).toHaveCount(0)
+  const texto = new URL((await pedir.filter({ visible: true }).getAttribute('href'))!).searchParams.get('text')!
+  expect(texto).toContain(`/catalogo/${categoria.slug}/${completa.slug}`)
+
+  // "Más de <categoría>": las otras dos del muro.
+  const mas = page.locator('section').filter({ has: page.getByRole('heading', { name: `Más de ${categoria.label}` }) })
+  await expect(mas.getByRole('link', { name: `${categoria.label} N.º 7` })).toBeVisible()
+})
+
+test('without a price nothing is shown in its place', async ({ page }) => {
+  for (const [slug, nombre] of [
+    [MODAL.vacia.slug, `${categoria.label} N.º 7`],
+    [MODAL.cero.slug, MODAL.cero.name],
+  ]) {
+    await page.goto(ficha(slug))
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(nombre)
+    await expect(page.locator('main').getByText(/^\$\s?\d/)).toHaveCount(0)
+    await expect(page.getByRole('list', { name: 'Colores disponibles' })).toHaveCount(0)
+    expect(await sinScrollDeLado(page), slug).toBe(true)
+  }
+})
+
+test('desktop: hovering the photo turns the magnifier on beside it', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'La lupa al lado es del mouse.')
+  await page.goto(ficha(completa.slug))
+  const lupa = page.locator('.lupa')
+  await expect(lupa).toBeHidden()
+  await foto(page).hover()
+  await expect(lupa).toBeVisible()
+  await page.mouse.move(5, 5)
+  await expect(lupa).toBeHidden()
+})
+
+test('the viewer opens, zooms in, closes with Esc and gives focus back to the photo', async ({ page, isMobile }) => {
+  await page.goto(ficha(completa.slug))
+  if (isMobile) await foto(page).tap()
+  else await foto(page).click()
+  await expect(visor(page)).toBeVisible()
+  await expect(visor(page).getByText('1 / 3')).toBeVisible()
+
+  const zona = visor(page).locator('[data-vf-zona]')
+  await zona.focus()
+  await page.keyboard.press('Enter')
+  await expect(zona).toHaveAttribute('data-z', '')
+  if (!isMobile) {
+    await visor(page).getByRole('button', { name: 'Ajustar' }).click()
+    await expect(zona).not.toHaveAttribute('data-z')
+    await visor(page).getByRole('button', { name: 'Acercar' }).click()
+    await expect(visor(page).locator('[data-vf-pct]')).not.toHaveText('100 %')
+  }
+
+  await page.keyboard.press('Escape')
+  await expect(visor(page)).toBeHidden()
+  await expect(foto(page)).toBeFocused()
+})
+
+test('phone: holding the photo zooms in and does not open the viewer', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Mantén para acercar es del celular.')
+  await page.goto(ficha(completa.slug))
+  const b = (await foto(page).boundingBox())!
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2)
+  await page.mouse.down()
+  await expect(foto(page)).toHaveAttribute('data-cerca', '')
+  await page.mouse.up()
+  await expect(foto(page)).not.toHaveAttribute('data-cerca')
+  await expect(visor(page)).toBeHidden()
+})
+
+test('axe finds no violations on the product page, with the viewer closed and open', async ({ page, isMobile }) => {
+  // Sin animaciones de entrada: el contraste se mide con el texto ya quieto.
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(ficha(completa.slug))
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+
+  if (isMobile) await foto(page).tap()
+  else await foto(page).click()
+  await expect(visor(page)).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+})
