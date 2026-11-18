@@ -11,6 +11,10 @@ import { BoardPhotoGuide } from "./BoardPhotoGuide";
 import { BoardMascotSlot } from "./BoardMascotSlot";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
 import { BoardCategoryBanner, BoardMasonry, BoardPhotoModal } from "./BoardCatalogo";
+import { GaleriaProducto } from "../../../../src/components/ui/GaleriaProducto";
+import { Lupa } from "../../../../src/components/ui/Lupa";
+import { VisorFotos } from "../../../../src/components/ui/VisorFotos";
+import { BoardGaleriaProducto, BoardLupa, BoardVisorFotos } from "./BoardFicha";
 
 export default function MediaCanvas() {
   return (
@@ -62,6 +66,24 @@ export default function MediaCanvas() {
         name="CategoryBanner"
         component={BoardCategoryBanner}
         layout={{ x: 3300, y: 3100, width: 1300, height: 1100, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="GaleriaProducto"
+        name="GaleriaProducto"
+        component={BoardGaleriaProducto}
+        layout={{ x: 0, y: 5600, width: 1800, height: 3000, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="Lupa"
+        name="Lupa"
+        component={BoardLupa}
+        layout={{ x: 1850, y: 5600, width: 1800, height: 2000, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="VisorFotos"
+        name="VisorFotos"
+        component={BoardVisorFotos}
+        layout={{ x: 3700, y: 5600, width: 1800, height: 2200, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );
@@ -140,5 +162,42 @@ defineAsset(CategoryBanner, {
         ],
       },
     },
+  },
+});
+
+defineAsset(GaleriaProducto, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Las fotos de la ficha de producto (PRI-529), dentro de .pf. Celular: carrusel con la siguiente asomada, contador 1 / N y puntos, y Mantén para acercar en cada foto. Escritorio (desde 48rem de página): miniaturas a la izquierda y una foto 3:4 de 640 de alto (--gp-alto la cambia) con Pasa el mouse. Tocar la foto abre VisorFotos con todas. Cada foto: src y srcSet optimizados, alt con el nombre real y zoom opcional (versión grande, PRI-546). Importar src/scripts/lupa.ts y visor-fotos.ts en la página y poner Lupa y VisorFotos. Una por página. No para el muro del catálogo (Masonry + PhotoModal) ni para fotos del taller (PhotoSlot).",
+  variants: {
+    "Varias fotos": {
+      props: {
+        fotos: [
+          { src: EJEMPLO_TRABAJO, alt: "Gorra con una palma bordada, foto 1 de 2 (ejemplo)" },
+          { src: EJEMPLO_LOCAL, alt: "Gorra con una palma bordada, foto 2 de 2 (ejemplo)" },
+        ],
+      },
+    },
+    "Una foto": {
+      props: { fotos: [{ src: EJEMPLO_TRABAJO, alt: "Gorra con una palma bordada (ejemplo)" }] },
+    },
+  },
+});
+
+defineAsset(Lupa, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Panel de la lupa al lado de la ficha de producto (PRI-529): vacío hasta que el mouse pasa por la foto de GaleriaProducto; entonces muestra esa zona 2,5 veces más grande, tapando la columna de la información (va dentro de ella, relative; --lupa-inset lo corre). Pide la versión zoom de la foto solo al pasar el mouse. En el celular la lupa es Mantén para acercar sobre la foto, sin panel. Lo maneja src/scripts/lupa.ts. Uno por página, solo junto a GaleriaProducto; no es un visor (VisorFotos) ni sirve para el muro.",
+  variants: {
+    Default: { props: {} },
+  },
+});
+
+defineAsset(VisorFotos, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Visor a pantalla completa de la ficha de producto (PRI-529): un <dialog> vacío, uno por página, que llena y maneja src/scripts/visor-fotos.ts al tocar una foto de GaleriaProducto. Zoom con rueda hacia el puntero, + − Ajustar y arrastrar en escritorio; pellizco, doble toque y deslizar (de lado cambia de foto, hacia abajo cierra) en el celular. Trampa de foco, Esc y foco de vuelta. Baja la versión zoom solo al abrir y cae a la normal. titulo = nombre del producto (aria-label del diálogo). No reemplaza a PhotoModal: el muro del catálogo sigue con ese.",
+  variants: {
+    Default: { props: { titulo: "Gorra con una palma bordada" } },
   },
 });
