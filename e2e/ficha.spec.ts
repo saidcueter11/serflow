@@ -53,6 +53,42 @@ test('without a price nothing is shown in its place', async ({ page }) => {
   }
 })
 
+test('desktop: "‹ Categoría" sits above the photo, aligned with the gallery and outside the info column', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'En el celular se queda arriba de la galería, como estaba.')
+  await page.goto(ficha(completa.slug))
+  const volver = page.getByRole('link', { name: categoria.label, exact: true }).filter({ visible: true })
+  await expect(volver).toHaveCount(1)
+  // PRI-550: en la columna de la información quedaba chiquito y encima de la S.
+  await expect(page.getByRole('heading', { level: 1 }).locator('..').getByRole('link', { name: categoria.label, exact: true })).toHaveCount(0)
+  const link = (await volver.boundingBox())!
+  const galeria = (await page.locator('[data-galeria]').boundingBox())!
+  expect(link.height).toBeGreaterThanOrEqual(44)
+  expect(link.y + link.height).toBeLessThanOrEqual(galeria.y + 1)
+  // -ml-1.5: la flecha, no la caja, queda al hilo de las miniaturas.
+  expect(Math.abs(link.x - galeria.x)).toBeLessThanOrEqual(8)
+})
+
+test('desktop: the stitch runs from the top to the bottom of the photo and the info is centered on it', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'En el celular la costura es horizontal, debajo de la galería.')
+  await page.goto(ficha(completa.slug))
+  // PRI-550: con el volver en la misma fila, la costura arrancaba a la altura del link y no de la foto.
+  const desfase = () =>
+    page.evaluate(() => {
+      const caja = (el: Element) => el.getBoundingClientRect()
+      const foto = caja(document.querySelector('[data-galeria] .gp-carrusel')!)
+      const costura = caja(document.querySelector('.costura[data-orientacion="vertical"]')!)
+      const info = [...document.querySelector('h1')!.parentElement!.children].filter((el) => !el.matches('.monograma, .lupa'))
+      const centroInfo = (caja(info[0]).top + caja(info.at(-1)!).bottom) / 2
+      return Math.max(
+        Math.abs(costura.top - foto.top),
+        Math.abs(costura.bottom - foto.bottom),
+        Math.abs(centroInfo - (foto.top + foto.bottom) / 2),
+      )
+    })
+  // La galería entra creciendo: se mide cuando terminó.
+  await expect.poll(desfase).toBeLessThanOrEqual(2)
+})
+
 test('desktop: hovering the photo turns the magnifier on beside it', async ({ page, isMobile }) => {
   test.skip(isMobile, 'La lupa al lado es del mouse.')
   await page.goto(ficha(completa.slug))

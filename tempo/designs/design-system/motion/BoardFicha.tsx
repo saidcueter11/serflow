@@ -48,7 +48,7 @@ export function BoardMonograma() {
     <PageFrame family="movimiento" width={1500}>
       <PageTitle
         title="Monograma"
-        description="La S de Serflow entera detrás del nombre, el precio y los colores (PRI-529), con un brillo dorado que la recorre despacio (9 s). Es una máscara del SVG trazado del ícono (src/assets/monograma-s.svg): sin fondo y del color del brillo. Decorativa: aria-hidden, sin eventos; con reducir movimiento queda quieta."
+        description="La S de Serflow entera detrás del nombre, el precio y los colores (PRI-529), con un brillo dorado que la recorre despacio (9 s por vuelta). El degradado se repite y cada vuelta avanza justo un período, así que el ciclo es continuo, sin salto al reiniciar (PRI-550). Es una máscara del SVG trazado del ícono (src/assets/monograma-s.svg): sin fondo y del color del brillo. Decorativa: aria-hidden, sin eventos; con reducir movimiento queda quieta."
       />
       <Row
         name="Escritorio (1280)"

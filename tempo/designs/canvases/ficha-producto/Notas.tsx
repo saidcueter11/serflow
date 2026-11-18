@@ -40,9 +40,9 @@ export function Intro() {
         items={[
           <>Página propia en <B>/catalogo/&lt;cat&gt;/&lt;slug&gt;/</B>; el muro y Disponible ahora llevan a ella y la foto crece hasta la galería (ajuste de Said, 2026-11-18).</>,
           <>Un solo WhatsApp por pantalla: en el celular la BarraPedir reemplaza al WhatsAppFab; en escritorio el botón va con la información.</>,
-          <>Sin precio no sale nada. "‹ Categoría" hace de categoría y de volver (las migas siguen en el JSON-LD).</>,
+          <>Sin precio no sale nada. "‹ Categoría" hace de categoría y de volver (las migas siguen en el JSON-LD); en escritorio va arriba de la foto, al hilo de la galería, no en la columna de la información (PRI-550, opción A de Said).</>,
           <>Mientras la lupa está encendida se esconden la costura y la S, y el panel tapa la información (composición de página).</>,
-          <>Movimiento: la foto entra creciendo, el texto línea por línea (anim-enter), la S con su brillo lento y el brillo del botón al pasar. Con reducir movimiento no se anima nada.</>,
+          <>Movimiento: la foto entra creciendo, el texto línea por línea (anim-enter), la S con su brillo lento en ciclo continuo, sin salto (PRI-550), y el brillo del botón al pasar. Con reducir movimiento no se anima nada.</>,
         ]}
       />
       <p>

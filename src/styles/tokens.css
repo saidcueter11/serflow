@@ -698,8 +698,12 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 .costura[data-orientacion='horizontal']::before { left: -3px; }
 .costura[data-orientacion='horizontal']::after { right: -3px; }
 
-/* Monograma: la S de Serflow (src/assets/monograma-s.svg) como máscara, con un brillo dorado que la recorre despacio. */
-@keyframes sf-monograma { from { background-position: 120% 0 } to { background-position: -120% 0 } }
+/*
+ * Monograma: la S de Serflow (src/assets/monograma-s.svg) como máscara, con un brillo dorado que la recorre despacio.
+ * El degradado se repite cada 300 % y las puntas tienen el mismo color: cada vuelta avanza justo un período (-150 % de
+ * (ancho - 300 %) = 3 anchos), así que el final y el comienzo son el mismo cuadro y no hay salto (PRI-550).
+ */
+@keyframes sf-monograma { from { background-position: 0 0 } to { background-position: -150% 0 } }
 .monograma {
   display: block; aspect-ratio: 337 / 340; pointer-events: none;
   -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
@@ -708,7 +712,7 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
     color-mix(in srgb, var(--color-accent) 7%, transparent) 35%,
     color-mix(in srgb, var(--color-secondary) 26%, transparent) 50%,
     color-mix(in srgb, var(--color-accent) 7%, transparent) 65%);
-  background-size: 300% 100%;
+  background-size: 300% 100%; background-repeat: repeat-x;
   animation: sf-monograma var(--motion-monograma) linear infinite;
 }
 
