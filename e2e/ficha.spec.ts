@@ -53,6 +53,21 @@ test('without a price nothing is shown in its place', async ({ page }) => {
   }
 })
 
+test('desktop: "‹ Categoría" sits above the photo, aligned with the gallery and outside the info column', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'En el celular se queda arriba de la galería, como estaba.')
+  await page.goto(ficha(completa.slug))
+  const volver = page.getByRole('link', { name: categoria.label, exact: true }).filter({ visible: true })
+  await expect(volver).toHaveCount(1)
+  // PRI-550: en la columna de la información quedaba chiquito y encima de la S.
+  await expect(page.getByRole('heading', { level: 1 }).locator('..').getByRole('link', { name: categoria.label, exact: true })).toHaveCount(0)
+  const link = (await volver.boundingBox())!
+  const galeria = (await page.locator('[data-galeria]').boundingBox())!
+  expect(link.height).toBeGreaterThanOrEqual(44)
+  expect(link.y + link.height).toBeLessThanOrEqual(galeria.y + 1)
+  // -ml-1.5: la flecha, no la caja, queda al hilo de las miniaturas.
+  expect(Math.abs(link.x - galeria.x)).toBeLessThanOrEqual(8)
+})
+
 test('desktop: hovering the photo turns the magnifier on beside it', async ({ page, isMobile }) => {
   test.skip(isMobile, 'La lupa al lado es del mouse.')
   await page.goto(ficha(completa.slug))

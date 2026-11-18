@@ -49,8 +49,12 @@ export function FichaProducto({ titulo, categoria, precio, colores = [], descrip
         <main className="pf-v">
           <Volver categoria={categoria} className="mx-4 mt-1 inline-flex @3xl:hidden" />
           {/* Mientras la lupa está encendida se esconden la costura y la S: el panel tapa la información. */}
-          <div className="flex flex-col gap-5 pt-1 pb-6 @3xl:flex-row @3xl:justify-center @3xl:gap-0 @3xl:px-12 @3xl:pt-10 @3xl:pb-14 [&:has(.lupa[data-on])_.costura]:invisible [&:has(.lupa[data-on])_.monograma]:invisible">
-            <GaleriaProducto fotos={fotos} />
+          <div className="flex flex-col gap-5 pt-1 pb-6 @3xl:flex-row @3xl:justify-center @3xl:gap-0 @3xl:px-12 @3xl:pt-4 @3xl:pb-14 [&:has(.lupa[data-on])_.costura]:invisible [&:has(.lupa[data-on])_.monograma]:invisible">
+            {/* Escritorio: el volver arriba de la foto, alineado con la galería (PRI-550). En el celular la caja no existe. */}
+            <div className="contents @3xl:flex @3xl:flex-col">
+              <Volver categoria={categoria} className="-ml-1.5 hidden self-start @3xl:inline-flex" />
+              <GaleriaProducto fotos={fotos} />
+            </div>
             <div className="mx-4 mt-1 @3xl:hidden">
               <Costura orientacion="horizontal" />
             </div>
@@ -60,7 +64,6 @@ export function FichaProducto({ titulo, categoria, precio, colores = [], descrip
             <div className="anim-enter relative mx-4 -mt-5 flex min-w-0 flex-col gap-5 pt-7 pb-2 @3xl:mx-0 @3xl:mt-0 @3xl:w-[495px] @3xl:shrink @3xl:justify-center @3xl:gap-[22px] @3xl:py-6 @3xl:pl-16 [&>:not(.monograma):not(.lupa)]:relative">
               <Monograma className="absolute left-1/2 top-[52%] w-[72%] max-w-[300px] -translate-x-1/2 -translate-y-1/2 @3xl:left-[calc(50%+32px)] @3xl:top-1/2 @3xl:h-[80%] @3xl:w-auto @3xl:max-w-none" />
               <Lupa className="[--lupa-inset:0_0_0_32px]" />
-              <Volver categoria={categoria} className="-mb-2 -ml-1.5 hidden @3xl:inline-flex" />
               <h1 className="font-display text-[30px] font-semibold leading-[1.15] tracking-[-0.02em] text-balance wrap-anywhere @3xl:text-[44px]">{titulo}</h1>
               {precio && <p className="text-[22px] font-semibold tabular-nums text-secondary @3xl:text-[26px]">{precio}</p>}
               {colores.length > 0 && (

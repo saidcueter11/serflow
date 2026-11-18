@@ -109,7 +109,7 @@ defineAsset(Costura, {
 defineAsset(Monograma, {
   libraries: ["Design System"],
   usageInstructions:
-    "La S de Serflow (SVG trazado del ícono, src/assets/monograma-s.svg) como máscara con un brillo dorado lento (--motion-monograma), decorativa (aria-hidden). Va absolute dentro de la columna de la información de la ficha de producto (PRI-529), detrás del nombre, el precio y los colores (el texto en relative z-10); className pone el puesto y el tamaño (escritorio: centrada, h-[80%]; celular: w-[72%] max-w-[300px]). Con reducir movimiento queda quieta. Una por página y solo en la ficha; no es el logo de la marca (Header usa el logo) ni un fondo de sección.",
+    "La S de Serflow (SVG trazado del ícono, src/assets/monograma-s.svg) como máscara con un brillo dorado lento (--motion-monograma) en ciclo continuo: el degradado se repite y cada vuelta avanza justo un período, sin salto (PRI-550); decorativa (aria-hidden). Va absolute dentro de la columna de la información de la ficha de producto (PRI-529), detrás del nombre, el precio y los colores (el texto en relative z-10); className pone el puesto y el tamaño (escritorio: centrada, h-[80%]; celular: w-[72%] max-w-[300px]). Con reducir movimiento queda quieta. Una por página y solo en la ficha; no es el logo de la marca (Header usa el logo) ni un fondo de sección.",
   variants: {
     Default: { props: { className: "w-[240px]" } },
   },
