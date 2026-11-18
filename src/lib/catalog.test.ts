@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SITE_URL } from './site.mjs'
-import { TODO_HREF, fotoAlt, fotoHref, interleave, isNuevo, pageHref, pages, pedirUrl, precioCop } from './catalog'
+import { TODO_HREF, fotoAlt, fotoHref, fotoZoom, interleave, isNuevo, pageHref, pages, pedirUrl, precioCop, zoomUrl } from './catalog'
 
 const NOW = new Date('2026-10-20T12:00:00Z')
 const ago = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000).toISOString()
@@ -78,5 +78,47 @@ describe('precioCop', () => {
     expect(precioCop(null)).toBeNull()
     expect(precioCop(0)).toBeNull()
     expect(precioCop(-1)).toBeNull()
+  })
+})
+
+describe('zoomUrl', () => {
+  it('pone -zoom antes de la extensión, como el admin (PRI-546)', () => {
+    expect(zoomUrl('https://x.supabase.co/storage/v1/object/public/product-images/a.webp')).toBe(
+      'https://x.supabase.co/storage/v1/object/public/product-images/a-zoom.webp',
+    )
+    expect(zoomUrl('https://x.supabase.co/p/v1.2/foto')).toBe('https://x.supabase.co/p/v1.2/foto-zoom')
+    expect(zoomUrl('https://x.supabase.co/p/foto.final.jpg')).toBe('https://x.supabase.co/p/foto.final-zoom.jpg')
+  })
+})
+
+describe('fotoZoom', () => {
+  vi.stubEnv('PUBLIC_SUPABASE_URL', 'https://x.supabase.co')
+  vi.stubEnv('PUBLIC_SUPABASE_FOTOS_URL', '')
+  const url = 'https://x.supabase.co/storage/v1/object/public/product-images/a.webp'
+  const responde = (r: () => Promise<Response>) => {
+    const f = vi.fn(r)
+    vi.stubGlobal('fetch', f)
+    return f
+  }
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('con 200 usa la copia zoom, pedida con HEAD', async () => {
+    const f = responde(async () => new Response(null, { status: 200 }))
+    expect(await fotoZoom(url)).toBe(zoomUrl(url))
+    expect(f).toHaveBeenCalledWith(zoomUrl(url), expect.objectContaining({ method: 'HEAD' }))
+  })
+
+  it('sin copia (404), error de red o timeout: null y la foto normal', async () => {
+    responde(async () => new Response(null, { status: 404 }))
+    expect(await fotoZoom(url)).toBeNull()
+    responde(() => Promise.reject(new DOMException('timeout', 'TimeoutError')))
+    expect(await fotoZoom(url)).toBeNull()
+  })
+
+  it('las fotos de src/assets y las de otro host no se piden', async () => {
+    const f = responde(async () => new Response(null, { status: 200 }))
+    expect(await fotoZoom('/_astro/gorras-estante.Bx1.jpg')).toBeNull()
+    expect(await fotoZoom('https://otro.supabase.co/a.webp')).toBeNull()
+    expect(f).not.toHaveBeenCalled()
   })
 })

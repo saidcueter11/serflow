@@ -79,7 +79,8 @@ test.describe('slug viejo (build sembrado del modal)', () => {
       expect(res.status()).toBe(301)
       expect(res.headers().location).toBe(nueva)
       await page.goto(nueva)
-      await expect(page.getByRole('dialog')).toContainText(MODAL.completa.name)
+      // PRI-529: la URL nueva es la ficha del producto, no el modal.
+      await expect(page.getByRole('heading', { level: 1, name: MODAL.completa.name })).toBeVisible()
     } finally {
       close()
     }

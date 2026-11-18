@@ -46,7 +46,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
   // Una sola consulta de tamaño por foto: muro, modal y og la reusan.
   const sizes = await Promise.all(p.image_urls.map((src) => inferRemoteSize(src)))
   const first = { src: p.image_urls[0], width: sizes[0].width, height: sizes[0].height }
-  const [thumb, fotos, og] = await Promise.all([
+  const [thumb, fotos, og, zoom] = await Promise.all([
     getImage({ ...first, widths: [320, 640], ...opt }),
     Promise.all(
       p.image_urls.map(async (src, i) => {
@@ -55,6 +55,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
       }),
     ),
     getImage({ ...first, width: 1200, height: Math.round((1200 * first.height) / first.width), format: 'jpg' }),
+    Promise.all(p.image_urls.map(fotoZoom)),
   ])
   return {
     slug: p.slug,
@@ -63,7 +64,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
     og: og.src,
     price: p.price,
     disponible: enStock && enStock.has(p.id),
-    zoom: p.image_urls.map((_, i) => fotoZoom(p, i)),
+    zoom,
     tile: {
       href,
       id: `f-${p.slug}`,

@@ -1,6 +1,6 @@
 import { whatsappUrl } from './business'
+import { esUrlPermitida } from './fotos-host.mjs'
 import { SITE } from './promos'
-import type { Product } from './types'
 
 /*
  * Catálogo como galería de fotos (PRI-130, dirección 2 "Pinterest / Unsplash"). El muro no depende del nombre ni de la
@@ -68,12 +68,24 @@ export function fotoAlt(label: string, n: number | null, nombre?: string | null)
 /** Nombre de la foto en el modal y title de su página: "Beisbol N.º 26". */
 export const fotoTitulo = (label: string, n: number | null) => `${label}${numero(n)}`
 
+/** Dónde guarda el admin la copia grande (2400 px) de una foto de producto: al lado, con "-zoom" antes de la extensión (PRI-546). */
+export const zoomUrl = (url: string) => url.replace(/(\.[^./]+)?$/, '-zoom$1')
+
 /**
- * Versión grande de la foto i (~2400 px) que la lupa y el visor bajan solo al acercar (PRI-529). null: todavía no hay
- * (PRI-546 la agrega en el admin) y la lupa y el visor usan la foto normal.
+ * La copia grande de la foto que la lupa y el visor bajan solo al acercar (PRI-529), si existe; null usa la foto normal
+ * (fotos de antes de PRI-546, las de src/assets o un host ajeno). Un HEAD por foto en el build: lo que falle o tarde da
+ * null y el build sigue.
  */
-// ponytail: siempre null hasta que PRI-546 defina dónde se guarda; ese día cambia esta línea.
-export const fotoZoom = (_p: Product, _i: number): string | null => null
+export async function fotoZoom(url: string): Promise<string | null> {
+  const zoom = zoomUrl(url)
+  if (!esUrlPermitida(zoom)) return null
+  try {
+    const res = await fetch(zoom, { method: 'HEAD', redirect: 'error', signal: AbortSignal.timeout(3_000) })
+    return res.status === 200 ? zoom : null
+  } catch {
+    return null
+  }
+}
 
 /** Precio del admin en pesos para el modal: "$30.000". Sin precio (null, 0 o negativo), null: no se pinta. */
 export const precioCop = (precio: number | null) =>
