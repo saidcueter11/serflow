@@ -427,11 +427,13 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
 /* La tira de pestañas tiene 4 px de aire propio arriba y abajo (CategoryNav py-1): se descuentan. */
 .pf-cat-chips { margin-top: calc(var(--pf-tc) - 4px); }
 .pf-cat-muro { margin-top: calc(var(--pf-tc) - 4px); padding-bottom: var(--pf-aire); }
-/* Texto de la categoría (PRI-532): entre las pestañas y el muro, a ancho de lectura. */
+/* Texto de la categoría (PRI-532): entre las pestañas y el muro, a ancho de lectura. En desktop, como la bajada de
+   Section (.pf-head > .pf-lead), a todo el ancho y con su letra: a 64ch dejaba un hueco a la derecha (PRI-375). */
 .pf-cat-intro { margin-top: calc(var(--pf-tc) - 4px); max-width: calc(64ch + 2 * var(--pf-m)); font-size: var(--pf-body); line-height: 1.55; color: var(--color-muted); text-wrap: pretty; }
 @container pf (min-width: 48rem) {
   .pf-cat-texto { padding-bottom: 56px; }
   .pf-cat-texto > p { max-width: 34ch; }
+  .pf-cat-intro { max-width: none; font-size: var(--pf-lead); line-height: 1.45; }
 }
 
 /* Volver en su fila (detalle de promo). */

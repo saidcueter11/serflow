@@ -200,7 +200,8 @@ const malo = () => ({
 // salir como texto. La B trae solo espacios (cuenta como vacío) y la C, nada.
 export const INTRO = {
   seoTitle: 'Gorras de prueba bordadas en Cartagena',
-  intro: 'Texto de prueba de la categoría A: gorras bordadas <b>en relieve</b>, por unidad o al por mayor.',
+  // Largo como los del admin (~175 caracteres): en desktop parte en dos líneas y la primera llega al borde (PRI-375).
+  intro: 'Texto de prueba de la categoría A: gorras bordadas <b>en relieve</b>, por unidad o al por mayor. Si quieres una con tu nombre o tu marca, te la hacemos con bordado o estampado.',
 }
 
 // PRI-438: catálogo fijo para el efecto 7 (e2e/efectos.spec.ts). Con el real, si las fotos nuevas de arriba de "Todo"
