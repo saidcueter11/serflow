@@ -411,18 +411,44 @@ test.describe('7 · rejilla que se reacomoda', () => {
     await expect(page.locator('.sf-salen')).toHaveCount(0)
   })
 
-  test('with the page scrolled, the photos that leave do not stay on top of the new title', async ({ page }) => {
+  // PRI-549: el router sube al tope en cada página nueva y la fila de pestañas es otra en cada categoría.
+  test('with the page scrolled, changing category does not move the page, up, down or sideways', async ({ page }) => {
     await page.goto('/catalogo')
-    const chip = await pestanaConViaje(page)
-    await page.evaluate(() => {
-      window.scrollTo({ top: 305, behavior: 'instant' })
-      document.addEventListener('astro:before-swap', () => ((window as unknown as { scrollAlTocar: number }).scrollAlTocar = scrollY), { once: true })
-    })
-    await espiarSwap(page)
-    await chip.click()
-    await expect.poll(() => leer<number | undefined>(page, 'capa')).toBe(0)
-    expect(await leer<number>(page, 'scrollAlTocar')).toBeGreaterThan(0)
-    await expect.poll(() => page.evaluate(() => scrollY)).toBe(0)
+    const fila = 'nav[aria-label="Categorías"] ul'
+    await page.evaluate((fila) => {
+      window.scrollTo({ top: document.querySelector(fila)!.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' })
+    }, fila)
+    /** "scrollX,scrollY,scrollLeft de la fila" en cada cuadro del cambio y hasta un segundo después: un salto deja dos o más. */
+    async function cambiar(i: number) {
+      // Como quien desliza la fila y toca: el click de Playwright no la corre después de empezar a medir.
+      await chips(page).nth(i).scrollIntoViewIfNeeded()
+      await page.evaluate((fila) => {
+        const w = window as unknown as { pos: string[]; hasta: number }
+        const leer = () => `${scrollX},${Math.round(scrollY)},${Math.round(document.querySelector(fila)!.scrollLeft)}`
+        w.pos = [leer()]
+        w.hasta = Infinity
+        const cuadro = () => {
+          if (w.pos.at(-1) !== leer()) w.pos.push(leer())
+          if (performance.now() < w.hasta) requestAnimationFrame(cuadro)
+        }
+        requestAnimationFrame(cuadro)
+        document.addEventListener('astro:page-load', () => (w.hasta = performance.now() + 1000), { once: true })
+      }, fila)
+      await chips(page).nth(i).click()
+      await expect(chips(page).nth(i)).toHaveAttribute('aria-current', 'page')
+      await expect.poll(() => page.evaluate(() => performance.now() > (window as unknown as { hasta: number }).hasta)).toBe(true)
+      const pos = await leer<string[]>(page, 'pos')
+      expect(pos).toEqual([pos[0]])
+    }
+
+    await cambiar(1)
+    await cambiar(2)
+    // De vuelta a una categoría ya vista, tampoco salta a donde se dejó.
+    await page.evaluate(() => window.scrollBy({ top: 150, behavior: 'instant' }))
+    await cambiar(1)
+
+    // Las que se van se apagan donde estaban y se van; las demás quedan visibles.
+    await expect(page.locator('.sf-salen')).toHaveCount(0)
     await expect(page.locator('[data-fotos] > li').first()).toHaveCSS('opacity', '1')
   })
 

@@ -128,11 +128,29 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
           return /^\/catalogo\/[^/]+$/.test(clean) ? clean : null
         }
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
-        document.addEventListener('astro:before-preparation', function () {
+        // PRI-549: entre pestañas de categoría la página no se mueve. El router sube al tope en cada página nueva y la fila
+        // de pestañas llega nueva (con la actual en pantalla): las dos vuelven a donde estaban en el mismo cuadro del swap.
+        var TABS = 'nav[aria-label="Categorías"] ul'
+        var keep = null
+        document.addEventListener('astro:before-preparation', function (ev) {
           var key = categoryKey(location.pathname)
           if (key) sessionStorage.setItem(PREFIX + key, String(window.scrollY))
+          var tabs = ev.sourceElement && ev.sourceElement.closest(TABS)
+          keep = tabs ? { y: window.scrollY, left: tabs.scrollLeft } : null
+        })
+        // scroll-initial-target (CategoryNav) es para la primera carga: aquí correría la fila a la pestaña nueva.
+        document.addEventListener('astro:before-swap', function (ev) {
+          if (keep) ev.newDocument.querySelectorAll(TABS + ' > li').forEach(function (li) { li.style.setProperty('scroll-initial-target', 'none') })
+        })
+        document.addEventListener('astro:after-swap', function () {
+          if (!keep) return
+          var tabs = document.querySelector(TABS)
+          if (tabs) tabs.scrollLeft = keep.left
+          window.scrollTo({ top: keep.y, behavior: 'instant' })
         })
         function restore() {
+          // Entre pestañas no vuelve a donde se dejó esa categoría: se queda donde está.
+          if (keep) return
           var key = categoryKey(location.pathname)
           if (!key) return
           var raw = sessionStorage.getItem(PREFIX + key)
