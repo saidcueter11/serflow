@@ -5,8 +5,11 @@ import { SITE_URL } from './site.mjs'
 
 export const SITE = SITE_URL
 
-/** r = ancho / alto: el modal de foto reserva la forma mientras baja. */
-export type Photo = { src: string; alt: string; r?: number }
+/**
+ * r = ancho / alto: el modal de foto reserva la forma mientras baja. banner: la portada es el banner_url (no una foto
+ * de producto) y no entra a la galería del modal (PRI-535).
+ */
+export type Photo = { src: string; alt: string; r?: number; banner?: boolean }
 
 /** Una promo lista para pintar: fotos ya optimizadas, la primera es la portada. */
 export type PromoView = {
@@ -84,15 +87,16 @@ export function promoWhatsapp(promo: Pick<PromoView, 'title' | 'slug'>): string 
 }
 
 /**
- * Lo que el modal de foto (PhotoModal, PRI-523) muestra de una promo: todas sus fotos (la portada primero), el título,
- * la descripción y su WhatsApp. Las promos no tienen precio.
+ * Lo que el modal de foto (PhotoModal, PRI-523) muestra de una promo: sus fotos de producto (sin el banner, PRI-535), el
+ * título, la descripción y su WhatsApp. Las promos no tienen precio. Sin fotos de producto, undefined: no hay modal.
  */
-export function promoModal(promo: PromoView): FotoModal {
-  const fotos = [promo.cover, ...promo.photos].filter((f): f is Photo => !!f)
+export function promoModal(promo: PromoView): FotoModal | undefined {
+  const fotos = promo.cover?.banner ? promo.photos : [promo.cover, ...promo.photos].filter((f): f is Photo => !!f)
+  if (!fotos.length) return undefined
   return {
     titulo: promo.title,
     categoria: 'Promo',
-    alt: fotos[0]?.alt ?? promo.title,
+    alt: promo.title,
     pedir: promoWhatsapp(promo),
     fotos: fotos.map(({ src, r }) => ({ src, r })),
     descripcion: promo.description,

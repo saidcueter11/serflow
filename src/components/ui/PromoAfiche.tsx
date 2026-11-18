@@ -17,7 +17,8 @@ import { fotoAttrs } from './PhotoModal'
  */
 export function PromoAfiche({ promo }: { promo: PromoView }) {
   const hasta = validaHasta(promo.endsAt)
-  const total = promo.photos.length + (promo.cover ? 1 : 0)
+  const modal = promoModal(promo)
+  const total = modal?.fotos.length ?? 0
   const id = `promo-${promo.slug}`
   return (
     <section aria-labelledby={id} className="pf-promo pf-grid">
@@ -48,7 +49,7 @@ export function PromoAfiche({ promo }: { promo: PromoView }) {
         <a
           href={`/promos/${promo.slug}`}
           className="pf-promo-foto sf-foto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          {...fotoAttrs(promoModal(promo))}
+          {...fotoAttrs(modal)}
         >
           <img src={promo.cover.src} alt={promo.cover.alt} width={1200} height={800} loading="lazy" decoding="async" />
         </a>
