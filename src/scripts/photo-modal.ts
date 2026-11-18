@@ -3,10 +3,11 @@ import { bordeMuestra, CLASES_COLORES } from '../lib/colores-producto'
 import { quieto } from './quieto'
 
 /*
- * Modal de foto (PRI-286, PhotoModal). Tocar un link con data-foto abre el <dialog> de la página con esa foto y recorre
- * las de su lista (data-fotos): flechas, ← →, deslizar y las orillas del celular. Cada foto tiene URL propia
- * (/catalogo/<categoría>/<slug>): la barra la muestra mientras está abierta (replaceState, sin pelear con el router de
- * Astro) y al cerrar vuelve la de la página. Esa URL cargada directo es la ficha del producto (PRI-529), sin modal.
+ * Modal de foto (PRI-286, PhotoModal), hoy solo de las fotos de las promos (PRI-523): el muro del catálogo y "Disponible
+ * ahora" llevan a la ficha del producto (PRI-529). Tocar un link con data-foto abre el <dialog> de la página con esa foto y
+ * recorre las de su lista (data-fotos): flechas, ← →, deslizar y las orillas del celular. Cada foto tiene URL propia
+ * (/promos/<slug>): la barra la muestra mientras está abierta (replaceState, sin pelear con el router de Astro) y al
+ * cerrar vuelve la de la página.
  * Mientras baja la foto, el marco tiene su forma y un brillo (data-cargando); la anterior y la siguiente quedan bajadas en
  * las orillas (también en escritorio, donde no se ven), así que las flechas son instantáneas.
  * Los listeners van en document una sola vez: con el ClientRouter este módulo corre una vez y el <dialog> cambia por página.
@@ -168,7 +169,7 @@ function abrir(a: HTMLAnchorElement) {
   const d = modal()
   if (!d) return false
   const lista = Array.from(a.closest('[data-fotos]')?.querySelectorAll<HTMLAnchorElement>('a[data-foto]') ?? [a])
-  const base = document.querySelector<HTMLElement>('main[data-base]')?.dataset.base ?? location.pathname + location.search
+  const base = location.pathname + location.search
   const foto = a.querySelector('img')
   const T = foto && !quieto() ? cajaDe(foto) : null
   // data-foto-j: la foto de la prenda con la que abre (Más fotos de una promo, PRI-523); sin él, la primera.

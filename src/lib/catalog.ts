@@ -12,10 +12,10 @@ import { SITE } from './promos'
 /** "Todo" del catálogo. Las categorías cuelgan de aquí: /catalogo/<categoría> (PRI-525; antes /products, con 301). */
 export const TODO_HREF = '/catalogo'
 
-/** URL propia de una foto: la ficha del producto (PRI-529; antes el muro con el modal abierto, PRI-286). El muro la
- * muestra en la barra mientras el modal está abierto. Las viejas /products/<categoría>/<slug> redirigen aquí con 301
+/** URL propia de una foto: la ficha del producto (PRI-529; antes el muro con el modal abierto, PRI-286), con la "/"
+ * final del canonical. Tocar la foto en el muro lleva ahí. Las viejas /products/<categoría>/<slug> redirigen aquí con 301
  * (public/_redirects). */
-export const fotoHref = (categoria: string, slug: string) => `/catalogo/${categoria}/${slug}`
+export const fotoHref = (categoria: string, slug: string) => `/catalogo/${categoria}/${slug}/`
 
 /** Las nuevas van primero en "Todo": subidas hace menos de estos días. */
 export const NUEVO_DIAS = 21

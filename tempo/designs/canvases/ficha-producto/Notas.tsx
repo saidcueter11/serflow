@@ -38,7 +38,7 @@ export function Intro() {
       />
       <Lista
         items={[
-          <>Página propia en <B>/catalogo/&lt;cat&gt;/&lt;slug&gt;/</B>; el muro sigue abriendo el modal de siempre.</>,
+          <>Página propia en <B>/catalogo/&lt;cat&gt;/&lt;slug&gt;/</B>; el muro y Disponible ahora llevan a ella y la foto crece hasta la galería (ajuste de Said, 2026-11-18).</>,
           <>Un solo WhatsApp por pantalla: en el celular la BarraPedir reemplaza al WhatsAppFab; en escritorio el botón va con la información.</>,
           <>Sin precio no sale nada. "‹ Categoría" hace de categoría y de volver (las migas siguen en el JSON-LD).</>,
           <>Mientras la lupa está encendida se esconden la costura y la S, y el panel tapa la información (composición de página).</>,

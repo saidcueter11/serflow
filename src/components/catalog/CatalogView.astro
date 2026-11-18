@@ -2,19 +2,18 @@
 import { CATALOG_LEAD, CatalogPage } from './CatalogPage'
 import { CategoryBanner } from '../ui/CategoryBanner'
 import { Palabras } from '../ui/Palabras'
-import { PhotoModal } from '../ui/PhotoModal'
 import { TODO_HREF } from '../../lib/catalog'
 import type { CatalogPageProps } from '../../lib/catalog-view'
 
-// Una página del muro (PRI-130, PRI-286): banner a sangre con el nombre (h1) y la bajada, pestañas, muro y el modal de
-// foto. La usa /catalogo/... (la URL de cada foto es su ficha, PRI-529).
+// Una página del muro (PRI-130, PRI-286): banner a sangre con el nombre (h1) y la bajada, pestañas y muro. La usa
+// /catalogo/...; cada foto lleva a su ficha (PRI-529). El banner y la bajada se mueven en src/scripts/movimiento.ts.
 type Props = CatalogPageProps
 
-const { index, slides, chips, view, base, tiles, next } = Astro.props
+const { index, slides, chips, view, tiles, next } = Astro.props
 ---
 
 <div class="pf font-body text-ink">
-  <main class="pf-v" data-banner-index={index} data-base={base}>
+  <main class="pf-v" data-banner-index={index}>
     <div class="pf-cat-banner">
       <!-- Se conserva entre categorías para que la lámina se deslice a la nueva. -->
       <div transition:persist="catalog-banner">
@@ -29,20 +28,3 @@ const { index, slides, chips, view, base, tiles, next } = Astro.props
     <CatalogPage chips={chips} current={view.href} label={view.label} intro={view.intro} tiles={tiles} next={next} />
   </main>
 </div>
-<PhotoModal />
-
-<script>
-  import '../../scripts/photo-modal'
-  // La bajada se conserva entre categorías, pero moverla reinicia su animación: ya vista, no vuelve a subir (PRI-428).
-  document.addEventListener('astro:before-swap', () => document.querySelector('.sf-bajada[data-astro-transition-persist]')?.setAttribute('data-vista', ''))
-  // El banner persiste entre páginas del catálogo (transition:persist): aquí se desliza a la categoría de la página nueva.
-  document.addEventListener('astro:page-load', () => {
-    const main = document.querySelector<HTMLElement>('main[data-banner-index]')
-    const track = document.querySelector<HTMLElement>('[data-banner-track]')
-    if (!main || !track) return
-    const slides = track.querySelectorAll<HTMLElement>('[data-banner-slide]')
-    const i = Number(main.dataset.bannerIndex)
-    track.style.transform = `translateX(-${(i / slides.length) * 100}%)`
-    slides.forEach((s, k) => (k === i ? s.removeAttribute('aria-hidden') : s.setAttribute('aria-hidden', 'true')))
-  })
-</script>

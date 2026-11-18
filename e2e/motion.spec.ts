@@ -1,24 +1,14 @@
 import { expect, test, type Page } from '@playwright/test'
 
 // PRI-287, ronda de ajustes: modal (nombre completo, carga, flechas), aparición al hacer scroll una sola vez, entrada del
-// muro al cambiar de categoría y navegación. Contra el catálogo real del build: entra por las fotos, sin slugs fijos.
+// muro al cambiar de categoría y navegación. Contra el catálogo real del build: entra por las fotos, sin slugs fijos. El
+// modal es de las promos desde PRI-529: sus pruebas van contra /promos del build sembrado de 3 promos (4234).
+const PROMOS = 'http://localhost:4234/promos'
 const tiles = (page: Page) => page.locator('main a[data-foto]')
 const dialog = (page: Page) => page.getByRole('dialog')
 const marco = (page: Page) => dialog(page).locator('.mx-marco')
 const nombre = (page: Page) => dialog(page).getByRole('heading', { level: 2 })
 const pedir = (page: Page) => dialog(page).getByRole('link', { name: 'Pedir por WhatsApp' })
-
-/** Abre la primera categoría con al menos 3 fotos. */
-async function openCategory(page: Page) {
-  await page.goto('/catalogo')
-  const chips = page.getByRole('navigation', { name: 'Categorías' }).getByRole('link')
-  for (let i = 1; i < (await chips.count()); i++) {
-    if (Number(await chips.nth(i).locator('span').innerText()) < 3) continue
-    await page.goto((await chips.nth(i).getAttribute('href'))!)
-    return
-  }
-  throw new Error('No category with 3+ photos')
-}
 
 /** Click en "Catálogo" desde el header: en el celular va dentro del menú. */
 async function irAlCatalogo(page: Page, isMobile: boolean) {
@@ -39,8 +29,8 @@ async function expectFullName(page: Page, isMobile: boolean) {
 }
 
 test('modal: the name is never cut next to the button, also with a very long one', async ({ page, isMobile }) => {
-  await page.goto('/catalogo')
-  // El nombre más largo del catálogo.
+  await page.goto(PROMOS)
+  // El nombre más largo.
   const larga = await tiles(page).evaluateAll((as) => {
     const largo = (a: Element) => JSON.parse((a as HTMLElement).dataset.foto!).titulo.length
     return as.reduce((m, a, i, all) => (largo(a) > largo(all[m]) ? i : m), 0)
@@ -59,21 +49,21 @@ test('modal: the name is never cut next to the button, also with a very long one
 })
 
 test('modal: the retired line is gone', async ({ page }) => {
-  await openCategory(page)
+  await page.goto(PROMOS)
   await tiles(page).first().click()
   await expect(dialog(page)).toBeVisible()
   await expect(dialog(page).getByText('Te la hacemos igual')).toHaveCount(0)
 })
 
 test('modal: while the next photo loads there is a shimmer with its shape, then the photo fades in', async ({ page }) => {
-  await openCategory(page)
-  // La de al lado: al abrir ya no hace falta, ahí está la miniatura debajo (e2e/efectos.spec.ts).
-  const tile = tiles(page).first()
-  const foto = await tile.evaluate((a: HTMLElement) => {
-    const de = (el: Element) => JSON.parse((el as HTMLElement).dataset.foto!).fotos as { src: string; srcSet: string; r: number }[]
-    return de(a)[1] ?? de(a.closest('li')!.nextElementSibling!.querySelector('a')!)[0]
-  })
-  const urls = new Set([foto.src, ...foto.srcSet.split(',').map((c) => c.trim().split(' ')[0])].map((u) => new URL(u, page.url()).pathname))
+  await page.goto(PROMOS)
+  // La de la prenda siguiente: al abrir ya no hace falta, ahí está la miniatura debajo (e2e/efectos.spec.ts). De la
+  // segunda promo a la tercera, que es la de una foto y forma conocida (las otras declaran mal su forma, PRI-544).
+  const tile = tiles(page).nth(1)
+  const foto = await tiles(page)
+    .nth(2)
+    .evaluate((a: HTMLElement) => JSON.parse(a.dataset.foto!).fotos[0] as { src: string; srcSet?: string; r: number })
+  const urls = new Set([foto.src, ...(foto.srcSet?.split(',') ?? []).map((c) => c.trim().split(' ')[0])].map((u) => new URL(u, page.url()).pathname))
   let soltar = () => {}
   const compuerta = new Promise<void>((r) => (soltar = r))
   await page.route(
@@ -88,7 +78,7 @@ test('modal: while the next photo loads there is a shimmer with its shape, then 
   await expect(dialog(page)).toBeVisible()
   // Que termine de crecer: la caja se mide quieta.
   await marco(page).evaluate((m) => Promise.allSettled(m.getAnimations().map((a) => a.finished)))
-  await page.keyboard.press('ArrowRight')
+  await dialog(page).getByRole('button', { name: 'Prenda siguiente' }).click()
   await expect(marco(page)).toHaveAttribute('data-cargando', '')
   await expect(marco(page).locator('.mx-brillo')).toBeVisible()
   await expect(dialog(page).locator('img.mx-foto')).toHaveCSS('opacity', '0')
@@ -109,8 +99,8 @@ test('modal: while the next photo loads there is a shimmer with its shape, then 
 })
 
 test('modal: the arrows slide the photo in their direction and the neighbours are already preloaded', async ({ page }) => {
-  await openCategory(page)
-  await tiles(page).nth(1).click()
+  await page.goto(PROMOS)
+  await tiles(page).first().click()
   await expect(marco(page)).not.toHaveAttribute('data-cargando', '')
 
   // La siguiente ya está bajada: el mismo archivo que va a pedir la foto grande.

@@ -10,7 +10,7 @@ export const CATALOG_LEAD = 'Gorras y camisetas que salieron del taller. Toca la
 /**
  * Galería del catálogo (PRI-130; sistema medido de PRI-286): pestañas de categoría con conteo y el muro de fotos, en el
  * margen de la rejilla. El banner con el nombre (h1) y la bajada va arriba, fuera de este componente, porque se conserva
- * entre páginas (CatalogView.astro). Cada foto abre el modal (PhotoModal). Sin tarjeta de cierre: la última fila queda
+ * entre páginas (CatalogView.astro). Cada foto lleva a su ficha (PRI-529). Sin tarjeta de cierre: la última fila queda
  * con las fotos que haya. Categoría sin fotos: EmptyState con salida a lo más nuevo (WhatsApp ya está en el flotante).
  */
 export function CatalogPage({

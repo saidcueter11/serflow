@@ -5,25 +5,26 @@ import { MODAL } from './promos/scenarios.mjs'
 // los builds sembrados de e2e/promos/scenarios.mjs: en 4240, la prenda completa y la de precio en cero prendidas y la
 // sin datos apagada; en 4233, ninguna prendida.
 const { categoria, completa, vacia, cero } = MODAL
-const href = (slug: string) => `/catalogo/${categoria.slug}/${slug}`
+const href = (slug: string) => `/catalogo/${categoria.slug}/${slug}/`
 const seccion = (page: Page) => page.locator('#disponible')
 const linkDeLaNav = (page: Page) => page.locator('header a[href="/#disponible"]')
 
-test('only the products switched on show up, and they open the same modal as the catalog', async ({ page }) => {
+test('only the products switched on show up, and each one opens its product page', async ({ page }) => {
   await page.goto('http://localhost:4240/')
-  const prendas = seccion(page).locator('a[data-foto]')
+  const prendas = seccion(page).locator('.pf-prendas > a')
   await expect(prendas).toHaveCount(2)
   await expect(prendas.nth(0)).toHaveAttribute('href', href(completa.slug))
   await expect(prendas.nth(1)).toHaveAttribute('href', href(cero.slug))
   await expect(seccion(page).locator(`a[href="${href(vacia.slug)}"]`)).toHaveCount(0)
   await expect(linkDeLaNav(page).first()).toBeAttached()
 
+  // PRI-529: la ficha del producto, no el modal.
   await prendas.first().click()
-  const dialog = page.getByRole('dialog')
-  await expect(dialog.getByRole('heading', { level: 2 })).toHaveText(completa.name)
-  await expect(dialog.getByText('$45.000', { exact: true })).toBeVisible()
-  await expect(dialog.getByText(completa.description)).toBeVisible()
-  await expect(page).toHaveURL(new RegExp(`${href(completa.slug)}/?$`))
+  await expect(page).toHaveURL(`http://localhost:4240${href(completa.slug)}`)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(completa.name)
+  await expect(page.getByText('$45.000', { exact: true })).toBeVisible()
+  await expect(page.getByText(completa.description)).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 })
 
 test('with nothing switched on, the home has no Disponible ahora section and the nav no link to it', async ({ page }) => {

@@ -35,8 +35,8 @@ const ANT = 'M15 18l-6-6 6-6'
 const SIG = 'M9 6l6 6-6 6'
 
 /**
- * Foto abierta (PRI-286): un <dialog> encima del muro del catálogo, de Disponible ahora o de las fotos de las promos
- * (PRI-523), en lugar de la página de detalle.
+ * Foto abierta (PRI-286): un <dialog> encima de las fotos de las promos (PRI-523). El muro del catálogo y Disponible
+ * ahora lo usaban hasta PRI-529: ahora llevan a la ficha del producto.
  * No es una tienda: la foto entera (contain), qué es, su descripción y precio si el admin los puso (PRI-433), en qué
  * colores viene si el admin los puso (PRI-455) y cómo pedirla. Escritorio: la foto centrada y debajo una franja
  * con la categoría y el nombre a la izquierda y "Pedir por WhatsApp" a la derecha; el nombre nunca se corta (la franja

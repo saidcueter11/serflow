@@ -24,7 +24,7 @@ describe('interleave', () => {
 
 describe('fotoHref', () => {
   it('cada foto tiene URL propia en /catalogo', () => {
-    expect(fotoHref('beisbol', 'beisbol-26')).toBe('/catalogo/beisbol/beisbol-26')
+    expect(fotoHref('beisbol', 'beisbol-26')).toBe('/catalogo/beisbol/beisbol-26/')
   })
 })
 
@@ -56,13 +56,13 @@ describe('pedirUrl', () => {
 
   it('identifica la foto por categoría, número y link, sin el nombre', () => {
     expect(text(pedirUrl('Beisbol', 26, fotoHref('beisbol', 'beisbol-26')))).toBe(
-      `¡Hola! Me gustó esta de Beisbol (N.º 26). ¿Me hacen una así?\n${SITE_URL}/catalogo/beisbol/beisbol-26`,
+      `¡Hola! Me gustó esta de Beisbol (N.º 26). ¿Me hacen una así?\n${SITE_URL}/catalogo/beisbol/beisbol-26/`,
     )
   })
 
   it('sin legacy_id (fotos nuevas del admin) el link basta', () => {
     expect(text(pedirUrl('Moda', null, fotoHref('moda', 'gorra-dama')))).toBe(
-      `¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\n${SITE_URL}/catalogo/moda/gorra-dama`,
+      `¡Hola! Me gustó esta de Moda. ¿Me hacen una así?\n${SITE_URL}/catalogo/moda/gorra-dama/`,
     )
   })
 })

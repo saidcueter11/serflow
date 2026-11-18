@@ -89,7 +89,6 @@ defineControls(ProductCard, {
   href: { type: "text" },
   image: { type: "object" },
   colores: { type: "object" },
-  modal: false,
 });
 
 defineControls(ColoresDisponibles, {

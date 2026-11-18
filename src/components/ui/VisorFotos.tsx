@@ -11,7 +11,7 @@ const Icono = ({ d }: { d: string }) => (
  * arrastrar con un dedo, deslizar de lado para cambiar de foto y hacia abajo para cerrar; acercada, el pie se esconde.
  * Teclado: ← → cambian de foto, Enter o espacio sobre la foto acerca y aleja, Esc cierra; el foco queda atrapado adentro
  * y vuelve a la foto al cerrar. Baja la versión zoom de la foto (PRI-546) solo al abrir, y si no hay usa la normal.
- * No reemplaza a PhotoModal: ese sigue siendo la foto abierta del muro del catálogo.
+ * No reemplaza a PhotoModal: ese sigue siendo la foto abierta de las promos.
  * Markup estático y vacío (uno por página): lo llena y lo maneja src/scripts/visor-fotos.ts (importarlo en la página).
  * Estilos: .vf-* en tokens.css.
  *

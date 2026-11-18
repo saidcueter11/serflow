@@ -80,7 +80,7 @@ defineAsset(ServiceCard, {
 defineAsset(ProductCard, {
   libraries: ["Design System"],
   usageInstructions:
-    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta opcional (sin meta, solo el nombre: 'Más de <categoría>' de la ficha, PRI-529), colores opcionales (ColoresDisponibles debajo de meta, PRI-455) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link; con modal (datos de la foto) abre PhotoModal encima de la página y recorre las de su lista (data-fotos). Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
+    "Una prenda de Disponible ahora (para el catálogo usa Masonry), sin caja (PRI-286): foto 4:5 con radio, nombre, meta opcional (sin meta, solo el nombre: 'Más de <categoría>' de la ficha, PRI-529), colores opcionales (ColoresDisponibles debajo de meta, PRI-455) y confirmedLabel opcional (texto dorado; omitir si no se sabe, nunca inventarlo). Toda la card es un link a la ficha del producto (PRI-529), hasta donde crece la foto. Es fluida: el ancho lo pone la lista (.pf-prendas: 2 x 2 en el celular, 4 en desktop). No le agregues tamaño fijo ni skeleton animado. Para una técnica usa ServiceCard; para un trabajo entregado, WorkCard.",
   variants: {
     "Camiseta confirmada": {
       props: {
