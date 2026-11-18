@@ -104,7 +104,7 @@ export function FichaPagina({ p, ancho, alto, estado = "reposo" }: { p: Producto
             </div>
             <div className="grid grid-cols-2 gap-2 @3xl:grid-cols-4 @3xl:gap-3">
               {otros(p).map((o, i) => (
-                <ProductCard key={i} name={o.titulo} meta="" image={{ src: o.fotos[0], alt: o.titulo }} href={href(o)} />
+                <ProductCard key={i} name={o.titulo} meta="" image={{ src: o.fotos[0], alt: "" }} href={href(o)} />
               ))}
             </div>
           </section>

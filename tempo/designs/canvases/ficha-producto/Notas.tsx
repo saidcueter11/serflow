@@ -107,6 +107,13 @@ export function FaltaEnElDS() {
         proto="52 px."
         nota="Decidido: se queda como está."
       />
+      <Falta
+        n={6}
+        titulo="Sombra del panel de la Lupa"
+        hoy="la sombra usa el color del fondo de la página (primary al 60 %), así que no se ve."
+        proto="sombra negra al 60 % que despega el panel de la información."
+        nota="Viene de la pieza del DS (.lupa en tokens.css), no del canvas. Said decide si se corrige en un PR del DS."
+      />
     </Hoja>
   );
 }
