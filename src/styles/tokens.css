@@ -67,6 +67,8 @@
   --motion-asienta: 2200ms;
   --motion-viaje: 640ms;
   --motion-viaje-escalon: 28ms;
+  /* Brillo dorado que recorre el monograma de la ficha (PRI-529): lento, que no llame la atención. */
+  --motion-monograma: 9s;
   --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
   --shadow-oro: 0 14px 30px -12px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
@@ -680,4 +682,175 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 .pz-fade { animation: pz-fade var(--motion-med) var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) {
   .pz-spin, .pz-shimmer::after, .pz-sheet, .pz-fade { animation: none !important; }
+}
+
+/* ---------- Ficha de producto (PRI-529): Costura, Monograma, GaleriaProducto, Lupa y VisorFotos ---------- */
+
+/* Costura: línea dorada punteada con una puntada en cada punta. La vertical se estira al alto de su fila (flex o grid). */
+.costura { position: relative; display: block; flex: none; border: 0 dashed color-mix(in srgb, var(--color-accent) 50%, transparent); }
+.costura[data-orientacion='vertical'] { width: 0; align-self: stretch; border-left-width: 1px; }
+.costura[data-orientacion='horizontal'] { width: 100%; height: 0; border-top-width: 1px; }
+.costura::before, .costura::after { content: ''; position: absolute; width: 7px; height: 7px; border-radius: 9999px; background: var(--color-accent); }
+.costura[data-orientacion='vertical']::before, .costura[data-orientacion='vertical']::after { left: -4px; }
+.costura[data-orientacion='vertical']::before { top: -4px; }
+.costura[data-orientacion='vertical']::after { bottom: -4px; }
+.costura[data-orientacion='horizontal']::before, .costura[data-orientacion='horizontal']::after { top: -4px; }
+.costura[data-orientacion='horizontal']::before { left: -3px; }
+.costura[data-orientacion='horizontal']::after { right: -3px; }
+
+/* Monograma: la S de Serflow (src/assets/monograma-s.svg) como máscara, con un brillo dorado que la recorre despacio. */
+@keyframes sf-monograma { from { background-position: 120% 0 } to { background-position: -120% 0 } }
+.monograma {
+  display: block; aspect-ratio: 337 / 340; pointer-events: none;
+  -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+  mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+  background: linear-gradient(115deg,
+    color-mix(in srgb, var(--color-accent) 7%, transparent) 35%,
+    color-mix(in srgb, var(--color-secondary) 26%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent) 7%, transparent) 65%);
+  background-size: 300% 100%;
+  animation: sf-monograma var(--motion-monograma) linear infinite;
+}
+
+/*
+ * Galería de la ficha (GaleriaProducto; la manejan src/scripts/lupa.ts y visor-fotos.ts). Un solo juego de fotos:
+ * celular = carrusel con la siguiente asomada, contador y puntos; escritorio (pf desde 48rem) = miniaturas a la izquierda
+ * y la pista recortada a una foto 3:4 de --gp-alto (640 por defecto).
+ */
+@keyframes gp-crece { from { opacity: 0; transform: scale(0.97) } }
+.gp { position: relative; min-width: 0; animation: gp-crece var(--motion-crece) var(--ease-premium) both; }
+.gp-minis, .gp-lente, .gp-chip-mouse { display: none; }
+.gp-carrusel { position: relative; }
+.gp-pista {
+  display: flex; gap: 8px; padding-inline: 16px; scroll-padding-inline: 16px; overflow-x: auto;
+  scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
+}
+.gp-pista::-webkit-scrollbar { display: none; }
+.gp-foto {
+  position: relative; flex: none; width: calc(100% - 48px); aspect-ratio: 3 / 4; padding: 0; border: 0;
+  border-radius: var(--radius-tile); overflow: hidden; background: var(--color-surface); cursor: zoom-in;
+  scroll-snap-align: start; touch-action: pan-x pan-y; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+  transition: box-shadow var(--motion-med) var(--ease-out);
+}
+.gp[data-n='1'] .gp-foto { width: 100%; }
+.gp-foto img { display: block; width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; transition: transform var(--motion-med) var(--ease-premium); }
+/* Mantén para acercar: la foto crece ZOOM_LUPA (2,5) veces donde está el dedo; lupa.ts pone el transform-origin. */
+.gp-foto[data-cerca] { box-shadow: 0 0 0 2px var(--color-accent); }
+.gp-foto[data-cerca] img { transform: scale(2.5); transition-duration: var(--motion-slow); }
+.gp-chip {
+  position: absolute; bottom: 12px; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px;
+  border-radius: 9999px; background: color-mix(in srgb, var(--color-primary) 80%, transparent);
+  font-size: 13px; font-weight: 500; color: var(--color-ink); pointer-events: none; transition: opacity var(--motion-slow) var(--ease-out);
+}
+.gp-chip svg { width: 16px; height: 16px; flex: none; }
+.gp-chip-mantener { left: 12px; }
+.gp-chip-mantener svg { color: var(--color-secondary); }
+.gp-chip-mouse { right: 12px; min-height: 36px; }
+/* La etiqueta se va mientras acerca y, después del primer uso, para siempre en la página. */
+.gp-foto[data-cerca] .gp-chip, .gp[data-usado] .gp-chip-mantener, .gp[data-lupa] .gp-chip-mouse { opacity: 0; }
+.gp-contador {
+  position: absolute; top: 12px; right: 28px; display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px;
+  border-radius: 9999px; background: color-mix(in srgb, var(--color-primary) 78%, transparent);
+  font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.gp-puntos { display: flex; justify-content: center; gap: 6px; padding-top: 12px; }
+.gp-puntos > span {
+  width: 7px; height: 7px; border-radius: 9999px; background: var(--color-line);
+  transition: background-color var(--motion-med) var(--ease-out), width var(--motion-slow) var(--ease-premium);
+}
+.gp-puntos > [data-on] { width: 20px; border-radius: 4px; background: var(--color-accent); }
+@container pf (min-width: 48rem) {
+  .gp { display: flex; align-items: flex-start; gap: 12px; }
+  .gp-minis { display: flex; flex-direction: column; gap: 8px; }
+  .gp-minis button {
+    width: 72px; height: 96px; padding: 0; border: 1px solid var(--color-line); border-radius: 10px; overflow: hidden;
+    background: var(--color-surface); cursor: pointer; transition: border-color var(--motion-fast) var(--ease-out);
+  }
+  .gp-minis button:hover { border-color: var(--color-muted); }
+  .gp-minis button[aria-current='true'] { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent); }
+  .gp-minis img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .gp-carrusel { height: var(--gp-alto, 640px); aspect-ratio: 3 / 4; }
+  .gp-pista { height: 100%; gap: 0; padding: 0; overflow: hidden; scroll-snap-type: none; }
+  .gp-foto, .gp[data-n='1'] .gp-foto { width: 100%; height: 100%; }
+  .gp-contador, .gp-puntos, .gp-chip-mantener { display: none; }
+  .gp-chip-mouse { display: inline-flex; }
+  /* Lupa al lado: el recuadro dorado sobre la foto; lo de afuera se oscurece un poco. */
+  .gp-lente {
+    position: absolute; z-index: 1; border: 1px solid color-mix(in srgb, var(--color-secondary) 90%, transparent); border-radius: 6px;
+    pointer-events: none; box-shadow: 0 0 0 9999px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  }
+  .gp[data-lupa] .gp-lente { display: block; }
+}
+
+/* Panel de la lupa (Lupa): ocupa el lado de la información mientras el mouse está sobre la foto. */
+.lupa {
+  display: none; position: absolute; inset: var(--lupa-inset, 0); z-index: 4; pointer-events: none;
+  border: 1px solid var(--color-line); border-radius: var(--radius-tile); background-color: var(--color-surface); background-repeat: no-repeat;
+  box-shadow: 0 30px 60px -20px color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+.lupa[data-on] { display: block; }
+
+/*
+ * Visor de fotos (VisorFotos + src/scripts/visor-fotos.ts): <dialog> a pantalla completa, contenedor de tamaño. Celular:
+ * pellizco, doble toque, arrastrar, deslizar de lado y hacia abajo; acercada, el pie se esconde. Escritorio (48rem):
+ * flechas, + − Ajustar y miniaturas, que se esconden mientras está acercada.
+ */
+html:has(dialog.vf:modal) { overflow: hidden; }
+dialog.vf {
+  position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0;
+  background: var(--color-primary); color: var(--color-ink); container-type: size; overflow: hidden;
+}
+dialog.vf[open] { display: flex; flex-direction: column; animation: sf-funde var(--motion-med) var(--ease-out) both; }
+dialog.vf::backdrop { background: var(--color-primary); }
+.vf-arriba { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; }
+.vf-contador { font-size: 14px; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.vf-x, .vf-flecha {
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 9999px; border: 1px solid var(--color-line);
+  background: var(--color-primary); color: var(--color-ink); cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-out), opacity var(--motion-med) var(--ease-out);
+}
+.vf-x:hover, .vf-flecha:hover { border-color: var(--color-muted); }
+.vf-zona { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: none; cursor: zoom-in; user-select: none; -webkit-user-select: none; }
+.vf-zona[data-z] { cursor: grab; }
+.vf-zona[data-z]:active { cursor: grabbing; }
+@keyframes vf-entra { from { opacity: 0; transform: scale(0.96) } }
+.vf-foto {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform;
+  pointer-events: none; animation: vf-entra var(--motion-vuelve) var(--ease-premium) both;
+}
+.vf-zona[data-anima] .vf-foto { transition: transform var(--motion-slow) var(--ease-premium); }
+.vf-flecha { position: absolute; top: 50%; translate: 0 -50%; z-index: 2; display: none; background: color-mix(in srgb, var(--color-primary) 80%, transparent); }
+.vf-ant { left: 20px; }
+.vf-sig { right: 20px; }
+.vf-pie { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; min-height: 64px; padding: 12px 16px 20px; }
+.vf-ctrl { display: none; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--color-line); border-radius: 9999px; background: var(--color-primary); }
+.vf-ctrl button {
+  display: grid; place-items: center; min-width: 44px; height: 44px; border-radius: 9999px; font-size: 20px; cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out);
+}
+.vf-ctrl button:hover { background: var(--color-surface-2); }
+.vf-ctrl output { min-width: 56px; text-align: center; font-size: 14px; font-variant-numeric: tabular-nums; color: var(--color-muted); }
+.vf-ctrl .vf-ajustar { padding: 0 14px; font-size: 14px; }
+.vf-minis { display: flex; gap: 8px; }
+.vf-minis button {
+  width: 48px; height: 64px; padding: 0; border: 1px solid var(--color-line); border-radius: 8px; overflow: hidden;
+  background: var(--color-surface); cursor: pointer; opacity: 0.6; transition: opacity var(--motion-fast) var(--ease-out);
+}
+.vf-minis button[aria-current='true'] { opacity: 1; border-color: var(--color-accent); }
+.vf-minis img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.vf-ayuda { font-size: 13px; color: var(--color-muted); }
+dialog.vf:not([data-n='1']) .vf-ayuda { display: none; }
+dialog.vf[data-z] .vf-pie { visibility: hidden; }
+@container (min-width: 48rem) {
+  .vf-ctrl { display: inline-flex; }
+  .vf-ayuda { display: none; }
+  dialog.vf:not([data-n='1']) .vf-flecha { display: grid; }
+  dialog.vf[data-z] .vf-pie { visibility: visible; }
+  dialog.vf[data-z] .vf-minis { visibility: hidden; }
+  dialog.vf[data-z] .vf-flecha { opacity: 0; pointer-events: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gp, .monograma, .vf-foto, dialog.vf[open] { animation: none !important; }
+  .gp-foto, .gp-foto img, .gp-chip, .gp-puntos > span, .vf-zona[data-anima] .vf-foto { transition: none !important; }
 }

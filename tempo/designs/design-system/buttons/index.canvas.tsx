@@ -8,6 +8,8 @@ import { BoardVariants } from "./BoardVariants";
 import { BoardLayoutIcon } from "./BoardLayoutIcon";
 import { BoardWhatsAppFab } from "./BoardWhatsAppFab";
 import { BoardDesignSystemDebt } from "./BoardDesignSystemDebt";
+import { BoardBarraPedir } from "./BoardBarraPedir";
+import { BarraPedir } from "../../../../src/components/ui/BarraPedir";
 
 export default function ButtonsCanvas() {
   return (
@@ -41,6 +43,12 @@ export default function ButtonsCanvas() {
         name="Design System Debt"
         component={BoardDesignSystemDebt}
         layout={{ x: 4350, y: 0, width: 1400, height: 2400, intrinsicSizing: "root-element" }}
+      />
+      <Storyboard
+        id="BarraPedir"
+        name="BarraPedir"
+        component={BoardBarraPedir}
+        layout={{ x: 0, y: 2500, width: 1300, height: 900, intrinsicSizing: "root-element" }}
       />
     </Canvas>
   );
@@ -84,5 +92,14 @@ defineAsset(WhatsAppFab, {
   variants: {
     "Flotante": { props: { placement: "fixed" } },
     "En flujo con mensaje": { props: { placement: "inline", text: "Hola! Quiero cotizar camisetas personalizadas" } },
+  },
+});
+
+defineAsset(BarraPedir, {
+  libraries: ["Design System"],
+  usageInstructions:
+    "Barra de pedir de la ficha de producto en el celular (PRI-529): sticky abajo al final del contenido de la página (dentro de .pf), solo el Button whatsapp a todo el ancho con el link pedirUrl del producto, sin repetir nombre ni precio. Desde 48rem de página se esconde (el botón va junto a la información). En esa página es el único WhatsApp de la pantalla: reemplaza al WhatsAppFab (hideFab). Una por página, solo en la ficha; no la uses en el muro (PhotoModal ya trae su Pedir) ni como contacto genérico (WhatsAppFab). fija false solo para verla en flujo.",
+  variants: {
+    "En flujo": { props: { href: WHATSAPP_URL, fija: false } },
   },
 });

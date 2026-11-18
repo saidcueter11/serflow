@@ -33,6 +33,12 @@ import { Masonry } from "../src/components/ui/Masonry";
 import { CategoryBanner } from "../src/components/ui/CategoryBanner";
 import { VistaPrevia } from "../src/components/ui/VistaPrevia";
 import { HojaEnvio } from "../src/components/ui/HojaEnvio";
+import { Costura } from "../src/components/ui/Costura";
+import { Monograma } from "../src/components/ui/Monograma";
+import { GaleriaProducto } from "../src/components/ui/GaleriaProducto";
+import { Lupa } from "../src/components/ui/Lupa";
+import { VisorFotos } from "../src/components/ui/VisorFotos";
+import { BarraPedir } from "../src/components/ui/BarraPedir";
 import { Aviso, BarraEnvio, CampoDiseno, Colores, Grupo, Nota, Paso, Tecnicas } from "../src/components/ui/PersonalizaCampos";
 
 defineControls(Button, {
@@ -306,4 +312,32 @@ defineControls(Aviso, {
   children: { type: "text" },
   icono: false,
   accion: false,
+});
+
+// PRI-529: piezas de la ficha de producto con zoom.
+defineControls(Costura, {
+  orientacion: { type: "select" },
+  className: false,
+});
+
+defineControls(Monograma, {
+  className: { type: "text" },
+});
+
+defineControls(GaleriaProducto, {
+  fotos: { type: "object" },
+  className: { type: "text" },
+});
+
+defineControls(Lupa, {
+  className: { type: "text" },
+});
+
+defineControls(VisorFotos, {
+  titulo: { type: "text" },
+});
+
+defineControls(BarraPedir, {
+  href: { type: "text" },
+  fija: { type: "boolean" },
 });
