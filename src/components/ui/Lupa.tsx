@@ -10,5 +10,5 @@
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
  */
 export function Lupa({ className = '' }: { className?: string }) {
-  return <div aria-hidden="true" data-lupa className={`lupa ${className}`} />
+  return <div aria-hidden="true" data-lupa-panel className={`lupa ${className}`} />
 }

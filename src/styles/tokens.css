@@ -747,7 +747,7 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 .gp-chip-mantener svg { color: var(--color-secondary); }
 .gp-chip-mouse { display: none; right: 12px; min-height: 36px; }
 /* La etiqueta se va mientras acerca y, después del primer uso, para siempre en la página. */
-.gp-foto[data-cerca] .gp-chip, .gp[data-usado] .gp-chip-mantener, .gp[data-lupa] .gp-chip-mouse { opacity: 0; }
+.gp-foto[data-cerca] .gp-chip, .gp[data-usado] .gp-chip-mantener, .gp[data-lupa-on] .gp-chip-mouse { opacity: 0; }
 .gp-contador {
   position: absolute; top: 12px; right: 28px; display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px;
   border-radius: 9999px; background: color-mix(in srgb, var(--color-primary) 78%, transparent);
@@ -779,7 +779,7 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
     position: absolute; z-index: 1; border: 1px solid color-mix(in srgb, var(--color-secondary) 90%, transparent); border-radius: 6px;
     pointer-events: none; box-shadow: 0 0 0 9999px color-mix(in srgb, var(--color-primary) 35%, transparent);
   }
-  .gp[data-lupa] .gp-lente { display: block; }
+  .gp[data-lupa-on] .gp-lente { display: block; }
 }
 
 /* Panel de la lupa (Lupa): ocupa el lado de la información mientras el mouse está sobre la foto. */
@@ -790,6 +790,8 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
   box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.6);
 }
 .lupa[data-on] { display: block; }
+/* Va dentro de .anim-enter: sin esto, cada vez que se enciende entra fundiéndose desde 0 y deja ver la información. */
+.anim-enter > .lupa { animation: none; }
 
 /*
  * Visor de fotos (VisorFotos + src/scripts/visor-fotos.ts): <dialog> a pantalla completa, contenedor de tamaño. Celular:
