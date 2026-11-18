@@ -10,9 +10,15 @@ const { categoria, completa } = MODAL
 const dialog = (page: Page) => page.getByRole('dialog')
 const href = (slug: string) => `/catalogo/${categoria.slug}/${slug}`
 const puntos = (page: Page) => dialog(page).locator('.mx-puntos > span')
+/** Abre la prenda en el modal desde el muro de su categoría (su URL cargada directo es la ficha, PRI-529). */
+async function abrir(page: Page, slug: string) {
+  await page.goto(`/catalogo/${categoria.slug}/`)
+  await page.locator(`main a[href="${href(slug)}"]`).click()
+  await expect(dialog(page)).toBeVisible()
+}
 
 test('shows the name, price and whole description the admin set, and nothing broken when they are missing', async ({ page }) => {
-  await page.goto(href(completa.slug))
+  await abrir(page, completa.slug)
   await expect(dialog(page).getByRole('heading', { level: 2 })).toHaveText(completa.name)
   await expect(dialog(page).getByText('$45.000', { exact: true })).toBeVisible()
   const desc = dialog(page).getByText(completa.description)
@@ -23,7 +29,6 @@ test('shows the name, price and whole description the admin set, and nothing bro
   const d = (await desc.boundingBox())!
   expect(d.y + d.height).toBeLessThanOrEqual(page.viewportSize()!.height)
   expect((await dialog(page).locator('img.mx-foto').boundingBox())!.y).toBeGreaterThanOrEqual(0)
-  await expect(page).toHaveTitle(`${completa.name} — Serflow`)
 
   // Sin nombre, el de la foto; sin precio ni descripción, no queda hueco ni texto vacío.
   await dialog(page).getByRole('button', { name: 'Prenda siguiente' }).click()
@@ -37,7 +42,7 @@ test('shows the name, price and whole description the admin set, and nothing bro
   await expect(dialog(page).locator('.mx-precio')).toBeHidden()
   await expect(dialog(page).locator('.mx-desc')).toBeHidden()
 
-  // Su URL propia: el nombre con "</script>" sale como texto en el título y en el JSON-LD, sin ejecutarse.
+  // Su URL propia (la ficha): el nombre con "</script>" sale como texto en el título y en el JSON-LD, sin ejecutarse.
   await page.goto(href(MODAL.cero.slug))
   await expect(page).toHaveTitle(`${MODAL.cero.name} — Serflow`)
   const ld = await page.locator('script[type="application/ld+json"]').evaluateAll((s) => s.map((e) => JSON.parse(e.textContent!)))
@@ -46,7 +51,7 @@ test('shows the name, price and whole description the admin set, and nothing bro
 })
 
 test('photos of the same item are dots on the photo; the arrows by the counter jump between items', async ({ page }) => {
-  await page.goto(href(completa.slug))
+  await abrir(page, completa.slug)
   const anterior = dialog(page).getByRole('button', { name: 'Prenda anterior' })
   const siguiente = dialog(page).getByRole('button', { name: 'Prenda siguiente' })
   await expect(dialog(page).getByText('1 / 3')).toBeVisible()

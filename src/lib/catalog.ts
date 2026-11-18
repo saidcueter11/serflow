@@ -1,5 +1,6 @@
 import { whatsappUrl } from './business'
 import { SITE } from './promos'
+import type { Product } from './types'
 
 /*
  * Catálogo como galería de fotos (PRI-130, dirección 2 "Pinterest / Unsplash"). El muro no depende del nombre ni de la
@@ -11,8 +12,9 @@ import { SITE } from './promos'
 /** "Todo" del catálogo. Las categorías cuelgan de aquí: /catalogo/<categoría> (PRI-525; antes /products, con 301). */
 export const TODO_HREF = '/catalogo'
 
-/** URL propia de una foto (PRI-286): abre el catálogo de su categoría con el modal de esa foto. Las viejas
- * /products/<categoría>/<slug> redirigen aquí con 301 (public/_redirects). */
+/** URL propia de una foto: la ficha del producto (PRI-529; antes el muro con el modal abierto, PRI-286). El muro la
+ * muestra en la barra mientras el modal está abierto. Las viejas /products/<categoría>/<slug> redirigen aquí con 301
+ * (public/_redirects). */
 export const fotoHref = (categoria: string, slug: string) => `/catalogo/${categoria}/${slug}`
 
 /** Las nuevas van primero en "Todo": subidas hace menos de estos días. */
@@ -65,6 +67,13 @@ export function fotoAlt(label: string, n: number | null, nombre?: string | null)
 
 /** Nombre de la foto en el modal y title de su página: "Beisbol N.º 26". */
 export const fotoTitulo = (label: string, n: number | null) => `${label}${numero(n)}`
+
+/**
+ * Versión grande de la foto i (~2400 px) que la lupa y el visor bajan solo al acercar (PRI-529). null: todavía no hay
+ * (PRI-546 la agrega en el admin) y la lupa y el visor usan la foto normal.
+ */
+// ponytail: siempre null hasta que PRI-546 defina dónde se guarda; ese día cambia esta línea.
+export const fotoZoom = (_p: Product, _i: number): string | null => null
 
 /** Precio del admin en pesos para el modal: "$30.000". Sin precio (null, 0 o negativo), null: no se pinta. */
 export const precioCop = (precio: number | null) =>

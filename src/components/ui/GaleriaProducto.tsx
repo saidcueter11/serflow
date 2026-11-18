@@ -46,8 +46,10 @@ export function GaleriaProducto({ fotos, className = '' }: { fotos: FotoProducto
               type="button"
               className="gp-foto"
               data-visor-abrir={i}
-              aria-label={n > 1 ? `Ampliar foto ${i + 1} de ${n}` : 'Ampliar foto'}
             >
+              {/* Nombre "Ampliar: <alt>" sin aria-label: con él, las etiquetas visibles ("Pasa el mouse", "Mantén para
+                  acercar") no estarían en el nombre (WCAG 2.5.3, axe label-content-name-mismatch). */}
+              <span className="sr-only">Ampliar: </span>
               <img
                 src={f.src}
                 srcSet={f.srcSet}

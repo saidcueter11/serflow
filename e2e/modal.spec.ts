@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { SITE_URL } from '../src/lib/site.mjs'
 
-// PRI-286: la foto se abre en un modal encima del catálogo (ya no hay página de detalle). Contra el catálogo real del
+// PRI-286: en el muro la foto se abre en un modal encima del catálogo (cargada directo, su URL es la ficha, PRI-529). Contra el catálogo real del
 // build: entra por las pestañas y las fotos, sin depender de un producto concreto.
 const SITE = SITE_URL
 
@@ -135,20 +135,20 @@ test('Esc, the X and a click outside close it; the URL and the focus go back to 
   }
 })
 
-test('the photo URL opens the catalog with the modal open, with its own preview for WhatsApp', async ({ page }) => {
-  const { href } = await openCategory(page)
+test('the photo URL is the product page (not the modal), with its own preview for WhatsApp', async ({ page }) => {
+  await openCategory(page)
   const photo = (await tiles(page).nth(1).getAttribute('href'))!
   const alt = (await tiles(page).nth(1).locator('img').getAttribute('alt'))!
 
+  // PRI-529: cargada directo es la ficha del producto.
   await page.goto(photo)
-  await expect(dialog(page)).toBeVisible()
-  await expect(dialog(page).locator('img.mx-foto')).toHaveAttribute('alt', alt)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(dialog(page)).toHaveCount(0)
+  // Con varias fotos lleva ", foto 1 de N" al final.
+  await expect(page.locator('[data-gp-pista] img').first()).toBeVisible()
+  expect((await page.locator('[data-gp-pista] img').first().getAttribute('alt'))!.startsWith(alt)).toBe(true)
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /^https?:\/\//)
   await expect(page.locator('meta[property="og:url"]').last()).toHaveAttribute('content', `${SITE}${photo}/`)
-
-  await page.keyboard.press('Escape')
-  await expect(page).toHaveURL(new RegExp(`${href}/?$`))
-  await expect(page.locator(`main a[href="${photo}"]`)).toBeFocused()
 })
 
 // PRI-123: 4232 has 4 real products switched on in "Disponible ahora" (e2e/promos/scenarios.mjs).

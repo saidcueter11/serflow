@@ -1,36 +1,45 @@
 ---
 import Layout from '../../../layouts/Layout.astro'
-import CatalogView from '../../../components/catalog/CatalogView.astro'
+import { FichaProducto } from '../../../components/catalog/FichaProducto'
 import { jsonLd } from '../../../lib/business'
 import { TODO_HREF } from '../../../lib/catalog'
-import { loadPages } from '../../../lib/catalog-view'
+import { loadCatalog } from '../../../lib/catalog-view'
 import { absoluta, breadcrumbSchema, offerSchema } from '../../../lib/seo'
 
-// PRI-286: URL propia de cada foto. Es la página del muro de su categoría con el modal de esa foto abierto, con su
-// og:image para que la vista previa del link (el que manda "Pedir por WhatsApp") muestre la foto. Las URLs viejas
-// /products/<categoría>/<slug> redirigen aquí con 301 (public/_redirects), y las de un slug viejo también (PRI-525).
+// PRI-529: la página propia de cada producto (ficha), la que llega desde Google y desde WhatsApp. El muro del catálogo
+// sigue abriendo el modal (PhotoModal) y muestra esta URL en la barra mientras está abierto. Lleva su og:image para que
+// la vista previa del link (el que manda "Pedir por WhatsApp") muestre la foto. Las URLs viejas /products/<categoría>/<slug>
+// redirigen aquí con 301 (public/_redirects), y las de un slug viejo también (PRI-525).
 export async function getStaticPaths() {
-  return (await loadPages())
-    .filter((p) => p.slug)
-    .flatMap(({ slug, items, props }) =>
-      items.map((item) => ({ params: { category: slug, slug: item.slug }, props: { ...props, item } })),
-    )
+  return (await loadCatalog()).groups.flatMap(({ slug, label, href, items }) =>
+    items.map((item, i) => ({
+      params: { category: slug, slug: item.slug },
+      // "Más de <categoría>": las que siguen en el muro, y al llegar al final las primeras.
+      props: { item, label, href, otros: [...items.slice(i + 1), ...items.slice(0, i)].slice(0, 4) },
+    })),
+  )
 }
 
-const { item, ...props } = Astro.props
+const { item, label, href, otros } = Astro.props
+const modal = item.tile.modal!
 // La del canonical, con su "/" final (PRI-525).
 const url = Astro.url.href
-const label = props.view.label
-// El nombre que muestra el modal (PRI-433): el del admin o, sin nombre, el de la foto. Es texto del admin: el JSON-LD va
-// por jsonLd().
-const nombre = item.tile.modal!.titulo
+// El nombre (PRI-433): el del admin o, sin nombre, el de la foto. Es texto del admin: el JSON-LD va por jsonLd().
+const nombre = modal.titulo
 const title = `${nombre} — Serflow`
 const description = `Un trabajo de ${label} hecho en el taller de Serflow, Cartagena. ¿Te gusta? Te hacemos una igual o con tu logo: pídela por WhatsApp.`
+const n = modal.fotos.length
+const fotos = modal.fotos.map((f, i) => ({
+  src: f.src,
+  srcSet: f.srcSet,
+  alt: n > 1 ? `${modal.alt}, foto ${i + 1} de ${n}` : modal.alt,
+  zoom: item.zoom[i],
+}))
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: nombre,
-  image: item.tile.modal!.fotos.map((p) => absoluta(p.src)),
+  image: modal.fotos.map((p) => absoluta(p.src)),
   description,
   category: label,
   brand: { '@type': 'Brand', name: 'Serflow' },
@@ -40,15 +49,29 @@ const schema = {
 const migas = breadcrumbSchema([
   { name: 'Inicio', url: absoluta('/') },
   { name: 'Catálogo', url: absoluta(`${TODO_HREF}/`) },
-  { name: label, url: absoluta(`${props.view.href}/`) },
+  { name: label, url: absoluta(`${href}/`) },
   { name: nombre, url },
 ])
 ---
 
-<Layout title={title} description={description} ogType="product" ogImage={item.og ? { src: item.og, alt: item.tile.img.alt } : undefined}>
+<Layout title={title} description={description} ogType="product" ogImage={item.og ? { src: item.og, alt: item.tile.img.alt } : undefined} hideFab>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={jsonLd(schema)} />
     <script type="application/ld+json" set:html={jsonLd(migas)} />
   </Fragment>
-  <CatalogView {...props} abrir={item.tile.id} />
+  <FichaProducto
+    titulo={nombre}
+    categoria={{ label, href }}
+    precio={modal.precio ?? null}
+    colores={modal.colores}
+    descripcion={modal.descripcion ?? null}
+    fotos={fotos}
+    pedir={modal.pedir}
+    otros={otros.map((o) => ({ titulo: o.tile.modal!.titulo, href: o.tile.href, img: o.tile.img.src }))}
+  />
 </Layout>
+
+<script>
+  import '../../../scripts/lupa'
+  import '../../../scripts/visor-fotos'
+</script>

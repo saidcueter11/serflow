@@ -47,7 +47,7 @@ export function BoardVariants() {
 
       <Row
         name="ghost"
-        description="Link dorado sin caja, 44 px de alto para que siga siendo fácil de tocar. Para 'ver más' y entradas secundarias."
+        description="Link sin caja en tinta con la costura dorada al pasar, 44 px de alto para que siga siendo fácil de tocar. Para 'ver más' y entradas secundarias. Con oro el texto va en oro claro (el 'Ver todo' de la ficha de producto)."
       >
         <Demo label="listado">
           <Button variant="ghost" href="/products/mi-tierra-querida">
@@ -56,6 +56,11 @@ export function BoardVariants() {
         </Demo>
         <Demo label="teaser">
           <Button variant="ghost">Probar el personalizador →</Button>
+        </Demo>
+        <Demo label="oro (ficha, PRI-529)">
+          <Button variant="ghost" href="/catalogo/dama" oro>
+            Ver todo
+          </Button>
         </Demo>
       </Row>
 

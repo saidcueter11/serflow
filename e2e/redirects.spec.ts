@@ -7,7 +7,7 @@ import { MODAL } from './promos/scenarios.mjs'
 // la foto. PRI-525: las categorías también se mudaron de /products a /catalogo, y una foto renombrada en el admin
 // redirige desde su slug viejo. Las reglas las aplica Netlify; aquí, e2e/fixtures/netlify.ts sobre el build.
 
-test('old /products links redirect with a 301 to /catalogo, and the photo opens in the modal', async ({ page, request, isMobile }) => {
+test('old /products links redirect with a 301 to /catalogo, and the photo lands on its product page', async ({ page, request, isMobile }) => {
   test.skip(isMobile, 'Same redirect on both viewports')
   const { origin, close } = await netlify('dist')
   const sigue = async (from: string, to: string) => {
@@ -34,9 +34,10 @@ test('old /products links redirect with a 301 to /catalogo, and the photo opens 
       expect((await request.get(`${origin}${path}`, { maxRedirects: 0 })).status(), path).toBe(200)
     }
 
+    // PRI-529: la URL nueva es la ficha del producto.
     await page.goto(`/catalogo/${category}/${slug}/`)
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.locator(`main a[href="/catalogo/${category}/${slug}"]`)).toHaveCount(1)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await expect(page.locator('[data-galeria]')).toHaveCount(1)
   } finally {
     close()
   }

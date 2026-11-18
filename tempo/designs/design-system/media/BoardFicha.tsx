@@ -86,7 +86,7 @@ export function BoardLupa() {
     <PageFrame family="fotos y mascota" width={1800}>
       <PageTitle
         title="Lupa"
-        description="Para ver el bordado de cerca (PRI-529). Escritorio: al pasar el mouse por la foto, un recuadro dorado marca la zona y el panel Lupa la muestra 2,5 veces más grande donde va la información; al salir vuelve todo. Celular: con el dedo quieto 220 ms la foto se acerca 2,5 veces donde está el dedo, lo sigue y al soltar vuelve; ese toque no abre el visor y la etiqueta se va después del primer uso."
+        description="Para ver el bordado de cerca (PRI-529). Escritorio: al pasar el mouse por la foto, un recuadro dorado marca la zona y el panel Lupa la muestra 2,5 veces más grande donde va la información; al salir vuelve todo. Celular: con el dedo quieto 220 ms la foto se acerca 2,5 veces donde está el dedo, lo sigue y al soltar vuelve; ese toque no abre el visor y la etiqueta se va después del primer uso. El panel lleva una sombra negra al 60 % que lo despega de la información."
       />
       <Row
         name="Escritorio (1280)"

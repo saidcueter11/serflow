@@ -786,7 +786,8 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 .lupa {
   display: none; position: absolute; inset: var(--lupa-inset, 0); z-index: 4; pointer-events: none;
   border: 1px solid var(--color-line); border-radius: var(--radius-tile); background-color: var(--color-surface); background-repeat: no-repeat;
-  box-shadow: 0 30px 60px -20px color-mix(in srgb, var(--color-primary) 60%, transparent);
+  /* Negra, no del fondo: así despega el panel de la información (PRI-529, "Falta en el DS" 6). */
+  box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.6);
 }
 .lupa[data-on] { display: block; }
 

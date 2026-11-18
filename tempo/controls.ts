@@ -47,6 +47,7 @@ defineControls(Button, {
   href: { type: "text" },
   external: { type: "boolean" },
   fullWidth: { type: "boolean" },
+  oro: { type: "boolean" },
   icon: false,
   onClick: false,
 });
@@ -93,6 +94,7 @@ defineControls(ProductCard, {
 
 defineControls(ColoresDisponibles, {
   colores: { type: "object" },
+  variante: { type: "select" },
 });
 
 defineControls(WorkCard, {
