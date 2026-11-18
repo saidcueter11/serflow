@@ -8,7 +8,7 @@ const SECONDS = 5
  * Barra dorada de promos, fija arriba de todo (encima del Header). Solo se pinta si hay promos vigentes. Cada título
  * lleva debajo sus días si la promo aplica solo algunos (PRI-538).
  * Con una, se queda quieta y enlaza a su detalle. Con varias, toda la barra es un solo link a /promos ("Ver las N"
- * quieto a la derecha) y los títulos rotan cada 5 s (sube uno, entra el otro), en pausa con el mouse o el foco y
+ * quieto a la derecha) y los títulos rotan cada 5 s (sube uno, entra el otro), en pausa con el mouse o el foco del teclado (un toque no la detiene, PRI-440) y
  * quietos con reducir movimiento; para el lector de pantalla el link dice "Ver las N promos de hoy" y los títulos
  * que rotan quedan ocultos. No corre como la cinta: tiene que leerse de un vistazo. Markup estático, sin JS.
  *
@@ -23,7 +23,8 @@ export function PromoBar({ promos }: { promos: PromoLink[] }) {
     n > 1
       ? `@keyframes sf-promo-${n} { 0%, ${(show * 0.92).toFixed(2)}% { opacity: 1; transform: none } ${show.toFixed(2)}% { opacity: 0; transform: translateY(-100%) } ${(show + 0.01).toFixed(2)}%, ${(100 - show * 0.08).toFixed(2)}% { opacity: 0; transform: translateY(100%) } 100% { opacity: 1; transform: none } }
 .anim-promo { animation: sf-promo-${n} ${n * SECONDS}s linear infinite both; animation-delay: var(--d); }
-.promo-bar:hover .anim-promo, .promo-bar:focus-within .anim-promo { animation-play-state: paused; }
+@media (hover: hover) and (pointer: fine) { .promo-bar:hover .anim-promo { animation-play-state: paused; } }
+.promo-bar:has(:focus-visible) .anim-promo { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .anim-promo { animation: none; } .anim-promo:not(:first-child) { visibility: hidden; } }`
       : ''
   return (

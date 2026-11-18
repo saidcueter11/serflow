@@ -26,6 +26,35 @@ test.describe('3 promos vigentes y 1 vencida', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Promos de hoy' })).toBeVisible()
   })
 
+  test('home: the bar pauses under the mouse and on keyboard focus', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'mouse and keyboard')
+    await page.goto('/')
+    const bar = page.locator('.promo-bar a')
+    const titulo = bar.locator('.anim-promo').first()
+    await expect(titulo).toHaveCSS('animation-play-state', 'running')
+    for (let i = 0; i < 20 && !(await bar.evaluate((a) => a === document.activeElement)); i++) await page.keyboard.press('Tab')
+    await expect(titulo).toHaveCSS('animation-play-state', 'paused')
+    await bar.evaluate((a) => a.blur())
+    await expect(titulo).toHaveCSS('animation-play-state', 'running')
+    await bar.hover()
+    await expect(titulo).toHaveCSS('animation-play-state', 'paused')
+  })
+
+  // PRI-440: en el celular el :hover (y el foco) se quedan pegados después de un toque, como en el hero (PRI-432).
+  test('home: a tap on the bar does not stop it', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'touch')
+    await page.goto('/')
+    const bar = page.locator('.promo-bar a')
+    const titulo = bar.locator('.anim-promo').first()
+    await expect(titulo).toHaveCSS('animation-play-state', 'running')
+    // El toque lleva a /promos: se cancela para ver cómo queda la barra, como al volver atrás.
+    await bar.evaluate((a) => a.addEventListener('click', (e) => (e.preventDefault(), a.setAttribute('data-tocada', ''))))
+    const box = (await bar.boundingBox())!
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2)
+    await expect(bar).toHaveAttribute('data-tocada')
+    await expect(titulo).toHaveCSS('animation-play-state', 'running')
+  })
+
   test('/promos: 3 promos by sort_order, each with its own prefilled WhatsApp; the expired one is gone', async ({ page, isMobile }) => {
     await page.goto('/promos')
     await expect(page.getByText('3 promos activas')).toBeVisible()
