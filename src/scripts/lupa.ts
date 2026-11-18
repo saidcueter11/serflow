@@ -4,7 +4,7 @@ import { fraccion, lupa } from '../lib/zoom'
  * Galería y lupa de la ficha de producto (PRI-529: GaleriaProducto, Lupa).
  * - Carrusel del celular: el contador "1 / N" y los puntos siguen a la foto que se ve.
  * - Miniaturas del escritorio: corren la pista a esa foto.
- * - Lupa al lado (escritorio, mouse): el recuadro sigue al mouse sobre la foto y el panel [data-lupa] muestra ese pedazo
+ * - Lupa al lado (escritorio, mouse): el recuadro sigue al mouse sobre la foto y el panel [data-lupa-panel] muestra ese pedazo
  *   2,5 veces más grande; la versión zoom (data-zoom) se pide al entrar, no al cargar la página.
  * - Mantén para acercar (celular): con el dedo quieto 220 ms la foto se acerca 2,5 veces donde está el dedo, lo sigue y al
  *   soltar vuelve; ese toque no abre el visor. Después del primer uso la etiqueta se va (data-usado).
@@ -63,15 +63,15 @@ document.addEventListener('click', (ev) => {
 let conLupa: HTMLElement | null = null
 
 function apagar() {
-  conLupa?.removeAttribute('data-lupa')
-  document.querySelector('[data-lupa]')?.removeAttribute('data-on')
+  conLupa?.removeAttribute('data-lupa-on')
+  document.querySelector('[data-lupa-panel]')?.removeAttribute('data-on')
   conLupa = null
 }
 
 document.addEventListener('pointermove', (ev) => {
   const foto = ev.pointerType === 'mouse' ? (ev.target as Element).closest?.<HTMLElement>('.gp-foto') : null
   const g = foto?.closest<HTMLElement>('[data-galeria]')
-  const panel = document.querySelector<HTMLElement>('[data-lupa]')
+  const panel = document.querySelector<HTMLElement>('[data-lupa-panel]')
   const lente = foto?.querySelector<HTMLElement>('.gp-lente')
   const img = foto?.querySelector('img')
   if (!foto || !g || !panel || !lente || !img || !visible(g.querySelector('.gp-chip-mouse'))) {
@@ -79,7 +79,7 @@ document.addEventListener('pointermove', (ev) => {
     return
   }
   conLupa = g
-  g.setAttribute('data-lupa', '')
+  g.setAttribute('data-lupa-on', '')
   panel.setAttribute('data-on', '')
   // En medidas de CSS de la foto: r puede venir escalada (el canvas de Tempo hace zoom).
   const r = foto.getBoundingClientRect()
