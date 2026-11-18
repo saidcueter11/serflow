@@ -80,11 +80,11 @@ test('desktop: the magnifier panel shows the zone under the frame, opaque and wi
     page.evaluate(() => {
       const f = document.querySelector<HTMLElement>('.gp-foto')!
       const img = f.querySelector('img')!
-      const l = f.querySelector<HTMLElement>('.gp-lente')!
+      const l = getComputedStyle(f.querySelector('.gp-lente')!)
       const c = Math.max(f.offsetWidth / img.naturalWidth, f.offsetHeight / img.naturalHeight)
       const ox = (f.offsetWidth - img.naturalWidth * c) / 2
       const oy = (f.offsetHeight - img.naturalHeight * c) / 2
-      return [(ox - l.offsetLeft) * 2.5, (oy - l.offsetTop) * 2.5]
+      return [(ox - parseFloat(l.left)) * 2.5, (oy - parseFloat(l.top)) * 2.5]
     })
   const fondo = () => lupa.evaluate((el) => getComputedStyle(el).backgroundPosition.split(' ').map(parseFloat))
 
@@ -96,7 +96,8 @@ test('desktop: the magnifier panel shows the zone under the frame, opaque and wi
     await page.mouse.move(caja.x + caja.width * fx, caja.y + caja.height * fy, { steps: 6 })
     await expect(lupa).toBeVisible()
     const e = await esperado()
-    await expect.poll(fondo).toEqual(e)
+    // A menos de un píxel: el navegador redondea las posiciones.
+    await expect.poll(async () => (await fondo()).every((v, i) => Math.abs(v - e[i]) < 1)).toBe(true)
     posiciones.push(e)
   }
   expect(posiciones[0]).not.toEqual(posiciones[1])
