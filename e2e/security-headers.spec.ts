@@ -56,9 +56,11 @@ test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promo
   if (await menu.isVisible()) await menu.click()
   await page.locator('a[href^="/catalogo"]').filter({ visible: true }).first().click()
   await expect(page).toHaveURL(/\/catalogo/)
-  await page.locator('main a[data-foto]').first().click()
-  await expect(page.getByRole('dialog').getByRole('link', { name: 'Pedir por WhatsApp' })).toBeVisible()
-  await page.keyboard.press('Escape')
+  // PRI-529: la foto lleva a su ficha, también con el router (la lupa y el visor cargan sus scripts).
+  await page.locator('main [data-fotos] a').first().click()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.locator('.lupa')).toBeAttached()
+  await expect(page.getByRole('link', { name: 'Pedir por WhatsApp' }).filter({ visible: true })).toHaveCount(1)
 
   await page.goto('/promos')
   await expect(page.locator('main')).toBeVisible()

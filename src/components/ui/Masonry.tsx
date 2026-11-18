@@ -1,8 +1,6 @@
-import { fotoAttrs, type FotoModal } from './PhotoModal'
-
 /** Una foto del muro. img ya optimizada (getImage). */
 export type MasonryTile = {
-  /** URL propia de la foto (/catalogo/<categoría>/<slug>). */
+  /** URL propia de la foto: la ficha del producto (/catalogo/<categoría>/<slug>/). */
   href: string
   /** id del link, para abrir esta foto al cargar su URL (#f-<slug>). */
   id?: string
@@ -11,8 +9,6 @@ export type MasonryTile = {
   label: string
   /** Cuántas fotos tiene la prenda (image_urls). Con 2 o más sale el contador. */
   photos?: number
-  /** Datos del modal (PhotoModal). Sin ellos, el link navega a su URL. */
-  modal?: FotoModal
 }
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
@@ -33,7 +29,7 @@ function PhotoCount({ n }: { n: number }) {
 
 function Tile({ t }: { t: MasonryTile }) {
   return (
-    <a href={t.href} id={t.id} className={`group sf-foto relative block scroll-mt-4 overflow-hidden rounded-tile bg-surface-2 ${FOCUS}`} {...fotoAttrs(t.modal)}>
+    <a href={t.href} id={t.id} className={`group sf-foto relative block scroll-mt-4 overflow-hidden rounded-tile bg-surface-2 ${FOCUS}`}>
       <img
         src={t.img.src}
         srcSet={t.img.srcSet}
@@ -52,7 +48,7 @@ function Tile({ t }: { t: MasonryTile }) {
       >
         {t.label}
       </span>
-      {/* La foto se abre: el chevrón en un círculo, siempre visible (también sin mouse). */}
+      {/* La foto lleva a su ficha: el chevrón en un círculo, siempre visible (también sin mouse). */}
       <span aria-hidden="true" className="pointer-events-none absolute bottom-2.5 right-2.5 grid size-7 place-items-center rounded-full bg-primary/80 text-ink">
         <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 5l7 7-7 7" />
@@ -67,7 +63,7 @@ function Tile({ t }: { t: MasonryTile }) {
  * Muro de fotos del catálogo (PRI-130; rejilla pareja en PRI-286): columnas iguales y todas las fotos 4:5, 2 columnas,
  * 3 desde 40rem de muro y 4 desde 64rem; la última fila queda con las fotos que haya. Sin texto en la tarjeta (la
  * categoría va en el alt y en un chip con el mouse); el chevrón en un círculo dice que la foto se abre. Fotos lazy con
- * la trama (fabric) mientras cargan. Cada foto abre el modal (PhotoModal) y recorre las de este muro (data-fotos).
+ * la trama (fabric) mientras cargan. Cada foto lleva a la ficha del producto (PRI-529) y crece hasta ella (movimiento.ts).
  * Markup estático: Astro lo renderiza sin JS.
  *
  * The canvas for this component is at tempo/designs/design-system/media/index.canvas.tsx.

@@ -116,6 +116,13 @@ html:has([data-banner-track])::view-transition-new(root) {
   display: none;
 }
 
+/* La foto tocada crece hasta la galería de la ficha y vuelve (PRI-529, nombre que pone src/scripts/movimiento.ts): con el
+   mismo tiempo y la misma curva que la foto que crece del modal (--motion-crece). */
+::view-transition-group(foto-ficha) {
+  animation-duration: var(--motion-crece);
+  animation-timing-function: var(--ease-premium);
+}
+
 /* Indicador fino de carga: solo si la página nueva tarda más que --motion-slow en llegar (src/scripts/movimiento.ts). */
 .sf-nav-barra {
   position: fixed;

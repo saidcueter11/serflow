@@ -24,7 +24,7 @@ export function BoardMasonry() {
     <PageFrame family="fotos y mascota" width={1300}>
       <PageTitle
         title="Masonry"
-        description="El muro de fotos del catálogo (PRI-130; rejilla pareja en PRI-286): columnas iguales y todas las fotos 4:5, sin texto en la tarjeta. El chevrón en un círculo dice que la foto se abre (en el modal). La última fila queda con las fotos que haya."
+        description="El muro de fotos del catálogo (PRI-130; rejilla pareja en PRI-286): columnas iguales y todas las fotos 4:5, sin texto en la tarjeta. El chevrón en un círculo dice que la foto se abre (lleva a su ficha, PRI-529). La última fila queda con las fotos que haya."
       />
       <Row name="Celular (390)" description="2 columnas. La categoría va en el alt; el contador de fotos arriba a la derecha.">
         <div className="w-[390px] rounded-tile bg-primary p-4">

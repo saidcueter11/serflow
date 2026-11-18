@@ -5,7 +5,6 @@ import { ServiceCard } from '../ui/ServiceCard'
 import { ProductCard } from '../ui/ProductCard'
 import { MapCard } from '../ui/MapCard'
 import { HeroCarousel, type Slide } from '../ui/HeroCarousel'
-import type { FotoModal } from '../ui/PhotoModal'
 import type { ProductColor } from '../../lib/types'
 import { PinIcon } from '../icons/PinIcon'
 import { WHATSAPP_URL } from '../../lib/business'
@@ -18,8 +17,6 @@ export interface HomeProduct {
   image: { src: string; alt: string }
   /** Colores disponibles (PRI-455). */
   colores?: ProductColor[]
-  /** Tocarla abre la foto en el modal, encima de la portada. */
-  modal?: FotoModal
 }
 
 export interface HomeImages {
@@ -55,8 +52,7 @@ const TEXTO_QUIENES_SOMOS = 'Somos un taller en Cartagena que hace prendas perso
  * Contenido de la portada (PRI-286, canvas tempo/designs/canvases/portada-final). Header, Footer, PromoBar y
  * WhatsAppFab los pone Layout.astro. Sistema medido de tokens.css (.pf-*): rejilla de 12 columnas, margen 48 / 16 y
  * el mismo aire entre secciones. Orden: hero en carrusel, Diseña la tuya, Qué hacemos, Disponible ahora y Quiénes
- * somos con Visítanos (el mapa plegado) al final. Markup estático: el único JS es el del modal de las prendas
- * (src/scripts/photo-modal.ts, lo carga index.astro).
+ * somos con Visítanos (el mapa plegado) al final. Markup estático, sin JS propio: cada prenda lleva a su ficha (PRI-529).
  */
 export function HomePage({
   slides,
@@ -177,9 +173,9 @@ export function HomePage({
             description={sections.disponible?.description ?? 'Lo que hay en el taller esta semana.'}
             action={{ label: 'Ver todo →', href: catalogHref }}
           >
-            <div className="pf-prendas" data-fotos>
+            <div className="pf-prendas">
               {products.map((p) => (
-                <ProductCard key={p.href} name={p.name} meta={p.meta} href={p.href} image={p.image} colores={p.colores} modal={p.modal} />
+                <ProductCard key={p.href} name={p.name} meta={p.meta} href={p.href} image={p.image} colores={p.colores} />
               ))}
             </div>
           </Section>

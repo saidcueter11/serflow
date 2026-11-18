@@ -8,7 +8,6 @@ import { heroSizes, type Slide } from '../components/ui/HeroCarousel'
 import { serviceCardSizes } from '../components/ui/ServiceCard'
 import { getActivePromos, getCategories, getDisponibles } from '../lib/products'
 import { loadCatalog } from '../lib/catalog-view'
-import { PhotoModal } from '../components/ui/PhotoModal'
 import { fotoDeLugar, fotoRemota } from '../lib/medios-build'
 import { ADDRESS, EMAIL, HOURS_EDITED, MAP_EMBED_URL, POSTAL_CODE, SOCIAL, WHATSAPP_DISPLAY, WHATSAPP_URL, jsonLd } from '../lib/business'
 import { TODO_HREF } from '../lib/catalog'
@@ -36,7 +35,7 @@ const [products, categories, promos, catalog, content] = await Promise.all([
   getSiteContent(),
 ])
 
-// Cada prenda abre su foto en el modal (PRI-286), con la misma URL propia y el mismo mensaje que en el catálogo.
+// Cada prenda lleva a su ficha (PRI-529), la misma URL propia que en el catálogo.
 // Todas las que el cliente prendió (PRI-123), sin tope: apagarlas es su forma de quitarlas.
 const homeProducts: HomeProduct[] = await Promise.all(
   products
@@ -50,7 +49,6 @@ const homeProducts: HomeProduct[] = await Promise.all(
         href: item?.tile.href ?? `${TODO_HREF}/${p.categories!.slug}`,
         image: { src: img.src, alt: item?.tile.img.alt ?? p.name },
         colores: p.colors,
-        modal: item?.tile.modal,
       }
     }),
 )
@@ -202,9 +200,4 @@ const localBusinessSchema = {
     catalogHref={catalogHref}
     content={{ sections: content.sections, services, reasons: content.reasons }}
   />
-  <PhotoModal />
 </Layout>
-
-<script>
-  import '../scripts/photo-modal'
-</script>

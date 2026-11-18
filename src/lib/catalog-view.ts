@@ -2,6 +2,7 @@ import { getImage, inferRemoteSize } from 'astro:assets'
 import type { BannerSlide } from '../components/ui/CategoryBanner'
 import type { CategoryLink } from '../components/ui/CategoryNav'
 import type { MasonryTile } from '../components/ui/Masonry'
+import type { FotoModal } from '../components/ui/PhotoModal'
 import { TODO_HREF, fotoAlt, fotoHref, fotoTitulo, fotoZoom, interleave, newestFirst, pageHref, pages, pedirUrl, precioCop } from './catalog'
 import { fotoDeLugar } from './medios-build'
 import { getCategories, getEnStock, getProducts } from './products'
@@ -10,12 +11,14 @@ import type { Product } from './types'
 // (gorras en un estante, horizontal: aguanta el recorte ancho del banner).
 import todoCover from '../assets/images/stock/gorras-estante.jpg'
 
-/** Una foto del catálogo lista para pintar: la del muro (con los datos del modal) y la imagen para WhatsApp (og). */
+/** Una foto del catálogo lista para pintar: la del muro, los datos de su ficha y la imagen para WhatsApp (og). */
 export type CatalogItem = {
   slug: string
   n: number | null
   createdAt: string
   tile: MasonryTile
+  /** Lo que muestra su ficha (PRI-529): nombre, fotos, precio, colores, descripción y Pedir por WhatsApp. */
+  ficha: FotoModal
   og: string | null
   /** Para el JSON-LD (PRI-525): precio del admin y si hay para llevar (null: no se sabe, va sin disponibilidad). */
   price: number | null
@@ -43,7 +46,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
   const n = p.legacy_id
   const alt = fotoAlt(cat.label, n, p.name)
   const href = fotoHref(cat.slug, p.slug)
-  // Una sola consulta de tamaño por foto: muro, modal y og la reusan.
+  // Una sola consulta de tamaño por foto: muro, ficha y og la reusan.
   const sizes = await Promise.all(p.image_urls.map((src) => inferRemoteSize(src)))
   const first = { src: p.image_urls[0], width: sizes[0].width, height: sizes[0].height }
   const [thumb, fotos, og, zoom] = await Promise.all([
@@ -71,17 +74,17 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
       img: { src: thumb.src, srcSet: thumb.srcSet.attribute, alt },
       label: cat.label,
       photos: p.image_urls.length,
-      // PRI-433: lo que el admin le puso a la prenda. Sin nombre, el de la foto ("Beisbol N.º 26").
-      modal: {
-        titulo: p.name?.trim() || fotoTitulo(cat.label, n),
-        categoria: cat.label,
-        alt,
-        pedir: pedirUrl(cat.label, n, href),
-        fotos,
-        descripcion: p.description?.trim() || null,
-        precio: precioCop(p.price),
-        ...(p.colors?.length && { colores: p.colors }),
-      },
+    },
+    // PRI-433: lo que el admin le puso a la prenda. Sin nombre, el de la foto ("Beisbol N.º 26").
+    ficha: {
+      titulo: p.name?.trim() || fotoTitulo(cat.label, n),
+      categoria: cat.label,
+      alt,
+      pedir: pedirUrl(cat.label, n, href),
+      fotos,
+      descripcion: p.description?.trim() || null,
+      precio: precioCop(p.price),
+      ...(p.colors?.length && { colores: p.colors }),
     },
   }
 }
@@ -132,8 +135,6 @@ export type CatalogPageProps = {
   /** og:image de la página (PRI-525): la portada de la categoría. */
   og?: string
   page: number
-  /** URL de esta página: la barra vuelve a ella al cerrar el modal. */
-  base: string
   tiles: MasonryTile[]
   next?: { href: string; count: number }
 }
@@ -164,7 +165,6 @@ async function buildPages() {
         view: { label: v.label, href: v.href, intro: 'intro' in v ? v.intro : undefined, seoTitle: 'seoTitle' in v ? v.seoTitle : undefined },
         og: 'og' in v ? v.og : undefined,
         page: i + 1,
-        base: pageHref(v.href, i + 1),
         tiles: items.map((it) => it.tile),
         next: blocks[i + 1] ? { href: pageHref(v.href, i + 2), count: blocks[i + 1].length } : undefined,
       } satisfies CatalogPageProps,

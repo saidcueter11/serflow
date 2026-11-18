@@ -1,6 +1,5 @@
 import type { ProductColor } from '../../lib/types';
 import { ColoresDisponibles } from './ColoresDisponibles';
-import { fotoAttrs, type FotoModal } from './PhotoModal';
 
 /**
  * Prenda de "Disponible ahora". Toda la card es un solo link, sin caja: la foto 4:5 con radio y el pie de texto
@@ -8,8 +7,8 @@ import { fotoAttrs, type FotoModal } from './PhotoModal';
  * confirmedLabel va como texto dorado y no como StatusPill: en el grid de 2 columnas
  * a 375px la píldora parte "Confirmado hace 2 días" en dos líneas.
  * La card es fluida (w-full): el ancho lo pone la lista; un nombre con una palabra larga se parte (wrap-anywhere) en vez
- * de ensanchar la columna y la página. Con modal, tocarla abre la foto en el modal (PhotoModal)
- * y recorre las de su lista (data-fotos); sin modal, el link navega.
+ * de ensanchar la columna y la página. Tocarla lleva a la ficha del producto (href) y la foto crece hasta ella
+ * (PRI-529, movimiento.ts).
  * Con colores (PRI-455), la lista de ColoresDisponibles va debajo de meta. meta es opcional (PRI-529).
  * Markup estático: Astro lo renderiza sin JS.
  *
@@ -24,7 +23,6 @@ export function ProductCard({
   href,
   confirmedLabel,
   colores,
-  modal,
 }: {
   name: string;
   /** Color y tallas, p. ej. "Blanca · S a XL". Sin meta, solo el nombre ("Más de <categoría>" de la ficha). */
@@ -35,14 +33,11 @@ export function ProductCard({
   confirmedLabel?: string;
   /** Colores disponibles (PRI-455): debajo de meta, con su nombre. Sin colores no sale nada. */
   colores?: ProductColor[];
-  /** Datos del modal de foto. */
-  modal?: FotoModal;
 }) {
   return (
     <a
       href={href}
       className="group sf-foto block w-full text-ink no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      {...fotoAttrs(modal)}
     >
       <div className="overflow-hidden rounded-tile">
         <img

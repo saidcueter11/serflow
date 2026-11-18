@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-// PRI-429: con la barra de scroll clásica (Windows) la foto del modal vuelve exactamente a su puesto. Archivo propio porque
+// PRI-429: con la barra de scroll clásica (Windows) la foto del modal vuelve exactamente a su puesto. Desde PRI-529 el
+// modal es de las promos: contra /promos del build sembrado de 3 promos (4234, e2e/promos/scenarios.mjs). Archivo propio porque
 // quitar --hide-scrollbars (Playwright lo pone por defecto) cambia el navegador de todo el archivo. Una barra inyectada con
 // ::-webkit-scrollbar no sirve: Chrome no le guarda el hueco a la de la página cuando el modal le quita el scroll.
 test.use({ launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] } })
@@ -10,7 +11,7 @@ type Caja = { x: number; y: number; w: number; h: number }
 const centro = (c: Caja) => ({ x: c.x + c.w / 2, y: c.y + c.h / 2 })
 
 test('with a classic scrollbar the photo lands exactly on its place, with no jump when the modal closes', async ({ page }) => {
-  await page.goto('/catalogo')
+  await page.goto('http://localhost:4234/promos')
   // La barra clásica de Chromium en Linux (CI), como la de Windows. En macOS es flotante y no ocupa ancho: no hay qué medir.
   const barra = await page.evaluate(() => innerWidth - document.documentElement.clientWidth)
   test.skip(barra === 0, 'Overlay scrollbars (macOS): run on Linux, as CI does')
@@ -28,9 +29,9 @@ test('with a classic scrollbar the photo lands exactly on its place, with no jum
     return { x: r.left, y: r.top, w: r.width, h: r.height }
   })
   await tile.scrollIntoViewIfNeeded()
-  // Al entrar en pantalla la foto del muro sube 16 px (sf-espera -> sf-aparece, movimiento.ts): medirla a mitad de camino
+  // Al entrar en pantalla la promo sube 16 px (sf-espera -> sf-aparece, movimiento.ts): medirla a mitad de camino
   // corría la y de 4 a 15 px (PRI-469). Se mide cuando ya llegó.
-  await expect(tile.locator('..')).not.toHaveClass(/sf-espera|sf-aparece/)
+  await expect(page.locator('.sf-espera, .sf-aparece').filter({ has: tile })).toHaveCount(0)
   const antes = await medir()
   await tile.click()
   await expect(tile.locator('img')).toHaveCSS('opacity', '0')

@@ -6,8 +6,8 @@ import { loadPages } from '../../lib/catalog-view'
 import { jsonLd } from '../../lib/business'
 import { absoluta, breadcrumbSchema } from '../../lib/seo'
 
-// PRI-130: /catalogo ("Todo") y /catalogo/<categoría>, en bloques de 60 (/pagina/2...). Cada foto se abre en el modal;
-// su URL propia es /catalogo/<categoría>/<slug> (PRI-286). PRI-525: antes vivían en /products, que redirige aquí con 301
+// PRI-130: /catalogo ("Todo") y /catalogo/<categoría>, en bloques de 60 (/pagina/2...). Cada foto lleva a su ficha,
+// /catalogo/<categoría>/<slug>/ (PRI-529). PRI-525: antes vivían en /products, que redirige aquí con 301
 // (public/_redirects).
 export async function getStaticPaths() {
   return (await loadPages()).map(({ slug, props }) => ({

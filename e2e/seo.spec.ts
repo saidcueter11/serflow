@@ -73,7 +73,7 @@ async function revisar(page: Page, path: string) {
   expect(lds.flatMap((ld) => validar(ld, canonical)), path).toEqual([])
   // Sin <img> sin alt; las fotos del muro dicen qué son.
   expect(await page.locator('img:not([alt])').count(), `${path} img sin alt`).toBe(0)
-  for (const alt of await page.locator('main a[data-foto] img').evaluateAll((els) => els.map((el) => el.getAttribute('alt')))) {
+  for (const alt of await page.locator('main :is([data-fotos], .pf-prendas) a img').evaluateAll((els) => els.map((el) => el.getAttribute('alt')))) {
     expect(alt?.trim(), `${path} foto del muro sin alt`).toBeTruthy()
   }
   return { canonical, og: og!, lds }
@@ -92,9 +92,9 @@ test.describe('build real', () => {
     expect(todo.lds.map((l) => l['@type'])).toEqual(['BreadcrumbList'])
     const category = (await page.getByRole('navigation', { name: 'Categorías' }).getByRole('link').nth(1).getAttribute('href'))!
     await revisar(page, `${category}/`)
-    const foto = (await page.locator('main a[data-foto]').first().getAttribute('href'))!
+    const foto = (await page.locator('main [data-fotos] a').first().getAttribute('href'))!
 
-    const ficha = await revisar(page, `${foto}/`)
+    const ficha = await revisar(page, foto)
     expect(ficha.og, 'la ficha comparte su foto, no la de la marca').not.toMatch(/og-serflow/)
     expect(ficha.lds.map((l) => l['@type'])).toEqual(['Product', 'BreadcrumbList'])
 

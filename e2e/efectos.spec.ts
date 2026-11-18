@@ -1,8 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
 // PRI-287, efectos elegidos del laboratorio: 1 foto que crece, 3 titular palabra por palabra, 7 rejilla que se reacomoda.
-// Contra el catálogo real del build. Para ver un cuadro exacto de una animación se detiene con la API de animaciones, sin
-// esperas: currentTime = 0 es el punto de partida.
+// Contra el catálogo real del build; la foto que crece es del modal, que desde PRI-529 es de las promos: esas pruebas van
+// contra /promos del build sembrado de 3 promos (4234). Para ver un cuadro exacto de una animación se detiene con la API
+// de animaciones, sin esperas: currentTime = 0 es el punto de partida.
+const PROMOS = 'http://localhost:4234/promos'
 const tiles = (page: Page) => page.locator('main a[data-foto]')
 const dialog = (page: Page) => page.getByRole('dialog')
 const marco = (page: Page) => dialog(page).locator('.mx-marco')
@@ -28,17 +30,6 @@ const contarVueltas = (page: Page) =>
     document.addEventListener('animationstart', (e) => void ((e as AnimationEvent).animationName === 'mx-vuelve' && w.vueltas++), true)
   })
 const vueltas = (page: Page) => page.evaluate(() => (window as unknown as { vueltas: number }).vueltas)
-
-/** Abre la primera categoría con al menos 3 fotos. */
-async function abrirCategoria(page: Page) {
-  await page.goto('/catalogo')
-  for (let i = 1; i < (await chips(page).count()); i++) {
-    if (Number(await chips(page).nth(i).locator('span').innerText()) < 3) continue
-    await page.goto((await chips(page).nth(i).getAttribute('href'))!)
-    return
-  }
-  throw new Error('No category with 3+ photos')
-}
 
 /** Toca la foto dentro de la página y mide en ese mismo cuadro: dónde arranca el marco y qué propiedades anima. */
 const tocarYMedirSalida = (a: HTMLAnchorElement) => {
@@ -66,9 +57,9 @@ const tocarYMedirSalida = (a: HTMLAnchorElement) => {
 }
 
 test.describe('1 · foto que crece', () => {
-  test('the photo grows from its place on the wall, animating only transform and clip-path', async ({ page }) => {
-    await abrirCategoria(page)
-    const m = await tiles(page).nth(1).evaluate(tocarYMedirSalida)
+  test('the photo grows from its place on the page, animating only transform and clip-path', async ({ page }) => {
+    await page.goto(PROMOS)
+    const m = await tiles(page).first().evaluate(tocarYMedirSalida)
     expect(m).not.toBeNull()
     // Cubre la caja de la foto y va recortado a ella: se ve igual a la del muro.
     expect(centro(m!.marco).x).toBeCloseTo(centro(m!.tile).x, 0)
@@ -80,20 +71,9 @@ test.describe('1 · foto que crece', () => {
     for (const p of m!.props) if (!SIN_ANIMAR.includes(p)) expect(SOLO_COMPOSITOR).toContain(p)
   })
 
-  test('on Disponible ahora it grows from the photo, not from the whole card', async ({ page }) => {
-    // PRI-123: 4232 has 4 real products switched on in "Disponible ahora" (e2e/promos/scenarios.mjs).
-    await page.goto('http://localhost:4232/')
-    const card = page.locator('.pf-prendas a[data-foto]').first()
-    await card.scrollIntoViewIfNeeded()
-    const m = await card.evaluate(tocarYMedirSalida)
-    expect(m).not.toBeNull()
-    expect(m!.marco.h).toBeGreaterThanOrEqual(m!.tile.h - 1)
-    expect(centro(m!.marco).y).toBeCloseTo(centro(m!.tile).y, 0)
-  })
-
   test('the thumbnail already downloaded goes under the big photo, with no wait', async ({ page }) => {
-    await abrirCategoria(page)
-    const tile = tiles(page).nth(1)
+    await page.goto(PROMOS)
+    const tile = tiles(page).first()
     const src = await tile.locator('img').evaluate((i: HTMLImageElement) => i.currentSrc)
     await tile.click()
     await expect(marco(page).locator('.mx-mini')).toHaveAttribute('src', src)
@@ -105,17 +85,17 @@ test.describe('1 · foto que crece', () => {
 
   test('with the thumbnail not downloaded yet, the shimmer shows instead', async ({ page }) => {
     await page.route('**/*.webp', () => {})
-    await page.goto('/catalogo', { waitUntil: 'commit' })
+    await page.goto(PROMOS, { waitUntil: 'commit' })
     await tiles(page).first().click()
     await expect(marco(page).locator('.mx-mini')).toHaveCount(0)
     await expect(marco(page).locator('.mx-brillo')).toBeVisible()
   })
 
   test('closing goes back to its place, then the URL, the focus and the photo return', async ({ page }) => {
-    await abrirCategoria(page)
+    await page.goto(PROMOS)
     const base = page.url()
     await contarVueltas(page)
-    const tile = tiles(page).nth(1)
+    const tile = tiles(page).first()
     await tile.click()
     await expect(tile.locator('img')).toHaveCSS('opacity', '0')
 
@@ -143,17 +123,17 @@ test.describe('1 · foto que crece', () => {
   })
 
   test('Esc also goes back to its place', async ({ page }) => {
-    await abrirCategoria(page)
+    await page.goto(PROMOS)
     await contarVueltas(page)
-    await tiles(page).nth(1).click()
+    await tiles(page).first().click()
     await expect(dialog(page)).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(dialog(page)).toBeHidden()
     expect(await vueltas(page)).toBe(1)
   })
 
-  test('after moving to another photo it goes back to that one, and every photo of the wall ends visible', async ({ page }) => {
-    await abrirCategoria(page)
+  test('after moving to another photo it goes back to that one, and every photo of the page ends visible', async ({ page }) => {
+    await page.goto(PROMOS)
     await contarVueltas(page)
     await tiles(page).first().click()
     await expect(dialog(page)).toBeVisible()
@@ -166,7 +146,7 @@ test.describe('1 · foto que crece', () => {
   })
 
   test('if the photo is no longer on screen it closes straight away', async ({ page }) => {
-    await abrirCategoria(page)
+    await page.goto(PROMOS)
     await contarVueltas(page)
     await tiles(page).first().click()
     await expect(dialog(page)).toBeVisible()
@@ -178,22 +158,22 @@ test.describe('1 · foto que crece', () => {
   })
 
   test('closing while it is still opening does not get stuck', async ({ page }) => {
-    await abrirCategoria(page)
-    await tiles(page).nth(1).evaluate((a: HTMLAnchorElement) => {
+    await page.goto(PROMOS)
+    await tiles(page).first().evaluate((a: HTMLAnchorElement) => {
       a.click()
       document.querySelector<HTMLElement>('dialog [data-mx="cerrar"]')!.click()
     })
     await expect(dialog(page)).toBeHidden()
-    await expect(tiles(page).nth(1).locator('img')).toHaveCSS('opacity', '1')
+    await expect(tiles(page).first().locator('img')).toHaveCSS('opacity', '1')
   })
 
   test('reduced motion: opens and closes at once, without a hole in the wall', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
-    await abrirCategoria(page)
+    await page.goto(PROMOS)
     await contarVueltas(page)
-    const m = await tiles(page).nth(1).evaluate(tocarYMedirSalida)
+    const m = await tiles(page).first().evaluate(tocarYMedirSalida)
     expect(m).toBeNull()
-    await expect(tiles(page).nth(1).locator('img')).toHaveCSS('opacity', '1')
+    await expect(tiles(page).first().locator('img')).toHaveCSS('opacity', '1')
     await dialog(page).getByRole('button', { name: 'Cerrar' }).click()
     await expect(dialog(page)).toBeHidden()
     expect(await vueltas(page)).toBe(0)
@@ -201,9 +181,9 @@ test.describe('1 · foto que crece', () => {
 
   test('slow connection: opens and closes at once, and the thumbnail still saves the wait', async ({ page }) => {
     await senalMala(page)
-    await abrirCategoria(page)
+    await page.goto(PROMOS)
     await contarVueltas(page)
-    const m = await tiles(page).nth(1).evaluate(tocarYMedirSalida)
+    const m = await tiles(page).first().evaluate(tocarYMedirSalida)
     expect(m).toBeNull()
     await expect(marco(page).locator('.mx-mini')).toHaveCount(1)
     await dialog(page).getByRole('button', { name: 'Cerrar' }).click()
@@ -343,11 +323,12 @@ test.describe('7 · rejilla que se reacomoda', () => {
 
   /** La pestaña de la categoría de una foto en pantalla que no es la primera: al cambiar, esa foto tiene que viajar. */
   async function pestanaConViaje(page: Page) {
-    const label = await page.evaluate(() => {
+    // La categoría sale de la URL de la foto: /catalogo/<categoría>/<slug>/.
+    const categoria = await page.evaluate(() => {
       const enPantalla = [...document.querySelectorAll<HTMLElement>('[data-fotos] > li > a')].filter((a) => a.getBoundingClientRect().top < innerHeight * 0.9)
-      return JSON.parse(enPantalla[1].dataset.foto!).categoria as string
+      return enPantalla[1].getAttribute('href')!.split('/')[2]
     })
-    return chips(page).filter({ hasText: label }).first()
+    return chips(page).and(page.locator(`[href="/catalogo/${categoria}"]`)).first()
   }
 
   /** En el mismo cuadro del swap: cada foto animada, con su nombre de animación y su caja en el arranque. */
@@ -402,7 +383,6 @@ test.describe('7 · rejilla que se reacomoda', () => {
     await expect.poll(() => leer<Salida[] | undefined>(page, 'salida')).toBeTruthy()
 
     expect(await leer<boolean>(page, 'sinRecarga')).toBe(true)
-    await expect(page.locator('main[data-banner-index]')).toHaveAttribute('data-base', new RegExp(href))
     await expect(chip).toHaveAttribute('aria-current', 'page')
 
     const salida = (await leer<Salida[]>(page, 'salida'))!
@@ -458,13 +438,15 @@ test.describe('7 · rejilla que se reacomoda', () => {
     expect(salida.length).toBeLessThan(30)
   })
 
-  test('the modal goes through the new wall, not the photos that are leaving', async ({ page }) => {
+  test('tapping a photo of the new wall opens its product page, not one of the photos that are leaving', async ({ page }) => {
     await page.goto('/catalogo')
     await (await pestanaConViaje(page)).click()
     await expect(page.locator('main[data-banner-index]')).not.toHaveAttribute('data-banner-index', '0')
-    const n = await tiles(page).count()
-    await tiles(page).first().click()
-    await expect(dialog(page).locator('.mx-contador')).toHaveText(`1 / ${n}`)
+    const primera = page.locator('main [data-fotos] a').first()
+    const href = (await primera.getAttribute('href'))!
+    await primera.click()
+    await expect(page).toHaveURL(new RegExp(`${href}$`))
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   })
 
   test('two tabs in a row and going back leave the wall whole', async ({ page }) => {

@@ -7,10 +7,16 @@
  * carga no: esas fotos se pintan de una. Entre dos muros del catálogo no: ahí las fotos viajan (reacomoda.ts).
  * Navegar: el atributo data-navegando prende la barra de carga (.sf-nav-barra, global.css) y el menú del celular se
  * cierra, porque el header es el mismo elemento en todas las páginas.
+ * Foto que crece hasta la ficha (PRI-529): la foto tocada en el muro o en "Disponible ahora" y la primera de la galería de
+ * la ficha llevan el mismo view-transition-name (foto-ficha, global.css), así que la view transition del router la lleva
+ * de un puesto al otro. Al salir de la ficha, vuelve a la foto del muro con esa URL, si la hay. Una sola por página: dos
+ * con el mismo nombre cancelan la transición. Reducir movimiento o mala señal: sin nombre.
+ * Banner del catálogo (CatalogView.astro): persiste entre categorías y aquí se desliza a la de la página nueva. Vivía en
+ * un <script> de CatalogView, que sin imports Astro lo deja inline (PRI-529 le quitó el del modal).
  * Importa del router para que Astro lo publique como archivo y no inline: la CSP de PRI-152 solo deja scripts inline por
  * hash (e2e/motion.spec.ts lo vigila). Por lo mismo, slow-connection se conserva aquí y no en el script inline del Layout.
  */
-import type { TransitionBeforeSwapEvent } from 'astro:transitions/client'
+import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from 'astro:transitions/client'
 import { quieto } from './quieto'
 import { medir, reacomodar } from './reacomoda'
 
@@ -77,7 +83,10 @@ function armar(navego: boolean) {
 armar(false)
 
 const raiz = document.documentElement
-document.addEventListener('astro:before-preparation', () => raiz.setAttribute('data-navegando', ''))
+document.addEventListener('astro:before-preparation', (ev) => {
+  raiz.setAttribute('data-navegando', '')
+  nombrarAlSalir(ev as TransitionBeforePreparationEvent)
+})
 document.addEventListener('astro:after-preparation', () => raiz.removeAttribute('data-navegando'))
 // El router copia los atributos de <html> de la página nueva: la conexión lenta se mide una sola vez.
 let viaja = false
@@ -91,4 +100,53 @@ document.addEventListener('astro:after-swap', () => {
   // armar primero: mide las fotos en su puesto, sin el punto de partida del viaje.
   armar(!viaja)
   if (viaja) reacomodar()
+  nombrarAlLlegar()
+})
+
+let nombrada: HTMLElement | undefined
+// La ficha que se deja: al llegar al muro, la foto con esa URL es la que vuelve.
+let desde = ''
+
+/** La caja de la foto (con su radio y su recorte): el link del muro o el marco de la foto en la card. */
+function nombrar(el: Element | null | undefined) {
+  if (!(el instanceof HTMLElement)) return
+  el.style.viewTransitionName = 'foto-ficha'
+  nombrada = el
+}
+
+function nombrarAlSalir({ sourceElement, from }: TransitionBeforePreparationEvent) {
+  if (nombrada) nombrada.style.viewTransitionName = ''
+  nombrada = undefined
+  desde = ''
+  if (quieto()) return
+  const galeria = document.querySelector('.gp-foto')
+  if (galeria) {
+    desde = from.pathname
+    return nombrar(galeria)
+  }
+  nombrar(sourceElement?.closest('[data-fotos] a, .pf-prendas a')?.querySelector('img')?.parentElement)
+}
+
+function nombrarAlLlegar() {
+  if (!nombrada) return
+  const galeria = document.querySelector<HTMLElement>('.gp-foto')
+  // La foto ya crece con la transición: la galería no vuelve a entrar creciendo (gp-crece).
+  if (galeria) galeria.closest<HTMLElement>('.gp')!.style.animation = 'none'
+  const vuelve = desde && document.querySelector(`main a[href="${CSS.escape(desde)}"]`)
+  // Que no espere para aparecer (sf-espera): es la que llega.
+  if (vuelve) vuelve.closest('.sf-espera')?.classList.remove('sf-espera')
+  nombrar(galeria ?? (vuelve || null)?.querySelector('img')?.parentElement)
+}
+
+// La bajada se conserva entre categorías, pero moverla reinicia su animación: ya vista, no vuelve a subir (PRI-428).
+document.addEventListener('astro:before-swap', () => document.querySelector('.sf-bajada[data-astro-transition-persist]')?.setAttribute('data-vista', ''))
+// El banner persiste entre páginas del catálogo (transition:persist): aquí se desliza a la categoría de la página nueva.
+document.addEventListener('astro:page-load', () => {
+  const main = document.querySelector<HTMLElement>('main[data-banner-index]')
+  const track = document.querySelector<HTMLElement>('[data-banner-track]')
+  if (!main || !track) return
+  const slides = track.querySelectorAll<HTMLElement>('[data-banner-slide]')
+  const i = Number(main.dataset.bannerIndex)
+  track.style.transform = `translateX(-${(i / slides.length) * 100}%)`
+  slides.forEach((s, k) => (k === i ? s.removeAttribute('aria-hidden') : s.setAttribute('aria-hidden', 'true')))
 })
