@@ -66,8 +66,9 @@ test('banner arriba: full-bleed banner with the name on it, above the chips, sli
   expect(h1.y + h1.height).toBeLessThan(box.y + box.height)
 
   const { label } = await openCategory(page)
-  const current = page.locator('[data-banner-slide]:not([aria-hidden])')
-  // La lámina de la categoría queda dentro del marco del banner (se deslizó hasta ella).
+  const current = page.locator('[data-banner-slide]:not([hidden])')
+  // La lámina de la categoría queda en el marco del banner (entró en fundido, PRI-556) y la anterior se va.
+  await expect(current).toHaveCount(1)
   await expect.poll(async () => Math.abs((await current.boundingBox())!.x - (await frame.boundingBox())!.x)).toBeLessThan(2)
   expect((await frame.boundingBox())!.y).toBeLessThan((await nav.boundingBox())!.y)
   await expect(chips(page).filter({ hasText: label })).toHaveAttribute('aria-current', 'page')

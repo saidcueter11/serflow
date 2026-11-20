@@ -3,8 +3,9 @@ export type BannerSlide = { label: string; image?: { src: string; srcSet?: strin
 /**
  * Banner de categorías arriba del catálogo (PRI-130; a sangre en PRI-286): una lámina por categoría con su portada
  * (categories.image_url) y un velo abajo para el texto que la página pone encima (el nombre como h1 y la bajada, en el
- * margen de la rejilla: .pf-cat-texto). Sin "N productos": ya está en la pestaña. Muestra la de current; al cambiar de categoría la página la desliza hasta la nueva (data-banner-track, ver
- * src/pages/catalogo/[...gallery].astro). Sin portada queda la trama. Solo la lámina actual carga su foto de una.
+ * margen de la rejilla: .pf-cat-texto). Sin "N productos": ya está en la pestaña. Muestra la de current; al cambiar de
+ * categoría la nueva entra en fundido encima cuando su foto ya está lista (PRI-556, src/scripts/movimiento.ts): el banner
+ * nunca queda vacío. Sin portada queda la trama. Solo la lámina actual carga su foto.
  * Uno por página, solo en la galería del catálogo; no es el hero de la portada (HeroCarousel) ni una galería de fotos.
  * Markup estático: Astro lo renderiza sin JS.
  *
@@ -12,16 +13,12 @@ export type BannerSlide = { label: string; image?: { src: string; srcSet?: strin
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
  */
 export function CategoryBanner({ slides, current }: { slides: BannerSlide[]; current: number }) {
-  const n = slides.length || 1
   return (
     <div className="@container relative h-[340px] overflow-hidden bg-surface font-body text-ink @3xl:h-[520px]">
-      <div
-        data-banner-track
-        className="flex h-full ease-out motion-safe:transition-transform motion-safe:duration-(--motion-slow)"
-        style={{ width: `${n * 100}%`, transform: `translateX(-${(current / n) * 100}%)` }}
-      >
+      {/* Las láminas apiladas; solo se ve la actual y las demás ni bajan su foto (hidden). */}
+      <div data-banner-track className="isolate grid h-full">
         {slides.map((s, i) => (
-          <div key={s.label} data-banner-slide aria-hidden={i === current ? undefined : true} className="fabric relative h-full shrink-0 bg-surface-2" style={{ width: `${100 / n}%` }}>
+          <div key={s.label} data-banner-slide hidden={i !== current} className="fabric relative col-start-1 row-start-1 h-full bg-surface-2">
             {s.image && (
               <img
                 src={s.image.src}

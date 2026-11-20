@@ -11,7 +11,7 @@
  * la ficha llevan el mismo view-transition-name (foto-ficha, global.css), así que la view transition del router la lleva
  * de un puesto al otro. Al salir de la ficha, vuelve a la foto del muro con esa URL, si la hay. Una sola por página: dos
  * con el mismo nombre cancelan la transición. Reducir movimiento o mala señal: sin nombre.
- * Banner del catálogo (CatalogView.astro): persiste entre categorías y aquí se desliza a la de la página nueva. Vivía en
+ * Banner del catálogo (CatalogView.astro): persiste entre categorías y aquí entra la de la página nueva. Vivía en
  * un <script> de CatalogView, que sin imports Astro lo deja inline (PRI-529 le quitó el del modal).
  * Importa del router para que Astro lo publique como archivo y no inline: la CSP de PRI-152 solo deja scripts inline por
  * hash (e2e/motion.spec.ts lo vigila). Por lo mismo, slow-connection se conserva aquí y no en el script inline del Layout.
@@ -114,17 +114,39 @@ function nombrar(el: Element | null | undefined) {
   nombrada = el
 }
 
-function nombrarAlSalir({ sourceElement, from }: TransitionBeforePreparationEvent) {
+function nombrarAlSalir(ev: TransitionBeforePreparationEvent) {
   if (nombrada) nombrada.style.viewTransitionName = ''
   nombrada = undefined
   desde = ''
   if (quieto()) return
   const galeria = document.querySelector('.gp-foto')
   if (galeria) {
-    desde = from.pathname
+    desde = ev.from.pathname
     return nombrar(galeria)
   }
-  nombrar(sourceElement?.closest('[data-fotos] a, .pf-prendas a')?.querySelector('img')?.parentElement)
+  nombrar(ev.sourceElement?.closest('[data-fotos] a, .pf-prendas a')?.querySelector('img')?.parentElement)
+  if (nombrada) esperarFoto(ev)
+}
+
+/** Cuánto puede esperar la navegación a que baje la foto de la ficha: lo que tarda en salir la barra de carga. */
+const ESPERA_FOTO = 280
+
+/**
+ * La foto de llegada ya pintada cuando se toma su imagen (PRI-556): sin esto la foto viajaba hacia el fondo vacío de la
+ * galería y se oscurecía. La espera tiene tope: con mala red la navegación no se frena más que ESPERA_FOTO.
+ */
+function esperarFoto(ev: TransitionBeforePreparationEvent) {
+  const cargar = ev.loader
+  ev.loader = async () => {
+    await cargar()
+    const img = ev.newDocument.querySelector('.gp-foto img')
+    if (!img) return
+    const pre = new Image()
+    pre.sizes = img.getAttribute('sizes') ?? ''
+    pre.srcset = img.getAttribute('srcset') ?? ''
+    pre.src = img.getAttribute('src') ?? ''
+    await Promise.race([pre.decode().catch(() => {}), new Promise((r) => setTimeout(r, ESPERA_FOTO))])
+  }
 }
 
 function nombrarAlLlegar() {
@@ -140,13 +162,29 @@ function nombrarAlLlegar() {
 
 // La bajada se conserva entre categorías, pero moverla reinicia su animación: ya vista, no vuelve a subir (PRI-428).
 document.addEventListener('astro:before-swap', () => document.querySelector('.sf-bajada[data-astro-transition-persist]')?.setAttribute('data-vista', ''))
-// El banner persiste entre páginas del catálogo (transition:persist): aquí se desliza a la categoría de la página nueva.
-document.addEventListener('astro:page-load', () => {
+// El banner persiste entre páginas del catálogo (transition:persist): la lámina de la categoría nueva pide su foto y,
+// cuando ya está decodificada, entra en fundido encima de la anterior (PRI-556; antes se deslizaba hacia una lámina
+// todavía vacía). Mientras tanto se sigue viendo la anterior. Reducir movimiento o mala señal: cambia sin fundido.
+let cambio = 0
+document.addEventListener('astro:page-load', async () => {
   const main = document.querySelector<HTMLElement>('main[data-banner-index]')
-  const track = document.querySelector<HTMLElement>('[data-banner-track]')
-  if (!main || !track) return
-  const slides = track.querySelectorAll<HTMLElement>('[data-banner-slide]')
-  const i = Number(main.dataset.bannerIndex)
-  track.style.transform = `translateX(-${(i / slides.length) * 100}%)`
-  slides.forEach((s, k) => (k === i ? s.removeAttribute('aria-hidden') : s.setAttribute('aria-hidden', 'true')))
+  const slides = [...document.querySelectorAll<HTMLElement>('[data-banner-slide]')]
+  const llega = slides[Number(main?.dataset.bannerIndex)]
+  if (!llega) return
+  // Otra pestaña tocada mientras bajaba la foto o en pleno fundido: manda la última.
+  const vez = ++cambio
+  const fin = () => {
+    if (vez === cambio) slides.forEach((s) => ((s.hidden = s !== llega), s.removeAttribute('data-llega')))
+  }
+  if (!llega.hidden) return fin()
+  const img = llega.querySelector('img')
+  if (img) {
+    img.loading = 'eager'
+    await img.decode().catch(() => {})
+  }
+  if (vez !== cambio) return
+  llega.hidden = false
+  if (quieto()) return fin()
+  llega.setAttribute('data-llega', '')
+  llega.addEventListener('animationend', fin, { once: true })
 })
