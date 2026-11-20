@@ -89,6 +89,19 @@ test('desktop: the stitch runs from the top to the bottom of the photo and the i
   await expect.poll(desfase).toBeLessThanOrEqual(2)
 })
 
+for (const ancho of [820, 1024]) {
+  for (const { slug, fotos } of [{ slug: completa.slug, fotos: 3 }, { slug: MODAL.cero.slug, fotos: 1 }]) {
+    test(`narrow desktop ${ancho} px, ${fotos} photo(s): no sideways scroll and a readable info column`, async ({ page, isMobile }) => {
+      test.skip(isMobile, 'Solo escritorio angosto (desde 48rem).')
+      await page.setViewportSize({ width: ancho, height: 900 })
+      await page.goto(ficha(slug))
+      // PRI-553: la S (80 % del alto) se salía por la derecha y, con 3 fotos a 820, la información quedaba en 95 px.
+      await expect.poll(() => sinScrollDeLado(page)).toBe(true)
+      expect((await page.getByRole('heading', { level: 1 }).boundingBox())!.width).toBeGreaterThanOrEqual(240)
+    })
+  }
+}
+
 test('desktop: hovering the photo turns the magnifier on beside it', async ({ page, isMobile }) => {
   test.skip(isMobile, 'La lupa al lado es del mouse.')
   await page.goto(ficha(completa.slug))
