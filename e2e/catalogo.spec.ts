@@ -80,7 +80,7 @@ test('hundreds of photos: blocks of 60 with a link to the next block', async ({ 
   test.skip(total <= 60, `Only ${total} photos: a single block`)
   await expect(tiles(page)).toHaveCount(60)
   const more = page.getByRole('link', { name: `Ver ${Math.min(total - 60, 60)} más` })
-  await expect(more).toHaveAttribute('href', '/catalogo/pagina/2')
+  await expect(more).toHaveAttribute('href', '/catalogo/pagina/2/')
   await more.click()
   await expect(page).toHaveURL(/\/catalogo\/pagina\/2\/?$/)
   await expect(tiles(page)).toHaveCount(Math.min(total - 60, 60))
@@ -95,7 +95,7 @@ test.describe('categoría vacía', () => {
     await expect(chips(page).filter({ hasText: 'Vacía de prueba' })).toHaveText(/Vacía de prueba\s*0/)
     await expect(page.getByText('Todavía no hay fotos de Vacía de prueba')).toBeVisible()
     await expect(tiles(page)).toHaveCount(0)
-    await expect(page.getByRole('link', { name: 'Ver lo más nuevo' })).toHaveAttribute('href', '/catalogo')
+    await expect(page.getByRole('link', { name: 'Ver lo más nuevo' })).toHaveAttribute('href', '/catalogo/')
     // Aquí el WhatsApp es el flotante.
     await expect(page.getByRole('link', { name: 'Escríbenos por WhatsApp' })).toBeVisible()
   })

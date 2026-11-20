@@ -15,13 +15,13 @@ describe('offerSchema', () => {
       price: 45000,
       availability: 'https://schema.org/InStock',
     })
-    expect(offerSchema({ url, price: null, disponible: false }).availability).toBe('https://schema.org/MadeToOrder')
+    expect(offerSchema({ url, price: 45000, disponible: false })?.availability).toBe('https://schema.org/MadeToOrder')
+    expect(offerSchema({ url, price: 45000, disponible: null })).not.toHaveProperty('availability')
   })
 
-  it('sin precio (null o 0) ni disponibilidad conocida, no los inventa', () => {
-    const o = offerSchema({ url, price: 0, disponible: null })
-    expect(o).not.toHaveProperty('price')
-    expect(o).not.toHaveProperty('availability')
+  it('sin precio (null o 0) no hay oferta (PRI-555)', () => {
+    expect(offerSchema({ url, price: 0, disponible: true })).toBeUndefined()
+    expect(offerSchema({ url, price: null, disponible: true })).toBeUndefined()
   })
 })
 

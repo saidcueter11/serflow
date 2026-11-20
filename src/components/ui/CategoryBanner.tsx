@@ -22,17 +22,20 @@ export function CategoryBanner({ slides, current }: { slides: BannerSlide[]; cur
       >
         {slides.map((s, i) => (
           <div key={s.label} data-banner-slide aria-hidden={i === current ? undefined : true} className="fabric relative h-full shrink-0 bg-surface-2" style={{ width: `${100 / n}%` }}>
+            {/* En <picture> React no emite su propio preload (PRI-555): la página ya precarga la actual en el <head>. */}
             {s.image && (
-              <img
-                src={s.image.src}
-                srcSet={s.image.srcSet}
-                sizes="100vw"
-                alt=""
-                loading={i === current ? 'eager' : 'lazy'}
-                fetchPriority={i === current ? 'high' : undefined}
-                decoding="async"
-                className="absolute inset-0 size-full object-cover"
-              />
+              <picture className="contents">
+                <img
+                  src={s.image.src}
+                  srcSet={s.image.srcSet}
+                  sizes="100vw"
+                  alt=""
+                  loading={i === current ? 'eager' : 'lazy'}
+                  fetchPriority={i === current ? 'high' : undefined}
+                  decoding="async"
+                  className="absolute inset-0 size-full object-cover"
+                />
+              </picture>
             )}
             <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-primary via-primary/40 to-transparent" />
           </div>

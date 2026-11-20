@@ -33,8 +33,8 @@ describe('pages', () => {
     const list = Array.from({ length: 130 }, (_, i) => i)
     expect(pages(list).map((p) => p.length)).toEqual([60, 60, 10])
     expect(pages([])).toEqual([[]])
-    expect(pageHref(`${TODO_HREF}/beisbol`, 1)).toBe('/catalogo/beisbol')
-    expect(pageHref(TODO_HREF, 3)).toBe('/catalogo/pagina/3')
+    expect(pageHref(`${TODO_HREF}beisbol/`, 1)).toBe('/catalogo/beisbol/')
+    expect(pageHref(TODO_HREF, 3)).toBe('/catalogo/pagina/3/')
   })
 })
 

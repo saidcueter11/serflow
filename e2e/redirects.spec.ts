@@ -18,7 +18,7 @@ test('old /products links redirect with a 301 to /catalogo, and the photo lands 
   try {
     // Una foto real: la primera de la primera categoría (su id es f-<slug>).
     await page.goto('/catalogo/')
-    const category = (await page.getByRole('navigation', { name: 'Categorías' }).getByRole('link').nth(1).getAttribute('href'))!.split('/').pop()!
+    const category = (await page.getByRole('navigation', { name: 'Categorías' }).getByRole('link').nth(1).getAttribute('href'))!.split('/').filter(Boolean).pop()!
     await page.goto(`/catalogo/${category}/`)
     const slug = (await page.locator('main a[id^="f-"]').first().getAttribute('id'))!.slice(2)
 

@@ -1,4 +1,4 @@
-import { promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
+import { anchoCubre, promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
 import { Button } from './Button'
 import { StatusPill } from './StatusPill'
 import { fotoAttrs } from './PhotoModal'
@@ -10,12 +10,13 @@ import { fotoAttrs } from './PhotoModal'
  * WhatsApp con el mensaje de esa promo ya escrito y "Ver las N fotos" al detalle, en una fila desde @3xl. Excepción a
  * "un WhatsApp por sección": cada promo es su propia sección. La foto abre el modal de foto (PhotoModal, PRI-523) con
  * las fotos de la promo; la página que la usa monta el modal y marca la lista (data-fotos). Va dentro de una página .pf.
+ * La primera de la lista es el LCP de /promos (primera): su foto carga de una, con prioridad alta (PRI-555).
  * Markup estático.
  *
  * The canvas for this component is at tempo/designs/design-system/cards/index.canvas.tsx.
  * If you adjust this component in any way, ensure the canvas and its asset declaration stay consistent.
  */
-export function PromoAfiche({ promo }: { promo: PromoView }) {
+export function PromoAfiche({ promo, primera = false }: { promo: PromoView; primera?: boolean }) {
   const hasta = validaHasta(promo.endsAt)
   const modal = promoModal(promo)
   const total = modal?.fotos.length ?? 0
@@ -39,7 +40,7 @@ export function PromoAfiche({ promo }: { promo: PromoView }) {
           <Button variant="whatsapp" href={promoWhatsapp(promo)} external>
             Pedir por WhatsApp<span className="sr-only">: {promo.title}</span>
           </Button>
-          <Button variant="secondary" href={`/promos/${promo.slug}`}>
+          <Button variant="secondary" href={`/promos/${promo.slug}/`}>
             {total > 1 ? `Ver las ${total} fotos →` : 'Ver la promo →'}
             <span className="sr-only"> de {promo.title}</span>
           </Button>
@@ -47,11 +48,22 @@ export function PromoAfiche({ promo }: { promo: PromoView }) {
       </div>
       {promo.cover && (
         <a
-          href={`/promos/${promo.slug}`}
+          href={`/promos/${promo.slug}/`}
           className="pf-promo-foto sf-foto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           {...fotoAttrs(modal)}
         >
-          <img src={promo.cover.src} alt={promo.cover.alt} width={1200} height={800} loading="lazy" decoding="async" />
+          <img
+            src={promo.cover.src}
+            srcSet={promo.cover.srcSet}
+            // Celular: a lo ancho, 4:3. Desktop: 6 de 12 columnas (pf-promo-foto, tokens.css).
+            sizes={`(min-width: 48rem) ${anchoCubre('50vw - 52px', promo.cover.r, 16 / 9)}, ${anchoCubre('100vw - 32px', promo.cover.r, 4 / 3)}`}
+            alt={promo.cover.alt}
+            width={1200}
+            height={800}
+            loading={primera ? 'eager' : 'lazy'}
+            fetchPriority={primera ? 'high' : undefined}
+            decoding="async"
+          />
         </a>
       )}
     </section>

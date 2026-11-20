@@ -65,5 +65,5 @@ test('a promo photo still opens the photo modal', async ({ page }) => {
   await page.goto('http://localhost:4234/promos/')
   await page.locator('main a[data-foto]').first().click()
   await expect(page.getByRole('dialog')).toBeVisible()
-  await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras$/)
+  await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras\/?$/)
 })

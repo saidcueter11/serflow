@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css'
 import { ClientRouter } from 'astro:transitions'
-import { getImage } from 'astro:assets'
+import { Font, getImage } from 'astro:assets'
 import { Header, NAV_LINKS } from '../components/ui/Header'
 import { getDisponibles } from '../lib/products'
 import { Footer } from '../components/ui/Footer'
@@ -51,12 +51,7 @@ const logo = await getImage({ src: LogoImage, width: 160, format: 'webp' })
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#17160f" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..700&display=swap"
-    />
+    <Font cssVariable="--font-jakarta" preload />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
