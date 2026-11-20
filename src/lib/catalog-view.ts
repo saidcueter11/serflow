@@ -1,10 +1,10 @@
-import { getImage, inferRemoteSize } from 'astro:assets'
+import { getImage } from 'astro:assets'
 import type { BannerSlide } from '../components/ui/CategoryBanner'
 import type { CategoryLink } from '../components/ui/CategoryNav'
 import type { MasonryTile } from '../components/ui/Masonry'
 import type { FotoModal } from '../components/ui/PhotoModal'
 import { TODO_HREF, fotoAlt, fotoHref, fotoTitulo, fotoZoom, interleave, newestFirst, pageHref, pages, pedirUrl, precioCop } from './catalog'
-import { fotoDeLugar } from './medios-build'
+import { fotoDeLugar, medirFoto } from './medios-build'
 import { getCategories, getEnStock, getProducts } from './products'
 import type { Product } from './types'
 // Portada de "Todo" en el banner: la que publique el admin (lugar catalogo-todo, PRI-150) o esta foto de Unsplash
@@ -47,7 +47,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
   const alt = fotoAlt(cat.label, n, p.name)
   const href = fotoHref(cat.slug, p.slug)
   // Una sola consulta de tamaño por foto: muro, ficha y og la reusan.
-  const sizes = await Promise.all(p.image_urls.map((src) => inferRemoteSize(src)))
+  const sizes = await Promise.all(p.image_urls.map(medirFoto))
   const first = { src: p.image_urls[0], width: sizes[0].width, height: sizes[0].height }
   const [thumb, fotos, og, zoom] = await Promise.all([
     getImage({ ...first, widths: [320, 640], ...opt }),

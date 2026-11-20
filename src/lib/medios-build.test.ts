@@ -12,12 +12,16 @@ vi.mock('./supabase', () => ({
     },
   },
 }))
-vi.mock('astro:assets', () => ({ getImage: async ({ src, width }: { src: string; width: number }) => ({ src: `/_astro/${width}/${src.split('/').pop()}`, srcSet: { attribute: '' } }) }))
+const { inferRemoteSize } = vi.hoisted(() => ({ inferRemoteSize: vi.fn() }))
+vi.mock('astro:assets', () => ({
+  getImage: async ({ src, width }: { src: string; width: number }) => ({ src: `/_astro/${width}/${src.split('/').pop()}`, srcSet: { attribute: '' } }),
+  inferRemoteSize,
+}))
 
 vi.stubEnv('PUBLIC_SUPABASE_URL', 'https://x.supabase.co')
 vi.stubEnv('PUBLIC_SUPABASE_FOTOS_URL', '')
 
-const { coloresDeBase } = await import('./medios-build')
+const { coloresDeBase, medirFoto } = await import('./medios-build')
 const { MAX_COLORES: MAX } = await import('./personaliza/base')
 
 const foto = (color: number, view: string) => `https://x.supabase.co/storage/v1/object/public/site-media/${color}-${view}.jpg`
@@ -94,5 +98,43 @@ describe('coloresDeBase', () => {
 
     expect(gorra[0].foto).toMatchObject({ image_url: '/_astro/800/200-frente.jpg', image_url_movil: '/_astro/720/200-frente.jpg' })
     expect(pedidas).toEqual([foto(200, 'frente')])
+  })
+})
+
+describe('medirFoto (PRI-552)', () => {
+  const url = foto(1, 'frente')
+  const fallo = (name: string) => Object.assign(new Error(name), { name })
+  afterEach(() => {
+    inferRemoteSize.mockReset()
+    vi.useRealTimers()
+  })
+
+  it('reintenta cuando Storage no responde y devuelve la medida', async () => {
+    vi.useFakeTimers()
+    inferRemoteSize.mockRejectedValueOnce(fallo('FailedToFetchRemoteImageDimensions')).mockResolvedValueOnce({ width: 800, height: 1000 })
+
+    const medida = medirFoto(url)
+    await vi.runAllTimersAsync()
+
+    await expect(medida).resolves.toMatchObject({ width: 800, height: 1000 })
+    expect(inferRemoteSize).toHaveBeenCalledTimes(2)
+  })
+
+  it('si sigue fallando, el build se cae con el error de Astro', async () => {
+    vi.useFakeTimers()
+    inferRemoteSize.mockRejectedValue(fallo('FailedToFetchRemoteImageDimensions'))
+
+    const medida = expect(medirFoto(url)).rejects.toThrow('FailedToFetchRemoteImageDimensions')
+    await vi.runAllTimersAsync()
+
+    await medida
+    expect(inferRemoteSize).toHaveBeenCalledTimes(3)
+  })
+
+  it('no reintenta otros errores (host no permitido, foto que no es imagen)', async () => {
+    inferRemoteSize.mockRejectedValue(fallo('RemoteImageNotAllowed'))
+
+    await expect(medirFoto(url)).rejects.toThrow('RemoteImageNotAllowed')
+    expect(inferRemoteSize).toHaveBeenCalledTimes(1)
   })
 })
