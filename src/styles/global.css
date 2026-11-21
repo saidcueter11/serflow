@@ -123,6 +123,19 @@ html:has([data-banner-track])::view-transition-new(root) {
   animation-timing-function: var(--ease-premium);
 }
 
+/* La de salida se queda entera hasta el final y la de llegada entra encima (PRI-556): sin plus-lighter el fundido no pasa
+   por oscuro, aunque la foto de llegada todavía no haya bajado. */
+::view-transition-old(foto-ficha) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Solo el fundido: Chrome pone plus-lighter con una animación propia que se suma al nombre de la animación. */
+::view-transition-new(foto-ficha) {
+  animation-name: vt-fade-in;
+  mix-blend-mode: normal;
+}
+
 /* Indicador fino de carga: solo si la página nueva tarda más que --motion-slow en llegar (src/scripts/movimiento.ts). */
 .sf-nav-barra {
   position: fixed;

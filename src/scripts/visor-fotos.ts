@@ -19,6 +19,7 @@ let fotos: FotoProducto[] = []
 let i = 0
 let v: Vista = AJUSTADA
 let opener: HTMLElement | null = null
+let galeria: HTMLElement | null = null
 
 const visor = () => document.querySelector<HTMLDialogElement>('dialog[data-visor]')
 const zonaDe = (d: HTMLDialogElement) => d.querySelector<HTMLElement>('[data-vf-zona]')!
@@ -43,24 +44,30 @@ function mostrar(d: HTMLDialogElement, j: number) {
   img.style.animation = 'none'
   void img.offsetWidth
   img.style.removeProperty('animation')
-  img.srcset = f.srcSet ?? ''
+  // Abre con la foto que ya bajó en la galería, si la hay (PRI-556: en escritorio la de 100vw tardaba y el visor abría
+  // en negro); la grande (zoom o, sin ella, la de 100vw) la reemplaza cuando ya está decodificada.
+  const ya = galeria?.querySelectorAll<HTMLImageElement>('.gp-foto img')[i]
+  const lista = ya?.complete && ya.naturalWidth ? ya.currentSrc : ''
+  img.srcset = lista ? '' : (f.srcSet ?? '')
   img.sizes = '100vw'
-  img.src = f.src
+  img.src = lista || f.src
   img.alt = f.alt
-  if (f.zoom) {
-    const zoom = f.zoom
-    const pre = new Image()
-    pre.src = zoom
-    pre
-      .decode()
-      .then(() => {
-        if (d.open && fotos[i] === f) {
-          img.srcset = ''
-          img.src = zoom
-        }
-      })
-      .catch(() => {})
+  const pre = new Image()
+  pre.sizes = '100vw'
+  if (f.zoom) pre.src = f.zoom
+  else {
+    pre.srcset = f.srcSet ?? ''
+    pre.src = f.src
   }
+  pre
+    .decode()
+    .then(() => {
+      if (d.open && fotos[i] === f && img.currentSrc !== pre.currentSrc) {
+        img.srcset = ''
+        img.src = pre.currentSrc
+      }
+    })
+    .catch(() => {})
   d.querySelector('[data-vf-contador]')!.textContent = fotos.length > 1 ? `${i + 1} / ${fotos.length}` : ''
   zonaDe(d).setAttribute('aria-label', `${f.alt}. Enter para acercar o alejar`)
   d.querySelectorAll('[data-vf-ir]').forEach((b, k) => b.setAttribute('aria-current', String(k === i)))
@@ -183,6 +190,7 @@ document.addEventListener('click', (ev) => {
     fotos = JSON.parse(g.dataset.fotos!)
     if (!fotos.length) return
     opener = abrir
+    galeria = g
     d.dataset.n = String(fotos.length)
     miniaturas(d)
     montar(d)

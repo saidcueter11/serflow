@@ -91,7 +91,8 @@ document.addEventListener('pointermove', (ev) => {
     { w: panel.offsetWidth, h: panel.offsetHeight },
     { w: img.naturalWidth, h: img.naturalHeight },
   )
-  Object.assign(lente.style, { left: `${l.x}px`, top: `${l.y}px`, width: `${l.w}px`, height: `${l.h}px` })
+  // transform y no left/top: moverlo no cuenta como salto de layout (PRI-556, CLS 0,34 en 4 s de pasar el mouse).
+  Object.assign(lente.style, { transform: `translate(${l.x}px, ${l.y}px)`, width: `${l.w}px`, height: `${l.h}px` })
   const url = `url("${grande(img)}")`
   if (panel.style.backgroundImage !== url) panel.style.backgroundImage = url
   panel.style.backgroundSize = `${fondo.w}px ${fondo.h}px`
