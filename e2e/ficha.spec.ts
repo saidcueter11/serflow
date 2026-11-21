@@ -13,6 +13,23 @@ const foto = (page: Page) => page.getByRole('button', { name: `Ampliar: ${comple
 const visor = (page: Page) => page.getByRole('dialog', { name: `${completa.name}, fotos` })
 /** Sin scroll de lado: si la página se ensancha, la BarraPedir del celular queda fuera de la pantalla. */
 const sinScrollDeLado = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)
+/** Cuánto se separan de la foto la costura, la columna de la información y su centro: las tres van al hilo de la foto. */
+const desfase = (page: Page) =>
+  page.evaluate(() => {
+    const caja = (el: Element) => el.getBoundingClientRect()
+    const foto = caja(document.querySelector('[data-galeria] .gp-carrusel')!)
+    const costura = caja(document.querySelector('.costura[data-orientacion="vertical"]')!)
+    const columna = document.querySelector('h1')!.parentElement!
+    const info = [...columna.children].filter((el) => !el.matches('.monograma, .lupa'))
+    const centroInfo = (caja(info[0]).top + caja(info.at(-1)!).bottom) / 2
+    return Math.max(
+      Math.abs(costura.top - foto.top),
+      Math.abs(costura.bottom - foto.bottom),
+      Math.abs(caja(columna).top - foto.top),
+      Math.abs(caja(columna).bottom - foto.bottom),
+      Math.abs(centroInfo - (foto.top + foto.bottom) / 2),
+    )
+  })
 
 test('the product page shows name, price, colors and description, with a single WhatsApp button', async ({ page, isMobile }) => {
   await page.goto(ficha(completa.slug))
@@ -72,22 +89,24 @@ test('desktop: the stitch runs from the top to the bottom of the photo and the i
   test.skip(isMobile, 'En el celular la costura es horizontal, debajo de la galería.')
   await page.goto(ficha(completa.slug))
   // PRI-550: con el volver en la misma fila, la costura arrancaba a la altura del link y no de la foto.
-  const desfase = () =>
-    page.evaluate(() => {
-      const caja = (el: Element) => el.getBoundingClientRect()
-      const foto = caja(document.querySelector('[data-galeria] .gp-carrusel')!)
-      const costura = caja(document.querySelector('.costura[data-orientacion="vertical"]')!)
-      const info = [...document.querySelector('h1')!.parentElement!.children].filter((el) => !el.matches('.monograma, .lupa'))
-      const centroInfo = (caja(info[0]).top + caja(info.at(-1)!).bottom) / 2
-      return Math.max(
-        Math.abs(costura.top - foto.top),
-        Math.abs(costura.bottom - foto.bottom),
-        Math.abs(centroInfo - (foto.top + foto.bottom) / 2),
-      )
-    })
   // La galería entra creciendo: se mide cuando terminó.
-  await expect.poll(desfase).toBeLessThanOrEqual(2)
+  await expect.poll(() => desfase(page)).toBeLessThanOrEqual(2)
 })
+
+for (const ancho of [820, 1024]) {
+  for (const { slug, fotos } of [{ slug: completa.slug, fotos: 3 }, { slug: MODAL.cero.slug, fotos: 1 }]) {
+    test(`narrow desktop ${ancho} px, ${fotos} photo(s): no sideways scroll, a readable info column and the stitch the height of the photo`, async ({ page, isMobile }) => {
+      test.skip(isMobile, 'Solo escritorio angosto (desde 48rem).')
+      await page.setViewportSize({ width: ancho, height: 900 })
+      await page.goto(ficha(slug))
+      // PRI-553: la S (80 % del alto) se salía por la derecha y, con 3 fotos a 820, la información quedaba en 95 px.
+      await expect.poll(() => sinScrollDeLado(page)).toBe(true)
+      expect((await page.getByRole('heading', { level: 1 }).boundingBox())!.width).toBeGreaterThanOrEqual(240)
+      // La información más alta que la foto estiraba la costura y su columna por debajo de la foto (a 820, 115 px).
+      await expect.poll(() => desfase(page)).toBeLessThanOrEqual(2)
+    })
+  }
+}
 
 test('desktop: hovering the photo turns the magnifier on beside it', async ({ page, isMobile }) => {
   test.skip(isMobile, 'La lupa al lado es del mouse.')
