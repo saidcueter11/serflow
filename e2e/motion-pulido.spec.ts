@@ -78,13 +78,15 @@ test('changing category: the banner never shows a slide without its photo', asyn
   expect(vacios).toBe(0)
 })
 
-test('the photo that grows into the product page: only the photo travels and it never fades to dark', async ({ page }) => {
-  await fotosLentas(page, 150)
+type Viaje = { sale?: string[] | null; llegaLista?: boolean; viaja?: boolean; saleSeFunde?: boolean; mezcla?: string }
+
+/** Toca la primera foto del muro y anota qué viaja hasta la ficha y cómo. */
+async function tocarFotoDelMuro(page: Page): Promise<Viaje> {
   await page.goto('/catalogo')
   const tile = page.locator('main [data-fotos] a').first()
   await expect(tile.locator('img')).toHaveJSProperty('complete', true)
   await page.evaluate(() => {
-    const w = window as unknown as { viaje: Record<string, unknown> }
+    const w = window as unknown as { viaje: Viaje }
     w.viaje = {}
     const nombrada = () => [...document.querySelectorAll<HTMLElement>('*')].find((e) => e.style.viewTransitionName === 'foto-ficha')
     document.addEventListener(
@@ -103,7 +105,6 @@ test('the photo that grows into the product page: only the photo travels and it 
         w.viaje.llegaLista = document.querySelector<HTMLImageElement>('.gp-foto img')?.complete
         requestAnimationFrame(() => {
           const pseudo = (a: Animation) => (a.effect as KeyframeEffect).pseudoElement ?? ''
-          // El grupo existe: la transición está corriendo cuando se mira.
           w.viaje.viaja = document.getAnimations().some((a) => pseudo(a) === '::view-transition-group(foto-ficha)')
           w.viaje.saleSeFunde = document.getAnimations().some((a) => pseudo(a) === '::view-transition-old(foto-ficha)')
           w.viaje.mezcla = getComputedStyle(document.documentElement, '::view-transition-new(foto-ficha)').mixBlendMode
@@ -114,14 +115,19 @@ test('the photo that grows into the product page: only the photo travels and it 
   })
   await tile.click()
   await expect(foto(page)).toBeVisible()
-  await expect.poll(() => page.evaluate(() => (window as unknown as { viaje: Record<string, unknown> }).viaje.mezcla)).toBeTruthy()
-  expect(await page.evaluate(() => (window as unknown as { viaje: Record<string, unknown> }).viaje)).toEqual({
-    sale: ['IMG'],
-    llegaLista: true,
-    viaja: true,
-    saleSeFunde: false,
-    mezcla: 'normal',
-  })
+  await expect.poll(() => page.evaluate(() => (window as unknown as { viaje: Viaje }).viaje.mezcla)).toBeTruthy()
+  return page.evaluate(() => (window as unknown as { viaje: Viaje }).viaje)
+}
+
+test('the photo that grows into the product page: only the photo travels, onto its arrival photo, without fading to dark', async ({ page }) => {
+  expect(await tocarFotoDelMuro(page)).toEqual({ sale: ['IMG'], llegaLista: true, viaja: true, saleSeFunde: false, mezcla: 'normal' })
+})
+
+test('the arrival photo does not make it in time: no photo travels, so none fades to dark', async ({ page }) => {
+  // Más que ESPERA_FOTO (movimiento.ts): la navegación no se frena por la foto y la página entra sin viaje.
+  await fotosLentas(page, 800)
+  const viaje = await tocarFotoDelMuro(page)
+  expect(viaje).toMatchObject({ sale: null, llegaLista: false, viaja: false })
 })
 
 test('desktop: the viewer opens with the photo already showing', async ({ page, isMobile }) => {

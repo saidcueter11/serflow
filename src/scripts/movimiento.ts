@@ -133,10 +133,12 @@ const ESPERA_FOTO = 280
 
 /**
  * La foto de llegada ya pintada cuando se toma su imagen (PRI-556): sin esto la foto viajaba hacia el fondo vacío de la
- * galería y se oscurecía. La espera tiene tope: con mala red la navegación no se frena más que ESPERA_FOTO.
+ * galería y se oscurecía. La espera tiene tope: con mala red la navegación no se frena más que ESPERA_FOTO, y si la
+ * foto no llegó a tiempo no hay viaje (la página entra como cualquier otra): nunca una foto que se apaga.
  */
 function esperarFoto(ev: TransitionBeforePreparationEvent) {
   const cargar = ev.loader
+  const sale = nombrada
   ev.loader = async () => {
     await cargar()
     const img = ev.newDocument.querySelector('.gp-foto img')
@@ -145,9 +147,16 @@ function esperarFoto(ev: TransitionBeforePreparationEvent) {
     pre.sizes = img.getAttribute('sizes') ?? ''
     pre.srcset = img.getAttribute('srcset') ?? ''
     pre.src = img.getAttribute('src') ?? ''
-    await Promise.race([pre.decode().catch(() => {}), new Promise((r) => setTimeout(r, ESPERA_FOTO))])
+    const lista = await Promise.race([pre.decode().then(() => true, () => false), espera(ESPERA_FOTO)])
+    if (!lista && sale && nombrada === sale) {
+      sale.style.viewTransitionName = ''
+      nombrada = undefined
+    }
   }
 }
+
+/** Resuelve en false cuando pasan ms. */
+const espera = (ms: number) => new Promise<false>((r) => setTimeout(r, ms, false))
 
 function nombrarAlLlegar() {
   if (!nombrada) return
@@ -164,7 +173,9 @@ function nombrarAlLlegar() {
 document.addEventListener('astro:before-swap', () => document.querySelector('.sf-bajada[data-astro-transition-persist]')?.setAttribute('data-vista', ''))
 // El banner persiste entre páginas del catálogo (transition:persist): la lámina de la categoría nueva pide su foto y,
 // cuando ya está decodificada, entra en fundido encima de la anterior (PRI-556; antes se deslizaba hacia una lámina
-// todavía vacía). Mientras tanto se sigue viendo la anterior. Reducir movimiento o mala señal: cambia sin fundido.
+// todavía vacía). Mientras tanto se sigue viendo la anterior, como mucho ESPERA_BANNER: con mala red el título nuevo no
+// convive más que eso con la foto vieja. Reducir movimiento o mala señal: cambia al instante y sin fundido, como antes.
+const ESPERA_BANNER = 1000
 let cambio = 0
 document.addEventListener('astro:page-load', async () => {
   const main = document.querySelector<HTMLElement>('main[data-banner-index]')
@@ -178,10 +189,8 @@ document.addEventListener('astro:page-load', async () => {
   }
   if (!llega.hidden) return fin()
   const img = llega.querySelector('img')
-  if (img) {
-    img.loading = 'eager'
-    await img.decode().catch(() => {})
-  }
+  if (img) img.loading = 'eager'
+  if (img && !quieto()) await Promise.race([img.decode().catch(() => {}), espera(ESPERA_BANNER)])
   if (vez !== cambio) return
   llega.hidden = false
   if (quieto()) return fin()
