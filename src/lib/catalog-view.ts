@@ -50,7 +50,7 @@ async function toItem(p: Product, cat: { slug: string; label: string }, enStock:
   const sizes = await Promise.all(p.image_urls.map((src) => inferRemoteSize(src)))
   const first = { src: p.image_urls[0], width: sizes[0].width, height: sizes[0].height }
   const [thumb, fotos, og, zoom] = await Promise.all([
-    getImage({ ...first, widths: [320, 640], ...opt }),
+    getImage({ ...first, widths: [320, 480, 640], ...opt }),
     Promise.all(
       p.image_urls.map(async (src, i) => {
         const img = await getImage({ src, width: sizes[i].width, height: sizes[i].height, widths: [600, 1200], ...opt })
@@ -105,7 +105,7 @@ async function build() {
       return {
         slug: c.slug,
         label: c.label,
-        href: `${TODO_HREF}/${c.slug}`,
+        href: `${TODO_HREF}${c.slug}/`,
         cover: cover ? { src: cover.src, srcSet: cover.srcSet.attribute } : undefined,
         og: og?.src,
         intro: c.intro?.trim() || undefined,

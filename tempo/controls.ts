@@ -109,6 +109,7 @@ defineControls(PromoCard, {
 
 defineControls(PromoAfiche, {
   promo: { type: "object" },
+  primera: { type: "boolean" },
 });
 
 defineControls(PromoGrid, {

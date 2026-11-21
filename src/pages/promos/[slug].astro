@@ -2,7 +2,7 @@
 import { getImage } from 'astro:assets'
 import Layout from '../../layouts/Layout.astro'
 import { PhotoModal } from '../../components/ui/PhotoModal'
-import { PromoDetailPage } from '../../components/promos/PromoDetailPage'
+import { PromoDetailPage, portadaSizes } from '../../components/promos/PromoDetailPage'
 import { getActivePromos } from '../../lib/products'
 import { toPromoViews } from '../../lib/promo-view'
 import { promoMensaje, promoPhotoUrls, type PromoView } from '../../lib/promos'
@@ -37,7 +37,7 @@ const offer = promoOfferSchema({ url: Astro.url.href, name: promo.title, descrip
 
 <Layout title={`${promo.title} — Serflow`} description={promo.description ?? `Campaña ${promo.title} en Serflow Cartagena.`} whatsappText={promoMensaje(promo)} ogImage={og ? { src: og, alt: promo.title } : undefined}>
   <Fragment slot="head">
-    {promo.cover && <link rel="preload" as="image" href={promo.cover.src} fetchpriority="high" />}
+    {promo.cover && <link rel="preload" as="image" href={promo.cover.src} imagesrcset={promo.cover.srcSet} imagesizes={portadaSizes(promo.cover.r)} fetchpriority="high" />}
     <script type="application/ld+json" set:html={jsonLd(offer)} />
   </Fragment>
   <PromoDetailPage promo={promo} otras={otras} />

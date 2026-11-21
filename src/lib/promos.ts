@@ -9,7 +9,17 @@ export const SITE = SITE_URL
  * r = ancho / alto: el modal de foto reserva la forma mientras baja. banner: la portada es el banner_url (no una foto
  * de producto) y no entra a la galería del modal (PRI-535).
  */
-export type Photo = { src: string; alt: string; r?: number; banner?: boolean }
+export type Photo = { src: string; srcSet?: string; alt: string; r?: number; banner?: boolean }
+
+/**
+ * Ancho con que se pinta una foto que cubre su caja (object-cover), para el `sizes` (PRI-555): si la foto es más ancha que
+ * la caja, se pinta con el ancho del recorte, no con el de la caja; pedirla al de la caja la dejaría blanda.
+ * ancho: el de la caja en CSS ("100vw - 32px"); r: ancho / alto de la foto; caja: ancho / alto de la caja.
+ */
+export function anchoCubre(ancho: string, r: number | undefined, caja: number): string {
+  const k = r && r > caja ? Math.ceil((r / caja) * 100) / 100 : 1
+  return k === 1 ? `calc(${ancho})` : `calc((${ancho}) * ${k})`
+}
 
 /** Una promo lista para pintar: fotos ya optimizadas, la primera es la portada. */
 export type PromoView = {

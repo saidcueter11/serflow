@@ -20,7 +20,7 @@ test.describe('3 promos vigentes y 1 vencida', () => {
   test('home: the bar rotates the 3 and the whole bar goes to /promos', async ({ page }) => {
     await page.goto('/')
     const bar = page.getByRole('link', { name: 'Ver las 3 promos de hoy' })
-    await expect(bar).toHaveAttribute('href', '/promos')
+    await expect(bar).toHaveAttribute('href', '/promos/')
     await bar.click()
     await expect(page).toHaveURL(/\/promos\/?$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Promos de hoy' })).toBeVisible()
@@ -93,7 +93,7 @@ test.describe('3 promos vigentes y 1 vencida', () => {
     await expect(page.locator('main h3')).toHaveText(['10% en camisetas para equipos', 'Gorras para niños con su nombre'])
     // Otras promos: tarjetas con caja y "Ver promo" con forma de botón (PRI-286).
     const tarjeta = page.locator('#otras-promos a').first()
-    await expect(tarjeta).toHaveAttribute('href', '/promos/e2e-camisetas-equipos')
+    await expect(tarjeta).toHaveAttribute('href', '/promos/e2e-camisetas-equipos/')
     await expect(tarjeta).toHaveCSS('border-top-style', 'solid')
     await expect(tarjeta.getByText('Ver promo →')).toHaveCSS('border-top-style', 'solid')
     await page.getByRole('link', { name: 'Volver a las promos' }).click()
@@ -149,7 +149,7 @@ test.describe('1 promo vigente', () => {
   test('home: the bar goes straight to the promo', async ({ page }) => {
     await page.goto('/')
     const bar = page.locator('.promo-bar a')
-    await expect(bar).toHaveAttribute('href', '/promos/e2e-2x1-gorras')
+    await expect(bar).toHaveAttribute('href', '/promos/e2e-2x1-gorras/')
     await expect(bar).toContainText('2x1 en gorras bordadas')
   })
 

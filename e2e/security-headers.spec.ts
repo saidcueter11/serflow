@@ -38,6 +38,10 @@ test('netlify.toml declara los headers de seguridad', () => {
   expect(header('X-Frame-Options')).toBe('DENY')
   expect(header('Referrer-Policy')).toBe('strict-origin-when-cross-origin')
   expect(header('X-Content-Type-Options')).toBe('nosniff')
+  // PRI-555: la fuente sale del sitio; ninguna directiva abre Google Fonts.
+  expect(csp).not.toMatch(/fonts\.(googleapis|gstatic)\.com/)
+  // Lo de /_astro/ lleva hash en el nombre: caché de un año.
+  expect(toml).toMatch(/for = "\/_astro\/\*"\s+\[headers\.values\]\s+Cache-Control = "public, max-age=31536000, immutable"/)
 })
 
 test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promos, personalizador', async ({ page }) => {
@@ -45,8 +49,10 @@ test('con la CSP el sitio carga entero: portada y mapa, catálogo y modal, promo
   const violaciones = await conCsp(page)
 
   await page.goto('/')
-  // fonts.load devuelve [] si la hoja de Google no entró.
-  await expect.poll(() => page.evaluate(async () => (await document.fonts.load('16px "Plus Jakarta Sans"')).length)).toBeGreaterThan(0)
+  // PRI-555: la fuente propia carga con la CSP (font-src 'self'); el nombre de la familia lo pone Astro (--font-jakarta).
+  await expect
+    .poll(() => page.evaluate(async () => (await document.fonts.load(`16px ${getComputedStyle(document.body).fontFamily}`)).some((f) => f.family.includes('Plus Jakarta Sans'))))
+    .toBe(true)
   await page.getByText('Toca para abrir el mapa').first().click()
   await expect(page.locator('iframe[title^="Mapa"]').first()).toBeVisible()
 

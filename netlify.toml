@@ -9,11 +9,12 @@
 
 # PRI-152. Los sha256 son los scripts inline del build: 2 de src/layouts/Layout.astro y 2 de la isla de Astro en /personaliza
 # (cambian si se editan esos scripts o se sube Astro; e2e/security-headers.spec.ts falla si quedan desfasados).
+# PRI-555: la fuente sale del sitio (astro.config.mjs): style-src y font-src ya no abren Google Fonts.
 # PRI-436: 'wasm-unsafe-eval' deja compilar WebAssembly (el modelo que quita fondos en /personaliza); no habilita eval de JS.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-SVPxLeXJOh3YCCDPPYxIBBESzC+IS3fQTSqFKxVXDMw=' 'sha256-9+9hQ4sF9tk8Uxlt4EZRdyhB9oJrCVSDlU6IEKajgl4=' 'sha256-1BvDVWLr3QCC20uHhUDi27eDFVJpk1uMQJGIWKUks2I=' 'sha256-UIrFqcaitjA3OKa9mHKajg3N+0Y7tW9+y0o3QmMFeZQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self'; frame-src https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-SVPxLeXJOh3YCCDPPYxIBBESzC+IS3fQTSqFKxVXDMw=' 'sha256-9+9hQ4sF9tk8Uxlt4EZRdyhB9oJrCVSDlU6IEKajgl4=' 'sha256-1BvDVWLr3QCC20uHhUDi27eDFVJpk1uMQJGIWKUks2I=' 'sha256-UIrFqcaitjA3OKa9mHKajg3N+0Y7tW9+y0o3QmMFeZQ='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self'; frame-src https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
@@ -25,3 +26,10 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
     Access-Control-Allow-Origin = "*"
+
+# PRI-555: lo de /_astro/ lleva el hash del contenido en el nombre (fotos, fuente, JS, CSS): un archivo nuevo es una URL
+# nueva, así que el navegador lo guarda un año sin volver a preguntar. El HTML sigue con la caché de Netlify (revalida).
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

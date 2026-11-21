@@ -40,7 +40,7 @@ test('photos of the same item are dots on the photo; the arrows by the counter j
   // La flecha de prenda salta las fotos que faltan: a la primera foto de la siguiente.
   await siguiente.click()
   await expect(dialog(page).getByText('2 / 3')).toBeVisible()
-  await expect(page).toHaveURL(/\/promos\/e2e-camisetas-equipos$/)
+  await expect(page).toHaveURL(/\/promos\/e2e-camisetas-equipos\/?$/)
   // La última tiene una sola foto: sin puntos.
   await siguiente.click()
   await expect(dialog(page).getByText('3 / 3')).toBeVisible()

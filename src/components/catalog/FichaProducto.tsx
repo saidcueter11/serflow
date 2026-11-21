@@ -20,8 +20,11 @@ export type FichaProductoProps = {
   /** Link de "Pedir por WhatsApp" (pedirUrl). */
   pedir: string
   /** "Más de <categoría>": hasta 4 productos de la misma categoría. Sin ninguno no sale la sección. */
-  otros: { titulo: string; href: string; img: string }[]
+  otros: { titulo: string; href: string; img: { src: string; srcSet?: string } }[]
 }
+
+/** Ancho de una foto de "Más de" (PRI-555): 2 columnas con px-4 y gap-2; desde @3xl, 4 con px-12 y gap-3. */
+const MAS_DE_SIZES = '(min-width: 48rem) calc(25vw - 33px), calc(50vw - 20px)'
 
 const Volver = ({ categoria, className }: { categoria: FichaProductoProps['categoria']; className: string }) => (
   <a href={categoria.href} className={`min-h-11 items-center gap-1.5 text-[14px] text-muted no-underline ${className}`}>
@@ -90,7 +93,7 @@ export function FichaProducto({ titulo, categoria, precio, colores = [], descrip
               </div>
               <div className="grid grid-cols-2 gap-2 @3xl:grid-cols-4 @3xl:gap-3">
                 {otros.map((o, i) => (
-                  <ProductCard key={i} name={o.titulo} image={{ src: o.img, alt: '' }} href={o.href} />
+                  <ProductCard key={i} name={o.titulo} image={{ ...o.img, sizes: MAS_DE_SIZES, alt: '' }} href={o.href} />
                 ))}
               </div>
             </section>

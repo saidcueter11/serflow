@@ -12,7 +12,7 @@ test('home -> product opens its product page with the WhatsApp CTA, and Ver todo
   await expect(page.locator('#visitanos')).toBeVisible()
 
   const verTodo = page.getByRole('link', { name: 'Ver todo →' })
-  await expect(verTodo).toHaveAttribute('href', /^\/catalogo\/[^/]+$/)
+  await expect(verTodo).toHaveAttribute('href', /^\/catalogo\/[^/]+\/$/)
 
   // PRI-529: la prenda lleva a su ficha.
   const productLink = page.locator('#disponible a[href^="/catalogo/"]').filter({ has: page.locator('h3') }).first()

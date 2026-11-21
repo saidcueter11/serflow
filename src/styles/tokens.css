@@ -31,11 +31,13 @@
   --color-ok: #4ADE80;
   --color-danger: #FF6B6B;
 
-  /* Una sola familia, sin esquinas cuadradas: Plus Jakarta Sans (variable 400-700). */
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Una sola familia, sin esquinas cuadradas: Plus Jakarta Sans (variable 400-700). El sitio la sirve él mismo (PRI-555,
+     --font-jakarta: fonts en astro.config.mjs, con un fallback de métricas ajustadas); el host del canvas no la define y
+     usa la de Google por su nombre. */
+  --font-display: var(--font-jakarta, 'Plus Jakarta Sans', system-ui, sans-serif);
+  --font-body: var(--font-jakarta, 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
   /* Legado de los componentes .astro; no usar en componentes nuevos */
-  --font-titan: 'Plus Jakarta Sans', sans-serif;
+  --font-titan: var(--font-jakarta, 'Plus Jakarta Sans', sans-serif);
   --font-vend-sans: 'Inter', sans-serif;
 
   /* Radios: tile 12, card 20, pill = rounded-full */
