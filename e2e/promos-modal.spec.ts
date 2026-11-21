@@ -60,13 +60,13 @@ test('/promos: the photo of a promo opens the modal and the arrows go to the nex
   await expect(dialog(page)).toBeVisible()
   await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas')
   await expect(dialog(page).locator('.mx-contador')).toHaveText('1 / 3')
-  await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras$/)
+  await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras\/$/)
 
   await dialog(page).getByRole('button', { name: 'Prenda siguiente' }).click()
   await expect(dialog(page).getByRole('heading', { name: '10% en camisetas para equipos' })).toBeVisible()
   await expect(dialog(page).getByText('Desde 10 camisetas con nombre y número.')).toBeVisible()
   expect(await waText(page)).toContain('"10% en camisetas para equipos"')
-  await expect(page).toHaveURL(/\/promos\/e2e-camisetas-equipos$/)
+  await expect(page).toHaveURL(/\/promos\/e2e-camisetas-equipos\/$/)
 
   await dialog(page).getByRole('button', { name: 'Cerrar' }).click()
   await expect(dialog(page)).toBeHidden()
