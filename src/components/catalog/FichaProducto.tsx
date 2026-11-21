@@ -46,7 +46,8 @@ const Volver = ({ categoria, className }: { categoria: FichaProductoProps['categ
 export function FichaProducto({ titulo, categoria, precio, colores = [], descripcion, fotos, pedir, otros }: FichaProductoProps) {
   // PRI-553: en escritorio angosto la foto (640 de alto) se achica para dejarle 320 px a la información. Lo fijo de la
   // fila: px-12 (96) + costura con ml-16 (65) + miniaturas con su calle (84, solo con más de una foto). Desde ~1170 px
-  // (3 fotos) la foto ya queda en 640, como estaba.
+  // (3 fotos) la foto ya queda en 640, como estaba. Hasta 64rem la información va compacta para caber al lado; si aun así
+  // queda más alta (una descripción larga), la foto se estira hasta la fila (tokens.css): la costura mide lo que la foto.
   const fijo = 96 + 65 + 320 + (fotos.length > 1 ? 84 : 0)
   const alto = { '--gp-alto': `min(640px, (100cqw - ${fijo}px) * 4 / 3)` } as CSSProperties
   return (
@@ -65,11 +66,11 @@ export function FichaProducto({ titulo, categoria, precio, colores = [], descrip
             <div className="ml-16 hidden @3xl:flex">
               <Costura />
             </div>
-            <div className="anim-enter relative mx-4 -mt-5 flex min-w-0 flex-col gap-5 pt-7 pb-2 @3xl:mx-0 @3xl:mt-0 @3xl:justify-center @3xl:gap-[22px] @3xl:py-6 @3xl:pl-16 [&>:not(.monograma):not(.lupa)]:relative">
+            <div className="anim-enter relative mx-4 -mt-5 flex min-w-0 flex-col gap-5 pt-7 pb-2 @3xl:mx-0 @3xl:mt-0 @3xl:justify-center @3xl:gap-4 @3xl:py-0 @3xl:pl-16 @5xl:gap-[22px] @5xl:py-6 [&>:not(.monograma):not(.lupa)]:relative">
               {/* La S a lo sumo 40 px más allá del texto por cada lado, como queda a 1280: más ancha se salía de la página (PRI-553). */}
               <Monograma className="absolute left-1/2 top-[52%] w-[72%] max-w-[300px] -translate-x-1/2 -translate-y-1/2 @3xl:left-[calc(50%+32px)] @3xl:top-1/2 @3xl:h-[80%] @3xl:w-auto @3xl:max-w-[calc(100%+16px)]" />
               <Lupa className="[--lupa-inset:0_0_0_32px]" />
-              <h1 className="font-display text-[30px] font-semibold leading-[1.15] tracking-[-0.02em] text-balance wrap-anywhere @3xl:text-[44px]">{titulo}</h1>
+              <h1 className="font-display text-[30px] font-semibold leading-[1.15] tracking-[-0.02em] text-balance wrap-anywhere @3xl:text-[32px] @5xl:text-[44px]">{titulo}</h1>
               {precio && <p className="text-[22px] font-semibold tabular-nums text-secondary @3xl:text-[26px]">{precio}</p>}
               {colores.length > 0 && (
                 <div>
@@ -79,7 +80,7 @@ export function FichaProducto({ titulo, categoria, precio, colores = [], descrip
                   <ColoresDisponibles colores={colores} variante="pildoras" />
                 </div>
               )}
-              {descripcion && <p className="max-w-[60ch] text-[15px] leading-[1.55] text-muted @3xl:text-[17px]">{descripcion}</p>}
+              {descripcion && <p className="max-w-[60ch] text-[15px] leading-[1.55] text-muted @5xl:text-[17px]">{descripcion}</p>}
               <div className="hidden max-w-[420px] @3xl:block">
                 <Button variant="whatsapp" href={pedir} external fullWidth>
                   Pedir por WhatsApp
