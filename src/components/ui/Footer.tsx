@@ -3,6 +3,7 @@ import { CITY, EMAIL, SOCIAL } from '../../lib/business'
 import { InstagramIcon } from '../icons/InstagramIcon'
 import { TiktokIcon } from '../icons/TiktokIcon'
 import { FacebookIcon } from '../icons/FacebookIcon'
+import { Monograma } from './Monograma'
 
 const SOCIAL_ICONS: Record<(typeof SOCIAL)[number]['name'], ReactNode> = {
   Instagram: <InstagramIcon className="size-5" />,
@@ -14,8 +15,8 @@ const LINK =
   'sf-costura flex min-h-11 items-center gap-2 text-ink hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /**
- * Pie del sitio: logo, qué es Serflow, link a "Cómo llegar y horario" (el mapa de la portada), correo
- * y los íconos de las redes (SOCIAL) como botones de 44px. Sin dirección, horario ni WhatsApp: viven una
+ * Pie del sitio: logo con la S de Serflow al lado como sello dorado quieto (Monograma sello, PRI-562), qué es Serflow,
+ * link a "Cómo llegar y horario" (el mapa de la portada), correo y los íconos de las redes (SOCIAL) como botones de 44px. Sin dirección, horario ni WhatsApp: viven una
  * sola vez en Visítanos y en el WhatsAppFab (PRI-129). Sin fondo propio: deja ver el hilo de la portada.
  * pb-28 deja libre el WhatsAppFab fijo (56px + 20px de margen) sobre el último link.
  * Markup estático: Astro lo renderiza sin directivas de cliente.
@@ -28,7 +29,11 @@ export function Footer({ logoSrc }: { logoSrc: string }) {
     <footer className="@container relative border-t border-line/60 font-body text-[14px] text-muted">
       <div className="flex flex-col gap-6 px-4 pb-28 pt-8 @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:px-12 @3xl:pt-10">
         <div className="flex flex-col gap-3">
-          <img src={logoSrc} alt="Serflow" width={69} height={24} loading="lazy" decoding="async" className="h-6 w-auto self-start" />
+          <div className="flex items-center gap-3">
+            <img src={logoSrc} alt="Serflow" width={69} height={24} loading="lazy" decoding="async" className="h-6 w-auto" />
+            <span aria-hidden="true" className="h-4 w-px bg-line" />
+            <Monograma variante="sello" className="h-5" />
+          </div>
           <p>Camisetas y gorras personalizadas · {CITY}</p>
           <a href="/#visitanos" className={LINK}>
             Cómo llegar y horario →

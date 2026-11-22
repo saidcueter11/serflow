@@ -1,6 +1,9 @@
 /// <reference types="vite/client" />
 import { Costura } from "../../../../src/components/ui/Costura";
 import { Monograma } from "../../../../src/components/ui/Monograma";
+import { Footer } from "../../../../src/components/ui/Footer";
+import { NotFoundPage } from "../../../../src/components/promos/NotFoundPage";
+import { LOGO } from "../app-shell/portada";
 import { Code, PageFrame, PageTitle, Row } from "../Chrome";
 import foto from "../../../../src/assets/images/beisbol/beisbol.webp";
 
@@ -48,7 +51,7 @@ export function BoardMonograma() {
     <PageFrame family="movimiento" width={1500}>
       <PageTitle
         title="Monograma"
-        description="La S de Serflow entera detrás del nombre, el precio y los colores (PRI-529), con un brillo dorado que la recorre despacio (9 s por vuelta). El degradado se repite y cada vuelta avanza justo un período, así que el ciclo es continuo, sin salto al reiniciar (PRI-550). Es una máscara del SVG trazado del ícono (src/assets/monograma-s.svg): sin fondo y del color del brillo. Decorativa: aria-hidden, sin eventos; con reducir movimiento queda quieta."
+        description="La S de Serflow entera detrás del nombre, el precio y los colores (PRI-529), con un brillo dorado que la recorre despacio (9 s por vuelta). El degradado se repite y cada vuelta avanza justo un período, así que el ciclo es continuo, sin salto al reiniciar (PRI-550). Es una máscara del SVG trazado del ícono (src/assets/monograma-s.svg): sin fondo y del color del brillo. Decorativa: aria-hidden, sin eventos; con reducir movimiento queda quieta. Dos variantes sin brillo (PRI-562): quieta en el 404 y sello junto al logo del pie."
       />
       <Row
         name="Escritorio (1280)"
@@ -70,6 +73,37 @@ export function BoardMonograma() {
           <Monograma className="absolute left-1/2 top-[52%] w-[72%] max-w-[300px] -translate-x-1/2 -translate-y-1/2" />
           <h3 className="relative z-10 font-display text-[30px] font-semibold leading-tight tracking-tight">Gorra de beisbol bordada</h3>
           <p className="relative z-10 text-[22px] font-semibold tabular-nums text-secondary">$45.000</p>
+        </div>
+      </Row>
+      <Row
+        name="Quieta: 404 (1280)"
+        description={
+          <>
+            <Code>variante=&quot;quieta&quot;</Code> (PRI-562): grande y sin brillo, en el tono de reposo de la ficha, a la
+            derecha del título de la página y detrás del texto. Le da marca a la página sin competir con el texto.
+          </>
+        }
+      >
+        <div className="w-[1280px] overflow-hidden rounded-card border border-line">
+          <NotFoundPage promos={[]} />
+        </div>
+      </Row>
+      <Row name="Quieta: 404 (390)" description="Arriba a la derecha, detrás del título, 64 % del ancho y máximo 260 px.">
+        <div className="w-[390px] overflow-hidden rounded-card border border-line">
+          <NotFoundPage promos={[]} />
+        </div>
+      </Row>
+      <Row
+        name="Sello: pie"
+        description={
+          <>
+            <Code>variante=&quot;sello&quot;</Code> (PRI-562): la firma dorada pequeña (h-5) junto al logo del Footer, en todas
+            las páginas con pie. Quieta y sin brillo, para no restarle fuerza a la S de la ficha.
+          </>
+        }
+      >
+        <div className="w-[390px] overflow-hidden rounded-card border border-line">
+          <Footer logoSrc={LOGO} />
         </div>
       </Row>
     </PageFrame>
