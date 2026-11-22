@@ -28,7 +28,7 @@ export function Footer({ logoSrc }: { logoSrc: string }) {
     <footer className="@container relative border-t border-line/60 font-body text-[14px] text-muted">
       <div className="flex flex-col gap-6 px-4 pb-28 pt-8 @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:px-12 @3xl:pt-10">
         <div className="flex flex-col gap-3">
-          <img src={logoSrc} alt="Serflow" width={69} height={24} className="h-6 w-auto self-start" />
+          <img src={logoSrc} alt="Serflow" width={69} height={24} loading="lazy" decoding="async" className="h-6 w-auto self-start" />
           <p>Camisetas y gorras personalizadas · {CITY}</p>
           <a href="/#visitanos" className={LINK}>
             Cómo llegar y horario →

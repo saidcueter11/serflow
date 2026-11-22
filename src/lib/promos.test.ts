@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SITE_URL } from './site.mjs'
-import { diasPromo, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
+import { anchoCubre, diasPromo, hastaCorto, livePromos, promoMensaje, promoPhotoUrls, validaHasta } from './promos'
 import type { Promo } from './types'
 
 const promo = (slug: string, over: Partial<Promo> = {}): Promo => ({
@@ -109,5 +109,16 @@ describe('diasPromo (PRI-538)', () => {
 
   it('ignores repeated and out-of-range days', () => {
     expect(diasPromo([2, 2, 3, 0, 8])).toBe('Disponible martes y miércoles')
+  })
+})
+
+describe('anchoCubre (PRI-555)', () => {
+  it('una foto más angosta que su caja se pide al ancho de la caja', () => {
+    expect(anchoCubre('100vw - 32px', 0.8, 4 / 3)).toBe('calc(100vw - 32px)')
+    expect(anchoCubre('112px', undefined, 0.8)).toBe('calc(112px)')
+  })
+  it('una más ancha, al ancho del recorte (redondeado hacia arriba)', () => {
+    expect(anchoCubre('100vw - 32px', 2, 4 / 3)).toBe('calc((100vw - 32px) * 1.5)')
+    expect(anchoCubre('112px', 1.5, 0.8)).toBe('calc((112px) * 1.88)')
   })
 })

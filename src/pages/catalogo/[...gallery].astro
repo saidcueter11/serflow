@@ -27,8 +27,8 @@ const description = todo
 const banner = slides[index].image
 const migas = [
   { name: 'Inicio', url: absoluta('/') },
-  { name: 'Catálogo', url: absoluta(`${TODO_HREF}/`) },
-  ...(todo ? [] : [{ name: view.label, url: absoluta(`${view.href}/`) }]),
+  { name: 'Catálogo', url: absoluta(TODO_HREF) },
+  ...(todo ? [] : [{ name: view.label, url: absoluta(view.href) }]),
 ]
 ---
 

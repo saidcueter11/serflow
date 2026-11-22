@@ -144,7 +144,7 @@ export function HomePage({
                 ))}
               </ol>
               <div>
-                <Button variant="whatsapp" href="/personaliza" icon={null} fullWidth>
+                <Button variant="whatsapp" href="/personaliza/" icon={null} fullWidth>
                   Diseñar mi prenda
                 </Button>
               </div>

@@ -31,11 +31,13 @@
   --color-ok: #4ADE80;
   --color-danger: #FF6B6B;
 
-  /* Una sola familia, sin esquinas cuadradas: Plus Jakarta Sans (variable 400-700). */
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Una sola familia, sin esquinas cuadradas: Plus Jakarta Sans (variable 400-700). El sitio la sirve él mismo (PRI-555,
+     --font-jakarta: fonts en astro.config.mjs, con un fallback de métricas ajustadas); el host del canvas no la define y
+     usa la de Google por su nombre. */
+  --font-display: var(--font-jakarta, 'Plus Jakarta Sans', system-ui, sans-serif);
+  --font-body: var(--font-jakarta, 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
   /* Legado de los componentes .astro; no usar en componentes nuevos */
-  --font-titan: 'Plus Jakarta Sans', sans-serif;
+  --font-titan: var(--font-jakarta, 'Plus Jakarta Sans', sans-serif);
   --font-vend-sans: 'Inter', sans-serif;
 
   /* Radios: tile 12, card 20, pill = rounded-full */
@@ -783,7 +785,8 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
   .gp-minis button:hover { border-color: var(--color-muted); }
   .gp-minis button[aria-current='true'] { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent); }
   .gp-minis img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .gp-carrusel { flex: none; height: var(--gp-alto, 640px); width: calc(var(--gp-alto, 640px) * 3 / 4); }
+  /* min-height + stretch: si la información de al lado es más alta, la foto crece hasta la fila (cover) y no queda un escalón (PRI-553). */
+  .gp-carrusel { flex: none; align-self: stretch; min-height: var(--gp-alto, 640px); width: calc(var(--gp-alto, 640px) * 3 / 4); }
   .gp-pista { height: 100%; gap: 0; padding: 0; overflow: hidden; scroll-snap-type: none; }
   .gp-foto, .gp[data-n='1'] .gp-foto { width: 100%; height: 100%; }
   .gp-contador, .gp-puntos, .gp-chip-mantener { display: none; }

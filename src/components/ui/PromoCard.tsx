@@ -1,4 +1,4 @@
-import { hastaCorto, type PromoView } from '../../lib/promos'
+import { anchoCubre, hastaCorto, type PromoView } from '../../lib/promos'
 import { StatusPill } from './StatusPill'
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
@@ -20,7 +20,7 @@ export function PromoCard({ promo, headingLevel = 2 }: { promo: PromoView; headi
   const H = headingLevel === 2 ? 'h2' : 'h3'
   return (
     <a
-      href={`/promos/${promo.slug}`}
+      href={`/promos/${promo.slug}/`}
       className={`group sf-foto @container block h-full w-full overflow-hidden rounded-card border border-line bg-surface text-ink no-underline ${FOCUS}`}
     >
       <div className={`grid h-full ${promo.cover ? 'grid-cols-[112px_minmax(0,1fr)] @[30rem]:grid-cols-[200px_minmax(0,1fr)]' : ''}`}>
@@ -28,6 +28,9 @@ export function PromoCard({ promo, headingLevel = 2 }: { promo: PromoView; headi
           <div className="relative min-h-[140px] overflow-hidden">
             <img
               src={promo.cover.src}
+              srcSet={promo.cover.srcSet}
+              // 112 px de ancho y al menos 140 de alto (200 desde 30rem de tarjeta: no antes de 32rem de pantalla), 4:5 o más alta.
+              sizes={`(min-width: 32rem) ${anchoCubre('200px', promo.cover.r, 0.8)}, ${anchoCubre('112px', promo.cover.r, 0.8)}`}
               alt={promo.cover.alt}
               width={400}
               height={500}

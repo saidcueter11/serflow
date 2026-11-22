@@ -31,7 +31,7 @@ export function PromoBar({ promos }: { promos: PromoLink[] }) {
     <div className="promo-bar @container overflow-hidden bg-accent font-body text-primary">
       {css && <style>{css}</style>}
       <a
-        href={n > 1 ? '/promos' : promos[0].href}
+        href={n > 1 ? '/promos/' : promos[0].href}
         className="flex min-h-16 items-center gap-3 px-4 py-2.5 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-primary @4xl:justify-center @4xl:px-12"
         aria-label={n > 1 ? `Ver las ${n} promos de hoy` : undefined}
       >

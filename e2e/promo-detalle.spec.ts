@@ -25,7 +25,8 @@ for (const ancho of [1280, 1920]) {
     // Centrada en la mitad derecha, no pegada al borde con un hueco al centro (P2 de la revisión en 1920).
     // Medido en la maqueta (offset*), no en pantalla: el zoom lento del hero escala la foto.
     const { izq, centro } = await portada(page).evaluate((img: HTMLImageElement) => {
-      const w = img.parentElement!.clientWidth
+      // La foto va en <picture class="contents"> (PRI-555): la caja es el <figure>.
+      const w = img.closest('figure')!.clientWidth
       return { izq: img.offsetLeft / w, centro: (img.offsetLeft + img.offsetWidth / 2) / w }
     })
     expect(izq).toBeGreaterThanOrEqual(0.5)

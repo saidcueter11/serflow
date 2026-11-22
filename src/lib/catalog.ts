@@ -9,8 +9,11 @@ import { SITE } from './promos'
  * El sitio es estático: las fechas se calculan en el build, como la vigencia de las promos.
  */
 
-/** "Todo" del catálogo. Las categorías cuelgan de aquí: /catalogo/<categoría> (PRI-525; antes /products, con 301). */
-export const TODO_HREF = '/catalogo'
+/**
+ * "Todo" del catálogo. Las categorías cuelgan de aquí: /catalogo/<categoría>/ (PRI-525; antes /products, con 301).
+ * Los links internos llevan la "/" final del canonical (PRI-555): sin ella, Netlify responde 301 y el prefetch pide dos veces.
+ */
+export const TODO_HREF = '/catalogo/'
 
 /** URL propia de una foto: la ficha del producto (PRI-529; antes el muro con el modal abierto, PRI-286), con la "/"
  * final del canonical. Tocar la foto en el muro lleva ahí. Las viejas /products/<categoría>/<slug> redirigen aquí con 301
@@ -50,7 +53,7 @@ export function pages<T>(list: T[], size = PAGE_SIZE): T[][] {
   return out.length ? out : [[]]
 }
 
-export const pageHref = (base: string, page: number) => (page === 1 ? base : `${base}/pagina/${page}`)
+export const pageHref = (base: string, page: number) => (page === 1 ? base : `${base}pagina/${page}/`)
 
 const numero = (n: number | null) => (n == null ? '' : ` N.º ${n}`)
 

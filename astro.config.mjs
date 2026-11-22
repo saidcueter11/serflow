@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
@@ -45,6 +45,27 @@ export default defineConfig({
     // PRI-423: solo el proyecto propio. Un proyecto ajeno de Supabase podría responder distinto cuando Astro vuelve a bajar la foto.
     remotePatterns: fotosHost ? [{ protocol: 'https', hostname: fotosHost }] : [],
   },
+  // PRI-555: la fuente sale del sitio (src/assets/fonts, OFL), no de Google: sin dos dominios más antes del primer pintado
+  // y con un fallback de métricas ajustadas (size-adjust), así el texto no se mueve cuando llega. Solo el subset latin
+  // de Google (cubre el español; lo que no traiga sale en el fallback); Layout.astro la precarga.
+  fonts: [
+    {
+      provider: fontProviders.local(),
+      name: 'Plus Jakarta Sans',
+      cssVariable: '--font-jakarta',
+      fallbacks: ['sans-serif'],
+      options: {
+        variants: [
+          {
+            src: ['./src/assets/fonts/plus-jakarta-sans-latin.woff2'],
+            weight: '400 700',
+            style: 'normal',
+            display: 'swap',
+          },
+        ],
+      },
+    },
+  ],
   prefetch: {
     // Touch has no hover: prefetch visible links so a tap doesn't wait on the network (PRI-120).
     // Astro falls back to tap on 2G/saveData.

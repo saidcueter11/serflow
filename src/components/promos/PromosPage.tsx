@@ -31,7 +31,7 @@ export function PromosPage({ promos }: { promos: PromoView[] }) {
             />
           </div>
         ) : (
-          promos.map((p) => <PromoAfiche key={p.slug} promo={p} />)
+          promos.map((p, i) => <PromoAfiche key={p.slug} promo={p} primera={i === 0} />)
         )}
       </main>
     </div>

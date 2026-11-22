@@ -46,7 +46,7 @@ const homeProducts: HomeProduct[] = await Promise.all(
         name: p.name,
         // Sin precio en la portada (pedido del reviewer, PRI-129): el precio se conversa por WhatsApp.
         meta: p.categories?.label ?? '',
-        href: item?.tile.href ?? `${TODO_HREF}/${p.categories!.slug}`,
+        href: item?.tile.href ?? `${TODO_HREF}${p.categories!.slug}/`,
         image: { src: img.src, alt: item?.tile.img.alt ?? p.name },
         colores: p.colors,
       }
@@ -136,10 +136,10 @@ const services = await Promise.all(
   }),
 )
 
-const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}`, dias: diasPromo(p.weekdays) }))
+const promoLinks = promos.map((p) => ({ title: p.title, href: `/promos/${p.slug}/`, dias: diasPromo(p.weekdays) }))
 
 // "Ver todo" lleva a la primera categoría; desde ahí las pestañas llevan a las demás.
-const catalogHref = categories[0] ? `${TODO_HREF}/${categories[0].slug}` : '/'
+const catalogHref = categories[0] ? `${TODO_HREF}${categories[0].slug}/` : '/'
 
 const homeDescription =
   content.sections.hero?.seoDescription ??

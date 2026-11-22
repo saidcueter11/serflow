@@ -27,7 +27,8 @@ export function ProductCard({
   name: string;
   /** Color y tallas, p. ej. "Blanca · S a XL". Sin meta, solo el nombre ("Más de <categoría>" de la ficha). */
   meta?: string;
-  image: { src: string; alt: string };
+  /** srcSet y sizes (PRI-555): sin ellos el celular baja la foto completa. */
+  image: { src: string; srcSet?: string; sizes?: string; alt: string };
   href: string;
   /** Cuándo se confirmó que hay stock, p. ej. "Confirmado hace 2 días". Omitir si no se sabe. */
   confirmedLabel?: string;
@@ -42,6 +43,8 @@ export function ProductCard({
       <div className="overflow-hidden rounded-tile">
         <img
           src={image.src}
+          srcSet={image.srcSet}
+          sizes={image.sizes}
           alt={image.alt}
           width={400}
           height={500}

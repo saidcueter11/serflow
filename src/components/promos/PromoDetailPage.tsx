@@ -1,13 +1,21 @@
 import type { CSSProperties } from 'react'
-import { promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
+import { anchoCubre, promoModal, promoWhatsapp, validaHasta, type PromoView } from '../../lib/promos'
 import { Button } from '../ui/Button'
-import { HeroCarousel } from '../ui/HeroCarousel'
+import { HeroCarousel, heroSizes } from '../ui/HeroCarousel'
 import { fotoAttrs } from '../ui/PhotoModal'
 import { Palabras } from '../ui/Palabras'
 import { PromoCard } from '../ui/PromoCard'
 import { PromoGrid } from '../ui/PromoGrid'
 import { StatusPill } from '../ui/StatusPill'
 import { Section } from '../ui/Section'
+
+/** Más fotos (pf-mas-fotos, tokens.css) por cuántas van en la fila: ancho y proporción de la caja en desktop y celular. */
+const MAS_FOTOS: Record<number, [string, number]> = { 1: ['100vw - 96px', 21 / 9], 2: ['50vw - 52px', 4 / 3], 3: ['33.33vw - 38px', 1], 4: ['25vw - 30px', 1] }
+const masFotosSizes = (n: number, r?: number) =>
+  `(min-width: 48rem) ${anchoCubre(MAS_FOTOS[n][0], r, MAS_FOTOS[n][1])}, ${n === 1 ? anchoCubre('100vw - 32px', r, 4 / 3) : anchoCubre('50vw - 20px', r, 0.8)}`
+
+/** sizes de la portada en el hero (PRI-555): a sangre con object-cover, como el de la portada del sitio. */
+export const portadaSizes = (r?: number) => heroSizes(r ?? 16 / 9)
 
 /**
  * /promos/[slug] (PRI-131; sistema medido de PRI-286): "Volver" en su fila y el hero de la portada con la foto de la
@@ -28,20 +36,22 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
     <div className="pf font-body text-ink">
       <main className="pf-v">
         <div className="pf-c">
-          <a href={hayOtras ? '/promos' : '/'} className="pf-volver focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+          <a href={hayOtras ? '/promos/' : '/'} className="pf-volver focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 18l-6-6 6-6" />
             </svg>
             {hayOtras ? 'Volver a las promos' : 'Volver al inicio'}
           </a>
         </div>
-        <HeroCarousel slides={promo.cover ? [promo.cover] : []} className={`pf-hero pf-promo-hero${entera ? ' pf-promo-entera' : ''}`}>
+        <HeroCarousel slides={promo.cover ? [{ ...promo.cover, sizes: portadaSizes(promo.cover.r) }] : []} className={`pf-hero pf-promo-hero${entera ? ' pf-promo-entera' : ''}`}>
           {/* PRI-523: tocar la portada abre el modal en la primera foto (PRI-535: el banner no entra); el texto deja pasar el toque. */}
           {/* PRI-535: el resto del hero lo llena la misma portada, desenfocada y oscura (solo desktop, tokens.css). */}
-          {entera && <img src={promo.cover!.src} alt="" aria-hidden="true" className="pf-promo-fondo" />}
+          {entera && (
+            <img src={promo.cover!.src} srcSet={promo.cover!.srcSet} sizes={portadaSizes(promo.cover!.r)} alt="" aria-hidden="true" className="pf-promo-fondo" />
+          )}
           {promo.cover && modal && (
             <a
-              href={`/promos/${promo.slug}`}
+              href={`/promos/${promo.slug}/`}
               className="absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-accent"
               aria-label={`Ver las fotos de ${promo.title}`}
               {...fotoAttrs(modal)}
@@ -76,12 +86,12 @@ export function PromoDetailPage({ promo, otras }: { promo: PromoView; otras: Pro
                 <li key={i}>
                   {/* PRI-523: abre el modal de foto en esta foto y recorre las de la promo (la portada es la 0 si no es el banner). */}
                   <a
-                    href={`/promos/${promo.slug}`}
+                    href={`/promos/${promo.slug}/`}
                     className="block rounded-tile focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                     data-foto-j={i + (promo.cover && !promo.cover.banner ? 1 : 0)}
                     {...fotoAttrs(modal)}
                   >
-                    <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" className="fabric" />
+                    <img src={ph.src} srcSet={ph.srcSet} sizes={masFotosSizes(n, ph.r)} alt={ph.alt} loading="lazy" decoding="async" className="fabric" />
                   </a>
                 </li>
               ))}

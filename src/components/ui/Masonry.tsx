@@ -11,6 +11,12 @@ export type MasonryTile = {
   photos?: number
 }
 
+/**
+ * Ancho de una foto (PRI-555): la rejilla mide 100vw menos el margen de .pf-c (16 px; 48 desde 48rem) y reparte en 2
+ * columnas, 3 desde 40rem de rejilla y 4 desde 64rem, con 8 px entre ellas.
+ */
+const SIZES = '(min-width: 70rem) calc(25vw - 30px), (min-width: 48rem) calc(33.33vw - 38px), (min-width: 42rem) calc(33.33vw - 16px), calc(50vw - 20px)'
+
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 /** La prenda tiene varias fotos: ícono de fotos apiladas + cuántas, como en Instagram. */
@@ -35,7 +41,7 @@ function Tile({ t }: { t: MasonryTile }) {
         <img
           src={t.img.src}
           srcSet={t.img.srcSet}
-          sizes="(min-width: 1280px) 300px, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+          sizes={SIZES}
           alt={t.img.alt}
           width={400}
           height={500}
