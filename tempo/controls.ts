@@ -323,6 +323,7 @@ defineControls(Costura, {
 });
 
 defineControls(Monograma, {
+  variante: { type: "select" },
   className: { type: "text" },
 });
 

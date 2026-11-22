@@ -19,7 +19,7 @@ export default function MotionCanvas() {
       <Storyboard id="Thread" component={BoardThread} layout={{ x: 3750, y: 0, width: 1000, height: 1300, intrinsicSizing: "root-element" }} />
       <Storyboard id="Palabras" name="Palabras" component={BoardPalabras} layout={{ x: 4800, y: 0, width: 1000, height: 700, intrinsicSizing: "root-element" }} />
       <Storyboard id="Costura" name="Costura" component={BoardCostura} layout={{ x: 0, y: 1400, width: 1500, height: 1200, intrinsicSizing: "root-element" }} />
-      <Storyboard id="Monograma" name="Monograma" component={BoardMonograma} layout={{ x: 1550, y: 1400, width: 1500, height: 1300, intrinsicSizing: "root-element" }} />
+      <Storyboard id="Monograma" name="Monograma" component={BoardMonograma} layout={{ x: 1550, y: 1400, width: 1500, height: 2000, intrinsicSizing: "root-element" }} />
     </Canvas>
   );
 }
@@ -109,8 +109,10 @@ defineAsset(Costura, {
 defineAsset(Monograma, {
   libraries: ["Design System"],
   usageInstructions:
-    "La S de Serflow (SVG trazado del ícono, src/assets/monograma-s.svg) como máscara con un brillo dorado lento (--motion-monograma) en ciclo continuo: el degradado se repite y cada vuelta avanza justo un período, sin salto (PRI-550); decorativa (aria-hidden). Va absolute dentro de la columna de la información de la ficha de producto (PRI-529), detrás del nombre, el precio y los colores (el texto en relative z-10); className pone el puesto y el tamaño (escritorio: centrada, h-[80%]; celular: w-[72%] max-w-[300px]). Con reducir movimiento queda quieta. Una por página y solo en la ficha; no es el logo de la marca (Header usa el logo) ni un fondo de sección.",
+    "La S de Serflow (SVG trazado del ícono, src/assets/monograma-s.svg) como máscara; decorativa (aria-hidden), sin eventos. Tres variantes, todas en este componente (no hagas otra S): brillo (por defecto) es la de la ficha de producto (PRI-529), con un brillo dorado lento (--motion-monograma) en ciclo continuo sin salto (PRI-550), absolute en la columna de la información detrás del nombre, el precio y los colores (el texto en relative); className pone puesto y tamaño (escritorio: centrada, h-[80%]; celular: w-[72%] max-w-[300px]); con reducir movimiento queda quieta; una por página y solo en la ficha: es la protagonista. quieta es la S grande del 404 (PRI-562), sin brillo y en el tono discreto de la ficha, absolute detrás del título. sello es la firma dorada pequeña (h-5) junto al logo del Footer (PRI-562), sin brillo. No va en la portada, el banner del catálogo ni sobre las fotos del muro; no es el logo de la marca (Header usa el logo) ni un fondo de sección.",
   variants: {
     Default: { props: { className: "w-[240px]" } },
+    Quieta: { props: { variante: "quieta", className: "w-[240px]" } },
+    Sello: { props: { variante: "sello", className: "h-5" } },
   },
 });

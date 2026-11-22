@@ -700,6 +700,14 @@ dialog.mx-crece:not(.mx-sale) .mx-franja { animation: sf-sube var(--motion-slow)
 .costura[data-orientacion='horizontal']::before { left: -3px; }
 .costura[data-orientacion='horizontal']::after { right: -3px; }
 
+/* Monograma quieto (PRI-562), sin brillo: quieta = la S grande del 404 en el tono discreto de la ficha; sello = la firma
+ * dorada pequeña junto al logo del pie. Le ganan a .monograma (abajo) por especificidad, venga el brillo de su fondo o
+ * de una capa ::before. */
+.monograma:not([data-variante='brillo']) { animation: none; }
+.monograma:not([data-variante='brillo'])::before { content: none; }
+.monograma[data-variante='quieta'] { background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
+.monograma[data-variante='sello'] { background: var(--color-accent); }
+
 /*
  * Monograma: la S de Serflow (src/assets/monograma-s.svg) como máscara, con un brillo dorado que la recorre despacio.
  * El degradado se repite cada 300 % y las puntas tienen el mismo color: cada vuelta avanza justo un período (-150 % de
