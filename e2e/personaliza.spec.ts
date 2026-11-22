@@ -93,6 +93,20 @@ async function abrir(page: Page) {
   await expect(page.getByText('Tu diseño va aquí')).toBeVisible({ timeout: 15_000 })
 }
 
+/**
+ * Las fotos de prenda que baja la página, con su peso. El peso sale del content-length y no del body: leer el body es
+ * asíncrono, y una foto que llega cuando el test ya cierra (la grande del mockup al enviar, en el celular) lo dejaba rojo
+ * con "response.body: Test ended" (PRI-547).
+ */
+function fotosBajadas(page: Page, re: RegExp) {
+  const fotos: { url: string; bytes: number }[] = []
+  page.on('response', (r) => {
+    const url = new URL(r.url()).pathname
+    if (re.test(url)) fotos.push({ url, bytes: Number(r.headers()['content-length']) })
+  })
+  return fotos
+}
+
 async function subir(page: Page, archivo: { name: string; mimeType: string; buffer: Buffer }) {
   await page.locator('input[type=file]').first().setInputFiles(archivo)
 }
@@ -206,10 +220,7 @@ test.describe('/personaliza', () => {
   test('colores teñidos: cada uno se elige, baja solo su foto y el estampado conserva su color', async ({ page, isMobile }) => {
     const ancho = isMobile ? 390 : 1280
     await page.setViewportSize({ width: ancho, height: isMobile ? 844 : 900 })
-    const prendas: { url: string; bytes: number }[] = []
-    page.on('response', async (r) => {
-      if (/\/camiseta-[^/]*\.webp$/.test(new URL(r.url()).pathname)) prendas.push({ url: new URL(r.url()).pathname, bytes: (await r.body()).length })
-    })
+    const prendas = fotosBajadas(page, /\/camiseta-[^/]*\.webp$/)
     await abrir(page)
     await subir(page, { name: 'jean.png', mimeType: 'image/png', buffer: bloqueJean(400) })
     await expect(page.getByRole('group', { name: /Tu diseño/ })).toBeVisible({ timeout: 15_000 })
@@ -643,10 +654,7 @@ test.describe('/personaliza', () => {
   })
 
   test('rendimiento: baja una sola foto liviana en WebP; la de otro color, solo al pedirla', async ({ page, isMobile }) => {
-    const prendas: { url: string; bytes: number }[] = []
-    page.on('response', async (r) => {
-      if (/\/(camiseta|gorra)-[^/]*\.\w+$/.test(new URL(r.url()).pathname)) prendas.push({ url: new URL(r.url()).pathname, bytes: (await r.body()).length })
-    })
+    const prendas = fotosBajadas(page, /\/(camiseta|gorra)-[^/]*\.\w+$/)
     await abrir(page)
     await expect.poll(() => prendas.length).toBe(1)
     expect(prendas[0].url).toMatch(/\/camiseta-negra\.[^/]*\.webp$/)
