@@ -41,7 +41,7 @@ test('the product page shows name, price, colors and description, with a single 
   await expect(page.getByText(completa.description)).toBeVisible()
   // Es la página, no el muro con el modal.
   await expect(page.getByRole('dialog')).toHaveCount(0)
-  await expect(page.getByRole('link', { name: categoria.label }).first()).toHaveAttribute('href', `/catalogo/${categoria.slug}`)
+  await expect(page.getByRole('link', { name: categoria.label }).first()).toHaveAttribute('href', `/catalogo/${categoria.slug}/`)
 
   // Un solo WhatsApp por pantalla: el botón (escritorio) o la barra fija (celular), sin el flotante.
   const pedir = page.getByRole('link', { name: 'Pedir por WhatsApp' })

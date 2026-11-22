@@ -328,7 +328,7 @@ test.describe('7 · rejilla que se reacomoda', () => {
       const enPantalla = [...document.querySelectorAll<HTMLElement>('[data-fotos] > li > a')].filter((a) => a.getBoundingClientRect().top < innerHeight * 0.9)
       return enPantalla[1].getAttribute('href')!.split('/')[2]
     })
-    return chips(page).and(page.locator(`[href="/catalogo/${categoria}"]`)).first()
+    return chips(page).and(page.locator(`[href="/catalogo/${categoria}/"]`)).first()
   }
 
   /** En el mismo cuadro del swap: cada foto animada, con su nombre de animación y su caja en el arranque. */

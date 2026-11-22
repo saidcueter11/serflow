@@ -29,8 +29,9 @@ function validar(ld: Record<string, any>, canonical: string): string[] {
       pide(ld.name, 'name')
       pide(Array.isArray(ld.image) && ld.image.length && ld.image.every(absoluta), 'image')
       pide(ld.url === canonical, `url = canonical (${ld.url} != ${canonical})`)
-      pide(o?.['@type'] === 'Offer' && o.priceCurrency === 'COP' && o.url === canonical, 'offers')
-      pide(o?.price === undefined || (typeof o.price === 'number' && o.price > 0), 'offers.price')
+      // PRI-555: sin precio no hay offers (Google marca como error un Offer sin price).
+      pide(o === undefined || (o['@type'] === 'Offer' && o.priceCurrency === 'COP' && o.url === canonical), 'offers')
+      pide(o === undefined || (typeof o.price === 'number' && o.price > 0), 'offers.price')
       pide(o?.availability === undefined || [`${SCHEMA}/InStock`, `${SCHEMA}/MadeToOrder`].includes(o.availability), 'offers.availability')
       break
     }
@@ -91,7 +92,7 @@ test.describe('build real', () => {
     const todo = await revisar(page, '/catalogo/')
     expect(todo.lds.map((l) => l['@type'])).toEqual(['BreadcrumbList'])
     const category = (await page.getByRole('navigation', { name: 'Categorías' }).getByRole('link').nth(1).getAttribute('href'))!
-    await revisar(page, `${category}/`)
+    await revisar(page, category)
     const foto = (await page.locator('main [data-fotos] a').first().getAttribute('href'))!
 
     const ficha = await revisar(page, foto)
@@ -130,12 +131,12 @@ test.describe('promo sembrada', () => {
 
 test.describe('precio en el JSON-LD (build del modal)', () => {
   test.use({ baseURL: 'http://localhost:4240' })
-  test('offers carries the admin price in COP, and no price when there is none', async ({ page, isMobile }) => {
+  test('offers carries the admin price in COP, and there is no offer without a price', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Same HTML on both viewports')
     const base = `/catalogo/${MODAL.categoria.slug}`
     const conPrecio = (await revisar(page, `${base}/${MODAL.completa.slug}/`)).lds.find((l) => l['@type'] === 'Product')
     expect(conPrecio.offers).toMatchObject({ priceCurrency: 'COP', price: MODAL.completa.price })
     const sinPrecio = (await revisar(page, `${base}/${MODAL.cero.slug}/`)).lds.find((l) => l['@type'] === 'Product')
-    expect(sinPrecio.offers.price).toBeUndefined()
+    expect(sinPrecio).not.toHaveProperty('offers')
   })
 })

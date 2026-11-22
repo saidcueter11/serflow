@@ -99,7 +99,7 @@ test('hero carousel full-bleed with 4 photos, sections in the new order, folded 
 
   await expect(page.locator('.anim-ticker')).toHaveCount(0)
   await expect(page.locator('main').getByText('Nuevo', { exact: true })).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Diseñar mi prenda' })).toHaveAttribute('href', '/personaliza')
+  await expect(page.getByRole('link', { name: 'Diseñar mi prenda' })).toHaveAttribute('href', '/personaliza/')
   // Mapa plegado: el de Google no se pinta hasta tocarlo.
   await expect(page.locator('#visitanos details')).not.toHaveAttribute('open')
   await expect(page.locator('#visitanos').getByTitle('Mapa de Serflow en Cartagena')).toBeHidden()

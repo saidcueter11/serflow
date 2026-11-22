@@ -50,17 +50,20 @@ export function HeroCarousel({ slides, children, className = '' }: { slides: Sli
       {css && <style>{css}</style>}
       {slides.map((s, i) => (
         <figure key={s.src} className={`${n > 1 ? 'anim-slide' : ''} absolute inset-0 m-0`} style={delay(i)} aria-hidden={i !== 0 || undefined}>
-          <img
-            src={s.src}
-            srcSet={s.srcSet}
-            sizes={s.sizes}
-            alt={s.alt}
-            loading={i === 0 ? 'eager' : 'lazy'}
-            fetchPriority={i === 0 ? 'high' : undefined}
-            decoding="async"
-            className="anim-zoom h-full w-full object-cover"
-            style={{ objectPosition: s.position }}
-          />
+          {/* En <picture> React no emite su propio preload (PRI-555): la página ya precarga la primera en el <head>. */}
+          <picture className="contents">
+            <img
+              src={s.src}
+              srcSet={s.srcSet}
+              sizes={s.sizes}
+              alt={s.alt}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : undefined}
+              decoding="async"
+              className="anim-zoom h-full w-full object-cover"
+              style={{ objectPosition: s.position }}
+            />
+          </picture>
         </figure>
       ))}
       <div className="hero-velo pointer-events-none absolute inset-0" />
