@@ -77,6 +77,8 @@ test('desktop: "‹ Categoría" sits above the photo, aligned with the gallery a
   await expect(volver).toHaveCount(1)
   // PRI-550: en la columna de la información quedaba chiquito y encima de la S.
   await expect(page.getByRole('heading', { level: 1 }).locator('..').getByRole('link', { name: categoria.label, exact: true })).toHaveCount(0)
+  // La galería entra creciendo (gp-crece, scale 0.97): se mide cuando ya llegó, no a mitad de camino.
+  await page.locator('[data-galeria]').evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
   const link = (await volver.boundingBox())!
   const galeria = (await page.locator('[data-galeria]').boundingBox())!
   expect(link.height).toBeGreaterThanOrEqual(44)
@@ -135,11 +137,12 @@ test('desktop: the magnifier panel shows the zone under the frame, opaque and wi
     page.evaluate(() => {
       const f = document.querySelector<HTMLElement>('.gp-foto')!
       const img = f.querySelector('img')!
-      const l = getComputedStyle(f.querySelector('.gp-lente')!)
+      // El recuadro se mueve con transform (PRI-556).
+      const l = new DOMMatrix(getComputedStyle(f.querySelector('.gp-lente')!).transform)
       const c = Math.max(f.offsetWidth / img.naturalWidth, f.offsetHeight / img.naturalHeight)
       const ox = (f.offsetWidth - img.naturalWidth * c) / 2
       const oy = (f.offsetHeight - img.naturalHeight * c) / 2
-      return [(ox - parseFloat(l.left)) * 2.5, (oy - parseFloat(l.top)) * 2.5]
+      return [(ox - l.e) * 2.5, (oy - l.f) * 2.5]
     })
   const fondo = () => lupa.evaluate((el) => getComputedStyle(el).backgroundPosition.split(' ').map(parseFloat))
 

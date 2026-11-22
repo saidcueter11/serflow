@@ -36,17 +36,20 @@ function PhotoCount({ n }: { n: number }) {
 function Tile({ t }: { t: MasonryTile }) {
   return (
     <a href={t.href} id={t.id} className={`group sf-foto relative block scroll-mt-4 overflow-hidden rounded-tile bg-surface-2 ${FOCUS}`}>
-      <img
-        src={t.img.src}
-        srcSet={t.img.srcSet}
-        sizes={SIZES}
-        alt={t.img.alt}
-        width={400}
-        height={500}
-        loading="lazy"
-        decoding="async"
-        className="fabric aspect-[4/5] h-auto w-full object-cover"
-      />
+      {/* La foto en su propio marco: es la que crece hasta la ficha (movimiento.ts), sin la etiqueta ni la flecha (PRI-556). */}
+      <span className="block overflow-hidden rounded-tile">
+        <img
+          src={t.img.src}
+          srcSet={t.img.srcSet}
+          sizes={SIZES}
+          alt={t.img.alt}
+          width={400}
+          height={500}
+          loading="lazy"
+          decoding="async"
+          className="fabric aspect-[4/5] h-auto w-full object-cover"
+        />
+      </span>
       <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-primary/80 to-transparent opacity-0 transition-opacity duration-(--motion-med) group-hover:opacity-100 group-focus-visible:opacity-100" />
       <span
         aria-hidden="true"
