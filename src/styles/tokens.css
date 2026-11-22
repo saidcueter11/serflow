@@ -349,9 +349,6 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
 .pf-hero:has(.hero-barras) .pf-hero-texto { padding-bottom: 52px; }
 /* PRI-535: fondo desenfocado de la portada entera; solo desktop. */
 .pf-promo-fondo { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-/* Detalle de promo (PRI-523): la portada abre el modal; el texto deja pasar el toque, el botón no. */
-.pf-promo-hero .pf-hero-texto { pointer-events: none; }
-.pf-promo-hero .pf-hero-texto a { pointer-events: auto; }
 @container pf (min-width: 48rem) {
   .pf-hero { height: 720px; }
   .pf-hero-texto { padding-bottom: 56px; gap: 20px; }
@@ -466,17 +463,14 @@ li.sf-llega { animation: sf-llega var(--motion-viaje) var(--ease-premium) calc(v
   .pf-promo-botones { flex-direction: row; }
 }
 
-/* Más fotos: siempre una fila llena. Celular: 2 de 4:5 (una sola, 4:3 a lo ancho). Desktop: hasta 4 por fila;
-   1 -> 21:9, 2 -> 4:3, 3 o 4 -> 1:1. */
-.pf-mas-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--pf-g); }
-.pf-mas-fotos img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius-tile); background: var(--color-surface-2); }
-.pf-mas-fotos[data-n='1'] { grid-template-columns: minmax(0, 1fr); }
-.pf-mas-fotos[data-n='1'] img { aspect-ratio: 4 / 3; }
+/* Más fotos: siempre una fila llena. Celular: 2 por fila (una sola, a lo ancho). Desktop: hasta 4 por fila.
+   PRI-566: cada foto entera, en su proporción (--r, PromoDetailPage). Con pocas fotos verticales la fila se angosta
+   (centrada) para que la más angosta (--rmin) no pase del 80 % del alto de la pantalla. */
+.pf-mas-fotos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--pf-g); max-width: calc(80svh * var(--rmin) * 2 + var(--pf-g)); margin-inline: auto; }
+.pf-mas-fotos img { display: block; width: 100%; aspect-ratio: var(--r, 0.8); object-fit: cover; border-radius: var(--radius-tile); background: var(--color-surface-2); }
+.pf-mas-fotos[data-n='1'] { grid-template-columns: minmax(0, 1fr); max-width: calc(80svh * var(--rmin)); }
 @container pf (min-width: 48rem) {
-  .pf-mas-fotos { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
-  .pf-mas-fotos img { aspect-ratio: 1 / 1; }
-  .pf-mas-fotos[data-n='2'] img { aspect-ratio: 4 / 3; }
-  .pf-mas-fotos[data-n='1'] img { aspect-ratio: 21 / 9; }
+  .pf-mas-fotos, .pf-mas-fotos[data-n='1'] { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); max-width: calc(80svh * var(--rmin) * var(--n) + (var(--n) - 1) * var(--pf-g)); }
 }
 
 /* Tarjetas de promo (Otras promos y la 404, PromoGrid): una debajo de otra; en desktop una fila llena. */
@@ -613,7 +607,9 @@ dialog.mx-sale .mx-velo { animation: mx-apaga var(--motion-vuelve) var(--ease-ou
   /* La foto ocupa el ancho menos 32 por lado; de la anterior y la siguiente se ven 24 (PRI-433: con 12 no se notaban), y
      son botones. */
   .mx-pista { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; animation: sf-sube var(--motion-slow) var(--ease-premium) both; touch-action: pan-y; container-type: size; }
-  .mx-marco { width: min(100cqw - 64px, 100cqh * var(--mx-r, 0.8)); }
+  /* PRI-566: el mismo alto para todas las fotos de la prenda, el que deja la más ancha (--mx-rmax, photo-modal.ts); el
+     ancho sale de la proporción de cada una. */
+  .mx-marco { height: min(100cqh, (100cqw - 64px) / var(--mx-rmax, var(--mx-r, 0.8))); }
   .mx-vecina { display: block; position: absolute; top: 50%; translate: 0 -50%; width: calc(100cqw - 64px); opacity: 0.6; }
   .mx-vecina img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-tile); }
   /* La orilla se ve de 24 pero se toca en 32. */

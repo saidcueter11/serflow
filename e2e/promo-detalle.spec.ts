@@ -44,11 +44,11 @@ test('mobile: the cover fills the hero and keeps most of the photo', async ({ pa
 test('the cover is not repeated in the photo modal: it walks only the product photos', async ({ page }) => {
   await page.goto('/promos/e2e-2x1-gorras')
   const cover = await portada(page).getAttribute('src')
-  const fotos: { src: string }[] = JSON.parse((await page.locator('.pf-promo-hero a[data-foto]').getAttribute('data-foto'))!).fotos
+  const fotos: { src: string }[] = JSON.parse((await page.locator('#mas-fotos a[data-foto]').first().getAttribute('data-foto'))!).fotos
   expect(fotos.map((f) => f.src)).not.toContain(cover)
   expect(fotos.map((f) => f.src)).toEqual(await page.locator('#mas-fotos img').evaluateAll((imgs) => imgs.map((i) => i.getAttribute('src'))))
 
-  await page.locator('.pf-promo-hero h1').click({ force: true })
+  await page.locator('#mas-fotos a').first().click()
   await expect(page.getByRole('dialog').locator('.mx-puntos span')).toHaveCount(4)
   await expect(page.getByRole('dialog').locator('.mx-foto')).not.toHaveAttribute('src', cover!)
 })
