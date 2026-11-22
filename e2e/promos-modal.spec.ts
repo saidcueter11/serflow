@@ -38,19 +38,12 @@ test('detail: a photo of Más fotos opens the modal on that photo and walks the 
   await expect(page).toHaveURL(/\/promos\/e2e-2x1-gorras\/?$/)
 })
 
-test('detail: the hero photo opens the modal on the first product photo, and its WhatsApp button still goes to WhatsApp', async ({ page }) => {
+test('detail: the WhatsApp button of the hero still goes to WhatsApp (the cover opens nothing, PRI-566)', async ({ page }) => {
   await page.goto('/promos/e2e-2x1-gorras')
-  // trial: el botón recibe el toque (el link de la foto no lo tapa), sin abrir WhatsApp.
+  // trial: el botón recibe el toque, sin abrir WhatsApp.
   await page.locator('.pf-promo-hero').getByRole('link', { name: 'Pedir esta promo por WhatsApp' }).click({ trial: true })
-  // Encima del título: el texto del hero deja pasar el toque a la foto (force: el click cae en el link que la cubre).
-  await page.locator('.pf-promo-hero h1').click({ force: true })
-
-  await expect(dialog(page)).toBeVisible()
-  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas')
-  await expect(dialog(page).locator('.mx-puntos span')).toHaveCount(4)
-  await expect(dialog(page).locator('.mx-barra')).toBeHidden()
-  await page.keyboard.press('ArrowRight')
-  await expect(foto(page)).toHaveAttribute('alt', '2x1 en gorras bordadas, foto 2 de 4')
+  await page.locator('.pf-promo-hero h1').click()
+  await expect(dialog(page)).toBeHidden()
 })
 
 test('/promos: the photo of a promo opens the modal and the arrows go to the next promo', async ({ page }) => {

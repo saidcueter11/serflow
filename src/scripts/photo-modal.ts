@@ -72,6 +72,7 @@ function pintar(d: HTMLDialogElement, e: Estado, dir: 1 | 0 | -1 = 0) {
   if (dir) marco.querySelector('.mx-mini')?.remove()
   if (dir && !marco.hasAttribute('data-cargando')) despedir(marco, img)
   marco.style.setProperty('--mx-r', String(foto.r ?? 0.8))
+  marco.style.setProperty('--mx-rmax', String(Math.max(...f.fotos.map((x) => x.r ?? 0.8))))
   marco.setAttribute('data-cargando', '')
   img.classList.remove('mx-entra')
   void img.offsetWidth // Para que mx-entra vuelva a empezar en la foto siguiente.
