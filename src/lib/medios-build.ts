@@ -1,6 +1,6 @@
 // La parte de medios.ts que necesita a Astro: las fotos de la base pasan por la misma optimización que las del repo.
 import type { ImageMetadata } from 'astro'
-import { getImage } from 'astro:assets'
+import { getImage, inferRemoteSize } from 'astro:assets'
 import { armarColores, fotoDeFrente, recortarColores, type FotoOptimizada } from './personaliza/base'
 import type { ColorPrenda, Prenda } from './personaliza/datos'
 import { getGarmentColors, getSiteMedia, leerFotoRemota, type Lugar } from './medios'
@@ -26,6 +26,21 @@ export async function fotoRemota(url: string, { width, widths, quality = 72 }: F
   const h = Math.round((w * medida.height) / medida.width)
   const img = await getImage({ src: url, width: w, height: h, widths: anchos, format: 'webp', quality })
   return { src: img.src, srcSet: anchos && img.srcSet.attribute, ratio: w / h }
+}
+
+/**
+ * Medida de una foto de Storage (inferRemoteSize) con dos reintentos: un corte de red al bajarla tumbaba el build
+ * (PRI-552). Si sigue fallando, o es otro error (host no permitido, no es una imagen), el build se cae igual.
+ */
+export async function medirFoto(url: string) {
+  for (let intento = 1; ; intento++) {
+    try {
+      return await inferRemoteSize(url)
+    } catch (e) {
+      if (intento === 3 || (e as Error).name !== 'FailedToFetchRemoteImageDimensions') throw e
+      await new Promise((ok) => setTimeout(ok, 1000 * intento))
+    }
+  }
 }
 
 /** La foto publicada de un lugar con su alt, o null si no hay o no sirve. */

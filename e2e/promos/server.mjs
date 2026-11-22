@@ -3,12 +3,23 @@
 // (0, 1 y 3 promos) y se sirve cada build en su puerto. Lo arranca Playwright (webServer en playwright.config.ts).
 import 'dotenv/config'
 import { spawn } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
+import { writeFileSync } from 'node:fs'
 import http from 'node:http'
 import { SCENARIOS } from './scenarios.mjs'
 
 const REAL = process.env.PUBLIC_SUPABASE_URL
 const KEY = process.env.PUBLIC_SUPABASE_ANON_KEY
 if (!REAL || !KEY) throw new Error('Missing PUBLIC_SUPABASE_URL / PUBLIC_SUPABASE_ANON_KEY')
+
+// PRI-552: otro server en estos puertos (el dev o el E2E de otro agente) se llevaría los tests. Antes de construir.
+const MARCA = 'e2e-build.txt'
+const marcaDelRun = randomUUID()
+const ocupado = (port) =>
+  new Error(`Port ${port} is already in use by another server; stop it before running the seeded E2E (ports ${SCENARIOS.map((s) => s.port).join(', ')}).`)
+for (const s of SCENARIOS) {
+  if (await fetch(`http://localhost:${s.port}/`).then(() => true, () => false)) throw ocupado(s.port)
+}
 
 // Fotos de productos reales: así las promos sembradas pasan por la misma optimización de imágenes que en prod.
 // Sin el producto "prueba": su foto tiene datos personales y el repo es público (capturas de PR, PRI-159).
@@ -77,9 +88,17 @@ proxy.close()
 
 // Uno tras otro: cuando Playwright ve el último puerto, los anteriores ya responden. Desde astro 7 hay un solo preview
 // por proyecto (el de 4231); --ignore-lock deja correr estos a su lado.
+// PRI-552: con el puerto ocupado, astro preview se corre al siguiente sin fallar. Solo vale el server que sirve la marca
+// de este run; cualquier otra respuesta es un server ajeno y los tests le pegarían a él.
 for (const s of SCENARIOS) {
-  spawn('npx', ['astro', 'preview', '--ignore-lock', '--outDir', s.outDir, '--port', String(s.port)], { stdio: 'inherit' })
-  while (!(await fetch(`http://localhost:${s.port}/`).then((r) => r.ok, () => false))) {
+  writeFileSync(`${s.outDir}/${MARCA}`, marcaDelRun)
+  let salio = null
+  spawn('npx', ['astro', 'preview', '--ignore-lock', '--outDir', s.outDir, '--port', String(s.port)], { stdio: 'inherit' }).on('exit', (code, signal) => (salio = code ?? signal))
+  for (;;) {
+    if (salio !== null) throw new Error(`astro preview on port ${s.port} exited ${salio}`)
+    const marca = await fetch(`http://localhost:${s.port}/${MARCA}`).then((r) => r.text(), () => null)
+    if (marca === marcaDelRun) break
+    if (marca !== null) throw ocupado(s.port)
     await new Promise((ok) => setTimeout(ok, 300))
   }
 }
